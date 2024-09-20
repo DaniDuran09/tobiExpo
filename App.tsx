@@ -1,12 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+import { NavigationContainer } from '@react-navigation/native';
+import RootStackScreen from './navigation/RootStackScreen';
+import Toast from 'react-native-toast-message';
+import { toastConfig } from './utils/toastConfig';
 
-export default function App() {
+export default function App(): React.JSX.Element {
+  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <NavigationContainer>
+        <RootStackScreen />
+        <Toast position="top" config={toastConfig} visibilityTime={4000} />
+      </NavigationContainer>
+    </Provider>
   );
 }
 
