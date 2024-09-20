@@ -83,6 +83,7 @@ const ScreenMaps = ({ route, navigation }) => {
                 >
                     <Marker title={item?.name} description={item?.description} image={require('../assets/point.png')} coordinate={{ latitude: parseFloat(item?.latitude), longitude: parseFloat(item?.longitude) }} />
                 </MapView> */}
+                {/* arreglaaste el mapa */}
                 <View style={{ height: '10%', width: '90%', justifyContent: 'center', alignItems: 'flex-start', flexDirection: 'row' }}>
                     <TouchableWithoutFeedback onPress={() => setModal(true)}>
                         <View style={{ height: 40, width: '100%', backgroundColor: '#EF4136', borderRadius: 5, justifyContent: 'center', marginBottom: 15 }}>
