@@ -17,7 +17,8 @@ import phone from "../../../assets/phone-icon.png";
 import card from "../../../assets/card-icon.png";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
-// import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapViewComponent from "../../partners/MapViewComponent";
 
 const ResumeDate = ({navigation}) => {
   return (
@@ -72,26 +73,12 @@ const ResumeDate = ({navigation}) => {
           <View style={styles.section}>
             <Text style={styles.textSection}>Pet Xclusive</Text>
             <View style={styles.mapCompanyContain}>
-              {/* <MapView
-                provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-                style={{ height: "85%", width: "100%", marginBottom: 15 }}
-                region={{
-                  latitude: parseFloat(19.4093655),
-                  longitude: parseFloat(-99.171775),
-                  latitudeDelta: 0.015,
-                  longitudeDelta: 0.0121,
-                }}
-              >
-                <Marker
-                  title={"El lugar"}
-                  description={"item.partner.description"}
-                  image={require("../../../assets/marker.png")}
-                  coordinate={{
-                    latitude: parseFloat(19.4093655),
-                    longitude: parseFloat(-99.171775),
-                  }}
-                />
-              </MapView> */}
+              <MapViewComponent
+                latitude={19.4093655}
+                longitude={-99.171775}
+                title={"El lugar"}
+                description={item.partner.description}
+              />
             </View>
           </View>
           <View style={styles.section}>

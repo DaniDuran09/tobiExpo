@@ -18,6 +18,7 @@ import AppStorage from '../../modules/AppStorage';
 import {getPartensId} from '../../services';
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import ApiFetcher from '../../modules/ApiFetcher';
+import MapViewComponent from './MapViewComponent';
 
 const PartnersGeneralInfo = ({route}) => {
   const {id, type} = route.params;
@@ -162,25 +163,12 @@ const PartnersGeneralInfo = ({route}) => {
               <Text style={styles.itemTitle}>Detalles</Text>
               <Text style={styles.itemDirection}>Dirección</Text>
               <View style={styles.mapCompanyContain}>
-                {/* <MapView
-                  provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-                  style={{height: '85%', width: '100%', marginBottom: 15}}
-                  region={{
-                    latitude: parseFloat(item.partner.latitude),
-                    longitude: parseFloat(item.partner.longitude),
-                    latitudeDelta: 0.015,
-                    longitudeDelta: 0.0121,
-                  }}>
-                  <Marker
-                    title={item.partner.name}
-                    description={item.partner.description}
-                    image={require('../../assets/marker.png')}
-                    coordinate={{
-                      latitude: parseFloat(item.partner.latitude),
-                      longitude: parseFloat(item.partner.longitude),
-                    }}
-                  />
-                </MapView> */}
+                <MapViewComponent
+                  latitude={item.partner.latitude}
+                  longitude={item.partner.longitude}
+                  title={item.partner.name}
+                  description={item.partner.description}
+                />
               </View>
               <Text style={styles.itemDirection}>Información adicional</Text>
               <View style={styles.extraInfo}>

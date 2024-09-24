@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, Linking, StyleSheet, Platform, PermissionsAndroid, Dimensions, TouchableWithoutFeedback, Image, Modal } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapViewComponent from './partners/MapViewComponent';
 
 const { width, height } = Dimensions.get('window');
 
@@ -71,19 +73,12 @@ const ScreenMaps = ({ route, navigation }) => {
                         <Text style={{ color: 'black' }}>{`${address?.street}, #${address?.number}, ${address?.city}, ${address?.state}, ${address?.postal_code}`}</Text>
                     </View>
                 </View>
-                {/* <MapView
-                    provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-                    style={{ height: '50%', width: '90%', marginBottom: 15 }}
-                    region={{
-                        latitude: parseFloat(item?.latitude),
-                        longitude: parseFloat(item?.longitude),
-                        latitudeDelta: 0.015,
-                        longitudeDelta: 0.0121,
-                    }}
-                >
-                    <Marker title={item?.name} description={item?.description} image={require('../assets/point.png')} coordinate={{ latitude: parseFloat(item?.latitude), longitude: parseFloat(item?.longitude) }} />
-                </MapView> */}
-                {/* arreglaaste el mapa */}
+                <MapViewComponent
+                    latitude={item?.latitude}
+                    longitude={item?.longitude}
+                    title={item?.name}
+                    description={item?.description}
+                />
                 <View style={{ height: '10%', width: '90%', justifyContent: 'center', alignItems: 'flex-start', flexDirection: 'row' }}>
                     <TouchableWithoutFeedback onPress={() => setModal(true)}>
                         <View style={{ height: 40, width: '100%', backgroundColor: '#EF4136', borderRadius: 5, justifyContent: 'center', marginBottom: 15 }}>
