@@ -6,6 +6,7 @@ import {
   Image,
   SafeAreaView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import Nutrition from './nutrition/Nutrition';
@@ -80,7 +81,7 @@ const HomeProfileDetails = ({route, navigation}) => {
           navigationState={{index, routes}}
           renderScene={renderScene}
           onIndexChange={setIndex}
-          initialLayout={{width: '100%'}}
+          initialLayout={{ width: Dimensions.get('window').width }}
           renderTabBar={renderTabBar}
         />
       

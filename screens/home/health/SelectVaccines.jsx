@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   Image,
@@ -8,7 +7,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DatePicker from 'react-native-date-picker';
+// import DatePicker from 'react-native-date-picker';
 import {Colors} from '../../../styles/Colors';
 import {Dropdown} from 'react-native-element-dropdown';
 import {useNavigation} from '@react-navigation/native';
@@ -18,6 +17,7 @@ import Loading from '../../../components/Loading';
 import {formatDateToDDMMYYYY} from '../../../utils/scripts';
 import Toast from 'react-native-toast-message';
 import EmptyVaccines from '../../../components/vaccines/EmptyVaccines';
+import { Checkbox, Text } from 'react-native-ui-lib';
 
 const SelectVaccines = props => {
   const {petId, onSaveVaccines} = props;
@@ -159,7 +159,7 @@ const SelectVaccines = props => {
         <View style={styles.containerSelectSection}>
           {vaccines.length > 0 ?
           <>
-          <Text style={styles.selectText}>
+          <Text text70>
             1. Selecciona las vacunas que tiene tu mascota
           </Text>
           <View style={styles.containerVaccinesSections}>
@@ -172,7 +172,8 @@ const SelectVaccines = props => {
               {vaccines.map(vaccine => (
                 <View key={vaccine.id} style={styles.vaccine}>
                   <View style={{marginTop: 5}}>
-                    <BouncyCheckbox
+                  
+                    {/* <BouncyCheckbox
                       value={true}
                       size={20}
                       fillColor="#EF4136"
@@ -188,7 +189,8 @@ const SelectVaccines = props => {
                           ),
                         );
                       }}
-                    />
+                    /> */}
+                    {/* <Checkbox value={false} onValueChange={() => console.log('value changed')}/> */}
                   </View>
                   <View>
                     <Text style={styles.vaccineName}>{vaccine.name}</Text>
@@ -210,7 +212,7 @@ const SelectVaccines = props => {
                           : 'Fecha de aplicación'}
                       </Text>
                     </TouchableOpacity>
-                    <DatePicker
+                    {/* <DatePicker
                       modal
                       open={vaccine.open}
                       date={vaccine.date || new Date()}
@@ -237,7 +239,7 @@ const SelectVaccines = props => {
                       mode={'date'}
                       maximumDate={new Date()}
                       title={'Fecha de aplicación'}
-                    />
+                    /> */}
                     <TouchableOpacity
                       disabled={!vaccine.isChecked}
                       style={[

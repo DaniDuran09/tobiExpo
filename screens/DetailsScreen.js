@@ -20,6 +20,7 @@ import AppStorage from '../modules/AppStorage';
 import Loading from '../components/Loading';
 import Toast from 'react-native-toast-message';
 import ScreenServerError from '../components/ScreenServerError';
+import ScreenInternetError from '../components/ScreenInternetError';
 
 const {width, height} = Dimensions.get('window');
 
@@ -114,8 +115,8 @@ const DetailsScreen = ({navigation}) => {
         />
       )}
       {error ? (
-        <ScreenServerError refetch={blog}/>
-        // <ScreenInternetError action={blog}/>
+        // <ScreenServerError refetch={blog}/>
+        <ScreenInternetError action={blog}/>
       ) : (
         <View style={{width: width, height: '80%'}}>
           <FlatList
