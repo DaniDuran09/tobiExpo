@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Image,
   RefreshControl,
   SafeAreaView,
+  Alert,
+  BackHandler,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {Avatar} from 'react-native-paper';
@@ -59,8 +61,29 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('¿Estás seguro que quieres salir?', '', [
+        {
+          text: 'Cancelar',
+          onPress: () => null,
+        },
+        {
+          text: 'Salir',
+          onPress: () => BackHandler.exitApp(),
+        },
+      ]);
+      return true;
+    };
+    
+    const backHandlerListener = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandlerListener.remove();
+  }, []);
+
   const renderItem = item => {
-    // const weightPercentage = calculateOverweightPercentage(item.weight)
     return (
       <View>
         <View
