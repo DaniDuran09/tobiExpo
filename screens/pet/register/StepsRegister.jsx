@@ -5,26 +5,27 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import StepIndicator from 'react-native-step-indicator';
-import {Colors} from '../../../styles/Colors';
-import {customStyles} from '../../../styles/GlobalStyles';
-import RegisterNewPet from './RegisterNewPet';
-import SecondScreenRegisterPet from './SecondScreenRegisterPet';
-import {useDispatch, useSelector} from 'react-redux';
-import FinalScreenRegisterPet from './FinalScreenRegisterPet';
-import ApiFetcher from '../../../modules/ApiFetcher';
-import {setPetInfo} from '../../../redux/slice/petSlice';
-import {formatDateToDDMMYYYY} from '../../../utils/scripts';
-import {useNavigation} from '@react-navigation/native';
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import StepIndicator from "react-native-step-indicator";
+import { Colors } from "../../../styles/Colors";
+import { customStyles } from "../../../styles/GlobalStyles";
+import RegisterNewPet from "./RegisterNewPet";
+import SecondScreenRegisterPet from "./SecondScreenRegisterPet";
+import { useDispatch, useSelector } from "react-redux";
+import FinalScreenRegisterPet from "./FinalScreenRegisterPet";
+import ApiFetcher from "../../../modules/ApiFetcher";
+import { setPetInfo } from "../../../redux/slice/petSlice";
+import { formatDateToDDMMYYYY } from "../../../utils/scripts";
+import { useNavigation } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const StepsRegister = () => {
-  const labels = ['1', '2', '3'];
+  const labels = ["1", "2", "3"];
   const [currentPosition, setCurrentPosition] = useState(0);
   const [pet, setPet] = useState(1);
-  const petInfo = useSelector(store => store.pet.info);
-  const picturePet = useSelector(store => store.pet.picture);
+  const petInfo = useSelector((store) => store.pet.info);
+  const picturePet = useSelector((store) => store.pet.picture);
   const [idPet, setIdPet] = useState(0);
   const [loading, setLoading] = useState(false);
 
@@ -32,27 +33,32 @@ const StepsRegister = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    console.log('El petInfo: ', petInfo);
+    console.log("El petInfo: ", petInfo);
   }, []);
 
   const savePet = async () => {
     setLoading(true);
     try {
-      console.log('Lo que mando a guardar: ', petInfo);
+      console.log("Lo que mando a guardar: ", petInfo);
       const response = await apiFetcher.registerPet(petInfo);
-      console.log('La respuesta: ', response);
+      console.log("La respuesta: ", response);
       if (response.code == 200) {
-        console.log('Guardo la info para: ', response.data.id);
+        console.log("Guardo la info para: ", response.data.id);
         setIdPet(response.data.id);
       } else {
-        console.log('Algo malo paso');
+        console.log("Algo malo paso");
       }
     } catch (error) {
-      console.log('Ocurrió un error: ', error);
-      Alert.alert(
-        'Ocurrió un problema al querer guardar a la mascota',
-        'Inténtelo de nuevo más tarde',
-      );
+      console.log("Ocurrió un error: ", error);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Profile" }],
+      }),
+        Toast.show({
+          type: "error",
+          text1: "Ocurrió un error al guardar la mascota",
+          text2: `Inténtelo de nuevo más tarde`,
+        });
     } finally {
       setLoading(false);
     }
@@ -61,55 +67,57 @@ const StepsRegister = () => {
   const updatePicturePet = async () => {
     setLoading(true);
     try {
-      console.log('Lo que intento transformar: ', picturePet);
+      console.log("Lo que intento transformar: ", picturePet);
       const formData = new FormData();
-      formData.append('picture', {
+      formData.append("picture", {
         uri: picturePet.uri,
         type: picturePet.type,
         name: picturePet.fileName,
       });
-      console.log('El formdata: ', formData._parts);
+      console.log("El formdata: ", formData._parts);
       const response = await apiFetcher.updatePicturePet(idPet, formData);
-      console.log('Response: ', response);
+      console.log("Response: ", response);
     } catch (error) {
-      console.log('Ocurrió un error: ', error);
+      console.log("Ocurrió un error: ", error);
     } finally {
       setLoading(false);
     }
   };
 
   const finalScreen = () => {
-    navigation.navigate('Success', {
-      text: 'Nueva mascota añadida con éxito',
+    navigation.navigate("Success", {
+      text: "Nueva mascota añadida con éxito",
       action: () =>
         navigation.reset({
           index: 0,
-          routes: [{name: 'Profile'}],
+          routes: [{ name: "Profile" }],
         }),
     });
   };
 
-  const nextStep = async step => {
+  const nextStep = async (step) => {
     switch (step) {
       case 0:
-        if (petInfo.name.length > 1 && petInfo.birthday != '')
-          setCurrentPosition(prev => Math.min(prev + 1, labels.length - 1));
+        if (petInfo.name.length > 1 && petInfo.birthday != "")
+          setCurrentPosition((prev) => Math.min(prev + 1, labels.length - 1));
         else
-          Alert.alert(
-            'Datos incompletos',
-            'Por favor complete todos los campos',
-          );
+          Toast.show({
+            type: "error",
+            text1: "Datos incompletos",
+            text2: `Por favor complete todos los campos`,
+          });
         break;
       case 1:
-        console.log('Entro al 2: ', petInfo);
+        console.log("Entro al 2: ", petInfo);
         if (petInfo.pet_breed_id != 0 && petInfo.weight != 0) {
           await savePet();
-          setCurrentPosition(prev => Math.min(prev + 1, labels.length - 1));
+          setCurrentPosition((prev) => Math.min(prev + 1, labels.length - 1));
         } else
-          Alert.alert(
-            'Datos incompletos',
-            'Por favor complete todos los campos',
-          );
+          Toast.show({
+            type: "error",
+            text1: "Datos incompletos",
+            text2: `Por favor complete todos los campos`,
+          });
         break;
       case 2:
         await updatePicturePet();
@@ -127,7 +135,7 @@ const StepsRegister = () => {
       case 1:
         return <SecondScreenRegisterPet pet={pet} />;
       case 2:
-        return <FinalScreenRegisterPet backgroundColor={Colors.white}/>;
+        return <FinalScreenRegisterPet backgroundColor={Colors.white} />;
       default:
         return null;
     }
@@ -138,13 +146,14 @@ const StepsRegister = () => {
       <View style={styles.stepContent}>{renderStepContent()}</View>
       <View
         style={{
-          position: 'absolute',
-          bottom: '3%',
-          width: '100%',
-          justifyContent: 'center',
-          alignSelf: 'center',
-          backgroundColor: Colors.white
-        }}>
+          position: "absolute",
+          bottom: "3%",
+          width: "100%",
+          justifyContent: "center",
+          alignSelf: "center",
+          backgroundColor: Colors.white,
+        }}
+      >
         <StepIndicator
           customStyles={customStyles}
           currentPosition={currentPosition}
@@ -154,12 +163,13 @@ const StepsRegister = () => {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.buttonNext}
-            onPress={() => nextStep(currentPosition)}>
+            onPress={() => nextStep(currentPosition)}
+          >
             {loading ? (
-              <ActivityIndicator color={Colors.white} size={'small'} />
+              <ActivityIndicator color={Colors.white} size={"small"} />
             ) : (
               <Text style={styles.textNext}>
-                {currentPosition != 2 ? 'Siguiente' : 'Guardar perfil'}
+                {currentPosition != 2 ? "Siguiente" : "Guardar perfil"}
               </Text>
             )}
           </TouchableOpacity>
@@ -190,28 +200,28 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   stepContent: {
-    backgroundColor: 'red',
-    width: '100%',
-    height: '70%',
+    backgroundColor: "red",
+    width: "100%",
+    height: "70%",
   },
   buttonsContainer: {},
   button: {
     fontSize: 16,
-    color: '#007bff',
+    color: "#007bff",
   },
   buttonNext: {
     marginTop: 30,
     height: 60,
-    width: '90%',
-    alignSelf: 'center',
-    backgroundColor: '#EF4136',
+    width: "90%",
+    alignSelf: "center",
+    backgroundColor: "#EF4136",
     borderRadius: 65,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   textNext: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 16,
-    color: 'white',
-    fontWeight: '700',
+    color: "white",
+    fontWeight: "700",
   },
 });
