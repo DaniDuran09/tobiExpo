@@ -16,6 +16,7 @@ import dewormingImage from '../../../assets/vet-option2.png';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import despa from '../../../assets/despa-black.png';
 import DatePicker from 'react-native-date-picker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 import ChallengeModal from '../../../components/ChallengeModal';
 import FinishScreen from './FinishScreen';
 import {Dropdown} from 'react-native-element-dropdown';
@@ -149,7 +150,7 @@ const Health = (props) => {
                     <TouchableOpacity
                       style={styles.textInput}
                       onPress={() => setOpen(true)}>
-                      <DatePicker
+                      {/* <DatePicker
                         modal
                         open={open}
                         date={date}
@@ -162,7 +163,7 @@ const Health = (props) => {
                         locale={'es'}
                         mode={'date'}
                         title={'Elegir fecha'}
-                      />
+                      /> */}
                       <Text style={styles.vaccineName}>
                         {data.date === ''
                           ? 'Elegir fecha'

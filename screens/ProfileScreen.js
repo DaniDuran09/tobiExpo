@@ -1,7 +1,6 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   Dimensions,
   StyleSheet,
@@ -13,28 +12,28 @@ import {
   ImageBackground,
   Modal,
   Platform,
-} from 'react-native';
+} from "react-native";
 
-import {Avatar} from 'react-native-paper';
-import {useDispatch, useSelector} from 'react-redux';
-import BottomMenu from '../components/BottomMenu';
-import AppStorage from '../modules/AppStorage';
-import WithoutPhoto from '../components/WithoutPhoto';
-import Loading from '../components/Loading';
-import {Colors} from '../styles/Colors';
-import ApiFetcher from '../modules/ApiFetcher';
-import DeleteModal from '../components/DeleteModal';
-import NoPets from '../components/NoPets';
-import {useFocusEffect} from '@react-navigation/native';
-import ImageOption from '../components/ImageOption';
-import * as ImagePicker from 'expo-image-picker';
+import { Avatar } from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
+import BottomMenu from "../components/BottomMenu";
+import AppStorage from "../modules/AppStorage";
+import WithoutPhoto from "../components/WithoutPhoto";
+import Loading from "../components/Loading";
+import { Colors } from "../styles/Colors";
+import ApiFetcher from "../modules/ApiFetcher";
+import DeleteModal from "../components/DeleteModal";
+import NoPets from "../components/NoPets";
+import { useFocusEffect } from "@react-navigation/native";
+import ImageOption from "../components/ImageOption";
+import * as ImagePicker from "expo-image-picker";
+import { Text } from "react-native-ui-lib";
 
-
-const ProfileScreen = ({route, navigation}) => {
-  const user = useSelector(state => state.user.userInfo);
+const ProfileScreen = ({ route, navigation }) => {
+  const user = useSelector((state) => state.user.userInfo);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cameraType, setCameraType] = useState('front');
+  const [cameraType, setCameraType] = useState("front");
   const [activeModal, setActiveModal] = useState(false);
   const [imageSource, setImageSource] = useState(null);
 
@@ -58,18 +57,21 @@ const ProfileScreen = ({route, navigation}) => {
     useCallback(() => {
       petList();
       return () => {};
-    }, [navigation]),
+    }, [navigation])
   );
 
   useEffect(() => {
     (async () => {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permiso necesario', 'Se requieren permisos para acceder a la galería');
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permiso necesario",
+          "Se requieren permisos para acceder a la galería"
+        );
       }
     })();
   }, []);
-  
 
   const selectImageFromLibrary = async () => {
     try {
@@ -79,20 +81,20 @@ const ProfileScreen = ({route, navigation}) => {
         aspect: [4, 3],
         quality: 1,
       });
-  
+
       if (!result.cancelled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
     } catch (error) {
       Alert.alert(
-        'Ha ocurrido un error al cargar la foto',
-        'Puedes continuar y después agregar una foto',
+        "Ha ocurrido un error al cargar la foto",
+        "Puedes continuar y después agregar una foto"
       );
-      console.log('Error: ', error);
+      console.log("Error: ", error);
     }
   };
-  
+
   const takePhoto = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
@@ -100,33 +102,32 @@ const ProfileScreen = ({route, navigation}) => {
         aspect: [4, 3],
         quality: 1,
       });
-  
+
       if (!result.cancelled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
     } catch (error) {
       Alert.alert(
-        'Ha ocurrido un error al tomar la foto',
-        'Puedes continuar y después agregar una foto',
+        "Ha ocurrido un error al tomar la foto",
+        "Puedes continuar y después agregar una foto"
       );
-      console.log('Error: ', error);
+      console.log("Error: ", error);
     }
   };
-  
 
   const closeModal = () => setModalVisible(false);
 
   const petList = async () => {
-    console.log('------ LLAMO A PETLIST ------');
+    console.log("------ LLAMO A PETLIST ------");
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
       const user = await appStorage.getUser();
       setUserData(user);
     } catch (e) {
-      console.log('Error: ', e);
-      Alert.alert('Ha ocurrido un error', 'Inténtelo de nuevo más tarde');
+      console.log("Error: ", e);
+      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
     } finally {
       setLoading(false);
     }
@@ -137,100 +138,107 @@ const ProfileScreen = ({route, navigation}) => {
     setIdItemSelected(0);
   };
 
-  const deletePet = async id => {
+  const deletePet = async (id) => {
     try {
       const status = await apiFetcher.deletePet(id);
-      console.log('IMPRIME EL STATUS', status);
+      console.log("IMPRIME EL STATUS", status);
 
       if (status === 200) {
         closeDeleteModal();
         petList();
       }
     } catch (error) {
-      Alert.alert('Error', 'Error al intentar eliminar a la mascota');
+      Alert.alert("Error", "Error al intentar eliminar a la mascota");
       console.error(error);
     }
   };
 
-  const selectDeleteItem = id => {
+  const selectDeleteItem = (id) => {
     setIdItemSelected(id);
     setShowDeletModal(true);
   };
-  const renderItem = item => {
+  const renderItem = (item) => {
     return (
       <TouchableWithoutFeedback
         onPress={() =>
-          navigation.navigate('HomeProfileDetails', {item, tabIndex: 0})
-        }>
+          navigation.navigate("HomeProfileDetails", { item, tabIndex: 0 })
+        }
+      >
         <View
           style={{
             height: 80,
-            width: '100%',
-            backgroundColor: 'yellow',
-            flexDirection: 'row',
-            backgroundColor: 'white',
+            width: "100%",
+            backgroundColor: "yellow",
+            flexDirection: "row",
+            backgroundColor: "white",
             borderBottomWidth: 0.5,
-          }}>
+          }}
+        >
           <View
             style={{
-              height: '100%',
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+              height: "100%",
+              width: "20%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <Avatar.Image
               source={{
                 uri: item.picture,
               }}
               size={50}
-              style={{backgroundColor: 'lightgrey'}}
+              style={{ backgroundColor: "lightgrey" }}
             />
           </View>
           <View
             style={{
-              height: '100%',
-              width: '50%',
-              justifyContent: 'center',
-            }}>
-            <Text style={{fontSize: 18, color: 'black', fontWeight: 'bold'}}>
+              height: "100%",
+              width: "50%",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ fontSize: 18, color: "black", fontWeight: "bold" }}>
               {item.name}
             </Text>
-            <Text style={{fontSize: 16, color: 'black', fontWeight: '400'}}>
+            <Text style={{ fontSize: 16, color: "black", fontWeight: "400" }}>
               {item.pet_breed.name}
             </Text>
           </View>
           <TouchableWithoutFeedback
             onPress={() =>
-              navigation.navigate('EditPet', {
+              navigation.navigate("EditPet", {
                 id: item.id,
                 refreshData: petList,
               })
-            }>
+            }
+          >
             <View
               style={{
-                height: '100%',
-                width: '15%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
+                height: "100%",
+                width: "15%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Image
-                source={require('../assets/edit-icon.png')}
-                style={{height: 25, width: 25}}
-                resizeMode={'contain'}
+                source={require("../assets/edit-icon.png")}
+                style={{ height: 25, width: 25 }}
+                resizeMode={"contain"}
               />
             </View>
           </TouchableWithoutFeedback>
           <TouchableWithoutFeedback onPress={() => selectDeleteItem(item.id)}>
             <View
               style={{
-                height: '100%',
-                width: '15%',
-                justifyContent: 'center',
-              }}>
+                height: "100%",
+                width: "15%",
+                justifyContent: "center",
+              }}
+            >
               <Image
-                source={require('../assets/trash-icon.png')}
-                style={{height: 25, width: 25}}
-                resizeMode={'contain'}
+                source={require("../assets/trash-icon.png")}
+                style={{ height: 25, width: 25 }}
+                resizeMode={"contain"}
               />
             </View>
           </TouchableWithoutFeedback>
@@ -242,22 +250,23 @@ const ProfileScreen = ({route, navigation}) => {
   return (
     <View
       style={{
-        backgroundColor: '#fff', //#E6F8DB
-        alignItems: 'center',
+        backgroundColor: "#fff", //#E6F8DB
+        alignItems: "center",
         flex: 1,
-      }}>
+      }}
+    >
       {loading && (
         <Loading
           textColor={Colors.primaryColor}
           backgroundColorProp={Colors.white}
         />
       )}
-      <View style={{height: '20%', width: '100%', alignItems: 'center'}}>
+      <View style={{ height: "20%", width: "100%", alignItems: "center" }}>
         {userData.picture ? (
           <Image
-            source={{uri: userData.picture}}
+            source={{ uri: userData.picture }}
             style={styles.image}
-            resizeMode={'cover'}
+            resizeMode={"cover"}
           />
         ) : (
           <>
@@ -266,10 +275,11 @@ const ProfileScreen = ({route, navigation}) => {
               <Text
                 style={{
                   fontSize: 14,
-                  color: 'black',
-                  fontWeight: '300',
+                  color: "black",
+                  fontWeight: "300",
                   marginTop: 5,
-                }}>
+                }}
+              >
                 Agregar foto de perfil
               </Text>
             </>
@@ -278,51 +288,39 @@ const ProfileScreen = ({route, navigation}) => {
       </View>
       <View
         style={{
-          height: '10%',
-          width: '100%',
+          height: "10%",
+          width: "100%",
           paddingHorizontal: 15,
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}>
+          justifyContent: "space-between",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
         <View>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
-              source={require('../assets/back-icon.png')}
-              style={{height: 18, width: 18}}
-              resizeMode={'contain'}
+              source={require("../assets/back-icon.png")}
+              style={{ height: 18, width: 18 }}
+              resizeMode={"contain"}
             />
-            <Text
-              style={{
-                fontSize: 24,
-                color: 'black',
-                fontWeight: '900',
-                marginLeft: '10%',
-              }}>{`${user?.name}`}</Text>
+            <Text text50BL marginL-10>{`${user?.name}`}</Text>
           </View>
-          <Text
-            style={{
-              fontSize: 14,
-              color: 'black',
-              fontWeight: '300',
-              marginTop: 5,
-              marginLeft: '20%',
-            }}>
+          <Text text70 marginL-30>
             Mis mascotas
           </Text>
         </View>
       </View>
-      <View style={{height: '35%', width: '100%'}}>
-        <View style={{width: '100%', height: '100%'}}>
+      <View style={{ height: "38%", width: "100%" }}>
+        <View style={{ width: "100%", height: "100%" }}>
           {data.length > 0 ? (
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={data}
-              ItemSeparatorComponent={() => <View style={{height: 10}} />}
+              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               refreshControl={
                 <RefreshControl refreshing={loading} onRefresh={petList} />
               }
-              renderItem={({item}) => renderItem(item)}
+              renderItem={({ item }) => renderItem(item)}
             />
           ) : (
             <View style={styles.noPetsContainer}>
@@ -349,22 +347,22 @@ const ProfileScreen = ({route, navigation}) => {
 
 export default ProfileScreen;
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get("window");
 const height_logo = height * 0.18;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#694fad',
+    backgroundColor: "#694fad",
   },
   header: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   footer: {
     flex: 2,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
@@ -374,38 +372,38 @@ const styles = StyleSheet.create({
     width: height_logo,
     height: height_logo,
     borderRadius: 150,
-    backgroundColor: 'lightgrey',
+    backgroundColor: "lightgrey",
   },
   text_footer: {
-    color: '#05375a',
+    color: "#05375a",
     fontSize: 18,
   },
   action: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f2f2f2',
+    borderBottomColor: "#f2f2f2",
     paddingBottom: 5,
   },
   textInput: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 0 : -12,
+    marginTop: Platform.OS === "ios" ? 0 : -12,
     paddingLeft: 10,
-    color: '#05375a',
+    color: "#05375a",
   },
   image: {
     height: 120,
     width: 120,
     zIndex: 0,
     borderRadius: 60,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginTop: 15,
   },
   noPetsContainer: {
-    marginTop: '5%',
-    alignItems: 'center',
-    height: '40%',
-    shadowColor: '#000000',
+    marginTop: "5%",
+    alignItems: "center",
+    height: "40%",
+    shadowColor: "#000000",
     shadowOpacity: 0.8,
     shadowRadius: 2,
     shadowOffset: {

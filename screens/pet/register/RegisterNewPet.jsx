@@ -18,8 +18,8 @@ import HeaderTitle from "../../../components/HeaderTitle";
 import { calculatePetAge, formatDateToDDMMYYYY } from "../../../utils/scripts";
 import { useDispatch, useSelector } from "react-redux";
 import { setPetInfo } from "../../../redux/slice/petSlice";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import TobiButton from "../../../components/TobiButton";
+import { DateTimePicker } from "react-native-ui-lib";
 
 const RegisterNewPet = (props) => {
   const { pet, setPet } = props;
@@ -49,7 +49,7 @@ const RegisterNewPet = (props) => {
     const updatedInfo = {
       ...petInfo,
       name: name,
-      birthday: formatDateToDDMMYYYY(date),
+      birthday: date.toLocaleDateString("es-us"),
       gender: gender,
       age: calculatePetAge(date),
     };
@@ -167,72 +167,30 @@ const RegisterNewPet = (props) => {
             </View>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => setOpen(true)}>
-          <View style={styles.birthdayContainer}>
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: 14,
-                color: "black",
-                fontWeight: "400",
-                paddingVertical: 10,
-              }}
-            >
-              {petInfo?.birthday == ""
+        <View style={styles.birthdayContainer}>
+          <DateTimePicker
+            style={[
+              styles.birthdayContainer,
+              { paddingHorizontal: 0, marginTop: 0, width: 300 },
+            ]}
+            title={"Select time"}
+            placeholder={
+              petInfo?.birthday == ""
                 ? "Cumpleaños"
-                : date.toLocaleDateString("es-us")}
-            </Text>
-            <Image
-              source={require("../../../assets/pastel.png")}
-              style={{ height: 30, width: 30 }}
-              resizeMode={"contain"}
-            />
-          </View>
-        </TouchableOpacity>
-        
-      </ScrollView>
-      {open && (
-          <View style={styles.modalContent}>
-            <Text style={styles.dateSelectText}>
-              Selecciona tu fecha de nacimiento
-            </Text>
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              display="spinner"
-              onChange={(event, selectedDate) => {
-                setDate(selectedDate);
-              }}
-              style={{ backgroundColor: Colors.white }}
-            />
-            <TobiButton onSubmit={() =>  setOpen(false)} buttonText={"Confirmar"} />
-          </View>
-        )}
-      {/* <View style={styles.containerImage}>
-          <Image
-            source={require("../../../assets/step1.png")}
-            style={{
-              height: 120,
-              width: "90%",
+                : date?.toLocaleDateString("es-us")
+            }
+            mode={"date"}
+            onChange={(selectedDate) => {
+              setDate(selectedDate);
             }}
-            resizeMode="contain"
           />
-          <View>
-            <TouchableOpacity style={styles.nextButtom} onPress={goToNextStep}>
-              <Text
-                style={{
-                  textAlign: "center",
-                  fontSize: 16,
-                  color: "white",
-                  fontWeight: "700",
-                }}
-              >
-                Siguiente
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View> */}
+          <Image
+            source={require("../../../assets/pastel.png")}
+            style={{ height: 30, width: 30 }}
+            resizeMode={"contain"}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };
