@@ -41,7 +41,7 @@ const SearchItem = ({route}) => {
       } else if (type == 'foodType') {
         response = await foodTypes(1);
       } else if (type == 'pets_breeds' && id) {
-        console.log('El id: ', id);
+
         response = await apiFetcher.getPetBrands(id);
       }
       setItems(response.data);

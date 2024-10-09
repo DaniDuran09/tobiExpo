@@ -32,18 +32,11 @@ const StepsRegister = () => {
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    console.log("El petInfo: ", petInfo);
-  }, []);
-
   const savePet = async () => {
     setLoading(true);
     try {
-      console.log("Lo que mando a guardar: ", petInfo);
       const response = await apiFetcher.registerPet(petInfo);
-      console.log("La respuesta: ", response);
       if (response.code == 200) {
-        console.log("Guardo la info para: ", response.data.id);
         setIdPet(response.data.id);
       } else {
         console.log("Algo malo paso");
@@ -67,16 +60,13 @@ const StepsRegister = () => {
   const updatePicturePet = async () => {
     setLoading(true);
     try {
-      console.log("Lo que intento transformar: ", picturePet);
       const formData = new FormData();
       formData.append("picture", {
         uri: picturePet.uri,
         type: picturePet.type,
         name: picturePet.fileName,
       });
-      console.log("El formdata: ", formData._parts);
       const response = await apiFetcher.updatePicturePet(idPet, formData);
-      console.log("Response: ", response);
     } catch (error) {
       console.log("Ocurrió un error: ", error);
     } finally {
@@ -108,7 +98,6 @@ const StepsRegister = () => {
           });
         break;
       case 1:
-        console.log("Entro al 2: ", petInfo);
         if (petInfo.pet_breed_id != 0 && petInfo.weight != 0) {
           await savePet();
           setCurrentPosition((prev) => Math.min(prev + 1, labels.length - 1));

@@ -284,4 +284,19 @@ export default class ApiFetcher {
     const url = `/partners/${id}`;
     return await this._get(url);
   }
+
+  async getAppointments() {
+    const url = `/appointments`;
+    return await this._get(url);
+  }
+
+  async getAppointmentsByPet(id) {
+    const url = `/appointments?pet_id=${id}`;
+    return await this._get(url);
+  }
+
+  async registerAppointments(data) {
+    const url = `/appointments`;
+    return await this._post(url, data);
+  }
 }

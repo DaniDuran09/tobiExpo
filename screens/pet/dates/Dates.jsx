@@ -40,7 +40,7 @@ import ApiFetcher from "../../../modules/ApiFetcher";
   
     const goToIdInfoPet = (pet) => {
       
-      navigation.navigate("PetAppointment", {pet: pet, visible: true})
+      navigation.navigate("PetAppointment", {pet: pet})
     }
   
     const renderPets = (item) => {

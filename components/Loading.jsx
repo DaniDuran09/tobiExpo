@@ -9,7 +9,7 @@ const Loading = (props) => {
   return (
     <View style={[styles.loadingContainer, {backgroundColor: backgroundColorProp}]}>
       <ActivityIndicator size="large" color={textColor} />
-      <Text style={{color: textColor}}>Loading...</Text>
+      {/* <Text style={{color: textColor}}>Loading...</Text> */}
     </View>
   );
 };

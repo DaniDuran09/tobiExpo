@@ -46,7 +46,6 @@ const ProfileEditPetInfo = ({ route, navigation }) => {
     const petBrand = (type) => {
         petBrands(type)
             .then((response) => {
-                console.log('petBrand', response.data)
                 setArray(response.data)
                 activityLevel()
             })

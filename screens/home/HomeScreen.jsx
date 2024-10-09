@@ -19,6 +19,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import NoPetsHome from "../../components/NoPetsHome";
 import { setUserInfo } from "../../redux/slice/userSlice";
 import { Text } from "react-native-ui-lib";
+import Toast from "react-native-toast-message";
+import momentTZ from "../../utils/moment";
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,6 +54,13 @@ const HomeScreen = ({ navigation }) => {
       const user = await apiFetcher.getProfile();
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
+      const petsWithAppointments = await Promise.all(
+        list.data.map(async (pet) => {
+          const response = await fetchInfoAppointmentPet(pet.id);
+          return { ...pet, service_date: response };
+        })
+      );
+      setData(petsWithAppointments);
     } catch (e) {
       console.log("Error: ", e);
     } finally {
@@ -59,8 +68,63 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const fetchInfoAppointmentPet = async (id) => {
+    try {
+      const response = await apiFetcher.getAppointmentsByPet(id);
+      if (response.data.length > 0) return response.data[0].date_service;
+      else return "";
+    } catch (error) {
+      console.log("Error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: `No hemos podido obtener la información`,
+      });
+      // navigation.goBack();
+    }
+  };
+
   const renderItem = (item) => {
-    // const weightPercentage = calculateOverweightPercentage(item.weight)
+    console.log(item?.service_date);
+    let service = "---";
+    let remainingDays = {
+      text: "---",
+      color: "black",
+    };
+
+    if (item?.service_date) {
+      const serviceDate = momentTZ(item?.service_date);
+      const today = momentTZ();
+
+      console.log("today: ", today);
+
+      console.log(
+        "serviceDate: ",
+        serviceDate.format("dddd D [de] MMMM, h:mm [hrs]")
+      );
+
+      service = serviceDate.format("DD[.]MMM");
+      const daysDifference = serviceDate.diff(today, "days");
+      if (daysDifference < 0) {
+        remainingDays = {
+          text: "La cita ya pasó",
+          color: "red",
+        };
+      } else if (daysDifference === 0) {
+        remainingDays = {
+          text: "La cita es hoy",
+          color: "green",
+        };
+      } else {
+        remainingDays = {
+          text: `${daysDifference} días`,
+          color: "green",
+        };
+      }
+    } //else {
+    //   service = "Sin citas";
+    // }
+
     return (
       <View>
         <View
@@ -79,14 +143,7 @@ const HomeScreen = ({ navigation }) => {
             size={35}
             style={{ backgroundColor: "lightgrey" }}
           />
-          <Text
-            style={{
-              fontSize: 16,
-              color: "black",
-              fontWeight: "bold",
-              paddingLeft: 15,
-            }}
-          >
+          <Text text70BO marginL-10>
             {item.name}
           </Text>
         </View>
@@ -117,36 +174,14 @@ const HomeScreen = ({ navigation }) => {
                   },
                 ]}
               >
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
-                >
-                  SALUD
+                <Text text80BL>SALUD</Text>
+                <Text ttext90M>Próxima visita</Text>
+                <Text text80BL>{service}</Text>
+                <Text ttext90MM>Faltan</Text>
+                <Text color={remainingDays.color} text80BO>
+                  {remainingDays.text}
                 </Text>
-                <Text
-                  style={{ fontSize: 12, color: "black", fontWeight: "400" }}
-                >
-                  Próxima visita
-                </Text>
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
-                >
-                  ---
-                </Text>
-                <Text
-                  style={{ fontSize: 12, color: "black", fontWeight: "400" }}
-                >
-                  Faltan
-                </Text>
-                <Text
-                  style={{ fontSize: 14, color: "green", fontWeight: "bold" }}
-                >
-                  ---
-                </Text>
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "300" }}
-                >
-                  + info
-                </Text>
+                <Text>+ info</Text>
               </View>
             </TouchableWithoutFeedback>
           </LinearGradient>
@@ -168,21 +203,9 @@ const HomeScreen = ({ navigation }) => {
                   },
                 ]}
               >
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
-                >
-                  BIENESTAR
-                </Text>
-                <Text
-                  style={{ fontSize: 12, color: "black", fontWeight: "400" }}
-                >
-                  Recomendación
-                </Text>
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
-                >
-                  ---
-                </Text>
+                <Text text80BL>BIENESTAR</Text>
+                <Text ttext90M>Recomendación</Text>
+                <Text text80BL>---</Text>
                 <Text
                   style={{ fontSize: 14, color: "black", fontWeight: "300" }}
                 >
@@ -219,16 +242,8 @@ const HomeScreen = ({ navigation }) => {
                   },
                 ]}
               >
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
-                >
-                  PESO
-                </Text>
-                <Text
-                  style={{ fontSize: 12, color: "black", fontWeight: "400" }}
-                >
-                  Rango ideal
-                </Text>
+                <Text text80BL>PESO</Text>
+                <Text ttext90M>Rango ideal</Text>
                 <Text
                   style={{
                     fontSize: 14,
@@ -238,11 +253,7 @@ const HomeScreen = ({ navigation }) => {
                 >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
                   item?.weight_status?.ideal_weight?.to / 1000
                 } Kg`}</Text>
-                <Text
-                  style={{ fontSize: 12, color: "black", fontWeight: "400" }}
-                >
-                  Real
-                </Text>
+                <Text ttext90M>Real</Text>
                 <Text
                   style={{
                     fontSize: 14,
@@ -291,15 +302,15 @@ const HomeScreen = ({ navigation }) => {
                 NUTRICIÓN
               </Text>
               {/*
-              <Text style={{ fontSize: 12, color: "black", fontWeight: "400" }}>
+              <Text ttext90M>
                 Ingesta diaria recomendada
               </Text>
               <Text
-                style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
+                text80BL
               >
                 ---
               </Text>
-              <Text style={{ fontSize: 12, color: "black", fontWeight: "400" }}>
+              <Text ttext90M>
                 Entre --- raciones al día
               </Text>
               <View
@@ -344,13 +355,13 @@ const HomeScreen = ({ navigation }) => {
                 ACTIVIDAD
               </Text>
               {/*
-              <Text style={{ fontSize: 12, color: "black", fontWeight: "400" }}>
+              <Text ttext90M>
                 Recomendación
               </Text>
               <Text
-                style={{ fontSize: 14, color: "black", fontWeight: "bold" }}
+                text80BL
               >{`${item.activity_level_status.steps} pasos`}</Text>
-              <Text style={{ fontSize: 12, color: "black", fontWeight: "400" }}>
+              <Text ttext90M>
                 ---
               </Text>
               <Text

@@ -38,7 +38,7 @@ const BookmarkScreen = ({ navigation }) => {
     const cards = () => {
         getCards(token)
             .then((response) => {
-                //console.log('getBlog', response.data)
+                
                 if (response.data.length === 0) {
                     setData([])
                     setCreate(true)
