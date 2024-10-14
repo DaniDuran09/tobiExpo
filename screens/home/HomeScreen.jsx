@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Alert,
   BackHandler,
+  ToastAndroid,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {Avatar} from 'react-native-paper';
@@ -26,6 +27,7 @@ const {width, height} = Dimensions.get('window');
 
 const HomeScreen = ({navigation}) => {
   const user = useSelector(state => state.user.userInfo);
+  const [pressCount, setPressCount] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -63,25 +65,22 @@ const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     const backAction = () => {
-      Alert.alert('¿Estás seguro que quieres salir?', '', [
-        {
-          text: 'Cancelar',
-          onPress: () => null,
-        },
-        {
-          text: 'Salir',
-          onPress: () => BackHandler.exitApp(),
-        },
-      ]);
+      if (pressCount === 0) {
+        ToastAndroid.show('Presiona de nuevo para salir', ToastAndroid.SHORT);
+        setPressCount(1);
+        setTimeout(() => {
+          setPressCount(0);
+        }, 5000);
+      } else if (pressCount === 1) {
+        BackHandler.exitApp();
+      }
       return true;
     };
-    
-    const backHandlerListener = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
-    return () => backHandlerListener.remove();
-  }, []);
+    BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => {
+      BackHandler.removeEventListener('hardwareBackPress', backAction);
+    };
+  }, [pressCount]);
 
   const renderItem = item => {
     return (
