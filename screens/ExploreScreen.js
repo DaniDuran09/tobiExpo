@@ -38,9 +38,7 @@ const ExploreScreen = ({ navigation }) => {
 
   const partnerList = async () => {
     try {
-      console.log("ME ejecuto")
       const partners = await apiFetcher.getPartners()
-      console.log("LA DATA DE PARTNERS: ", partners.data);
       setData(partners.data);
     } catch (error) {
       console.log("Error: ", error);

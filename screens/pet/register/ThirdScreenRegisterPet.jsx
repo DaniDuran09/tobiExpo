@@ -59,10 +59,7 @@ const ThirdScreenRegisterPet = (props) => {
     try {
       petInfo.birthday = formatDateToDDMMYYYY(petInfo.birthday);
       petInfo.weight = parseInt(petInfo.weight);
-    console.log("PetInfo: ", petInfo);
-
       const response = await apiFetcher.registerPet(petInfo);
-      console.log("La respuesta: ", response);
     } catch (error) {
       console.log("Error: ", error);
       Alert.alert(

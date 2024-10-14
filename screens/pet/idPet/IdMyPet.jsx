@@ -14,6 +14,7 @@ import { listPet } from "../../../services";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import ViewLoading from "../../../components/ViewLoading";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 const IdMyPet = () => {
   const [pets, setPets] = useState({});
@@ -59,11 +60,17 @@ const IdMyPet = () => {
     return (
       <TouchableOpacity style={styles.item} onPress={() => goToIdInfoPet(item)}>
         <View style={styles.leftSection}>
-          <Image
+          <AnimatedImage
+            source={{ uri: item.picture }}
+            style={styles.imageItem}
+            loader={<LoaderScreen color={Colors.primaryColor} size={20} />}
+            animationDuration={500}
+          />
+          {/* <Image
             source={{ uri: item.picture }}
             style={styles.imageItem}
             resizeMode="cover"
-          />
+          /> */}
           <View style={styles.containerPetInfo}>
             <Text style={styles.itemTitle}>{item.name}</Text>
             <Text style={styles.itemDescription}>
@@ -86,10 +93,7 @@ const IdMyPet = () => {
   return (
     <>
       {loading ? (
-        <ViewLoading
-          waitString="Espere"
-          backgroundColor={Colors.white}
-        />
+        <ViewLoading waitString="Espere" backgroundColor={Colors.white} />
       ) : (
         <View style={styles.container}>
           <View>

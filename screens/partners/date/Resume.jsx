@@ -1,5 +1,11 @@
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import vetOption1 from "../../../assets/vet-option1.png";
 import calendar from "../../../assets/calendar-icon-date.png";
@@ -9,43 +15,95 @@ import phone from "../../../assets/phone-icon.png";
 import card from "../../../assets/card-icon.png";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
+import PaymentScreen from "../../../components/appointments/PaymentScreen";
+import { SkeletonView, Text, View } from "react-native-ui-lib";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import momentTZ from "../../../utils/moment";
+import ApiFetcher from "../../../modules/ApiFetcher";
 
-const Resume = () => {
-  const [existingCard, setExistingCard] = useState(false);
+const Resume = ({ route }) => {
+  const { infoDate, service, partenerLocation } = route.params;
+
+  console.log("service: ", service);
+
+  const apiFetcher = new ApiFetcher();
+
+  const combinedDateTime = momentTZ(infoDate.date).set({
+    hour: momentTZ(infoDate.time).hour(),
+    minute: momentTZ(infoDate.time).minute(),
+  });
+
+  const formattedDateTime = combinedDateTime.format(
+    "dddd D [de] MMMM, h:mm [hrs]"
+  );
+
+  const capitalizedDateTime =
+    formattedDateTime.charAt(0).toUpperCase() + formattedDateTime.slice(1);
+
+  const [expanded, setExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pets, stePets] = useState([]);
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const navigation = useNavigation();
+  const bottomSheetRef = useRef(null);
 
-  const viewMoreInfo = () => {
-    setExistingCard(true);
-    navigation.goBack();
+  useEffect(() => {
+    fetchPets();
+  }, []);
+
+  const fetchPets = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getPets();
+      stePets(response.data);
+    } catch (error) {}
   };
 
-  const changeMethod = () => {
-    console.log("Pendiente de generar la función")
-  }
+  const handleSelectPet = (pet) => setSelectedPet(pet);
 
-  const saveDate = () => {
-    console.log("Pendiente de generar funcionalidad esperando al backend");
-    Alert.alert(
-      "Cita agendada con éxito",
-      "Puedes consultar la información en el apartado de 'Mis citas'",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            navigation.replace("PartnersMain"); 
-          },
-        },
-      ],
-      { cancelable: false }
+  const renderPets = (pet) => {
+    const isSelected = selectedPet?.id === pet.id;
+    return (
+      <TouchableOpacity onPress={() => handleSelectPet(pet)}>
+        <View center marginR-25>
+          <Image
+            source={{ uri: pet.picture }}
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: 32,
+              borderWidth: isSelected ? 3 : 0,
+              borderColor: isSelected ? Colors.primaryColor : "transparent",
+            }}
+            resizeMode="cover"
+          />
+          <Text color={isSelected && Colors.primaryColor} text70R>
+            {pet?.name}
+          </Text>
+        </View>
+      </TouchableOpacity>
     );
-  }
+  };
 
-  const goToPaymentMethod = () => {
-    navigation.navigate("AddNewCard", { executeFunction: viewMoreInfo });
-  }; 
+  const handleSheetChanges = useCallback((index) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  const openBottomSheet = () => {
+    bottomSheetRef.current?.expand();
+    setExpanded(true);
+  };
+
+  const closeBottomSheet = () => {
+    bottomSheetRef.current?.close();
+    setExpanded(false);
+  };
+
   return (
-    <View style={styles.container}>
-      <ScrollView>
+    <View flex padding-15 backgroundColor={Colors.white}>
+      <ScrollView style={expanded && { opacity: 0.1 }}>
         <View style={styles.header}>
           <Text style={styles.title}>Resumen de la cita</Text>
           <Image
@@ -55,57 +113,28 @@ const Resume = () => {
         </View>
         <View style={styles.servicesContainer}>
           <View style={styles.section}>
-            <Text style={styles.textSection}>Servicio</Text>
-            <View style={styles.rowSection}>
-              <Image
-                source={vetOption1}
-                style={styles.image}
-                resizeMode="contain"
-              />
-              <Text style={styles.description}>Vacuna antirrabica</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.textSection}>Día y hora</Text>
+            <Text text70BO>Día y hora</Text>
             <View style={styles.rowSection}>
               <Image
                 source={calendar}
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>
-                Lunes 13 de febrero, 15:00 hrs
-              </Text>
+              <Text style={styles.description}>{capitalizedDateTime}</Text>
             </View>
           </View>
           <View style={styles.section}>
-            <Text style={styles.textSection}>Importe</Text>
-            <View style={styles.rowSection}>
-              <Text
-                style={[
-                  styles.description,
-                  { color: Colors.primaryColor, fontSize: 25 },
-                ]}
-              >
-                $
-              </Text>
-              <Text style={styles.description}>150.00</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.textSection}>Dirección</Text>
+            <Text text70BO>Dirección</Text>
             <View style={styles.rowSection}>
               <Image
                 source={location}
                 style={{ width: 20, height: 20 }}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>
-                Río Pánuco 168 - 160, Cuauhtémoc, CDMX, 06720.
-              </Text>
+              <Text style={styles.description}>{partenerLocation}</Text>
             </View>
           </View>
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.textSection}>Estacionamiento</Text>
             <View style={styles.rowSection}>
               <Image
@@ -117,71 +146,80 @@ const Resume = () => {
                 Estacionamiento en vía pública.
               </Text>
             </View>
-          </View>
+          </View> */}
           <View style={styles.section}>
-            <Text style={styles.textSection}>Teléfono</Text>
+            <Text text70BO>Teléfono</Text>
             <View style={styles.rowSection}>
               <Image source={phone} style={styles.image} resizeMode="cover" />
               <Text style={styles.description}>55 555 5555</Text>
             </View>
           </View>
         </View>
-        {!existingCard ? (
-          <>
-            <Text style={styles.title}>Elige método de pago</Text>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.saveButton}
-                onPress={goToPaymentMethod}
-              >
-                <Text style={styles.textButton}>Agregar método de pago</Text>
-              </TouchableOpacity>
+
+        <View>
+          <Text style={styles.title}>Elege a tu mascota</Text>
+          <View margin-20>
+            <FlatList
+              data={pets}
+              horizontal={true}
+              renderItem={({ item }) => renderPets(item)}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+        </View>
+        <View>
+          <Text style={styles.title}>Resumen</Text>
+          <View style={styles.servicesContainer}>
+            <Text text70BO>Productos y servicios con IVA</Text>
+            <View row spread marginT-10>
+              <Text>{service?.name}</Text>
+              <Text>${service?.price}</Text>
             </View>
-          </>
-        ) : (
-          <>
-            <View style={styles.changeMethodContainer}>
-              <Text style={styles.title}>Método de pago</Text>
-              <TouchableOpacity onPress={changeMethod}>
-                <Text style={styles.changeMethod}>Cambiar</Text>
-              </TouchableOpacity>
+            <View row spread marginT-10>
+              <Text>Impuesto IVA 16%</Text>
+              <Text>
+                ${(service?.price * parseInt(service?.tax_percent)) / 100}
+              </Text>
             </View>
-            <View style={styles.servicesContainer}>
-              <Text style={styles.textSection}>Número de tarjeta</Text>
-              <View style={styles.section}>
-                <View style={styles.rowSection}>
-                  <Image
-                    source={card}
-                    style={{ width: 20, height: 20 }}
-                    resizeMode="contain"
-                  />
-                  <Text style={styles.description}>**** **** **** 1234</Text>
-                </View>
-              </View>
+            <View row spread marginT-10>
+              <Text>Tarifa de servicio</Text>
+              <Text>$10</Text>
             </View>
-            <View style={styles.changeMethodContainer}>
-              <Text style={styles.title}>Resumen</Text>
+            <View row spread marginT-10>
+              <Text text70BO>Total a pagar</Text>
+              <Text text70BO>
+                $
+                {parseFloat(service.price) +
+                  (service?.price * parseInt(service?.tax_percent)) / 100 +
+                  10}
+              </Text>
             </View>
-            <View style={styles.servicesContainer}>
-              <View style={styles.betweenContainer}>
-              <Text style={styles.description}>Vacuna antirrábica canina</Text>
-              <Text style={styles.description}>$150.55</Text>
-              </View>
-              <View style={styles.betweenContainer}>
-              <Text style={styles.description}>Tarifa de Servicio</Text>
-              <Text style={styles.description}>$5.00</Text>
-              </View>
-              <View style={styles.betweenContainer}>
-              <Text style={[styles.description, {fontWeight: "800"}]}>Total a pagar</Text>
-              <Text style={[styles.description, {fontWeight: "800"}]}>$155.55</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.buttonNext} onPress={saveDate}>
-              <Text style={styles.textButtonNext}>Continuar</Text>
-            </TouchableOpacity>
-          </>
-        )}
+          </View>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.saveButton} onPress={openBottomSheet}>
+            <Text text70BO color={Colors.primaryColor}>
+              Confirmar
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={["100%"]}
+        onChange={handleSheetChanges}
+        style={{
+          borderWidth: 1.5,
+          borderRadius: 16,
+          borderColor: Colors.black,
+        }}
+      >
+        <BottomSheetView style={styles.contentContainer}>
+          <PaymentScreen amount={150} closeBottomSheet={closeBottomSheet} />
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   );
 };
@@ -208,7 +246,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   servicesContainer: {
-    marginTop: "8%",
+    marginTop: "5%",
     borderRadius: 16,
     borderColor: Colors.blue,
     borderWidth: 1.5,
@@ -238,10 +276,10 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: 30,
-    width: "90%",
+    width: "95%",
     height: 60,
     borderWidth: 0.5,
-    borderColor: Colors.gray,
+    borderColor: Colors.primaryColor,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
@@ -260,21 +298,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  betweenContainer:{
+  betweenContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 15
+    marginTop: 15,
   },
   buttonNext: {
     borderColor: Colors.primaryColor,
     borderWidth: 1,
     height: 60,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   textButtonNext: {
     color: Colors.primaryColor,
     fontWeight: "900",
-    fontSize: 16
+    fontSize: 16,
   },
 });

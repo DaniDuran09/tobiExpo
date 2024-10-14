@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import { Colors } from "../../styles/Colors";
 import AppStorage from "../../modules/AppStorage";
 import { getPartens } from "../../services";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
+import { SkeletonView } from "react-native-ui-lib";
 
-const SelectService = ({route}) => {
-  const {type} = route.params
+const SelectService = ({ route }) => {
+  const { type } = route.params;
   const [listPartners, setListPartners] = useState([]);
   const [serviceType, setServiceType] = useState(2);
 
@@ -16,7 +25,7 @@ const SelectService = ({route}) => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    setServiceType(type)
+    setServiceType(type);
     fetchData();
   }, []);
 
@@ -33,27 +42,32 @@ const SelectService = ({route}) => {
   };
 
   const goToMoreInfo = (item, type) => {
-    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type});
+    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type });
   };
 
   const renderPartners = ({ item }) => (
-    <TouchableOpacity style={styles.item} onPress={() => goToMoreInfo(item, serviceType)}>
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() => goToMoreInfo(item, serviceType)}
+    >
       <View style={styles.leftSection}>
         <Text style={styles.itemTitle}>{item.name}</Text>
         <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
       </View>
       <View style={styles.RightSection}>
-        <Image source={{ uri: item.picture }} style={styles.imageItem} resizeMode="cover" />
+        <Image
+          source={{ uri: item.picture }}
+          style={styles.imageItem}
+          resizeMode="contain"
+        />
       </View>
     </TouchableOpacity>
   );
 
-  const filteredPartners = serviceType === 2 ? 
-  listPartners.filter((partner) => partner.type_partner.id === 2) :
-  listPartners.filter((partner) => partner.type_partner.id !== 2);
-
-
-  console.log("que:" ,filteredPartners)
+  const filteredPartners =
+    serviceType === 2
+      ? listPartners.filter((partner) => partner.type_partner.id === 2)
+      : listPartners.filter((partner) => partner.type_partner.id !== 2);
 
   return (
     <View style={styles.container}>
@@ -63,9 +77,7 @@ const SelectService = ({route}) => {
           onPress={() => setServiceType(2)}
         >
           <Text
-            style={
-              serviceType === 2 ? styles.selected : styles.notSelected
-            }
+            style={serviceType === 2 ? styles.selected : styles.notSelected}
           >
             Veterinarias
           </Text>
@@ -74,23 +86,23 @@ const SelectService = ({route}) => {
           style={serviceType != 2 ? styles.optionSelected : {}}
           onPress={() => setServiceType(3)}
         >
-          <Text
-            style={serviceType != 2 ? styles.selected : styles.notSelected}
-          >
+          <Text style={serviceType != 2 ? styles.selected : styles.notSelected}>
             Grooming
           </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.textOptionsForYou}>Encontramos estas opciones para ti</Text>
+        <Text style={styles.textOptionsForYou}>
+          Encontramos estas opciones para ti
+        </Text>
       </View>
       <View style={styles.partnersContainer}>
         <FlatList
-          data={filteredPartners}
-          renderItem={renderPartners}
-          keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
-          style={styles.flatList}
-        /> 
+              data={filteredPartners}
+              renderItem={renderPartners}
+              keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
+              style={styles.flatList}
+            />
       </View>
     </View>
   );

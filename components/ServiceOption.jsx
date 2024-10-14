@@ -15,10 +15,9 @@ import vetOption5 from "../assets/vet-option5.png";
 import { useNavigation } from "@react-navigation/native";
 
 const ServiceOption = (props) => {
-  const { title, item } = props;
+  const { service, picture,partenerLocation } = props;
 
   const navigation = useNavigation();
-
 
   const serviceImages = {
     "Consulta general veterinaria": vetOption5,
@@ -33,17 +32,17 @@ const ServiceOption = (props) => {
     "Vet Option 5": vetOption1,
   };
 
-  const selectedImage = serviceImages[title];
+  // const selectedImage = serviceImages[title];
 
   const goToCreateDate = async () => {
-    navigation.navigate("InfoServiceForDate", { item: item, title: title });
+    navigation.navigate("InfoServiceForDate", { service: service, partenerLocation:partenerLocation  });
   };
   return (
     <View style={styles.containerOption}>
       <TouchableOpacity style={styles.button} onPress={goToCreateDate}>
-        <Text style={styles.text}>{title}</Text>
+        <Text style={styles.text}>{service?.name}</Text>
         <Image
-          source={vetOption5}
+          source={{uri: picture}}
           style={styles.image}
           resizeMode={"contain"}
         />

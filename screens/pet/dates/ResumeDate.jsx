@@ -19,8 +19,16 @@ import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewComponent from "../../partners/MapViewComponent";
+import momentTZ from "../../../utils/moment";
 
-const ResumeDate = ({navigation}) => {
+const ResumeDate = ({ navigation, route }) => {
+  const { item } = route.params;
+  console.log("Esto estoy recibiendo: ", item.appointment_pet_services);
+  const dateFormated = momentTZ(
+    item.appointment_pet_services[0].appointment_time.start_time
+  ).format(
+    "dddd D [de] MMMM, h:mm [hrs]"
+  );
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -36,7 +44,9 @@ const ResumeDate = ({navigation}) => {
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>Dra. Dafne Villegas</Text>
+              <Text style={styles.description}>
+                {item.appointment_pet_services[0]?.user?.name}
+              </Text>
             </View>
           </View>
           <View style={styles.section}>
@@ -47,7 +57,9 @@ const ResumeDate = ({navigation}) => {
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>Vacuna antirrabica</Text>
+              <Text style={styles.description}>
+                {item?.appointment_pet_services[0]?.service?.name}
+              </Text>
             </View>
           </View>
           <View style={styles.section}>
@@ -59,10 +71,10 @@ const ResumeDate = ({navigation}) => {
                 resizeMode="contain"
               />
               <View style={styles.changeContainer}>
-                <Text style={styles.description}>
-                  Lunes 13 de febrero, 15:00 hrs
-                </Text>
-                <TouchableOpacity onPress={()=> navigation.navigate("ChangeDate")}>
+                <Text style={styles.description}>{dateFormated}</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("ChangeDate", {info: item.appointment_pet_services[0]})}
+                >
                   <Text style={styles.changeDate}>Cambiar fecha</Text>
                 </TouchableOpacity>
               </View>
@@ -74,9 +86,9 @@ const ResumeDate = ({navigation}) => {
             <Text style={styles.textSection}>Pet Xclusive</Text>
             <View style={styles.mapCompanyContain}>
               <MapViewComponent
-                latitude={19.4093655}
-                longitude={-99.171775}
-                title={"El lugar"}
+                latitude={item.partner.latitude}
+                longitude={item.partner.longitude}
+                title={item.partner.name}
                 description={item.partner.description}
               />
             </View>
@@ -90,7 +102,7 @@ const ResumeDate = ({navigation}) => {
                 resizeMode="contain"
               />
               <Text style={styles.description}>
-                Río Pánuco 168 - 160, Cuauhtémoc, CDMX, 06720.
+                Dirección pendiente
               </Text>
             </View>
           </View>
@@ -111,7 +123,7 @@ const ResumeDate = ({navigation}) => {
             <Text style={styles.textSection}>Teléfono</Text>
             <View style={styles.rowSection}>
               <Image source={phone} style={styles.image} resizeMode="cover" />
-              <Text style={styles.description}>55 555 5555</Text>
+              <Text style={styles.description}>{item.partner.phone}</Text>
             </View>
           </View>
         </View>

@@ -6,22 +6,22 @@ import {
   Share,
   View,
   Alert,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {Colors} from '../../styles/Colors';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import ServiceOption from '../../components/ServiceOption';
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Colors } from "../../styles/Colors";
+import { SafeAreaView } from "react-native-safe-area-context";
+import ServiceOption from "../../components/ServiceOption";
 
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import {useNavigation} from '@react-navigation/native';
-import AppStorage from '../../modules/AppStorage';
-import {getPartensId} from '../../services';
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import AppStorage from "../../modules/AppStorage";
+import { getPartensId } from "../../services";
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
-import ApiFetcher from '../../modules/ApiFetcher';
-import MapViewComponent from './MapViewComponent';
+import ApiFetcher from "../../modules/ApiFetcher";
+import MapViewComponent from "./MapViewComponent";
 
-const PartnersGeneralInfo = ({route}) => {
-  const {id, type} = route.params;
+const PartnersGeneralInfo = ({ route }) => {
+  const { id, type } = route.params;
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
@@ -37,26 +37,25 @@ const PartnersGeneralInfo = ({route}) => {
   }, []);
 
   useEffect(() => {
-    console.log('El item: ', item);
+    console.log("El item: ", item);
   }, [item]);
 
   const getPartnerInfo = async () => {
     try {
-      const token = await appStorage.getAppToken();
       const partner = await apiFetcher.getPartnersById(id);
       if (partner.code == 200 || partner.code == 201) setItem(partner.data);
       setIsLoading(false);
     } catch (error) {
-      console.log('Error: ', error);
-      Alert.alert('Ha ocurrido un error', 'Inténtelo de nuevo más tarde');
+      console.log("Error: ", error);
+      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
     }
   };
 
-  const shareInfo = async url => {
+  const shareInfo = async (url) => {
     try {
       const result = await Share.share({
         message: `Mira este lugar para nuestras mascotas: ${url}`,
-        title: 'Tobi',
+        title: "Tobi",
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -68,9 +67,14 @@ const PartnersGeneralInfo = ({route}) => {
         // dismissed
       }
     } catch (error) {
-      Alert.alert('Ocurrió un error', 'Inténtalo de nuevo más tarde');
+      Alert.alert("Ocurrió un error", "Inténtalo de nuevo más tarde");
     }
+
+    
   };
+
+  const partenerLocation =
+      `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,22 +85,23 @@ const PartnersGeneralInfo = ({route}) => {
           <>
             <View style={styles.headerContainer}>
               <Image
-                source={{uri: item.partner.picture}}
+                source={{ uri: item.partner.picture }}
                 style={styles.imageItem}
                 resizeMode="cover"
               />
               <TouchableOpacity
-                onPress={() => shareInfo(item.partner.latitude)}>
+                onPress={() => shareInfo(item.partner.latitude)}
+              >
                 <Image
-                  source={require('../../assets/share.png')}
-                  style={{height: 25, width: 25, marginRight: 15}}
+                  source={require("../../assets/share.png")}
+                  style={{ height: 25, width: 25, marginRight: 15 }}
                 />
               </TouchableOpacity>
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.mainTitle}>{item.partner.name}</Text>
               <Text style={styles.itemDirection}>
-                {item.address.state}, {item.address.city} {item.address.street}
+                {partenerLocation}
               </Text>
             </View>
             <View style={styles.servicesContainer}>
@@ -112,8 +117,9 @@ const PartnersGeneralInfo = ({route}) => {
                   {item.services.map((service, index) => (
                     <ServiceOption
                       key={index}
-                      title={service.name}
-                      item={item}
+                      picture={service.picture}
+                      service={service}
+                      partenerLocation={partenerLocation}
                     />
                   ))}
                 </View>
@@ -121,32 +127,32 @@ const PartnersGeneralInfo = ({route}) => {
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>
-                {type == 2 ? 'Especialistas' : 'Estilistas'}
+                {type == 2 ? "Especialistas" : "Estilistas"}
               </Text>
               <View
-                style={
-                  item.users.length != 0 ? styles.personsContainer : {}
-                }>
+                style={item.users.length != 0 ? styles.personsContainer : {}}
+              >
                 {item?.users?.length == 0 ? (
                   <View style={styles.notServices}>
                     <Text style={styles.itemDirection}>
-                      No hay {type == 2 ? 'especialistas' : 'estilistas'}{' '}
+                      No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
                       disponibles
                     </Text>
                   </View>
                 ) : (
                   <>
-                    {item.users.map(person => (
+                    {item.users.map((person) => (
                       <TouchableOpacity
                         key={person.id}
                         style={styles.mapContainer}
                         onPress={() =>
-                          navigation.navigate('ListPartners', {
+                          navigation.navigate("ListPartners", {
                             partners: item.users,
                           })
-                        }>
+                        }
+                      >
                         <Image
-                          source={{uri: person.picture}}
+                          source={{ uri: person.picture }}
                           style={styles.personImage}
                           resizeMode="cover"
                         />
@@ -174,9 +180,9 @@ const PartnersGeneralInfo = ({route}) => {
               <View style={styles.extraInfo}>
                 <View style={styles.flexContain}>
                   <Image
-                    source={require('../../assets/parking.png')}
+                    source={require("../../assets/parking.png")}
                     style={styles.icon}
-                    resizeMode={'cover'}
+                    resizeMode={"cover"}
                   />
                   <View>
                     <Text style={styles.itemTitle}>Estacionamiento</Text>
@@ -188,9 +194,9 @@ const PartnersGeneralInfo = ({route}) => {
 
                 <View style={styles.flexContain}>
                   <Image
-                    source={require('../../assets/phone-icon.png')}
+                    source={require("../../assets/phone-icon.png")}
                     style={styles.icon}
-                    resizeMode={'cover'}
+                    resizeMode={"cover"}
                   />
                   <View>
                     <Text style={styles.itemTitle}>Teléfono</Text>
@@ -229,16 +235,16 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   mainTitle: {
     fontSize: 30,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   itemTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   itemDirection: {
     fontSize: 15,
@@ -260,18 +266,18 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     marginTop: 10,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
 
   personsContainer: {
     margin: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   mapContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   map: {
     marginTop: 10,
@@ -279,14 +285,14 @@ const styles = StyleSheet.create({
     maxHeight: 200,
   },
   mapCompanyContain: {
-    alignItems: 'center',
+    alignItems: "center",
     maxHeight: 240,
   },
   extraInfo: {
     marginTop: 20,
   },
   flexContain: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 15,
   },
   icon: {
@@ -296,7 +302,7 @@ const styles = StyleSheet.create({
   },
   notServices: {
     marginTop: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -5,7 +5,6 @@ import { Colors, gradientColors } from '../styles/Colors'
 
 const VaccineCard = (props) => {
     const {info} = props;
-    console.log("vaccine: ",info)
   return (
     <View style={styles.mainContainer}>
     <View style={styles.sectionContainer}>

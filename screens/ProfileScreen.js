@@ -27,7 +27,7 @@ import NoPets from "../components/NoPets";
 import { useFocusEffect } from "@react-navigation/native";
 import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
-import { Text } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -182,13 +182,19 @@ const ProfileScreen = ({ route, navigation }) => {
               alignItems: "center",
             }}
           >
-            <Avatar.Image
+            <AnimatedImage
+              source={{ uri: item.picture }}
+              style={{ width: 50, height: 50, borderRadius: 32 }}
+              loader={<LoaderScreen color={Colors.primaryColor} size={15} />}
+              animationDuration={500}
+            />
+            {/* <Avatar.Image
               source={{
                 uri: item.picture,
               }}
               size={50}
               style={{ backgroundColor: "lightgrey" }}
-            />
+            /> */}
           </View>
           <View
             style={{

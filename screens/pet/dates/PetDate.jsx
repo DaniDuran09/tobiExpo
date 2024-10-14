@@ -1,103 +1,140 @@
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
-import React, { useEffect } from "react";
+import { Dimensions, FlatList, Image, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { Colors, gradientColors } from "../../../styles/Colors";
 import NoDates from "./NoDates";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
+import ApiFetcher from "../../../modules/ApiFetcher";
+import momentTZ from "../../../utils/moment";
+import { Text } from "react-native-ui-lib";
+import Toast from "react-native-toast-message";
+import Loading from "../../../components/Loading";
 
 const PetDate = ({ navigation, route }) => {
-  const { pet, visible } = route.params;
+  const { pet } = route.params;
+
+  const [appointment, setAppointment] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [existAppointment, setExistAppointment] = useState(false);
+
+  const apiFetcher = new ApiFetcher();
 
   useEffect(() => {
-    console.log("pet: ", pet);
+    fetchInfoAppointmentPet();
   }, []);
 
-  const goToExplore = () => {
-    navigation.navigate("Explore")
-  }
+  const fetchInfoAppointmentPet = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getAppointmentsByPet(pet.id);
+      if (response.data.length > 0) {
+        setAppointment(response.data);
+        setExistAppointment(true);
+      }
+    } catch (error) {
+      console.log("Error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: `No hemos podido obtener la información`,
+      });
+      navigation.goBack();
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const goToResume = () =>{
-    navigation.navigate("ResumeAppointment")
-  }
+  const goToExplore = () => {
+    navigation.navigate("Explore");
+  };
+
+  const goToResume = (item) => {
+    navigation.navigate("ResumeAppointment", { item: item });
+  };
+
+  const renderItem = (item) => {
+    const dateFormated = momentTZ(
+      item.appointment_pet_services[0].appointment_time.start_time
+    )
+      .tz("America/Mexico_City")
+      .format("MMMM DD [-] HH:mm A");
+    const service = item.appointment_pet_services[0].service.name;
+    return (
+      <TouchableOpacity
+        style={styles.mainAppointmentContainer}
+        onPress={() => goToResume(item)}
+      >
+        <View style={styles.imageInfoContainer}>
+          <Image
+            source={require("../../../assets/calendar-icon-date.png")}
+            style={styles.imageCalendar}
+          />
+          <View style={styles.appointmentInfo}>
+            <Text text70BL>{dateFormated}</Text>
+            <Text style={styles.petBreed}>{service}</Text>
+          </View>
+        </View>
+        <View style={styles.checkAndArrow}>
+          <Icon name="check" size={25} color={Colors.primaryColor} />
+          <Icon name="chevron-right" size={35} color={Colors.primaryColor} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <>
-      {visible ? (
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Image source={{ uri: pet.picture }} style={styles.profileImage} />
-            <View style={styles.petInfo}>
-              <Text style={styles.petName}>{pet.name}</Text>
-              <Text style={styles.petBreed}>{pet.pet_breed.description}</Text>
-            </View>
-          </View>
-          <View style={styles.appointments}>
-            <View style={styles.appointmentContainer}>
-              <Text style={styles.titleAppointment}>Citas</Text>
-              <TouchableOpacity style={styles.newAppointment} onPress={goToExplore}>
-                <LinearGradient
-                  colors={gradientColors}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={styles.newAppointment}
-                >
-                  <Text style={styles.newAppointmentText}>Nueva +</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.appointmentsList}>
-              <TouchableOpacity style={styles.mainAppointmentContainer} onPress={goToResume}>
-                <View style={styles.imageInfoContainer}>
-                  <Image
-                    source={require("../../../assets/calendar-icon-date.png")}
-                    style={styles.imageCalendar}
-                  />
-                  <View style={styles.appointmentInfo}>
-                    <Text style={styles.titleAppointment}>
-                      Abril 13 - 04:00 PM
-                    </Text>
-                    <Text style={styles.petBreed}>Desparasitación</Text>
-                  </View>
-                </View>
-                <View style={styles.checkAndArrow}>
-                  <Icon name="check" size={25} color={Colors.primaryColor} />
-                  <Icon
-                    name="chevron-right"
-                    size={35}
-                    color={Colors.primaryColor}
-                  />
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.mainAppointmentContainer} onPress={goToResume}>
-                <View style={styles.imageInfoContainer}>
-                  <Image
-                    source={require("../../../assets/calendar-icon-date.png")}
-                    style={styles.imageCalendar}
-                  />
-                  <View style={styles.appointmentInfo}>
-                    <Text style={styles.titleAppointment}>
-                      Abril 13 - 04:00 PM
-                    </Text>
-                    <Text style={styles.petBreed}>Desparasitación</Text>
-                  </View>
-                </View>
-                <View style={styles.checkAndArrow}>
-                  <Icon name="check" size={25} color={Colors.primaryColor} />
-                  <Icon
-                    name="chevron-right"
-                    size={35}
-                    color={Colors.primaryColor}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      ) : (
-        <NoDates />
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
       )}
+      <>
+        {existAppointment ? (
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Image
+                source={{ uri: pet.picture }}
+                style={styles.profileImage}
+              />
+              <View style={styles.petInfo}>
+                <Text style={styles.petName}>{pet.name}</Text>
+                <Text style={styles.petBreed}>{pet.pet_breed.description}</Text>
+              </View>
+            </View>
+            <View style={styles.appointments}>
+              <View style={styles.appointmentContainer}>
+                <Text style={styles.titleAppointment}>Citas</Text>
+                <TouchableOpacity
+                  style={styles.newAppointment}
+                  onPress={goToExplore}
+                >
+                  <LinearGradient
+                    colors={gradientColors}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={styles.newAppointment}
+                  >
+                    <Text style={styles.newAppointmentText}>Nueva +</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.appointmentsList}>
+                <FlatList
+                  data={appointment}
+                  renderItem={({ item }) => renderItem(item)}
+                  keyExtractor={(item) => item.id}
+                  style={styles.flatList}
+                />
+              </View>
+            </View>
+          </View>
+        ) : (
+          <NoDates />
+        )}
+      </>
     </>
   );
 };
@@ -139,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   titleAppointment: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
   },
   newAppointment: {
@@ -168,15 +205,15 @@ const styles = StyleSheet.create({
   },
   imageInfoContainer: {
     flexDirection: "row",
-    gap: 15,
+    gap: 10,
     alignItems: "center",
+    width: "80%",
   },
   appointmentInfo: {
     alignItems: "flex-start",
   },
   checkAndArrow: {
     flexDirection: "row",
-    gap: 15,
     alignItems: "center",
   },
 });
