@@ -1,302 +1,169 @@
 import AppStorage from "./AppStorage.js";
 import axios from "axios";
+import { URL } from "@env";
 
-const BASE_URL =
-  "https://api.tobipets.mx/api/v1/portal_client";
-
-export default class ApiFetcher {
+class ApiFetcher {
   constructor() {
     this.appStorage = new AppStorage();
-    this.userId = null;
   }
 
-  async _get(url) {
-    url = `${BASE_URL}${url}`;
-    const token = await this.appStorage.getAppToken();
-    console.log("GET url => ", url);
+  buildUrl(endpoint) {
+    return `${URL}${endpoint}`;
+  }
 
+  async getHeaders(tokenRequired = true, isMultipart = false) {
     const headers = {
       Accept: "application/json",
-      Authorization: `Bearer ${token}`,
+      "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
     };
-
-    console.log("Headers => ", headers);
-
-    const response = await axios.get(url, {
-      headers,
-      timeout: 15000,
-    });
-
-    if (response.status == 200) {
-      return response.data;
-    } else {
-      const error = "Status code error";
-      throw error;
+    if (tokenRequired) {
+      const token = await this.appStorage.getAppToken();
+      headers.Authorization = `Bearer ${token}`;
     }
+    return headers;
   }
 
-  //DELETE
-  async _delete(url) {
-    url = `${BASE_URL}${url}`;
-    const token = await this.appStorage.getAppToken();
-    console.log("DELETE url => ", url);
-  
-    const headers = {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-  
-    console.log("Headers => ", headers);
-  
-    try {
-      const response = await axios.delete(url, {
-        headers,
-        timeout: 15000,
-      });
-  
-      if (response.status == 200) {
-        return response.status;
-      } else {
-        const error = "Status code error";
-        throw error;
-      }
-    } catch (error) {
-      console.error("Error", error.response ? error.response.data : error.message);
-      throw error;
-    }
-  }
-
-  async _getNoToken(url) {
-    url = `${BASE_URL}${url}`;
-    console.log("GET url => ", url);
-    const headers = {
-      Accept: "application/json",
-    };
-
-    console.log("Headers => ", headers);
-
-    const response = await axios.get(url, {
-      headers,
-      timeout: 15000,
-    });
-
-    if (response.status == 200) {
-      return response.data;
-    } else {
-      const error = "Status code error";
-      throw error;
-    }
-  }
-
-  async _post(url, data) {
-    const token = await this.appStorage.getAppToken();
-
-    url = `${BASE_URL}${url}`;
-    console.log("Post url => ", url);
-
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      authorization: `Bearer ${token}`,
-    };
-
-    console.log("Headers => ", headers);
-
-    const response = await axios.post(url, data, {
-      headers,
-      timeout: 15000,
-    });
-
-    if (response.status == 200) {
-      return response.data;
-    }
-
-    const error = "Status code error";
-    throw error;
-  }
-
-  async _putPicture(url, image) {
-    const token = await this.appStorage.getAppToken();
-
-    url = `${BASE_URL}${url}`;
-    console.log("Put url => ", url);
-
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "multipart/form-data",
-      authorization: `Bearer ${token}`,
-    };
-
-    console.log("image => ", image);
-    console.log("Headers => ", headers);
-
-    const response = await axios.put(url, image, {
-      headers,
-      timeout: 15000,
-    });
-
-    if (response.status == 200) {
-      return response.data;
-    }
-
-    console.log("Put response => ", response);
-    const error = "Status code error";
-    throw error;
-  }
-
-  async _put(url, data) {
-    const token = await this.appStorage.getAppToken();
-
-    url = `${BASE_URL}${url}`;
-    console.log("Put url => ", url);
-
-    const headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      authorization: `Bearer ${token}`,
-    };
-
-    console.log("Data => ", data);
-    console.log("Headers => ", headers);
-
-    const response = await axios.put(url, data, {
-      headers,
-      timeout: 15000,
-    });
-
-    if (response.status == 200) {
-      return response.data;
-    }
-
-    console.log("Put response => ", response);
-    const error = "Status code error";
-    throw error;
-  }
-
-  async _postNoToken(url, data) {
-    url = `${BASE_URL}${url}`;
-    console.log("Post no token Url => ", url);
-
-    try {
-      const response = await axios.post(url, data, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        timeout: 15000,
-      });
-
-      if (response.status === 200) {
-        return response.data;
-      }
-      console.log("Response no token => ", response);
+  handleErrors(response) {
+    if (response.status !== 200) {
       throw new Error("Status code error");
+    }
+    return response.data;
+  }
+
+  async _get(endpoint, tokenRequired = true) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired);
+      const response = await axios.get(url, { headers, timeout: 15000 });
+      return this.handleErrors(response);
     } catch (error) {
-      if (error.response) {
-        console.log("Error: ", error.response);
-        console.log("Error response status:", error.response.data.errors);
-        return error.response.data;
-      }
-      // throw error;
+      console.error("Error in GET request:", error);
+      throw error;
     }
   }
 
+  async _post(endpoint, data, tokenRequired = true) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired);
+      const response = await axios.post(url, data, { headers, timeout: 15000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.error("Error in POST request:", error);
+      throw error;
+    }
+  }
+  async _put(endpoint, data, tokenRequired = true, isMultipart = false) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired, isMultipart);
+      const response = await axios.put(url, data, { headers, timeout: 15000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.error("Error in PUT request:", error);
+      throw error;
+    }
+  }
+
+  async _delete(endpoint, tokenRequired = true) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired);
+      const response = await axios.delete(url, { headers, timeout: 15000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.error("Error in DELETE request:", error);
+      throw error;
+    }
+  }
+
+  // Métodos específicos de la API
+
+  // auth
   async login(data) {
-    const url = `/login`;
-    return await this._postNoToken(url, data);
+    return await this._post("/login", data, false);
   }
 
   async registerUser(data) {
-    const url = `/registers`;
-    return await this._postNoToken(url, data);
+    return await this._post("/registers", data, false);
   }
 
-  async registerPet(data) {
-    const url = `/pets`;
-    return await this._post(url, data);
-  }
-
-  async updatePicturePet(id, image) {
-    const url = `/pets/save/picture/${id}`;
-    return await this._putPicture(url, image);
-  }
+  // user
 
   async updatePictureProfile(image) {
-    const url = `/profile/save/picture`;
-    return await this._putPicture(url, image);
-  }
-
-  async updatePet(id, data) {
-    const url = `/pets/${id}`;
-    return await this._put(url, data);
+    return await this._put(`/profile/save/picture`, image, true, true);
   }
 
   async updateUser(data) {
-    const url = `/profile/update/information`;
-    return await this._put(url, data);
+    return await this._put(`/profile/update/information`, data);
+  }
+  
+  async getProfile() {
+    return await this._get("/profile");
   }
 
-  // async getExample() {
-  //   const url = `/getExample`;
-  //   return await this._get(url);
-  // }
+  // pets
+
+  async registerPet(data) {
+    return await this._post("/pets", data);
+  }
+
+  async updatePicturePet(id, image) {
+    return await this._put(`/pets/save/picture/${id}`, image, true, true);
+  }
+
+  async updatePet(id, data) {
+    return await this._put(`/pets/${id}`, data);
+  }
 
   async getPetBrands(id) {
-    const url = `/pets_breeds?type_pet=${id}`;
-    return await this._getNoToken(url);
-  }
-
-  async getProfile() {
-    const url = `/profile`;
-    return await this._get(url);
+    return await this._get(`/pets_breeds?type_pet=${id}`, false);
   }
 
   async getPets() {
-    const url = `/pets`;
-    return await this._get(url);
+    return await this._get("/pets");
   }
 
   async getPetById(id) {
-    const url = `/pets/${id}`;
-    return await this._get(url);
-  }
-  
-  async deletePet(id){
-    const url = `/pets/${id}`;
-    return await this._delete(url);
+    return await this._get(`/pets/${id}`);
   }
 
+  async deletePet(id) {
+    return await this._delete(`/pets/${id}`);
+  }
+
+  // vaccines
   async getVaccines(id) {
-    const url = `/pets/${id}/vaccines`;
-    return await this._get(url);
+    return await this._get(`/pets/${id}/vaccines`);
   }
 
   async saveVaccine(data) {
-    const url = `/pets/${data.pet_id}/vaccination_records`;
-    return await this._post(url, data);
+    return await this._post(`/pets/${data.pet_id}/vaccination_records`, data);
   }
+
+  // partners
 
   async getPartners() {
-    const url = `/partners`;
-    return await this._get(url);
-  }
-  async getPartnersById(id) {
-    const url = `/partners/${id}`;
-    return await this._get(url);
+    return await this._get("/partners");
   }
 
+  async getPartnersById(id) {
+    return await this._get(`/partners/${id}`);
+  }
+
+  // appointments
+
   async getAppointments() {
-    const url = `/appointments`;
-    return await this._get(url);
+    return await this._get("/appointments");
   }
 
   async getAppointmentsByPet(id) {
-    const url = `/appointments?pet_id=${id}`;
-    return await this._get(url);
+    return await this._get(`/appointments?pet_id=${id}`);
   }
 
   async registerAppointments(data) {
-    const url = `/appointments`;
-    return await this._post(url, data);
+    return await this._post("/appointments", data);
   }
 }
+
+export default ApiFetcher;

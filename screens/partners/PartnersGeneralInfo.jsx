@@ -2,10 +2,9 @@ import {
   Image,
   ScrollView,
   StyleSheet,
-  Text,
   Share,
-  View,
   Alert,
+  FlatList,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
@@ -19,6 +18,9 @@ import { getPartensId } from "../../services";
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import ApiFetcher from "../../modules/ApiFetcher";
 import MapViewComponent from "./MapViewComponent";
+import { ActionSheet, Text, View } from "react-native-ui-lib";
+import { clearAppointments } from "../../redux/slice/appointmentSlice";
+import { useDispatch } from "react-redux";
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
@@ -26,13 +28,17 @@ const PartnersGeneralInfo = ({ route }) => {
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
+  const dispatch = useDispatch()
 
   const partner = [{}, {}, {}, {}];
 
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
+  
+
   useEffect(() => {
+    dispatch(clearAppointments())
     getPartnerInfo();
   }, []);
 
@@ -69,12 +75,33 @@ const PartnersGeneralInfo = ({ route }) => {
     } catch (error) {
       Alert.alert("Ocurrió un error", "Inténtalo de nuevo más tarde");
     }
-
-    
   };
 
-  const partenerLocation =
-      `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`
+  
+
+  const renderUsers = (user) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("ListPartners", {
+            partners: item.users,
+            services: item.services
+          })
+        }
+      >
+        <View center marginR-25>
+          <Image
+            source={{ uri: user.picture }}
+            style={styles.personImage}
+            resizeMode="cover"
+          />
+          <Text text70R>{user.display_name}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const partenerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -100,9 +127,7 @@ const PartnersGeneralInfo = ({ route }) => {
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.mainTitle}>{item.partner.name}</Text>
-              <Text style={styles.itemDirection}>
-                {partenerLocation}
-              </Text>
+              <Text style={styles.itemDirection}>{partenerLocation}</Text>
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>Servicios</Text>
@@ -120,6 +145,7 @@ const PartnersGeneralInfo = ({ route }) => {
                       picture={service.picture}
                       service={service}
                       partenerLocation={partenerLocation}
+                      listService={item.services}
                     />
                   ))}
                 </View>
@@ -141,26 +167,13 @@ const PartnersGeneralInfo = ({ route }) => {
                   </View>
                 ) : (
                   <>
-                    {item.users.map((person) => (
-                      <TouchableOpacity
-                        key={person.id}
-                        style={styles.mapContainer}
-                        onPress={() =>
-                          navigation.navigate("ListPartners", {
-                            partners: item.users,
-                          })
-                        }
-                      >
-                        <Image
-                          source={{ uri: person.picture }}
-                          style={styles.personImage}
-                          resizeMode="cover"
-                        />
-                        <Text style={styles.itemDirection}>
-                          {person.username}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+                    <FlatList
+                      data={item.users}
+                      horizontal={true}
+                      renderItem={({ item }) => renderUsers(item)}
+                      keyExtractor={(item) => item.id.toString()}
+                      showsHorizontalScrollIndicator={false}
+                    />
                   </>
                 )}
               </View>
@@ -227,9 +240,9 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   personImage: {
-    height: 90,
-    width: 90,
-    borderRadius: 100,
+    height: 60,
+    width: 60,
+    borderRadius: 32,
   },
   containerAll: {
     padding: 10,
@@ -250,7 +263,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 5,
     color: Colors.gray,
-    marginBottom: 15,
   },
   infoContainer: {
     marginTop: 15,
@@ -260,7 +272,7 @@ const styles = StyleSheet.create({
   },
   servicesContainer: {
     marginTop: 15,
-    paddingBottom: 40,
+    paddingBottom: 20,
     borderBottomColor: Colors.gray,
     borderBottomWidth: 0.5,
   },
@@ -269,7 +281,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-
   personsContainer: {
     margin: 20,
     flexDirection: "row",

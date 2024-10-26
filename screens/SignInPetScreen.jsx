@@ -105,7 +105,7 @@ const SignInPetScreen = props => {
             }}>
             <Image
               source={require('../assets/frame.png')}
-              style={{height: 80, width: 150}}
+              style={{height: 80, width: 150, marginTop: 25}}
               resizeMode={'contain'}
             />
             <Text
@@ -141,8 +141,8 @@ const SignInPetScreen = props => {
               elevation={5}
               style={styles.textInput}
               autoCapitalize="none"
-              value={data.namePet}
-              onChangeText={val => setData({...data, namePet: val})} 
+              value={data.name}
+              onChangeText={val => setData({...data, name: val})} 
             />
             <View
               style={{

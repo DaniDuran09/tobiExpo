@@ -32,7 +32,7 @@ const RegisterNewPet = (props) => {
 
   const petInfo = useSelector((store) => store.pet.info);
 
-  console.log(petInfo?.birthday);
+  // console.log(petInfo?.birthday);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();

@@ -15,8 +15,7 @@ import { setPicturePet } from "../../../redux/slice/petSlice";
 import ImageOption from "../../../components/ImageOption";
 
 const FinalScreenRegisterPet = (props) => {
-  const { backgroundColor } = props;
-  const [imageSource, setImageSource] = useState(null);
+  const { backgroundColor, imageSource, setImageSource } = props;
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
 
@@ -48,7 +47,7 @@ const FinalScreenRegisterPet = (props) => {
       console.log("result: ", result);
       if (!result.canceled) {
         closeModal();
-        setImageSource({ uri: result.assets[0]?.uri });
+        setImageSource({ uri: result.assets[0] });
         dispatch(setPicturePet(result.assets[0]));
       }
     } catch (error) {
@@ -100,7 +99,7 @@ const FinalScreenRegisterPet = (props) => {
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.imageContainer}>
               <Image
-                source={imageSource}
+                source={imageSource.uri}
                 style={styles.imageSelected}
                 resizeMode={"cover"}
               />

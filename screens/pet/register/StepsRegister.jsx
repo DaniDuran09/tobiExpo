@@ -23,6 +23,7 @@ import Toast from "react-native-toast-message";
 const StepsRegister = () => {
   const labels = ["1", "2", "3"];
   const [currentPosition, setCurrentPosition] = useState(0);
+  const [imageSource, setImageSource] = useState(null);
   const [pet, setPet] = useState(1);
   const petInfo = useSelector((store) => store.pet.info);
   const picturePet = useSelector((store) => store.pet.picture);
@@ -124,7 +125,13 @@ const StepsRegister = () => {
       case 1:
         return <SecondScreenRegisterPet pet={pet} />;
       case 2:
-        return <FinalScreenRegisterPet backgroundColor={Colors.white} />;
+        return (
+          <FinalScreenRegisterPet
+            backgroundColor={Colors.white}
+            imageSource={imageSource}
+            setImageSource={setImageSource}
+          />
+        );
       default:
         return null;
     }

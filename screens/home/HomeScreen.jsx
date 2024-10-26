@@ -18,7 +18,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import NoPetsHome from "../../components/NoPetsHome";
 import { setUserInfo } from "../../redux/slice/userSlice";
-import { Text } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../utils/moment";
 
@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = (item) => {
-    console.log(item?.service_date);
+    // console.log(item?.service_date);
     let service = "---";
     let remainingDays = {
       text: "---",
@@ -98,12 +98,12 @@ const HomeScreen = ({ navigation }) => {
 
       console.log("today: ", today);
 
-      console.log(
-        "serviceDate: ",
-        serviceDate.format("dddd D [de] MMMM, h:mm [hrs]")
-      );
+      // console.log(
+      //   "serviceDate: ",
+      //   serviceDate.format("dddd D [de] MMMM, h:mm [hrs]")
+      // );
 
-      service = serviceDate.format("DD[.]MMM");
+      service = momentTZ(item?.service_date).format("DD[.]MMM");
       const daysDifference = serviceDate.diff(today, "days");
       if (daysDifference < 0) {
         remainingDays = {
@@ -136,12 +136,13 @@ const HomeScreen = ({ navigation }) => {
             flexDirection: "row",
           }}
         >
-          <Avatar.Image
-            source={{
-              uri: item?.picture,
-            }}
-            size={35}
-            style={{ backgroundColor: "lightgrey" }}
+          <AnimatedImage
+            source={{ uri: item?.picture }}
+            style={{ height: 35,
+              width: 35,
+              borderRadius: 32, }}
+            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+            animationDuration={500}
           />
           <Text text70BO marginL-10>
             {item.name}

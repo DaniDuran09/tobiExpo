@@ -6,6 +6,7 @@ import {
   View,
   CheckBox,
   Touchable,
+  FlatList,
 } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "../../styles/Colors";
@@ -15,17 +16,22 @@ import vetOption4 from "../../assets/vet-option4.png";
 import vetOption5 from "../../assets/vet-option5.png";
 import DatePicker from "react-native-date-picker";
 import { useNavigation } from "@react-navigation/native";
+import { Checkbox } from "react-native-ui-lib";
 
 const InfoServiceByPartner = ({ route }) => {
+  const { partner, services } = route.params;
+  const [selectedServices, setSelectedServices] = useState([]);
   const [isCheked, setIsChecked] = useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [openTime, setOpenTime] = React.useState(false);
-  const [date, setDate] = React.useState(new Date());
-  const [time, setTime] = React.useState(null);
+  const [open, setOpen] = useState(false);
+  const [openTime, setOpenTime] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(null);
   const [infoDate, setInfoDate] = useState({
     date: "",
     time: "",
   });
+
+  console.log("Lo que recibo: ", partner);
 
   const navigation = useNavigation();
 
@@ -33,120 +39,66 @@ const InfoServiceByPartner = ({ route }) => {
     navigation.navigate("ResumeDateByPartner");
   };
 
+  const toggleServiceSelection = (service) => {
+    setSelectedServices((prevSelected) => {
+      return prevSelected.includes(service)
+        ? prevSelected.filter((s) => s !== service)
+        : [...prevSelected, service];
+    });
+  };
+
+  const renderServices = (item) => {
+    const isChecked = selectedServices.includes(item);
+    return (
+      <View style={styles.option}>
+        <View style={styles.mainContainer}>
+          <Text style={styles.title}>{item.name}</Text>
+          <View style={styles.imageContainer}>
+            <Image source={vetOption5} style={styles.image} />
+            <View style={{ width: "80%" }}>
+              <Text style={styles.description}>{item.description}</Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.price}>{item.price}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View>
+          <Checkbox
+            color={Colors.primaryColor}
+            value={isChecked}
+            onValueChange={() => toggleServiceSelection(item)}
+          />
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Image source={require('../../assets/testPerson.png')} />
-        <Text style={styles.partnerName}>Dra. Dafne Villegas</Text>
-        <Text style={styles.partnerDescription}>MVZ con especialidad en Cirugía interna para razas pequeñas. Perros y gatos.</Text>
-        <Text style={styles.partnerCertification}>Céd. Prof. 123456</Text>
+        <Image
+          source={{ uri: partner?.picture }}
+          width={100}
+          height={100}
+          resizeMode="cover"
+          borderRadius={100}
+        />
+        <Text style={styles.partnerName}>{partner?.display_name}</Text>
+        <Text style={styles.partnerDescription}>Descripción pendiente</Text>
+        <Text style={styles.partnerCertification}>
+          Pendiente Céd. Prof. 123456
+        </Text>
       </View>
       <View>
-      <Text style={styles.mainTitle}>Agendar cita</Text>
+        <Text style={styles.mainTitle}>Agendar cita</Text>
       </View>
       <View style={styles.servicesContainer}>
-        <View style={styles.option}>
-          <View style={styles.mainContainer}>
-            <Text style={styles.title}>Consulta general</Text>
-            <View style={styles.imageContainer}>
-              <Image source={vetOption5} style={styles.image} />
-              <View style={{width: "80%"}}>
-                <Text style={styles.description}>
-                  Revisión del estado general de salud de la mascota, signos
-                  vitales, y revisión general en todo su cuerpo.
-                </Text>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.price}>$150.55</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          <View>
-            {isCheked ? (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle" size={25} color={"#F25455"} />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle-outline" size={25} color={Colors.white} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-        <View style={styles.option}>
-          <View style={styles.mainContainer}>
-            <Text style={styles.title}>Consulta nutricional</Text>
-            <View style={styles.imageContainer}>
-              <Image source={vetOption5} style={styles.image} />
-              <View style={{width: "80%"}}>
-                <Text style={styles.description}>
-                  Valoración del estado de la mascota, planes para pérdida o
-                  ganancia de peso, asesoría nutricional.
-                </Text>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.price}>$150.55</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          <View>
-            {isCheked ? (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle" size={25} color={"#F25455"} />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle-outline" size={25} color={Colors.white} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-        <View style={styles.option}>
-          <View style={styles.mainContainer}>
-            <Text style={styles.title}>Esterilización de perros y gatos</Text>
-            <View style={styles.imageContainer}>
-              <Image source={vetOption4} style={styles.image} />
-              <View style={{width: "80%"}}>
-                <Text style={styles.description}>
-                  Procedimiento quirúrgico y ambulatorio para inhabilitar la
-                  reproducción de tu mascota.
-                </Text>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.price}>$150.55</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          <View>
-            {isCheked ? (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle" size={25} color={"#F25455"} />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.buttonChecked}
-                onPress={() => setIsChecked(!isCheked)}
-              >
-                <Icon name="rectangle-outline" size={25} color={Colors.white} />
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
+        <FlatList
+          keyExtractor={(item, index) => `item-${index}`}
+          data={services}
+          renderItem={({ item }) => renderServices(item)}
+        />
       </View>
       <View style={styles.dateContainer}>
         <Text style={styles.title}>Fecha y hora</Text>
@@ -243,21 +195,21 @@ const styles = StyleSheet.create({
   },
   header: {
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
-  partnerName:{
+  partnerName: {
     fontSize: 18,
     fontWeight: "600",
     marginTop: 5,
-    marginBottom: 5
+    marginBottom: 5,
   },
-  partnerDescription:{
+  partnerDescription: {
     textAlign: "center",
     marginBottom: 5,
   },
-  partnerCertification:{
+  partnerCertification: {
     fontSize: 12,
-    marginBottom: 10
+    marginBottom: 10,
   },
   mainTitle: {
     fontSize: 18,

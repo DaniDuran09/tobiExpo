@@ -13,11 +13,14 @@ import vetOption2 from "../assets/vet-option2.png";
 import vetOption4 from "../assets/vet-option4.png";
 import vetOption5 from "../assets/vet-option5.png";
 import { useNavigation } from "@react-navigation/native";
+import { setServiceInfo } from "../redux/slice/appointmentSlice";
+import { useDispatch } from "react-redux";
 
 const ServiceOption = (props) => {
-  const { service, picture,partenerLocation } = props;
+  const { service, picture, partenerLocation, listService } = props;
 
   const navigation = useNavigation();
+  const dispatch = useDispatch()
 
   const serviceImages = {
     "Consulta general veterinaria": vetOption5,
@@ -35,14 +38,20 @@ const ServiceOption = (props) => {
   // const selectedImage = serviceImages[title];
 
   const goToCreateDate = async () => {
-    navigation.navigate("InfoServiceForDate", { service: service, partenerLocation:partenerLocation  });
+    navigation.navigate("InfoServiceForDate");
+    dispatch(
+      setServiceInfo(
+        // ...service, partenerLocation: partenerLocation
+        listService
+      )
+    );
   };
   return (
     <View style={styles.containerOption}>
       <TouchableOpacity style={styles.button} onPress={goToCreateDate}>
         <Text style={styles.text}>{service?.name}</Text>
         <Image
-          source={{uri: picture}}
+          source={{ uri: picture }}
           style={styles.image}
           resizeMode={"contain"}
         />
