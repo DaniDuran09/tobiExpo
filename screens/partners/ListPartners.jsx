@@ -6,29 +6,33 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {Colors} from '../../styles/Colors';
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Colors } from "../../styles/Colors";
 
-const ListPartners = ({route, navigation}) => {
-  const {partners, action} = route.params;
+const ListPartners = ({ route, navigation }) => {
+  const { partners, action, services } = route.params;
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Lo que recibo: ', partners);
+    console.log("Lo que recibo: ", services);
   }, []);
 
-  const renderItem = item => {
+  const renderItem = (item) => {
     return (
       <TouchableOpacity
         style={styles.elevation}
         onPress={() =>
           action
             ? action(item.name)
-            : navigation.navigate('InfoServiceByPartner')
-        }>
+            : navigation.navigate("InfoServiceByPartner", {
+                partner: item,
+                services: services,
+              })
+        }
+      >
         <Image
-          source={{uri: item.picture}}
+          source={{ uri: item.picture }}
           style={styles.image}
           resizeMode="cover"
         />
@@ -41,7 +45,7 @@ const ListPartners = ({route, navigation}) => {
           <Text>Céd. Prof. 123456</Text>
         </View>
         <Image
-          source={require('.././../assets/arrowRigth.png')}
+          source={require(".././../assets/arrowRigth.png")}
           style={styles.arrow}
           resizeMode="contain"
         />
@@ -61,8 +65,8 @@ const ListPartners = ({route, navigation}) => {
         //     //   onRefresh={blog}
         //     />
         //   }
-        renderItem={({item}) => renderItem(item)}
-        style={{height: '100%'}}
+        renderItem={({ item }) => renderItem(item)}
+        style={{ height: "100%" }}
       />
     </View>
   );
@@ -78,21 +82,21 @@ const styles = StyleSheet.create({
   title: {
     padding: 15,
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   elevation: {
     backgroundColor: Colors.white,
     shadowColor: Colors.black,
     marginBottom: 10,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 5,
     paddingLeft: 10,
     paddingRight: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
   },
   image: {
@@ -101,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   infoContainer: {
-    width: '70%',
+    width: "70%",
   },
   arrow: {
     width: 20,

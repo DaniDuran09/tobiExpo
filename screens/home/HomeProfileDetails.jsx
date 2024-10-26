@@ -71,6 +71,7 @@ const HomeProfileDetails = ({route, navigation}) => {
           style={{
             height: "12%",
             justifyContent: 'center',
+            padding: 10
           }}>
           <Text style={styles.petName}>{item.name}</Text>
           <Text style={styles.info}>{`${item.age} años | ${

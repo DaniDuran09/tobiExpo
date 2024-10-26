@@ -9,12 +9,8 @@ import {
   RefreshControl,
   TouchableWithoutFeedback,
   FlatList,
-  ImageBackground,
-  Modal,
   Platform,
 } from "react-native";
-
-import { Avatar } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import BottomMenu from "../components/BottomMenu";
 import AppStorage from "../modules/AppStorage";
@@ -46,8 +42,6 @@ const ProfileScreen = ({ route, navigation }) => {
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
-
-  //console.log('name', name)
 
   useEffect(() => {
     petList();
@@ -143,7 +137,7 @@ const ProfileScreen = ({ route, navigation }) => {
       const status = await apiFetcher.deletePet(id);
       console.log("IMPRIME EL STATUS", status);
 
-      if (status === 200) {
+      if (status.code === 200) {
         closeDeleteModal();
         petList();
       }
@@ -269,10 +263,12 @@ const ProfileScreen = ({ route, navigation }) => {
       )}
       <View style={{ height: "20%", width: "100%", alignItems: "center" }}>
         {userData.picture ? (
-          <Image
+          <AnimatedImage
             source={{ uri: userData.picture }}
             style={styles.image}
             resizeMode={"cover"}
+            loader={<LoaderScreen color={Colors.primaryColor} size={15} />}
+            animationDuration={500}
           />
         ) : (
           <>

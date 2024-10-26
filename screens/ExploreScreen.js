@@ -1,38 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Button,
   StyleSheet,
-  TextInput,
   FlatList,
   Dimensions,
   TouchableWithoutFeedback,
-  Image,
   RefreshControl,
-  Platform,
   ImageBackground,
   Alert,
 } from "react-native";
-import { getPartens } from "../services";
-import { useDispatch, useSelector } from "react-redux";
-import { generalDataAction } from "../redux/generalDuck";
-import { Avatar } from "react-native-paper";
-import AppStorage from "../modules/AppStorage";
 import ApiFetcher from "../modules/ApiFetcher";
 
 const { width, height } = Dimensions.get("window");
 
 const ExploreScreen = ({ navigation }) => {
-  // const { token } = useSelector((store) => store.general.user);
-  //const { name } = useSelector(store => store.general.user.user)
-  const [data, setData] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [data, setData] =useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
 
-  React.useEffect(() => {
+  useEffect(() => {
     partnerList();
   }, []);
 
@@ -46,22 +34,9 @@ const ExploreScreen = ({ navigation }) => {
     } finally {
       setLoading(false)
     }
-    // getPartens(token)
-    //   .then((response) => {
-    //     //console.log('response:::::', response.data)
-    //     setData(response.data);
-    //     setLoading(false);
-    //   })
-    //   .catch((err) => {
-    //     console.log("listPeterr:::::", err);
-    //     Alert.alert("Sucedio un error!", "El servicio no esta disponible", [
-    //       { text: "OK", onPress: () => setLoading(false) },
-    //     ]);
-    //   });
   };
 
   const renderItem = (item) => {
-    //console.log('pet', item.picture)
     return (
       <View
         elevation={5}
@@ -223,25 +198,3 @@ const styles = StyleSheet.create({
     },
   },
 });
-
-{
-  /* <FlatList
-          // numColumns={3}
-          keyExtractor={(item, index) => `item-${index}`}
-          data={data}
-          ItemSeparatorComponent={() => (
-            <View style={{ height: 10 }} />
-          )}
-          refreshControl={<RefreshControl
-            //refreshing={this.state.isFetching}
-            onRefresh={() => fetchDta()}
-            tintColor="#55D0DC"
-            title="Loading..."
-            titleColor="black"
-            colors={['black', 'black', 'black']}
-            progressBackgroundColor="white"
-          />
-          }
-          renderItem={({ item }) => renderItem(item)}
-        /> */
-}

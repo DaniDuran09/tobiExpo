@@ -1,41 +1,148 @@
-import { Image, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import { FlatList, Image, ScrollView, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import vetOption1 from "../../../assets/vet-option1.png";
-import { useNavigation } from "@react-navigation/native";
-import { Checkbox, DateTimePicker, Text, View } from "react-native-ui-lib";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import {
+  AnimatedImage,
+  Checkbox,
+  DateTimePicker,
+  LoaderScreen,
+  Text,
+  View,
+} from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
+import ApiFetcher from "../../../modules/ApiFetcher";
+import { addAppointment } from "../../../redux/slice/appointmentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import vetOption5 from "../../../assets/vet-option5.png";
 
 const InfoServiceForDate = ({ route }) => {
-  const { service, partenerLocation } = route.params;
+  console.log("route: ", route)
+  const service = useSelector((state) => state?.appointment?.service);
   const [isCheked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [pets, stePets] = useState([]);
   const [infoDate, setInfoDate] = useState({
     date: "",
     time: "",
   });
 
+  const minimumDate = new Date(); // Fecha actual
+  minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
+
+  const scrollViewRef = useRef(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const apiFetcher = new ApiFetcher();
+
+  useFocusEffect(
+    useCallback(() => {
+      if(route.params){
+        console.log("reseteo")
+        console.log("reseteo")
+        resetParams();
+      }
+      fetchPets();
+      return () => {};
+    }, [navigation])
+  );
+
+  const resetParams = () => {
+    scrollToTop()
+    setIsChecked(false);
+    setSelectedServices([])
+    setSelectedPet(null);
+    setInfoDate({
+      date: "",
+      time: "",
+    });
+  };
+
+  const fetchPets = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getPets();
+      stePets(response.data);
+    } catch (error) {
+      console.error("Error: ", error);
+    }
+  };
+
+  const scrollToTop = () => {
+    scrollViewRef.current.scrollTo({ y: 0, animated: false });
+  };
+
+  const toggleServiceSelection = (service) => {
+    setSelectedServices((prevSelected) => {
+      return prevSelected.includes(service)
+        ? prevSelected.filter((s) => s !== service)
+        : [...prevSelected, service];
+    });
+  };
+
+  const handleSelectPet = (pet) => setSelectedPet(pet);
+
+  const renderPets = (pet) => {
+    const isSelected = selectedPet?.id === pet.id;
+    return (
+      <TouchableOpacity onPress={() => handleSelectPet(pet)}>
+        <View
+          center
+          marginR-25
+          style={selectedPet && !isSelected && { opacity: 0.6 }}
+        >
+          <AnimatedImage
+            source={{ uri: pet?.picture }}
+            style={{
+              width: 70,
+              height: 70,
+              borderRadius: 64,
+              borderWidth: isSelected ? 3 : 0,
+              borderColor: isSelected ? Colors.primaryColor : "transparent",
+            }}
+            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+            animationDuration={500}
+            resizeMode="cover"
+          />
+          <Text color={isSelected && Colors.primaryColor} text70R>
+            {pet?.name}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const goToResume = () => {
-    if (infoDate.date == "" || infoDate.time == "" || !isCheked) {
+    console.log(infoDate)
+    if (
+      infoDate.date == "" ||
+      infoDate.time == "" ||
+      selectedServices.length < 1 ||
+      !selectedPet
+    ) {
       Toast.show({
         type: "error",
         text1: "Datos incompletos",
         text2: `Completa todos los campos`,
       });
-    } else
-      navigation.navigate("Resume", {
-        infoDate: infoDate,
-        service: service,
-        partenerLocation: partenerLocation,
-      });
+    } else{
+      dispatch(
+        addAppointment({
+          pet: selectedPet,
+          date: infoDate.date,
+          time: infoDate.time,
+          service: selectedServices,
+          partenerLocation: service.partenerLocation,
+        })
+      );
+    navigation.navigate("Resume");
+  }
   };
-
-  console.log("service: ", service);
-
-  const minimumDate = new Date(); // Fecha actual
-  minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
 
   // Limites para las horas (no permitir horas entre las 8 PM y las 8 AM)
   const isTimeAllowed = (selectedDate) => {
@@ -43,88 +150,140 @@ const InfoServiceForDate = ({ route }) => {
     return !(hours >= 20 || hours < 8); // 8 PM (20) a 8 AM (8)
   };
 
-  return (
-    <View flex backgroundColor={Colors.white} padding-16>
-      <Text text50BL>{service?.name}</Text>
-      <View marginT-30 style={styles.servicesContainer}>
-        <View row spread>
-          <View>
-            <Text text70BO>{service?.name}</Text>
-            <View row spread gap-10 marginT-5>
-              <Image source={vetOption1} style={styles.image} />
-              <View>
-                <Text>{service?.description}</Text>
-                <View
-                  center
-                  padding-5
-                  width={80}
-                  marginT-10
-                  style={styles.priceContainer}
-                >
-                  <Text text90BO color={Colors.primaryColor}>
-                    ${service?.price}
-                  </Text>
-                </View>
+  const renderServices = (item) => {
+    const isChecked = selectedServices.includes(item);
+    return (
+      // <View style={styles.option}>
+      //   <View style={styles.mainContainer}>
+      //     <Text style={styles.title}>{item.name}</Text>
+      //     <View style={styles.imageContainer}>
+      //       <Image source={vetOption5} style={styles.image} />
+      //       <View style={{ width: "80%" }}>
+      //         <Text style={styles.description}>{item.description}</Text>
+      //         <View style={styles.priceContainer}>
+      //           <Text style={styles.price}>{item.price}</Text>
+      //         </View>
+      //       </View>
+      //     </View>
+      //   </View>
+      //   <View>
+      //     <Checkbox
+      //       color={Colors.primaryColor}
+      //       value={isChecked}
+      //       onValueChange={() => toggleServiceSelection(item)}
+      //     />
+      //   </View>
+      // </View>
+      <View row spread marginB-40>
+        <View>
+          <Text text70BO>{item?.name}</Text>
+          <View row spread gap-10 marginT-5>
+            <Image source={vetOption1} style={styles.image} />
+            <View>
+              <Text>{item?.description}</Text>
+              <View
+                center
+                padding-5
+                width={80}
+                marginT-10
+                style={styles.priceContainer}
+              >
+                <Text text90BO color={Colors.primaryColor}>
+                  ${item?.price}
+                </Text>
               </View>
             </View>
           </View>
-          <View>
-            <Checkbox
-              color={Colors.primaryColor}
-              value={isCheked}
-              onValueChange={(checked) => {
-                setIsChecked(checked);
-              }}
-            />
-          </View>
         </View>
-      </View>
-      <View marginT-20>
-        <Text text70BO>Fecha y hora</Text>
         <View>
-          <View row spread style={styles.textInput}>
-            <DateTimePicker
-              minimumDate={minimumDate}
-              style={{ height: 60, width: 300 }}
-              placeholder={"Selecciona el día"}
-              mode={"date"}
-              onChange={(date) => setInfoDate({ ...infoDate, date: date })}
-            />
-            <Image
-              source={require("../../../assets/calendar-icon-black.png")}
-              style={{ height: 25, width: 25 }}
-              resizeMode={"contain"}
-            />
-          </View>
-          <View row spread style={styles.textInput}>
-            <DateTimePicker
-              style={{ height: 60, width: 300 }}
-              placeholder={"Selecciona una hora"}
-              mode={"time"}
-              onChange={(time) => {
-                if (isTimeAllowed(time))
-                  setInfoDate({ ...infoDate, time: time });
-                else
-                  Toast.show({
-                    type: "error",
-                    text1: "Hora inválida",
-                    text2: `Selecciona un hora válida`,
-                  });
-              }}
-            />
-            <Image
-              source={require("../../../assets/clock-icon-black.png")}
-              style={{ height: 25, width: 25 }}
-              resizeMode={"contain"}
+          <Checkbox
+            color={Colors.primaryColor}
+            value={isChecked}
+            onValueChange={() => toggleServiceSelection(item)}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View flex backgroundColor={Colors.white}>
+      <ScrollView ref={scrollViewRef}>
+        <View>
+          <View padding-16>
+            <FlatList
+              data={pets}
+              horizontal={true}
+              renderItem={({ item }) => renderPets(item)}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
             />
           </View>
         </View>
-      </View>
-      <View flex bottom>
-        <TouchableOpacity style={styles.saveButton} onPress={goToResume}>
-          <Text style={styles.textButton}>Continuar</Text>
-        </TouchableOpacity>
-      </View>
+        <View
+          margin-10
+          marginH-0
+          borderBottomWidth={0.2}
+          borderColor={Colors.gray}
+        />
+        <View flex padding-16>
+          <Text text70BL>Agendar cita</Text>
+
+          <View marginT-10 style={styles.servicesContainer}>
+            <FlatList
+              keyExtractor={(item, index) => `item-${index}`}
+              data={service}
+              renderItem={({ item }) => renderServices(item)}
+            />
+          </View>
+          <View marginT-20 marginB-20>
+            <Text text70BO>Fecha y hora</Text>
+            <View>
+              <View row spread style={styles.textInput}>
+                <DateTimePicker
+                  minimumDate={minimumDate}
+                  style={{ height: 60, width: 300 }}
+                  placeholder={"Selecciona el día"}
+                  mode={"date"}
+                  onChange={(date) => setInfoDate({ ...infoDate, date: date })}
+                />
+                <Image
+                  source={require("../../../assets/calendar-icon-black.png")}
+                  style={{ height: 25, width: 25 }}
+                  resizeMode={"contain"}
+                />
+              </View>
+              <View row spread style={styles.textInput}>
+                <DateTimePicker
+                  style={{ height: 60, width: 300 }}
+                  placeholder={"Selecciona una hora"}
+                  mode={"time"}
+                  onChange={(time) => {
+                    if (isTimeAllowed(time))
+                      setInfoDate({ ...infoDate, time: time });
+                    else
+                      Toast.show({
+                        type: "error",
+                        text1: "Hora inválida",
+                        text2: `Selecciona un hora válida`,
+                      });
+                  }}
+                />
+                <Image
+                  source={require("../../../assets/clock-icon-black.png")}
+                  style={{ height: 25, width: 25 }}
+                  resizeMode={"contain"}
+                />
+              </View>
+            </View>
+          </View>
+          <View flex bottom>
+            <TouchableOpacity style={styles.saveButton} onPress={goToResume}>
+              <Text style={styles.textButton}>Continuar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -147,7 +306,12 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     padding: 15,
   },
-  option: {},
+  option: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+    marginBottom: 10,
+  },
   buttonChecked: {
     borderWidth: 0.5,
     borderColor: Colors.gray,
@@ -169,15 +333,14 @@ const styles = StyleSheet.create({
     marginTop: "5%",
   },
   saveButton: {
-    marginTop: 50,
-    width: "90%",
+    width: "100%",
     height: 60,
     borderWidth: 0.5,
     borderColor: Colors.gray,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginBottom: 50,
+    marginBottom: 10,
   },
   textButton: {
     fontSize: 18,

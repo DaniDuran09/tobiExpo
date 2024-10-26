@@ -11,7 +11,6 @@ import {
 import React, { useEffect, useState, useRef } from "react";
 import { Colors } from "../../styles/Colors";
 import AppStorage from "../../modules/AppStorage";
-import { createCard } from "../../services";
 import { useNavigation } from "@react-navigation/native";
 
 const AddNewCard = ({route}) => {

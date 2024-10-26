@@ -9,8 +9,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { FlatList } from "react-native-gesture-handler";
-import AppStorage from "../../../modules/AppStorage";
-import { listPet } from "../../../services";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import ViewLoading from "../../../components/ViewLoading";
@@ -20,7 +18,6 @@ const IdMyPet = () => {
   const [pets, setPets] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
 
@@ -46,8 +43,6 @@ const IdMyPet = () => {
       const response = await apiFetcher.getPetById(pet.id);
       let petById = response.data;
       petById.pet_breed = pet.pet_breed;
-
-      console.log("LO QUE TRAE POR ID: ", response.data);
       navigation.navigate("IdInfoPet", { pet: petById });
     } catch (error) {
     } finally {
@@ -56,12 +51,11 @@ const IdMyPet = () => {
   };
 
   const renderPets = (item) => {
-    console.log("item: ", item);
     return (
       <TouchableOpacity style={styles.item} onPress={() => goToIdInfoPet(item)}>
         <View style={styles.leftSection}>
           <AnimatedImage
-            source={{ uri: item.picture }}
+            source={{ uri: item?.picture }}
             style={styles.imageItem}
             loader={<LoaderScreen color={Colors.primaryColor} size={20} />}
             animationDuration={500}
@@ -100,7 +94,7 @@ const IdMyPet = () => {
             <FlatList
               data={pets}
               renderItem={({ item }) => renderPets(item)}
-              keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
+              keyExtractor={(item) => item.id.toString()}
               style={styles.flatList}
             />
           </View>

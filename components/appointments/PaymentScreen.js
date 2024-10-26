@@ -2,10 +2,10 @@ import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
 import { Colors } from "../../styles/Colors";
-import { fetchPaymentIntent } from "../../services/stripe.api";
 import Toast from "react-native-toast-message";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import WebView from "react-native-webview";
+import { fetchPaymentIntent } from "../../services/api/stripe.api";
 
 const PaymentScreen = (props) => {
   const { amount, closeBottomSheet } = props;

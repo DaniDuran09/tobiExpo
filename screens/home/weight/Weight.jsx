@@ -1,4 +1,4 @@
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
@@ -8,13 +8,12 @@ import ChallengeModal from "../../../components/ChallengeModal";
 import { useNavigation } from "@react-navigation/native";
 
 const Weight = (props) => {
-  const {item} = props;
-  console.log("item: ", item.we)
+  const { item } = props;
+  console.log("item: ", item);
   const [success, setSuccess] = useState(false);
   const navigation = useNavigation();
   const [challengeVisible, setChallengeVisible] = useState(false);
   const closeModalChallenge = () => {
-    console.log("Me presiono");
     setChallengeVisible(false);
   };
   return (
@@ -28,7 +27,9 @@ const Weight = (props) => {
             />
             <Text style={styles.realText}>Real</Text>
           </View>
-          <Text style={styles.kgText}>{parseInt(item.weight_status.weight)} kg</Text>
+          <Text style={styles.kgText}>
+            {parseInt(item.weight_status.weight)} kg
+          </Text>
           <Text style={styles.lastUpdate}>Último registro --.--.--</Text>
           <TouchableOpacity style={styles.updateButton} onPress={() => {}}>
             <Text style={styles.updateTetx}>Actualizar peso real</Text>
@@ -42,8 +43,16 @@ const Weight = (props) => {
             />
             <Text style={styles.realText}>Rango ideal</Text>
           </View>
-          {/* <Text style={[styles.kgText, { color: Colors.black }]}>Entre {parseFloat(item.weight_status?.ideal_weight?.from / 1000)} kg y {parseFloat(item.weight_status.ideal_weight.to / 1000)} kg</Text> */}
-          <Text style={styles.textWeight}>Peso...</Text>
+          <Text
+            style={{
+              fontSize: 14,
+              color: "black",
+              fontWeight: "bold",
+              marginTop: 10
+            }}
+          >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
+            item?.weight_status?.ideal_weight?.to / 1000
+          } Kg`}</Text>
           <View style={styles.triangleContianer}>
             <Icon name="triangle" size={20} color={Colors.red} />
             <Text style={styles.weightPoints}>...</Text>

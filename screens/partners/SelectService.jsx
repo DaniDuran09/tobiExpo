@@ -13,7 +13,7 @@ import AppStorage from "../../modules/AppStorage";
 import { getPartens } from "../../services";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
-import { SkeletonView } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, SkeletonView } from "react-native-ui-lib";
 
 const SelectService = ({ route }) => {
   const { type } = route.params;
@@ -55,9 +55,11 @@ const SelectService = ({ route }) => {
         <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
       </View>
       <View style={styles.RightSection}>
-        <Image
-          source={{ uri: item.picture }}
+        <AnimatedImage
+          source={{ uri: item?.picture }}
           style={styles.imageItem}
+          loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+          animationDuration={500}
           resizeMode="contain"
         />
       </View>

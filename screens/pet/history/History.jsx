@@ -5,7 +5,7 @@ import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../../utils/moment";
-import { Text } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 import Loading from "../../../components/Loading";
 
 const History = ({ navigation }) => {
@@ -46,9 +46,11 @@ const History = ({ navigation }) => {
     );
     return (
       <View style={styles.containerInfo}>
-        <Image
+        <AnimatedImage
           source={{ uri: item?.partner?.picture }}
           style={styles.image}
+          loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+          animationDuration={500}
           resizeMode="contain"
         />
         <View>
@@ -79,8 +81,11 @@ const History = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {loading && (
-        <Loading textColor={Colors.primaryColor} backgroundColorProp={Colors.white}/>
-      )} 
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
       <Text style={styles.title}>
         Aquí puedes ver todas las actividades de tu mascota
       </Text>
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   containerHistoryList: {
-    height: "100%"
+    height: "100%",
   },
   containerInfo: {
     marginTop: 15,

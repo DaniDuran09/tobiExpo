@@ -1,91 +1,32 @@
-import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
+import React, { useCallback, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
-import vetOption1 from "../../../assets/vet-option1.png";
 import calendar from "../../../assets/calendar-icon-date.png";
 import location from "../../../assets/location-icon.png";
-import parking from "../../../assets/parking.png";
 import phone from "../../../assets/phone-icon.png";
-import card from "../../../assets/card-icon.png";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
+import Entypo from "react-native-vector-icons/Entypo";
 import PaymentScreen from "../../../components/appointments/PaymentScreen";
-import { SkeletonView, Text, View } from "react-native-ui-lib";
+import {
+  AnimatedImage,
+  ExpandableSection,
+  LoaderScreen,
+  Text,
+  View,
+} from "react-native-ui-lib";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import momentTZ from "../../../utils/moment";
-import ApiFetcher from "../../../modules/ApiFetcher";
 
-const Resume = ({ route }) => {
-  const { infoDate, service, partenerLocation } = route.params;
-
-  console.log("service: ", service);
-
-  const apiFetcher = new ApiFetcher();
-
-  const combinedDateTime = momentTZ(infoDate.date).set({
-    hour: momentTZ(infoDate.time).hour(),
-    minute: momentTZ(infoDate.time).minute(),
-  });
-
-  const formattedDateTime = combinedDateTime.format(
-    "dddd D [de] MMMM, h:mm [hrs]"
-  );
-
-  const capitalizedDateTime =
-    formattedDateTime.charAt(0).toUpperCase() + formattedDateTime.slice(1);
-
-  const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [pets, stePets] = useState([]);
-  const [selectedPet, setSelectedPet] = useState(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
+const Resume = () => {
+  const appointments = useSelector((state) => state?.appointment?.appointments);
+  const [expandedAppointment, setExpandedAppointment] = useState(null);
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
 
-  useEffect(() => {
-    fetchPets();
-  }, []);
-
-  const fetchPets = async () => {
-    setLoading(true);
-    try {
-      const response = await apiFetcher.getPets();
-      stePets(response.data);
-    } catch (error) {}
-  };
-
-  const handleSelectPet = (pet) => setSelectedPet(pet);
-
-  const renderPets = (pet) => {
-    const isSelected = selectedPet?.id === pet.id;
-    return (
-      <TouchableOpacity onPress={() => handleSelectPet(pet)}>
-        <View center marginR-25>
-          <Image
-            source={{ uri: pet.picture }}
-            style={{
-              width: 60,
-              height: 60,
-              borderRadius: 32,
-              borderWidth: isSelected ? 3 : 0,
-              borderColor: isSelected ? Colors.primaryColor : "transparent",
-            }}
-            resizeMode="cover"
-          />
-          <Text color={isSelected && Colors.primaryColor} text70R>
-            {pet?.name}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  console.log("appointments: ", appointments);
 
   const handleSheetChanges = useCallback((index) => {
     console.log("handleSheetChanges", index);
@@ -101,17 +42,97 @@ const Resume = ({ route }) => {
     setExpanded(false);
   };
 
-  return (
-    <View flex padding-15 backgroundColor={Colors.white}>
-      <ScrollView style={expanded && { opacity: 0.1 }}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Resumen de la cita</Text>
-          <Image
-            source={require("../../../assets/edit-date.png")}
-            style={styles.editIcon}
-          />
-        </View>
-        <View style={styles.servicesContainer}>
+  // Formatear la fecha y hora de cada cita
+  const formatDateTime = (date, time) => {
+    const combinedDateTime = momentTZ(date).set({
+      hour: momentTZ(time).hour(),
+      minute: momentTZ(time).minute(),
+    });
+    const formattedDateTime = combinedDateTime.format(
+      "dddd D [de] MMMM, h:mm [hrs]"
+    );
+    return (
+      formattedDateTime.charAt(0).toUpperCase() + formattedDateTime.slice(1)
+    );
+  };
+
+  // Renderizar cada cita
+  const renderAppointment = ({ item }) => {
+    console.log("item: ", item);
+    const { pet, date, time, service, partenerLocation } = item;
+    const capitalizedDateTime = formatDateTime(date, time);
+
+    const totalPrice = service.reduce((sum, item) => {
+      const priceWithTax =
+        parseFloat(item.price) +
+        (parseFloat(item.price) * parseInt(item.tax_percent)) / 100;
+      return sum + priceWithTax + 10; // Añadir 10 a cada precio calculado
+    }, 0);
+
+    return (
+      <ExpandableSection
+        expanded={expandedAppointment === item}
+        sectionHeader={
+          <View
+            row
+            centerV
+            marginT-15
+            padding-15
+            spread
+            style={{
+              shadowColor: Colors.gray,
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: expandedAppointment !== item && 0.5,
+              shadowRadius: 2,
+              marginBottom: 10,
+              backgroundColor: Colors.white,
+            }}
+          >
+            <View row centerV gap-10>
+              <AnimatedImage
+                source={{ uri: pet?.picture }}
+                style={{ width: 70, height: 70, borderRadius: 64 }}
+                loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+                animationDuration={500}
+                resizeMode="cover"
+              />
+              <View>
+                <Text text70BO>{pet?.name}</Text>
+                <Text text70>{pet?.pet_breed?.description}</Text>
+              </View>
+            </View>
+            <Entypo
+              name={
+                expandedAppointment === item ? "chevron-up" : "chevron-down"
+              }
+              size={25}
+              color={Colors.gray}
+            />
+          </View>
+        }
+        onPress={() =>
+          setExpandedAppointment(expandedAppointment === item ? null : item)
+        }
+      >
+        <View style={styles.servicesContainer} margin-15>
+          <View style={styles.section}>
+            <Text text70BO>Servicios</Text>
+            <View style={styles.rowSection}>
+              {/* <Image
+                source={calendar}
+                style={styles.image}
+                resizeMode="contain"
+              /> */}
+              <View>
+                {service.map(({ name }) => (
+                  <View row gap-5 centerV>
+                    <Text text100>{`\u25CF`}</Text>
+                    <Text style={styles.description}>{name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
           <View style={styles.section}>
             <Text text70BO>Día y hora</Text>
             <View style={styles.rowSection}>
@@ -121,6 +142,15 @@ const Resume = ({ route }) => {
                 resizeMode="contain"
               />
               <Text style={styles.description}>{capitalizedDateTime}</Text>
+            </View>
+          </View>
+          <View style={styles.section}>
+            <Text text70BO>Importe</Text>
+            <View style={styles.rowSection}>
+              <Text text70BO color={Colors.primaryColor}>
+                $
+              </Text>
+              <Text style={styles.description}>{totalPrice}</Text>
             </View>
           </View>
           <View style={styles.section}>
@@ -134,19 +164,6 @@ const Resume = ({ route }) => {
               <Text style={styles.description}>{partenerLocation}</Text>
             </View>
           </View>
-          {/* <View style={styles.section}>
-            <Text style={styles.textSection}>Estacionamiento</Text>
-            <View style={styles.rowSection}>
-              <Image
-                source={parking}
-                style={{ width: 20, height: 20 }}
-                resizeMode="contain"
-              />
-              <Text style={styles.description}>
-                Estacionamiento en vía pública.
-              </Text>
-            </View>
-          </View> */}
           <View style={styles.section}>
             <Text text70BO>Teléfono</Text>
             <View style={styles.rowSection}>
@@ -155,31 +172,53 @@ const Resume = ({ route }) => {
             </View>
           </View>
         </View>
+      </ExpandableSection>
+    );
+  };
 
-        <View>
-          <Text style={styles.title}>Elege a tu mascota</Text>
-          <View margin-20>
-            <FlatList
-              data={pets}
-              horizontal={true}
-              renderItem={({ item }) => renderPets(item)}
-              keyExtractor={(item) => item.id.toString()}
-              showsHorizontalScrollIndicator={false}
+  return (
+    <View flex backgroundColor={Colors.white}>
+      <ScrollView style={expanded && { opacity: 0.1 }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Resumen de la cita</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("InfoServiceForDate")}
+          >
+            <Image
+              source={require("../../../assets/edit-date.png")}
+              style={styles.editIcon}
             />
-          </View>
+          </TouchableOpacity>
         </View>
-        <View>
-          <Text style={styles.title}>Resumen</Text>
+        <FlatList
+          data={appointments}
+          renderItem={renderAppointment}
+          keyExtractor={(item, index) => index.toString()}
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("InfoServiceForDate", { reset: true })
+          }
+        >
+          <Text style={styles.title}>Agregar otra cita</Text>
+        </TouchableOpacity>
+        <View flex padding-15>
+          <Text marginT-15 style={styles.title}>
+            Resumen
+          </Text>
           <View style={styles.servicesContainer}>
             <Text text70BO>Productos y servicios con IVA</Text>
             <View row spread marginT-10>
-              <Text>{service?.name}</Text>
-              <Text>${service?.price}</Text>
+              <Text>{appointments[0]?.service?.name}</Text>
+              <Text>${appointments[0]?.service?.price}</Text>
             </View>
             <View row spread marginT-10>
               <Text>Impuesto IVA 16%</Text>
               <Text>
-                ${(service?.price * parseInt(service?.tax_percent)) / 100}
+                $
+                {(appointments[0]?.service?.price *
+                  parseInt(appointments[0]?.service?.tax_percent)) /
+                  100}
               </Text>
             </View>
             <View row spread marginT-10>
@@ -190,21 +229,23 @@ const Resume = ({ route }) => {
               <Text text70BO>Total a pagar</Text>
               <Text text70BO>
                 $
-                {parseFloat(service.price) +
-                  (service?.price * parseInt(service?.tax_percent)) / 100 +
+                {parseFloat(appointments[0]?.service.price) +
+                  (appointments[0]?.service?.price *
+                    parseInt(appointments[0]?.service?.tax_percent)) /
+                    100 +
                   10}
               </Text>
             </View>
           </View>
         </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.saveButton} onPress={openBottomSheet}>
-            <Text text70BO color={Colors.primaryColor}>
-              Confirmar
-            </Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
+      <View bottom marginB-15>
+        <TouchableOpacity style={styles.saveButton} onPress={openBottomSheet}>
+          <Text text70BO color={Colors.primaryColor}>
+            Confirmar
+          </Text>
+        </TouchableOpacity>
+      </View>
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -244,6 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    padding: 15,
   },
   servicesContainer: {
     marginTop: "5%",
@@ -283,36 +325,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    marginBottom: 50,
+    marginBottom: 0,
   },
-  textButton: {
-    fontSize: 18,
-    color: Colors.gray,
-    fontWeight: "600",
-  },
-  changeMethod: {
-    color: Colors.gray,
-    fontSize: 16,
-  },
-  changeMethodContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  betweenContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 15,
-  },
-  buttonNext: {
-    borderColor: Colors.primaryColor,
-    borderWidth: 1,
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textButtonNext: {
-    color: Colors.primaryColor,
-    fontWeight: "900",
-    fontSize: 16,
+  contentContainer: {
+    padding: 15,
   },
 });

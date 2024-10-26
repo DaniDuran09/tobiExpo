@@ -16,13 +16,13 @@ import {
 import { Colors } from "../styles/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Entypo from "react-native-vector-icons/Entypo";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useDispatch, useSelector } from "react-redux";
 import { formatDateToDDMMYYYY } from "../utils/scripts";
 import { setUserInfo } from "../redux/slice/userSlice";
 import { Modal } from "react-native-paper";
 import TobiButton from "../components/TobiButton";
 import Toast from "react-native-toast-message";
+import { DateTimePicker } from "react-native-ui-lib";
 
 const SignInScreen = (props) => {
   const { user, setUser } = props;
@@ -49,25 +49,26 @@ const SignInScreen = (props) => {
   }, [user, date]);
 
   const handleDateConfirm = (date) => {
+    const selectedDate = new Date(date)
     const today = new Date();
     const hundredYearsAgo = new Date();
     hundredYearsAgo.setFullYear(today.getFullYear() - 100);
 
-    if (date > today) {
+    if (selectedDate > today) {
       Toast.show({
         type: "error",
         text1: "Fecha no válida",
         text2: `La fecha de nacimiento no puede ser en el futuro.`,
       });
-    } else if (date < hundredYearsAgo) {
+    } else if (selectedDate < hundredYearsAgo) {
       Toast.show({
         type: "error",
         text1: "Fecha no válida",
         text2: `La fecha de nacimiento no puede ser hace más de 100 años.`,
       });
     } else {
-      setUser({ ...user, birtday: date });
-    setOpen(false);
+      setUser({ ...user, birtday: selectedDate });
+      setOpen(false);
     }
   };
 
@@ -165,7 +166,7 @@ const SignInScreen = (props) => {
                 secureTextEntry={false}
                 onChangeText={(val) => setUser({ ...user, cp: val })}
               /> */}
-              <TouchableWithoutFeedback onPress={() => setOpen(true)}>
+              {/* <TouchableWithoutFeedback onPress={() => setOpen(true)}>
                 <View
                   elevation={5}
                   style={{
@@ -188,9 +189,7 @@ const SignInScreen = (props) => {
                       paddingVertical: 10,
                     }}
                   >
-                    {user?.birtday === ""
-                      ? "Fecha de nacimiento"
-                      : `${user?.birtday?.toLocaleDateString("es-us")}`}
+                    
                   </Text>
                   <Image
                     source={require("../assets/pastel.png")}
@@ -198,8 +197,8 @@ const SignInScreen = (props) => {
                     resizeMode={"contain"}
                   />
                 </View>
-              </TouchableWithoutFeedback>
-              {open && (
+              </TouchableWithoutFeedback> */}
+              {/* {open && (
                 <View style={styles.modalContent}>
                   <Text style={styles.dateSelectText}>
                     Selecciona tu fecha de nacimiento
@@ -219,8 +218,39 @@ const SignInScreen = (props) => {
                     buttonText={"Confirmar"}
                   />
                 </View>
-              )}
-
+              )} */}
+              <View
+                elevation={5}
+                style={{
+                  width: "90%",
+                  backgroundColor: "white",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingHorizontal: "5%",
+                  borderRadius: 4,
+                  height: 60,
+                  marginTop: "8%",
+                }}
+              >
+                <DateTimePicker
+                  style={[
+                    styles.birthdayContainer,
+                    { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
+                  ]}
+                  title={"Select date"}
+                  placeholder={
+                    user?.birtday === ""
+                      ? "Fecha de nacimiento"
+                      : `${user?.birtday?.toLocaleDateString("es-us")}`
+                  }
+                  mode={"date"}
+                  onChange={(selectedDate) => {
+                    setDate(selectedDate);
+                    handleDateConfirm(selectedDate)
+                  }}
+                />
+              </View>
               <View
                 style={[
                   styles.textInput,
