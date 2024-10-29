@@ -107,9 +107,10 @@ const HomeScreen = ({ navigation }) => {
       const daysDifference = serviceDate.diff(today, "days");
       if (daysDifference < 0) {
         remainingDays = {
-          text: "La cita ya pasó",
-          color: "red",
+          text: "---",
+          color: "black",
         };
+        servicce="---"
       } else if (daysDifference === 0) {
         remainingDays = {
           text: "La cita es hoy",
@@ -124,7 +125,7 @@ const HomeScreen = ({ navigation }) => {
     } //else {
     //   service = "Sin citas";
     // }
-
+    
     return (
       <View>
         <View
@@ -251,7 +252,7 @@ const HomeScreen = ({ navigation }) => {
                     color: "black",
                     fontWeight: "bold",
                   }}
-                >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
+                >{`${item?.weight_status?.ideal_weight?.from /1000} Kg - ${
                   item?.weight_status?.ideal_weight?.to / 1000
                 } Kg`}</Text>
                 <Text ttext90M>Real</Text>
@@ -272,7 +273,7 @@ const HomeScreen = ({ navigation }) => {
                     {item.activity_level.stable ? null : (
                       <Image
                         source={require("../../assets/Polygon3.png")}
-                        style={{ height: 15, width: 15 }}
+                        style={{ height: 15, width: 15 ,transform: [{ rotate: item.weight_status.weight > item.weight_status.ideal_weight?.from/1000  ? '0deg' : '180deg' }]}}
                         resizeMode={"contain"}
                       />
                     )}

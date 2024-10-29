@@ -50,11 +50,13 @@ const Weight = (props) => {
               fontWeight: "bold",
               marginTop: 10
             }}
-          >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
-            item?.weight_status?.ideal_weight?.to / 1000
+          >{`${(item?.weight_status?.ideal_weight?.from??0) / 1000} Kg - ${
+            (item?.weight_status?.ideal_weight?.to??0) / 1000
           } Kg`}</Text>
           <View style={styles.triangleContianer}>
-            <Icon name="triangle" size={20} color={Colors.red} />
+            <Icon name="triangle" size={20} color={Colors.red} 
+              style={{transform: [{ rotate: item.weight_status.weight > (item.weight_status.ideal_weight?.to??0)/1000 ? '0deg' : '180deg' }]}}
+            />
             <Text style={styles.weightPoints}>...</Text>
           </View>
         </View>
