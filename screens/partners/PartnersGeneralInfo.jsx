@@ -42,13 +42,10 @@ const PartnersGeneralInfo = ({ route }) => {
     getPartnerInfo();
   }, []);
 
-  useEffect(() => {
-    console.log("El item: ", item);
-  }, [item]);
-
   const getPartnerInfo = async () => {
     try {
       const partner = await apiFetcher.getPartnersById(id);
+      // console.log("Si entro y regreso lo siguiente: ", partner.data)
       if (partner.code == 200 || partner.code == 201) setItem(partner.data);
       setIsLoading(false);
     } catch (error) {

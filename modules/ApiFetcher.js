@@ -97,6 +97,14 @@ class ApiFetcher {
   async updateUser(data) {
     return await this._put(`/profile/update/information`, data);
   }
+
+  async sendPin(data) {
+    return await this._post(`/forgot/password`, data);
+  }
+
+  async updatePassword(data) {
+    return await this._put(`/forgot/password`, data);
+  }
   
   async getProfile() {
     return await this._get("/profile");
@@ -135,6 +143,10 @@ class ApiFetcher {
   // vaccines
   async getVaccines(id) {
     return await this._get(`/pets/${id}/vaccines`);
+  }
+
+  async getVaccinesRecords(id) {
+    return await this._get(`/pets/${id}/vaccination_records`);
   }
 
   async saveVaccine(data) {

@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   TouchableOpacity,
-  View,
   Image,
   ActivityIndicator,
 } from "react-native";
@@ -17,7 +16,17 @@ import Loading from "../../../components/Loading";
 import { formatDateToDDMMYYYY } from "../../../utils/scripts";
 import Toast from "react-native-toast-message";
 import EmptyVaccines from "../../../components/vaccines/EmptyVaccines";
-import { Checkbox, DateTimePicker, Picker, Text } from "react-native-ui-lib";
+import {
+  Checkbox,
+  DateTimePicker,
+  Picker,
+  Text,
+  View,
+} from "react-native-ui-lib";
+import momentTZ from "../../../utils/moment";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import ImageOption from "../../../components/ImageOption";
+import * as ImagePicker from "expo-image-picker";
 
 const SelectVaccines = (props) => {
   const { petId, onSaveVaccines } = props;
@@ -30,10 +39,60 @@ const SelectVaccines = (props) => {
   const [vaccines, setVaccines] = useState([]);
   const [brands, setBrands] = useState([]);
   const [saveLoading, setSaveLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [imageSource, setImageSource] = useState(null);
 
   useEffect(() => {
     getVaccines();
   }, []);
+
+  const closeModal = () => setModalVisible(false);
+
+  const selectImageFromLibrary = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        console.log("result; ", result.assets[0]);
+        setImageSource(result.assets[0]);
+        closeModal();
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "No se pudo cargar la foto",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
+      console.log("Error: ", error);
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImageSource(result[0].uri);
+        closeModal();
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "No se pudo tomar la foto",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
+      console.log("Error: ", error);
+    }
+  };
 
   const getVaccines = async () => {
     setLoading(true);
@@ -59,22 +118,6 @@ const SelectVaccines = (props) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const openDatePicker = (id) => {
-    setVaccines(
-      vaccines.map((vaccine) =>
-        vaccine.id === id ? { ...vaccine, open: true } : vaccine
-      )
-    );
-  };
-
-  const setDate = (id, date) => {
-    setVaccines(
-      vaccines.map((vaccine) =>
-        vaccine.id === id ? { ...vaccine, date: date, open: false } : vaccine
-      )
-    );
   };
 
   const insertVaccine = async (data) => {
@@ -111,8 +154,10 @@ const SelectVaccines = (props) => {
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: vaccine.application_day,
-          dose: vaccine.dose,
+          application_day: momentTZ(vaccine.application_day.moment).format(
+            "dddd D [de] MMMM, h:mm [hrs]"
+          ),
+          dose: vaccine.dose <= 0 ? 1 : vaccine.dose,
           brand: vaccine.brand,
         };
         try {
@@ -142,182 +187,163 @@ const SelectVaccines = (props) => {
     }
   };
 
-  const handleSelectPartner = (name) => {
-    setSelectPartner(name);
+  const handleSelectPartner = (name, vaccine) => {
+    setVaccines(prevVaccines =>
+      prevVaccines.map(v => (v.id === vaccine.id ? { ...v, partner: name } : v))
+    );
     navigation.goBack();
     navigation.goBack();
   };
 
   return (
     <>
-      {loading ? (
+      {loading && (
         <Loading
           textColor={Colors.primaryColor}
           backgroundColorProp={Colors.white}
         />
-      ) : (
-        <View style={styles.containerSelectSection}>
-          {vaccines.length > 0 ? (
-            <>
-              <Text text70>1. Selecciona las vacunas que tiene tu mascota</Text>
-              <View style={styles.containerVaccinesSections}>
-                <Image
-                  source={require("../../../assets/vaccines.png")}
-                  style={styles.vaccinesImage}
-                />
-                <View>
-                  {vaccines.map((vaccine) => (
-                    <View key={vaccine.id} style={styles.vaccine}>
-                      <View style={{ marginTop: 5 }}>
-                        {/* <BouncyCheckbox
-                      value={true}
-                      size={20}
-                      fillColor="#EF4136"
-                      iconStyle={{borderColor: Colors.primaryColor}}
-                      innerIconStyle={{borderWidth: 2}}
-                      isChecked={vaccine.isChecked}
-                      onPress={checked => {
-                        setVaccines(
-                          vaccines.map(v =>
-                            v.id === vaccine.id
-                              ? {...v, isChecked: checked}
-                              : v,
-                          ),
-                        );
-                      }}
-                    /> */}
-                        <Checkbox
-                          color={Colors.primaryColor}
-                          value={vaccine.isChecked}
-                          onValueChange={(checked) => {
-                            setVaccines(
-                              vaccines.map((v) =>
-                                v.id === vaccine.id
-                                  ? { ...v, isChecked: checked }
-                                  : v
-                              )
-                            );
-                          }}
-                        />
-                      </View>
-                      <View>
-                        <Text style={styles.vaccineName}>{vaccine.name}</Text>
-                        {vaccine?.description?.length > 0 &&
-                          vaccine?.description?.map((subVaccine, index) => (
-                            <Text key={index}>· {subVaccine}</Text>
-                          ))}
-                        <DateTimePicker
-                          style={[
-                            styles.dateButton,
-                            !vaccine.isChecked && { opacity: 0.5 },
-                          ]}
-                          editable={vaccine.isChecked}
-                          placeholder={"Fecha de aplicación"}
-                          mode={"date"}
-                          onChange={(date) => {
-                            setVaccines(
-                              vaccines.map((v) =>
-                                v.id === vaccine.id
-                                  ? {
-                                      ...v,
-                                      application_day:
-                                        date.toLocaleDateString("es-us"),
-                                    }
-                                  : v
-                              )
-                            );
-                          }}
-                        />
-                        <Picker
-                          editable={vaccine.isChecked}
-                          style={[
-                            styles.dateButton,
-                            !vaccine.isChecked && { opacity: 0.5 },
-                          ]}
-                          placeholder={"Marca"}
-                          onChange={(value) => {
-                            setVaccines(
-                              vaccines.map((v) =>
-                                v.id === vaccine.id ? { ...v, brand: value } : v
-                              )
-                            );
-                            setIsFocus(false);
-                          }}
-                          value={vaccine.brand}
-                          items={brands}
-                        />
-
-                        {/* <TouchableOpacity
+      )}
+      <View style={styles.containerSelectSection}>
+        {vaccines.length > 0 ? (
+          <>
+            <Text text70>1. Selecciona las vacunas que tiene tu mascota</Text>
+            <View style={styles.containerVaccinesSections}>
+              <Image
+                source={require("../../../assets/vaccines.png")}
+                style={styles.vaccinesImage}
+              />
+              <View>
+                {vaccines.map((vaccine) => (
+                  <View key={vaccine.id} style={styles.vaccine}>
+                    <View style={{ marginTop: 5 }}>
+                      <Checkbox
+                        color={Colors.primaryColor}
+                        value={vaccine.isChecked}
+                        onValueChange={(checked) => {
+                          setVaccines(
+                            vaccines.map((v) =>
+                              v.id === vaccine.id
+                                ? { ...v, isChecked: checked }
+                                : v
+                            )
+                          );
+                        }}
+                      />
+                    </View>
+                    <View>
+                      <Text style={styles.vaccineName}>{vaccine.name}</Text>
+                      {vaccine?.description?.length > 0 &&
+                        vaccine?.description?.map((subVaccine, index) => (
+                          <Text key={index}>· {subVaccine}</Text>
+                        ))}
+                      <DateTimePicker
+                        style={[
+                          styles.dateButton,
+                          !vaccine.isChecked && { opacity: 0.5 },
+                        ]}
+                        editable={vaccine.isChecked}
+                        placeholder={"Fecha de aplicación"}
+                        mode={"date"}
+                        onChange={(date) => {
+                          setVaccines(
+                            vaccines.map((v) =>
+                              v.id === vaccine.id
+                                ? {
+                                    ...v,
+                                    application_day:
+                                      date.toLocaleDateString("es-us"),
+                                  }
+                                : v
+                            )
+                          );
+                        }}
+                      />
+                      <Picker
+                        editable={vaccine.isChecked}
+                        style={[
+                          styles.dateButton,
+                          !vaccine.isChecked && { opacity: 0.5 },
+                        ]}
+                        placeholder={"Marca"}
+                        onChange={(value) => {
+                          setVaccines(
+                            vaccines.map((v) =>
+                              v.id === vaccine.id ? { ...v, brand: value } : v
+                            )
+                          );
+                          setIsFocus(false);
+                        }}
+                        value={vaccine.brand}
+                        items={brands}
+                      />
+                      <TouchableOpacity
+                        style={[
+                          styles.dateButton,
+                          !vaccine.isChecked && { opacity: 0.5 },
+                        ]}
+                        disabled={!vaccine.isChecked}
+                        onPress={()=> navigation.navigate('SelectPartner', {action:handleSelectPartner, vaccine: vaccine })}
+                      >
+                        <Text>{vaccine.partner ? vaccine.partner : "Aplicado por"}</Text>
+                      </TouchableOpacity>
+                      <View marginT-10>
+                        <Text>Etiqueta</Text>
+                        <TouchableOpacity
                           disabled={!vaccine.isChecked}
-                          style={[
-                            styles.dateButton,
-                            !vaccine.isChecked && { opacity: 0.5 },
-                          ]}
-                          onPress={() => {}}
+                          style={{
+                            borderWidth: 0.5,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: 80,
+                            marginTop: 5,
+                            height: 50,
+                          }}
+                          onPress={() => setModalVisible(true)}
                         >
-                          <Dropdown
-                            disable={!vaccine.isChecked}
-                            style={[
-                              styles.dropdown,
-                              isFocus && { borderColor: "blue" },
-                            ]}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            iconStyle={styles.iconStyle}
-                            data={brands}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder={!isFocus ? "Marca" : "..."}
-                            value={value}
-                            onFocus={() => setIsFocus(true)}
-                            onBlur={() => setIsFocus(false)}
-                            onChange={(item) => {
-                              setVaccines(
-                                vaccines.map((v) =>
-                                  v.id === vaccine.id
-                                    ? { ...v, brand: item.value }
-                                    : v
-                                )
-                              );
-                              setIsFocus(false);
-                            }}
-                          />
-                        </TouchableOpacity> */}
-                        {/* <TouchableOpacity
-                    style={styles.dateButton}
-                    onPress={() =>
-                      navigation.navigate('SelectPartner', {
-                        action: handleSelectPartner,
-                      })
-                    }>
-                    <Text style={styles.dateText}>
-                      {`Aplicado por ${selectPartner}`}
-                    </Text>
-                  </TouchableOpacity> */}
+                          {imageSource ? (
+                            <Image
+                              source={
+                                { uri: imageSource.uri }
+                              }
+                              style={{ width: 80,
+                                
+                                height: 50,}}
+                              resizeMode={"cover"}
+                            />
+                          ) : (
+                            <Ionicons
+                              name={"camera-reverse-outline"}
+                              size={25}
+                              color={Colors.gray}
+                            />
+                          )}
+                        </TouchableOpacity>
                       </View>
                     </View>
-                  ))}
-                </View>
+                  </View>
+                ))}
               </View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={save}>
-                  {saveLoading ? (
-                    <ActivityIndicator
-                      size="large"
-                      color={Colors.primaryColor}
-                    />
-                  ) : (
-                    <Text style={styles.textButton}>Confirmar</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            <EmptyVaccines />
-          )}
-        </View>
-      )}
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={save}>
+                {saveLoading ? (
+                  <ActivityIndicator size="large" color={Colors.primaryColor} />
+                ) : (
+                  <Text style={styles.textButton}>Confirmar</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <EmptyVaccines />
+        )}
+        <ImageOption
+          visible={modalVisible}
+          closeModal={closeModal}
+          selectImageFromLibrary={selectImageFromLibrary}
+          takePhoto={takePhoto}
+        />
+      </View>
     </>
   );
 };

@@ -179,7 +179,7 @@ const IdInfoPet = ({ route }) => {
             </View>
           </View>
         </View>
-        <View style={styles.userInfo}>
+        {/* <View style={styles.userInfo}>
           <Text style={styles.title}>Estado de salud</Text>
           <View style={styles.info}>
             <View style={styles.rowInformation}>
@@ -213,7 +213,7 @@ const IdInfoPet = ({ route }) => {
               <TextInput style={styles.textInput} value={"???????"} />
             </View>
           </View>
-        </View>
+        </View> */}
         <View style={styles.containerButton}>
           {/* <TouchableOpacity style={styles.button} onPress={() => {}}>
             <Text

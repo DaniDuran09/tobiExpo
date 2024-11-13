@@ -8,7 +8,7 @@ import {Image} from 'react-native-animatable';
 import {Colors} from '../../../styles/Colors';
 
 const SelectPartner = ({route}) => {
-  const {action} = route.params
+  const {action, vaccine} = route.params
   const [listPartners, setListPartners] = useState([]);
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
@@ -24,7 +24,8 @@ const SelectPartner = ({route}) => {
       onPress={() =>
         navigation.navigate('ListPartners', {
           partners: item.users,
-          action: action
+          action: action,
+          vaccine: vaccine
         })
       }>
       <View style={styles.leftSection}>

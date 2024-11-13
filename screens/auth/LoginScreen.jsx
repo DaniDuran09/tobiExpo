@@ -22,6 +22,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
 import ApiFetcher from "../../modules/ApiFetcher";
+import Toast from "react-native-toast-message";
 
 const LoginScreen = ({ navigation }) => {
   const [data, setData] = React.useState({
@@ -103,10 +104,10 @@ const LoginScreen = ({ navigation }) => {
     try {
       let data = {
         username: username,
-        password: password
-      }
+        password: password,
+      };
       const response = await apiFetcher.login(data);
-      console.log("Response: ", response)
+      console.log("Response: ", response);
       await appStorage.saveUser(response.data);
       dispatch(setUserInfo(response.data));
       await appStorage.saveAppToken(response.data.token);
@@ -114,10 +115,11 @@ const LoginScreen = ({ navigation }) => {
       navigation.replace("Home");
     } catch (error) {
       console.log("Error:", error);
-      Alert.alert(
-        "Usuario y/o contraseña incorrectas",
-        "Verifique sus credenciales."
-      );
+      Toast.show({
+        type: "error",
+        text1: "Usuario y/o contraseña incorrectas",
+        text2: `Verifique sus credenciales.`,
+      });
     } finally {
       setLoading(false);
     }
@@ -127,95 +129,97 @@ const LoginScreen = ({ navigation }) => {
     <KeyboardAvoidingView
       style={{ flex: 1, flexDirection: "column" }}
       behavior={"height"}
-      
-      
     >
       {loading && (
-        <Loading textColor={Colors.white} backgroundColorProp={Colors.primaryColor}/>
-      )} 
+        <Loading
+          textColor={Colors.white}
+          backgroundColorProp={Colors.primaryColor}
+        />
+      )}
+      <View
+        style={{
+          backgroundColor: "#EF4136", //#E6F8DB
+          height: height / 1,
+          width: width,
+        }}
+      >
+        {/* <Loader active={loading} /> */}
         <View
           style={{
-            backgroundColor: "#EF4136", //#E6F8DB
-            height: height / 1,
-            width: width,
+            height: "20%",
+            width: "100%",
+            justifyContent: "space-around",
+            alignItems: "flex-start",
+            paddingLeft: 20,
           }}
         >
-          {/* <Loader active={loading} /> */}
+          <Image
+            source={require("../../assets/Logo.png")}
+            style={{ height: 80, width: 150 }}
+            resizeMode={"contain"}
+          />
+        </View>
+        <View
+          style={{
+            height: "25%",
+            width: "100%",
+            justifyContent: "space-around",
+            alignItems: "center",
+          }}
+        >
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="#000"
+            elevation={5}
+            keyboardType="email-address"
+            style={[
+              styles.textInput,
+              {
+                color: "#000",
+              },
+            ]}
+            autoCapitalize="none"
+            onChangeText={(val) => setInput({ ...input, username: val })}
+          />
           <View
-            style={{
-              height: "20%",
-              width: "100%",
-              justifyContent: "space-around",
-              alignItems: "flex-start",
-              paddingLeft: 20,
-            }}
-          >
-            <Image
-              source={require("../../assets/Logo.png")}
-              style={{ height: 80, width: 150 }}
-              resizeMode={"contain"}
-            />
-          </View>
-          <View
-            style={{
-              height: "25%",
-              width: "100%",
-              justifyContent: "space-around",
-              alignItems: "center",
-            }}
+            style={[
+              styles.textInput,
+              {
+                justifyContent: "space-between",
+                flexDirection: "row",
+                alignItems: "center",
+              },
+            ]}
           >
             <TextInput
-              placeholder="Email"
+              placeholder="Contraseña"
+              secureTextEntry={visible}
+              //elevation={5}
+              style={styles.passwordStyles}
               placeholderTextColor="#000"
-              elevation={5}
-              keyboardType="email-address"
-              style={[
-                styles.textInput,
-                {
-                  color: "#000",
-                },
-              ]}
               autoCapitalize="none"
-              onChangeText={(val) => setInput({ ...input, username: val })}
+              onChangeText={(val) => setInput({ ...input, password: val })}
             />
-            <View
-              style={[
-                styles.textInput,
-                {
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  alignItems: "center",
-                },
-              ]}
-            >
-              <TextInput
-                placeholder="Contraseña"
-                secureTextEntry={visible}
-                //elevation={5}
-                style={styles.passwordStyles}
-                placeholderTextColor="#000"
-                autoCapitalize="none"
-                onChangeText={(val) => setInput({ ...input, password: val })}
+            <TouchableOpacity onPress={() => setVisible(!visible)}>
+              <Entypo
+                name={visible ? "eye-with-line" : "eye"}
+                size={25}
+                color={Colors.gray}
+                style={styles.icon}
               />
-               <TouchableOpacity onPress={()=>setVisible(!visible)}>
-                <Entypo
-                  name={visible? "eye-with-line": "eye"}
-                  size={25}
-                  color={Colors.gray}
-                  style={styles.icon}
-                />
-                </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-          <View
-            style={{
-              height: "10%",
-              width: "100%",
-              justifyContent: "space-around",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
+        </View>
+        <View
+          style={{
+            height: "10%",
+            width: "100%",
+            justifyContent: "space-around",
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
             <Text
               style={{
                 fontSize: 14,
@@ -227,85 +231,85 @@ const LoginScreen = ({ navigation }) => {
             >
               ¿Olvidaste tu contraseña?
             </Text>
-            <Text
-              onPress={() => navigation.navigate("UserStepsRegister")}
+          </TouchableOpacity>
+          <Text
+            onPress={() => navigation.navigate("UserStepsRegister")}
+            style={{
+              fontSize: 14,
+              fontWeight: "400",
+              textAlign: "center",
+              color: "#E6F8DB",
+            }}
+          >
+            Registrarse
+          </Text>
+        </View>
+        <View
+          style={{
+            height: "15%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <TouchableWithoutFeedback onPress={() => loginHandle(input)}>
+            <View
               style={{
-                fontSize: 14,
-                fontWeight: "400",
-                textAlign: "center",
-                color: "#E6F8DB",
+                height: 60,
+                width: "80%",
+                backgroundColor: "#FA6650",
+                borderRadius: 32,
+                justifyContent: "center",
               }}
             >
-              Registrarse
-            </Text>
-          </View>
-          <View
-            style={{
-              height: "15%",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <TouchableWithoutFeedback onPress={() => loginHandle(input)}>
-              <View
+              <Text
                 style={{
-                  height: 60,
-                  width: "80%",
-                  backgroundColor: "#FA6650",
-                  borderRadius: 32,
-                  justifyContent: "center",
+                  textAlign: "center",
+                  fontSize: 16,
+                  color: "white",
+                  fontWeight: "700",
                 }}
               >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    color: "white",
-                    fontWeight: "700",
-                  }}
-                >
-                  Entrar
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-          <View
-            style={{
-              height: "30%",
-              width: "100%",
-            }}
-          >
-            {/* <Image
+                Entrar
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+        <View
+          style={{
+            height: "30%",
+            width: "100%",
+          }}
+        >
+          {/* <Image
               source={require("../assets/huella_w.png")}
               style={{ height: 45, width: 45 }}
               resizeMode={"contain"}
             /> */}
-            <View style={{ position: "absolute", bottom: "20%", left: "20%" }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "300",
-                  textAlign: "center",
-                  color: "#E6F8DB",
-                }}
-              >
-                Al registrarse, aceptas el
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: "300",
-                  textAlign: "center",
-                  color: "#E6F8DB",
-                }}
-              >
-                Aviso de usuario y la Política de Privacidad.
-              </Text>
-            </View>
+          <View style={{ position: "absolute", bottom: "20%", left: "20%" }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "300",
+                textAlign: "center",
+                color: "#E6F8DB",
+              }}
+            >
+              Al registrarse, aceptas el
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "300",
+                textAlign: "center",
+                color: "#E6F8DB",
+              }}
+            >
+              Aviso de usuario y la Política de Privacidad.
+            </Text>
           </View>
         </View>
-      
+      </View>
     </KeyboardAvoidingView>
   );
 };

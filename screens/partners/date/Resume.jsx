@@ -18,19 +18,65 @@ import {
 } from "react-native-ui-lib";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import momentTZ from "../../../utils/moment";
+import AppStorage from "../../../modules/AppStorage";
 
-const Resume = () => {
+const Resume = ({ route }) => {
+  const { resetParams } = route.params;
   const appointments = useSelector((state) => state?.appointment?.appointments);
   const [expandedAppointment, setExpandedAppointment] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
   const [expanded, setExpanded] = useState(false);
 
-  console.log("appointments: ", appointments);
+  const appStorage = new AppStorage();
+
+  const totalPay = appointments
+    .map((appointment) =>
+      appointment.service.reduce(
+        (sum, service) => sum + parseFloat(service.price_total),
+        0
+      )
+    )
+    .reduce((acc, appointmentTotal) => acc + appointmentTotal, 0);
 
   const handleSheetChanges = useCallback((index) => {
     console.log("handleSheetChanges", index);
   }, []);
+
+  const goToPay = async () => {
+    setLoading(true);
+    try {
+      const user = await appStorage.getUser();
+      console.log("user: ", user);
+
+      const newAppointmentsArray = appointments.map((appointment) => ({
+        start_time: appointment.date,
+        pet_id: appointment.pet.id,
+        services: appointment.service.map((service) => service.id),
+      }));
+
+      console.log("El nuevo array: ", newAppointmentsArray);
+
+      const payload = {
+        appointment: {
+          partner_id: 34,
+          user_id: user.id,
+          name: user.name,
+          description: "description",
+          date_servic: "2024-10-20",
+          appointment_pet_services_attributes: [
+            {
+              pet_id: 331,
+              service_id: 67,
+              user_id: 100,
+              start_time: "10:00",
+            },
+          ],
+        },
+      };
+    } catch (error) {}
+  };
 
   const openBottomSheet = () => {
     bottomSheetRef.current?.expand();
@@ -58,8 +104,9 @@ const Resume = () => {
 
   // Renderizar cada cita
   const renderAppointment = ({ item }) => {
-    console.log("item: ", item);
     const { pet, date, time, service, partenerLocation } = item;
+
+    console.log("item: ", item);
     const capitalizedDateTime = formatDateTime(date, time);
 
     const totalPrice = service.reduce((sum, item) => {
@@ -182,7 +229,7 @@ const Resume = () => {
         <View style={styles.header}>
           <Text style={styles.title}>Resumen de la cita</Text>
           <TouchableOpacity
-            onPress={() => navigation.navigate("InfoServiceForDate")}
+          // onPress={() => navigation.navigate("InfoServiceForDate")}
           >
             <Image
               source={require("../../../assets/edit-date.png")}
@@ -196,30 +243,33 @@ const Resume = () => {
           keyExtractor={(item, index) => index.toString()}
         />
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("InfoServiceForDate", { reset: true })
-          }
+          onPress={() => {
+            resetParams();
+            navigation.navigate("InfoServiceForDate");
+          }}
         >
-          <Text style={styles.title}>Agregar otra cita</Text>
+          <Text style={styles.title} marginL-5>
+            + Agregar otra cita
+          </Text>
         </TouchableOpacity>
         <View flex padding-15>
-          <Text marginT-15 style={styles.title}>
+          <Text marginT-20 style={styles.title}>
             Resumen
           </Text>
           <View style={styles.servicesContainer}>
-            <Text text70BO>Productos y servicios con IVA</Text>
+            <Text text70BO>Productos y servicios</Text>
             <View row spread marginT-10>
               <Text>{appointments[0]?.service?.name}</Text>
               <Text>${appointments[0]?.service?.price}</Text>
             </View>
-            <View row spread marginT-10>
-              <Text>Impuesto IVA 16%</Text>
+            {/* <View row spread marginT-10>
+              <Text>Impuesto IVA %</Text>
               <Text>
                 $
-                {(appointments[0]?.service?.price *
-                  parseInt(appointments[0]?.service?.tax_percent)) /
-                  100}
+                {totalPay}
               </Text>
+            </View> */}
+            <View row spread marginT-10>
             </View>
             <View row spread marginT-10>
               <Text>Tarifa de servicio</Text>
@@ -227,20 +277,13 @@ const Resume = () => {
             </View>
             <View row spread marginT-10>
               <Text text70BO>Total a pagar</Text>
-              <Text text70BO>
-                $
-                {parseFloat(appointments[0]?.service.price) +
-                  (appointments[0]?.service?.price *
-                    parseInt(appointments[0]?.service?.tax_percent)) /
-                    100 +
-                  10}
-              </Text>
+              <Text text70BO>${totalPay + 10}</Text>
             </View>
           </View>
         </View>
       </ScrollView>
       <View bottom marginB-15>
-        <TouchableOpacity style={styles.saveButton} onPress={openBottomSheet}>
+        <TouchableOpacity style={styles.saveButton} onPress={goToPay}>
           <Text text70BO color={Colors.primaryColor}>
             Confirmar
           </Text>

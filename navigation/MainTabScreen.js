@@ -222,6 +222,7 @@ const HomeStackScreen = ({navigation}) => (
       name="SelectPartner"
       component={SelectPartner}
       options={{
+        headerLeft: null,
         title: 'Selecciona al Partner',
       }}
     />
@@ -254,7 +255,7 @@ const HealthStackScreens = ({navigation}) => (
       name="SelectPartner"
       component={SelectPartner}
       options={{
-        headerLeft: null,
+        
         title: 'Selecciona al Partner',
       }}
     />

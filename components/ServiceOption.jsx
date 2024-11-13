@@ -17,31 +17,15 @@ import { setServiceInfo } from "../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 
 const ServiceOption = (props) => {
-  const { service, picture, partenerLocation, listService } = props;
+  const { service, picture, listService, users } = props;
 
   const navigation = useNavigation();
   const dispatch = useDispatch()
 
-  const serviceImages = {
-    "Consulta general veterinaria": vetOption5,
-    "Consulta de especialidad": vetOption5,
-    Vacunación: vetOption1,
-    Desparasitación: vetOption2,
-    "Laboratorio clínico": vetOption1,
-    "Profilaxis dental": groomingOption5,
-    Esterilizaciones: vetOption4,
-    "Vet Option 2": vetOption2,
-    "Vet Option 4": vetOption4,
-    "Vet Option 5": vetOption1,
-  };
-
-  // const selectedImage = serviceImages[title];
-
   const goToCreateDate = async () => {
-    navigation.navigate("InfoServiceForDate");
+    navigation.navigate("InfoServiceForDate", {users: users});
     dispatch(
       setServiceInfo(
-        // ...service, partenerLocation: partenerLocation
         listService
       )
     );

@@ -27,7 +27,7 @@ import {formatDateToDDMMYYYY} from '../utils/scripts';
 // import { generalDataAction } from '../redux/generalDuck';
 
 const SignInPetScreen = props => {
-  const {user, data, setData} = props;
+  const { data, setData} = props;
 
   const [date, setDate] = React.useState(new Date());
   const [open, setOpen] = React.useState(false);
@@ -72,23 +72,7 @@ const SignInPetScreen = props => {
     setData({...data, gender: gender})
   },[gender])
 
-  
 
-  const onSubmit = () => {
-    // const petDta = {
-    //   name: data.namePet.toString(),
-    //   typePet: pet,
-    //   gender: gender,
-    //   birthday: data.birthday,
-    // };
-    // if ((data.birthday === "" || data.namePet === "")) {
-    //   Alert.alert("Tobi", "Debes llenar todos los campos", [
-    //     { text: "OK", onPress: () => null },
-    //   ]);
-    // } else {
-    //   navigation.navigate("SignInPetInfoScreen", { pet: petDta, user: user });
-    // }
-  };
 
   return (
     <View style={styles.container}>

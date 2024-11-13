@@ -140,7 +140,7 @@ const ResumeDate = ({ navigation, route }) => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.textSection}>Estacionamiento</Text>
             <View style={styles.rowSection}>
               <Image
@@ -152,7 +152,7 @@ const ResumeDate = ({ navigation, route }) => {
                 Estacionamiento en vía pública.
               </Text>
             </View>
-          </View>
+          </View> */}
           <View style={styles.section}>
             <Text style={styles.textSection}>Teléfono</Text>
             <View style={styles.rowSection}>

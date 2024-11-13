@@ -16,12 +16,13 @@ import Toast from "react-native-toast-message";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { addAppointment } from "../../../redux/slice/appointmentSlice";
 import { useDispatch, useSelector } from "react-redux";
-import vetOption5 from "../../../assets/vet-option5.png";
+import CustomCalendar from "../../../components/appointments/CustomCalendar";
 
 const InfoServiceForDate = ({ route }) => {
-  console.log("route: ", route)
+  const {users} = route.params;
   const service = useSelector((state) => state?.appointment?.service);
   const [isCheked, setIsChecked] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [selectedServices, setSelectedServices] = useState([]);
@@ -42,14 +43,15 @@ const InfoServiceForDate = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      if(route.params){
-        console.log("reseteo")
-        console.log("reseteo")
-        resetParams();
-      }
+      // console.log("resetseos")
+      // if(route?.params){
+      //   console.log("reseteo")
+      //   console.log("reseteo")
+      //   resetParams();
+      // }
       fetchPets();
       return () => {};
-    }, [navigation])
+    }, [])
   );
 
   const resetParams = () => {
@@ -140,9 +142,11 @@ const InfoServiceForDate = ({ route }) => {
           partenerLocation: service.partenerLocation,
         })
       );
-    navigation.navigate("Resume");
+    navigation.navigate("Resume", {resetParams: resetParams});
   }
   };
+
+  const closeModal = () => setShowCalendar(false)
 
   // Limites para las horas (no permitir horas entre las 8 PM y las 8 AM)
   const isTimeAllowed = (selectedDate) => {
@@ -206,6 +210,28 @@ const InfoServiceForDate = ({ route }) => {
     );
   };
 
+  const renderUsers = (user) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("ListPartners", {
+            partners: item.users,
+            services: item.services
+          })
+        }
+      >
+        <View center marginR-25>
+          <Image
+            source={{ uri: user.picture }}
+            style={styles.personImage}
+            resizeMode="cover"
+          />
+          <Text text70R>{user.display_name}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View flex backgroundColor={Colors.white}>
       <ScrollView ref={scrollViewRef}>
@@ -236,24 +262,24 @@ const InfoServiceForDate = ({ route }) => {
               renderItem={({ item }) => renderServices(item)}
             />
           </View>
+          <View>
+          <FlatList
+                      // data={item.users}
+                      horizontal={true}
+                      renderItem={({ item }) => renderUsers(item)}
+                      keyExtractor={(item) => item.id.toString()}
+                      showsHorizontalScrollIndicator={false}
+                    />
+          </View>
           <View marginT-20 marginB-20>
             <Text text70BO>Fecha y hora</Text>
             <View>
+              <TouchableOpacity onPress={()=>setShowCalendar(true)}> 
               <View row spread style={styles.textInput}>
-                <DateTimePicker
-                  minimumDate={minimumDate}
-                  style={{ height: 60, width: 300 }}
-                  placeholder={"Selecciona el día"}
-                  mode={"date"}
-                  onChange={(date) => setInfoDate({ ...infoDate, date: date })}
-                />
-                <Image
-                  source={require("../../../assets/calendar-icon-black.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
+               <Text>Selecciona una fecha</Text>
               </View>
-              <View row spread style={styles.textInput}>
+              </TouchableOpacity>
+              {/* <View row spread style={styles.textInput}>
                 <DateTimePicker
                   style={{ height: 60, width: 300 }}
                   placeholder={"Selecciona una hora"}
@@ -274,7 +300,10 @@ const InfoServiceForDate = ({ route }) => {
                   style={{ height: 25, width: 25 }}
                   resizeMode={"contain"}
                 />
-              </View>
+              </View> */}
+            </View>
+            <View>
+            <CustomCalendar showCalendar={showCalendar} closeModal={closeModal}/>
             </View>
           </View>
           <View flex bottom>

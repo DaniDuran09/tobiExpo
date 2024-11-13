@@ -11,11 +11,11 @@ import React, { useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 
 const ListPartners = ({ route, navigation }) => {
-  const { partners, action, services } = route.params;
+  const { partners, action, services, vaccine } = route.params;
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Lo que recibo: ", services);
+    console.log("Lo que recibo: ", partners);
   }, []);
 
   const renderItem = (item) => {
@@ -24,7 +24,7 @@ const ListPartners = ({ route, navigation }) => {
         style={styles.elevation}
         onPress={() =>
           action
-            ? action(item.name)
+            ? action(item.name, vaccine)
             : navigation.navigate("InfoServiceByPartner", {
                 partner: item,
                 services: services,
