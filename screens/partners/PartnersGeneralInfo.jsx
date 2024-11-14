@@ -74,7 +74,7 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-  
+
 
   const renderUsers = (user) => {
     return (

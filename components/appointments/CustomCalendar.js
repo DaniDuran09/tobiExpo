@@ -1,12 +1,11 @@
-import { FlatList, Modal, StyleSheet } from "react-native";
+import { FlatList, Modal, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Text, View } from "react-native-ui-lib";
 import { Calendar, CalendarUtils } from "react-native-calendars";
 import { Colors } from "../../styles/Colors";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import momentTZ from "../../utils/moment";
 
-const CustomCalendar = ({ showCalendar = true, closeModal = () => {} }) => {
+const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDate, infoDate }) => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
 
@@ -157,9 +156,15 @@ const CustomCalendar = ({ showCalendar = true, closeModal = () => {} }) => {
             style={styles.acceptButton}
             onPress={() => {
               if (showSchedule) {
+                setInfoDate({ ...infoDate, time: selectedHour })
                 closeModal();
                 setShowSchedule(false)
-              } else setShowSchedule(true);
+                console.log(selectedHour)
+              } else {
+                setInfoDate({ ...infoDate, date: date });
+                setShowSchedule(true);
+                console.log(date)
+              }
             }}
           >
             <Text text70BO color={Colors.white}>

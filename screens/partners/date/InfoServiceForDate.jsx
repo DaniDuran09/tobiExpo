@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomCalendar from "../../../components/appointments/CustomCalendar";
 
 const InfoServiceForDate = ({ route }) => {
-  const {users} = route.params;
+  const { users } = route.params;
   const service = useSelector((state) => state?.appointment?.service);
   const [isCheked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -32,7 +32,7 @@ const InfoServiceForDate = ({ route }) => {
     date: "",
     time: "",
   });
-  const [specialistId,setSpecialistId]=useState()
+  const [specialistId, setSpecialistId] = useState()
 
   const minimumDate = new Date(); // Fecha actual
   minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
@@ -51,7 +51,7 @@ const InfoServiceForDate = ({ route }) => {
       //   resetParams();
       // }
       fetchPets();
-      return () => {};
+      return () => { };
     }, [])
   );
 
@@ -133,7 +133,7 @@ const InfoServiceForDate = ({ route }) => {
         text1: "Datos incompletos",
         text2: `Completa todos los campos`,
       });
-    } else{
+    } else {
       dispatch(
         addAppointment({
           pet: selectedPet,
@@ -143,8 +143,8 @@ const InfoServiceForDate = ({ route }) => {
           partenerLocation: service.partenerLocation,
         })
       );
-    navigation.navigate("Resume", {resetParams: resetParams});
-  }
+      navigation.navigate("Resume", { resetParams: resetParams });
+    }
   };
 
   const closeModal = () => setShowCalendar(false)
@@ -214,8 +214,9 @@ const InfoServiceForDate = ({ route }) => {
   const renderUsers = (user) => {
     return (
       <TouchableOpacity
-        onPress={()=>{setSpecialistId(user.id)
-          
+        onPress={() => {
+          setSpecialistId(user.id)
+
         }}
       >
         <View center marginR-25>
@@ -261,23 +262,23 @@ const InfoServiceForDate = ({ route }) => {
             />
           </View>
           <View marginT-20 marginB-20>
-          <Text text70BO marginB-10>Especialistas </Text>
-          <FlatList
-                      data={users}
-                      horizontal={true}
-                      renderItem={({ item }) => renderUsers(item)}
-                      keyExtractor={(item) => item.id.toString()}
-                      showsHorizontalScrollIndicator={false}
+            <Text text70BO marginB-10>Especialistas </Text>
+            <FlatList
+              data={users}
+              horizontal={true}
+              renderItem={({ item }) => renderUsers(item)}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
 
-                    />
+            />
           </View>
           <View marginT-20 marginB-20>
             <Text text70BO>Fecha y hora</Text>
             <View>
-              <TouchableOpacity onPress={()=>setShowCalendar(true)}> 
-              <View row spread style={styles.textInput}>
-               <Text>Selecciona una fecha</Text>
-              </View>
+              <TouchableOpacity onPress={() => setShowCalendar(true)}>
+                <View row spread style={styles.textInput}>
+                  <Text>Selecciona una fecha</Text>
+                </View>
               </TouchableOpacity>
               {/* <View row spread style={styles.textInput}>
                 <DateTimePicker
@@ -303,7 +304,12 @@ const InfoServiceForDate = ({ route }) => {
               </View> */}
             </View>
             <View>
-            <CustomCalendar showCalendar={showCalendar} closeModal={closeModal}/>
+              <CustomCalendar
+                showCalendar={showCalendar}
+                closeModal={closeModal}
+                setInfoDate={setInfoDate}
+                infoDate={infoDate}
+              />
             </View>
           </View>
           <View flex bottom>

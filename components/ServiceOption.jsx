@@ -23,7 +23,7 @@ const ServiceOption = (props) => {
   const dispatch = useDispatch()
 
   const goToCreateDate = async () => {
-    navigation.navigate("InfoServiceForDate", {users: users});
+    navigation.navigate("InfoServiceForDate", { users: users });
     dispatch(
       setServiceInfo(
         listService
