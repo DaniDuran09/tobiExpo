@@ -32,6 +32,7 @@ const InfoServiceForDate = ({ route }) => {
     date: "",
     time: "",
   });
+  const [specialistId,setSpecialistId]=useState()
 
   const minimumDate = new Date(); // Fecha actual
   minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
@@ -120,7 +121,7 @@ const InfoServiceForDate = ({ route }) => {
   };
 
   const goToResume = () => {
-    console.log(infoDate)
+    //console.log(infoDate)
     if (
       infoDate.date == "" ||
       infoDate.time == "" ||
@@ -213,12 +214,9 @@ const InfoServiceForDate = ({ route }) => {
   const renderUsers = (user) => {
     return (
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("ListPartners", {
-            partners: item.users,
-            services: item.services
-          })
-        }
+        onPress={()=>{setSpecialistId(user.id)
+          
+        }}
       >
         <View center marginR-25>
           <Image
@@ -262,13 +260,15 @@ const InfoServiceForDate = ({ route }) => {
               renderItem={({ item }) => renderServices(item)}
             />
           </View>
-          <View>
+          <View marginT-20 marginB-20>
+          <Text text70BO marginB-10>Especialistas </Text>
           <FlatList
-                      // data={item.users}
+                      data={users}
                       horizontal={true}
                       renderItem={({ item }) => renderUsers(item)}
                       keyExtractor={(item) => item.id.toString()}
                       showsHorizontalScrollIndicator={false}
+
                     />
           </View>
           <View marginT-20 marginB-20>
@@ -360,6 +360,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 60,
     marginTop: "5%",
+  },
+  personImage: {
+    height: 60,
+    width: 60,
+    borderRadius: 32,
   },
   saveButton: {
     width: "100%",

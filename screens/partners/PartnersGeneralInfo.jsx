@@ -35,7 +35,7 @@ const PartnersGeneralInfo = ({ route }) => {
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  
+  console.log(item.users)
 
   useEffect(() => {
     dispatch(clearAppointments())
@@ -143,6 +143,7 @@ const PartnersGeneralInfo = ({ route }) => {
                       service={service}
                       partenerLocation={partenerLocation}
                       listService={item.services}
+                      users={item.users}
                     />
                   ))}
                 </View>
