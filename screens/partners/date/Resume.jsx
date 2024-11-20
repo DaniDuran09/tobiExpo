@@ -19,26 +19,21 @@ import {
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import momentTZ from "../../../utils/moment";
 import AppStorage from "../../../modules/AppStorage";
+import ApiFetcher from "../../../modules/ApiFetcher";
+import Loading from "../../../components/Loading";
+import Toast from "react-native-toast-message";
 
 const Resume = ({ route }) => {
-  const { resetParams } = route.params;
-  const appointments = useSelector((state) => state?.appointment?.appointments);
-  const [expandedAppointment, setExpandedAppointment] = useState(null);
+  const { payload } = route.params;
+  const appointment = useSelector((state) => state?.appointment?.appointment);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
   const [expanded, setExpanded] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState("");
 
   const appStorage = new AppStorage();
-
-  const totalPay = appointments
-    .map((appointment) =>
-      appointment.service.reduce(
-        (sum, service) => sum + parseFloat(service.price_total),
-        0
-      )
-    )
-    .reduce((acc, appointmentTotal) => acc + appointmentTotal, 0);
+  const apiFetcher = new ApiFetcher();
 
   const handleSheetChanges = useCallback((index) => {
     console.log("handleSheetChanges", index);
@@ -47,35 +42,22 @@ const Resume = ({ route }) => {
   const goToPay = async () => {
     setLoading(true);
     try {
-      const user = await appStorage.getUser();
-      console.log("user: ", user);
-
-      const newAppointmentsArray = appointments.map((appointment) => ({
-        start_time: appointment.date,
-        pet_id: appointment.pet.id,
-        services: appointment.service.map((service) => service.id),
-      }));
-
-      console.log("El nuevo array: ", newAppointmentsArray);
-
-      const payload = {
-        appointment: {
-          partner_id: 34,
-          user_id: user.id,
-          name: user.name,
-          description: "description",
-          date_servic: "2024-10-20",
-          appointment_pet_services_attributes: [
-            {
-              pet_id: 331,
-              service_id: 67,
-              user_id: 100,
-              start_time: "10:00",
-            },
-          ],
-        },
-      };
-    } catch (error) {}
+      const response = await apiFetcher.registerAppointments(payload)
+      console.log("response: ", response)
+      if (response.code == 200) {
+        setCheckoutUrl(response.data.payment.checkout_url)
+        openBottomSheet()
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'No se pudo agendar la cita',
+        text2: `Intenta de nuevo más tarde`,
+      });
+      console.log("Error: ", error)
+    } finally {
+      setLoading(false)
+    }
   };
 
   const openBottomSheet = () => {
@@ -88,7 +70,6 @@ const Resume = ({ route }) => {
     setExpanded(false);
   };
 
-  // Formatear la fecha y hora de cada cita
   const formatDateTime = (date, time) => {
     const combinedDateTime = momentTZ(date).set({
       hour: momentTZ(time).hour(),
@@ -102,65 +83,87 @@ const Resume = ({ route }) => {
     );
   };
 
-  // Renderizar cada cita
-  const renderAppointment = ({ item }) => {
-    const { pet, date, time, service, partenerLocation } = item;
+  //console.log("appointment?.service_: ", appointment?.service)
+  const totalPrice = appointment?.service.reduce((sum, item) => {
+    /*const priceWithTax =
+      parseFloat(item.price) +
+      (parseFloat(item.price) * parseInt(item.tax_percent)) / 100;
+    return sum + priceWithTax + 10; // Añadir 10 a cada precio calculado*/
+    const priceToPay = parseFloat(item.price)
+    
+    return sum + priceToPay
 
-    console.log("item: ", item);
-    const capitalizedDateTime = formatDateTime(date, time);
+  }, 0) + 10;
 
-    const totalPrice = service.reduce((sum, item) => {
-      const priceWithTax =
-        parseFloat(item.price) +
-        (parseFloat(item.price) * parseInt(item.tax_percent)) / 100;
-      return sum + priceWithTax + 10; // Añadir 10 a cada precio calculado
-    }, 0);
-
-    return (
-      <ExpandableSection
-        expanded={expandedAppointment === item}
-        sectionHeader={
-          <View
-            row
-            centerV
-            marginT-15
-            padding-15
-            spread
-            style={{
-              shadowColor: Colors.gray,
-              shadowOffset: { width: 0, height: 3 },
-              shadowOpacity: expandedAppointment !== item && 0.5,
-              shadowRadius: 2,
-              marginBottom: 10,
-              backgroundColor: Colors.white,
-            }}
+  return (
+    <View flex backgroundColor={Colors.white}>
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
+      <ScrollView style={expanded && { opacity: 0.1 }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Resumen de la cita</Text>
+          <TouchableOpacity
+          // onPress={() => navigation.navigate("InfoServiceForDate")}
           >
-            <View row centerV gap-10>
-              <AnimatedImage
-                source={{ uri: pet?.picture }}
-                style={{ width: 70, height: 70, borderRadius: 64 }}
-                loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-                animationDuration={500}
-                resizeMode="cover"
-              />
-              <View>
-                <Text text70BO>{pet?.name}</Text>
-                <Text text70>{pet?.pet_breed?.description}</Text>
-              </View>
+            <Image
+              source={require("../../../assets/edit-date.png")}
+              style={styles.editIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        {/* <FlatList
+          data={appointments}
+          renderItem={renderAppointment}
+          keyExtractor={(item, index) => index.toString()}
+        /> */}
+        {/* <ExpandableSection
+        expanded={expandedAppointment === item}
+        sectionHeader={ */}
+        <View
+          row
+          centerV
+          marginT-15
+          padding-15
+          spread
+          style={{
+            shadowColor: Colors.gray,
+            shadowOffset: { width: 0, height: 3 },
+            // shadowOpacity: expandedAppointment !== item && 0.5,
+            shadowRadius: 2,
+            marginBottom: 10,
+            backgroundColor: Colors.white,
+          }}
+        >
+          <View row centerV gap-10>
+            <AnimatedImage
+              source={{ uri: appointment?.pet?.picture }}
+              style={{ width: 70, height: 70, borderRadius: 64 }}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
+              resizeMode="cover"
+            />
+            <View>
+              <Text text70BO>{appointment?.pet?.name}</Text>
+              <Text text70>{appointment?.pet?.pet_breed?.description}</Text>
             </View>
-            <Entypo
+          </View>
+          {/* <Entypo
               name={
                 expandedAppointment === item ? "chevron-up" : "chevron-down"
               }
               size={25}
               color={Colors.gray}
-            />
-          </View>
-        }
+            /> */}
+        </View>
+        {/* }
         onPress={() =>
           setExpandedAppointment(expandedAppointment === item ? null : item)
         }
-      >
+      > */}
         <View style={styles.servicesContainer} margin-15>
           <View style={styles.section}>
             <Text text70BO>Servicios</Text>
@@ -171,7 +174,7 @@ const Resume = ({ route }) => {
                 resizeMode="contain"
               /> */}
               <View>
-                {service.map(({ name }) => (
+                {appointment?.service.map(({ name }) => (
                   <View row gap-5 centerV>
                     <Text text100>{`\u25CF`}</Text>
                     <Text style={styles.description}>{name}</Text>
@@ -188,7 +191,7 @@ const Resume = ({ route }) => {
                 style={styles.image}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>{capitalizedDateTime}</Text>
+              <Text style={styles.description}>{appointment?.time}</Text>
             </View>
           </View>
           <View style={styles.section}>
@@ -208,7 +211,7 @@ const Resume = ({ route }) => {
                 style={{ width: 20, height: 20 }}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>{partenerLocation}</Text>
+              <Text style={styles.description}>{appointment?.partenerLocation}</Text>
             </View>
           </View>
           <View style={styles.section}>
@@ -219,38 +222,16 @@ const Resume = ({ route }) => {
             </View>
           </View>
         </View>
-      </ExpandableSection>
-    );
-  };
-
-  return (
-    <View flex backgroundColor={Colors.white}>
-      <ScrollView style={expanded && { opacity: 0.1 }}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Resumen de la cita</Text>
-          <TouchableOpacity
-          // onPress={() => navigation.navigate("InfoServiceForDate")}
-          >
-            <Image
-              source={require("../../../assets/edit-date.png")}
-              style={styles.editIcon}
-            />
-          </TouchableOpacity>
-        </View>
-        <FlatList
-          data={appointments}
-          renderItem={renderAppointment}
-          keyExtractor={(item, index) => index.toString()}
-        />
+        {/* </ExpandableSection> */}
         <TouchableOpacity
-          onPress={() => {
-            resetParams();
-            navigation.navigate("InfoServiceForDate");
-          }}
+        // onPress={() => {
+        //   resetParams();
+        //   navigation.navigate("InfoServiceForDate");
+        // }}
         >
-          <Text style={styles.title} marginL-5>
-            + Agregar otra cita
-          </Text>
+          {/* <Text style={styles.title} marginL-5> */}
+
+          {/* </Text> */}
         </TouchableOpacity>
         <View flex padding-15>
           <Text marginT-20 style={styles.title}>
@@ -258,10 +239,19 @@ const Resume = ({ route }) => {
           </Text>
           <View style={styles.servicesContainer}>
             <Text text70BO>Productos y servicios</Text>
+            <FlatList 
+            row spread marginT-10
+            data={appointment.service}
+            renderItem={({item}) => (
             <View row spread marginT-10>
-              <Text>{appointments[0]?.service?.name}</Text>
-              <Text>${appointments[0]?.service?.price}</Text>
-            </View>
+            <Text>{item.name}</Text>
+            <Text>${item.price_total}</Text>
+          </View>
+            )} 
+            keyExtractor={item => item.id.toString()} 
+            />
+            {/* <Text>{appointments[0]?.service?.name}</Text>*/}
+
             {/* <View row spread marginT-10>
               <Text>Impuesto IVA %</Text>
               <Text>
@@ -277,7 +267,7 @@ const Resume = ({ route }) => {
             </View>
             <View row spread marginT-10>
               <Text text70BO>Total a pagar</Text>
-              <Text text70BO>${totalPay + 10}</Text>
+              <Text text70BO>${ totalPrice}</Text> 
             </View>
           </View>
         </View>
@@ -301,7 +291,7 @@ const Resume = ({ route }) => {
         }}
       >
         <BottomSheetView style={styles.contentContainer}>
-          <PaymentScreen amount={150} closeBottomSheet={closeBottomSheet} />
+          <PaymentScreen checkoutUrl={checkoutUrl} closeBottomSheet={closeBottomSheet} />
         </BottomSheetView>
       </BottomSheet>
     </View>

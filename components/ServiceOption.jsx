@@ -17,13 +17,12 @@ import { setServiceInfo } from "../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 
 const ServiceOption = (props) => {
-  const { service, picture, listService, users } = props;
-
+  const { service, picture, listService, users, partnerId, partnerLocation } = props;
   const navigation = useNavigation();
   const dispatch = useDispatch()
 
   const goToCreateDate = async () => {
-    navigation.navigate("InfoServiceForDate", { users: users });
+    navigation.navigate("InfoServiceForDate", { users: users, partnerId: partnerId, partnerLocation: partnerLocation });
     dispatch(
       setServiceInfo(
         listService

@@ -9,6 +9,7 @@ import {
   Checkbox,
   DateTimePicker,
   LoaderScreen,
+  RadioButton,
   Text,
   View,
 } from "react-native-ui-lib";
@@ -17,9 +18,11 @@ import ApiFetcher from "../../../modules/ApiFetcher";
 import { addAppointment } from "../../../redux/slice/appointmentSlice";
 import { useDispatch, useSelector } from "react-redux";
 import CustomCalendar from "../../../components/appointments/CustomCalendar";
+import AppStorage from "../../../modules/AppStorage";
+import Loading from "../../../components/Loading";
 
 const InfoServiceForDate = ({ route }) => {
-  const { users } = route.params;
+  const { users, partnerId, partnerLocation } = route.params;
   const service = useSelector((state) => state?.appointment?.service);
   const [isCheked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -32,6 +35,7 @@ const InfoServiceForDate = ({ route }) => {
     date: "",
     time: "",
   });
+  const appStorage = new AppStorage();
   const [specialistId, setSpecialistId] = useState()
 
   const minimumDate = new Date(); // Fecha actual
@@ -73,6 +77,8 @@ const InfoServiceForDate = ({ route }) => {
       stePets(response.data);
     } catch (error) {
       console.error("Error: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,6 +92,7 @@ const InfoServiceForDate = ({ route }) => {
         ? prevSelected.filter((s) => s !== service)
         : [...prevSelected, service];
     });
+    console.log('id cita: ', service?.id)
   };
 
   const handleSelectPet = (pet) => setSelectedPet(pet);
@@ -120,13 +127,45 @@ const InfoServiceForDate = ({ route }) => {
     );
   };
 
-  const goToResume = () => {
+  const renderUsers = (user) => {
+    const isSelected = specialistId == user.id
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          setSpecialistId(user.id)
+        }}
+      >
+        <View center marginR-25 style={specialistId && !isSelected && { opacity: 0.6 }}>
+          <AnimatedImage
+            source={{ uri: user.picture }}
+            style={{
+              width: 70,
+              height: 70,
+              borderRadius: 64,
+              borderWidth: isSelected ? 3 : 0,
+              borderColor: isSelected ? Colors.primaryColor : "transparent",
+            }}
+            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+            animationDuration={500}
+            resizeMode="cover"
+
+          />
+          <Text color={isSelected && Colors.primaryColor} text70R>{user.display_name}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+
+  const goToResume = async () => {
     //console.log(infoDate)
     if (
       infoDate.date == "" ||
       infoDate.time == "" ||
       selectedServices.length < 1 ||
-      !selectedPet
+      !selectedPet ||
+      !selectedServices ||
+      !specialistId
     ) {
       Toast.show({
         type: "error",
@@ -134,17 +173,62 @@ const InfoServiceForDate = ({ route }) => {
         text2: `Completa todos los campos`,
       });
     } else {
-      dispatch(
-        addAppointment({
-          pet: selectedPet,
-          date: infoDate.date,
-          time: infoDate.time,
-          service: selectedServices,
-          partenerLocation: service.partenerLocation,
-        })
-      );
-      navigation.navigate("Resume", { resetParams: resetParams });
+      setLoading(true);
+      try {
+        const user = await appStorage.getUser();
+
+        const payload = {
+          appointment: {
+            partner_id: partnerId,
+            user_id: user.id,
+            name: user.name,
+            description: '',
+            date_service: infoDate.date,
+            appointment_pet_services_attributes: [
+
+            ]
+          }
+        }
+        selectedServices.forEach((service) => {
+          payload.appointment.appointment_pet_services_attributes.push({
+            pet_id: selectedPet.id,
+            service_id: service.id,
+            user_id: specialistId,
+            start_time: infoDate.time
+          });
+        });
+
+        console.log("Payload: ", payload.appointment.appointment_pet_services_attributes[0])
+        dispatch(
+          addAppointment({
+            pet: selectedPet,
+            date: infoDate.date,
+            time: infoDate.time,
+            service: selectedServices,
+            partenerLocation: partnerLocation,
+          })
+        );
+
+        navigation.navigate("Resume", { payload: payload });
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Ocurrió un error inesperado",
+          text2: `Intenta de nuevo más tarde`,
+        });
+      } finally {
+        setLoading(false)
+      }
+
     }
+
+    //   navigation.navigate("Resume", { resetParams: resetParams });
+    // }
+
+
+
+
+
   };
 
   const closeModal = () => setShowCalendar(false)
@@ -158,27 +242,6 @@ const InfoServiceForDate = ({ route }) => {
   const renderServices = (item) => {
     const isChecked = selectedServices.includes(item);
     return (
-      // <View style={styles.option}>
-      //   <View style={styles.mainContainer}>
-      //     <Text style={styles.title}>{item.name}</Text>
-      //     <View style={styles.imageContainer}>
-      //       <Image source={vetOption5} style={styles.image} />
-      //       <View style={{ width: "80%" }}>
-      //         <Text style={styles.description}>{item.description}</Text>
-      //         <View style={styles.priceContainer}>
-      //           <Text style={styles.price}>{item.price}</Text>
-      //         </View>
-      //       </View>
-      //     </View>
-      //   </View>
-      //   <View>
-      //     <Checkbox
-      //       color={Colors.primaryColor}
-      //       value={isChecked}
-      //       onValueChange={() => toggleServiceSelection(item)}
-      //     />
-      //   </View>
-      // </View>
       <View row spread marginB-40>
         <View>
           <Text text70BO>{item?.name}</Text>
@@ -201,38 +264,21 @@ const InfoServiceForDate = ({ route }) => {
           </View>
         </View>
         <View>
-          <Checkbox
-            color={Colors.primaryColor}
-            value={isChecked}
-            onValueChange={() => toggleServiceSelection(item)}
-          />
+          <RadioButton label={''} color={Colors.primaryColor} selected={isChecked} onPress={() => toggleServiceSelection(item)} />
         </View>
       </View>
     );
   };
 
-  const renderUsers = (user) => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          setSpecialistId(user.id)
-
-        }}
-      >
-        <View center marginR-25>
-          <Image
-            source={{ uri: user.picture }}
-            style={styles.personImage}
-            resizeMode="cover"
-          />
-          <Text text70R>{user.display_name}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   return (
     <View flex backgroundColor={Colors.white}>
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
       <ScrollView ref={scrollViewRef}>
         <View>
           <View padding-16>

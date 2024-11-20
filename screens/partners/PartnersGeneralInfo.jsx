@@ -35,8 +35,6 @@ const PartnersGeneralInfo = ({ route }) => {
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log(item.users)
-
   useEffect(() => {
     dispatch(clearAppointments())
     getPartnerInfo();
@@ -98,7 +96,7 @@ const PartnersGeneralInfo = ({ route }) => {
     );
   };
 
-  const partenerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
+  const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,7 +122,7 @@ const PartnersGeneralInfo = ({ route }) => {
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.mainTitle}>{item.partner.name}</Text>
-              <Text style={styles.itemDirection}>{partenerLocation}</Text>
+              <Text style={styles.itemDirection}>{partnerLocation}</Text>
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>Servicios</Text>
@@ -141,9 +139,10 @@ const PartnersGeneralInfo = ({ route }) => {
                       key={index}
                       picture={service.picture}
                       service={service}
-                      partenerLocation={partenerLocation}
+                      partnerLocation={partnerLocation}
                       listService={item.services}
                       users={item.users}
+                      partnerId={item.partner.id}
                     />
                   ))}
                 </View>

@@ -6,66 +6,93 @@ import Toast from "react-native-toast-message";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import WebView from "react-native-webview";
 import { fetchPaymentIntent } from "../../services/api/stripe.api";
+import { useNavigation } from "@react-navigation/native";
 
 const PaymentScreen = (props) => {
-  const { amount, closeBottomSheet } = props;
+  const { checkoutUrl, closeBottomSheet } = props;
   const { confirmPayment } = useConfirmPayment();
   const [cardDetails, setCardDetails] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handlePayment = async () => {
-    setLoading(true);
-    try {
-      const clientSecret = await fetchClientSecret();
+  const navigation = useNavigation()
+  // const handlePayment = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const clientSecret = await fetchClientSecret();
 
-      if (!cardDetails?.complete) {
-        Toast.show({
-          type: "error",
-          text1: "Datos incompletos",
-          text2: `Completa los datos`,
-        });
-        return;
-      }
-      const { error } = await confirmPayment(clientSecret, {
-        paymentMethodType: "Card",
-        billingDetails: {},
+  //     if (!cardDetails?.complete) {
+  //       Toast.show({
+  //         type: "error",
+  //         text1: "Datos incompletos",
+  //         text2: `Completa los datos`,
+  //       });
+  //       return;
+  //     }
+  //     const { error } = await confirmPayment(clientSecret, {
+  //       paymentMethodType: "Card",
+  //       billingDetails: {},
+  //     });
+
+  //     if (error) {
+  //       Toast.show({
+  //         type: "error",
+  //         text1: "Error al procesar el pago",
+  //         text2: `Inténtalo de nuevo más tarde`,
+  //       });
+  //     } else {
+  //       Toast.show({
+  //         type: "success",
+  //         text1: "Pago exitoso",
+  //         text2: `Gracias por tu pago`,
+  //       });
+  //       setCardDetails(null);
+  //       closeBottomSheet();
+  //     }
+  //   } catch (error) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "Error al procesar el pago",
+  //       text2: `Inténtalo de nuevo más tarde`,
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const fetchClientSecret = async () => {
+  //   // Aquí debe haber una petición al backend para obtener el clientSecret
+  //   try {
+  //     const response = await fetchPaymentIntent(1000);
+  //     return response.client_secret;
+  //   } catch (error) {
+  //     console.log("Error: ", error);
+  //   }
+  // };
+
+  const handleNavigationStateChange = (navState) => {
+    const { url } = navState;
+
+    console.log("Navigated to:", url);
+
+    if (url.includes("success")) {
+      closeBottomSheet()
+      navigation.navigate("Success", {
+        text: "Pago realizado con éxito",
+        action: () =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "PartnersMain" }],
+          }),
       });
-
-      if (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error al procesar el pago",
-          text2: `Inténtalo de nuevo más tarde`,
-        });
-      } else {
-        Toast.show({
-          type: "success",
-          text1: "Pago exitoso",
-          text2: `Gracias por tu pago`,
-        });
-        setCardDetails(null);
-        closeBottomSheet();
-      }
-    } catch (error) {
+    } else if (url.includes("cancel")) {
       Toast.show({
-        type: "error",
-        text1: "Error al procesar el pago",
-        text2: `Inténtalo de nuevo más tarde`,
+        type: 'error',
+        text1: 'No se pudo realizar el pago',
+        text2: `Intenta de nuevo más tarde`,
       });
-    } finally {
-      setLoading(false);
+      closeBottomSheet()
     }
-  };
-
-  const fetchClientSecret = async () => {
-    // Aquí debe haber una petición al backend para obtener el clientSecret
-    try {
-      const response = await fetchPaymentIntent(1000);
-      return response.client_secret;
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-  };
+  }
 
   return (
     <View height={"100%"}>
@@ -120,18 +147,18 @@ const PaymentScreen = (props) => {
         </TouchableOpacity>
       </View> */}
       <WebView
-        source={{ uri: "https://buy.stripe.com/test_eVa9AA51U3Yv8bm6oo" }}
+        source={{ uri: checkoutUrl }}
         style={{ flex: 1 }}
-        // onNavigationStateChange={handleNavigationStateChange}
+        onNavigationStateChange={handleNavigationStateChange}
       />
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={closeBottomSheet}
         style={{ height: 30 }}
         center
         marginT-20
       >
         <Text text70BO>Cancelar</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

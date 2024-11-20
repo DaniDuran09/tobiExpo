@@ -9,6 +9,7 @@ import ListPartners from '../screens/partners/ListPartners';
 import InfoServiceByPartner from '../screens/partners/InfoServiceByPartner';
 import ResumeDateByPartner from '../screens/partners/ResumeDateByPartner';
 import NewService1 from '../screens/newService/NewService1';
+import Success from '../components/Success';
 
 const Stack = createStackNavigator();
 
@@ -73,6 +74,13 @@ const PartnersStack = () => {
           title: 'Agendar cita',
         }}
       />
+      <Stack.Screen
+      name="Success"
+      component={Success}
+      options={({route}) => ({
+        headerShown: false,
+      })}
+    />
       <Stack.Screen
         name="Resume"
         component={Resume}
