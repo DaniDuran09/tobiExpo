@@ -50,7 +50,6 @@ const PetVaccinesRecord = ({ route }) => {
       });
 
       setVaccinationList(combinedVaccines);
-      console.log("Vaccination list: ", combinedVaccines);
     } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }
@@ -101,7 +100,7 @@ const PetVaccinesRecord = ({ route }) => {
         <Text style={styles.petName}>{petInfo?.name}</Text>
         <Text style={styles.infoPet}>
           {petInfo?.age} años | {petInfo?.gender == "male" ? "Macho" : "Hembra"}{" "}
-          | Golden R
+          | Golden
         </Text>
       </View>
       <View style={styles.selectContainer}>

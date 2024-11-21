@@ -79,8 +79,10 @@ const PartnersGeneralInfo = ({ route }) => {
       <TouchableOpacity
         onPress={() =>
           navigation.navigate("ListPartners", {
+            partnerId: item.partner.id,
             partners: item.users,
-            services: item.services
+            services: item.services,
+            partnerLocation: partnerLocation
           })
         }
       >
@@ -188,7 +190,7 @@ const PartnersGeneralInfo = ({ route }) => {
               </View>
               <Text style={styles.itemDirection}>Información adicional</Text>
               <View style={styles.extraInfo}>
-                <View style={styles.flexContain}>
+                {/* <View style={styles.flexContain}>
                   <Image
                     source={require("../../assets/parking.png")}
                     style={styles.icon}
@@ -200,7 +202,7 @@ const PartnersGeneralInfo = ({ route }) => {
                       Estacionamiento en vía pública
                     </Text>
                   </View>
-                </View>
+                </View> */}
 
                 <View style={styles.flexContain}>
                   <Image

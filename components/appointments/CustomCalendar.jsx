@@ -4,42 +4,40 @@ import { Text, View } from "react-native-ui-lib";
 import { Calendar, CalendarUtils } from "react-native-calendars";
 import { Colors } from "../../styles/Colors";
 import momentTZ from "../../utils/moment";
+import ApiFetcher from "../../modules/ApiFetcher";
+import Toast from "react-native-toast-message";
 
-const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDate, infoDate }) => {
+const CustomCalendar = ({
+  showCalendar = true,
+  closeModal = () => {},
+  setInfoDate,
+  infoDate,
+  availabilityDays = [],
+  selectedServices = [],
+  specialistId = 0,
+}) => {
+
+  const apiFetcher = new ApiFetcher();
+
   const [showSchedule, setShowSchedule] = useState(false);
+  const [slots, setSlots] = useState([]);
   const [selectedHour, setSelectedHour] = useState(null);
-
-  const unavailableDates = ["2024-11-14", "2024-11-12"];
-  const unavailableHours = ["9:00", "12:00", "16:00"];
-  const today = CalendarUtils.getCalendarDateString(new Date());
-  const schedule = [
-    "8:00",
-    "9:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-  ];
-
   const [date, setDate] = useState(today);
 
+  const today = CalendarUtils.getCalendarDateString(new Date());
+
   const groupedSchedule = [];
-  for (let i = 0; i < schedule.length; i += 4) {
-    groupedSchedule.push(schedule.slice(i, i + 4));
+  for (let i = 0; i < slots.length; i += 2) {
+    groupedSchedule.push(slots.slice(i, i + 2));
   }
 
-  const unavailableDatesToMark = unavailableDates.reduce((acc, date) => {
-    acc[date] = {
-      disabled: true,
-      disableTouchEvent: true,
-      dotColor: "red",
-      color: "red",
-    };
+  const unavailableDatesToMark = availabilityDays.reduce((acc, day) => {
+    if (!day.available) {
+      acc[day.date] = {
+        disabled: true,
+        disableTouchEvent: true,
+      };
+    }
     return acc;
   }, {});
 
@@ -54,40 +52,54 @@ const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDa
   };
 
   const onDayPress = (day) => {
-    if (!unavailableDates.includes(day.dateString)) {
+    if (!unavailableDatesToMark[day.dateString]) {
       setDate(day.dateString);
     }
   };
 
-  const onHourPress = (hour) => {
-    if (!unavailableHours.includes(hour)) {
-      setSelectedHour(hour);
+  const getSlots = async () => {
+    try {
+      const response = await apiFetcher.getAvailabilitySlotsByServices(
+        specialistId,
+        date,
+        selectedServices
+      );
+      console.log("Response: ", response);
+      if (response.available_slots.length > 0) {
+        setSlots(response.available_slots);
+        setShowSchedule(true);
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "No hay horarios disponibles",
+          text2: `Inténtalo de nuevo con otro día disponible`,
+        });
+        closeModal();
+      }
+    } catch (error) {
+      console.log("Error: ", error);
     }
+  };
+
+  
+
+  const onHourPress = (slot) => {
+    setSelectedHour(slot.start_time);
   };
 
   const renderScheduleRow = ({ item }) => (
     <View style={styles.row}>
-      {item.map((hour) => {
-        const isUnavailable = unavailableHours.includes(hour);
-        const isSelected = selectedHour === hour;
+      {item.map((slot) => {
+        const isSelected = selectedHour === slot.start_time;
 
         return (
           <TouchableOpacity
-            key={hour}
-            onPress={() => onHourPress(hour)}
-            style={[
-              styles.hourButton,
-              isUnavailable && styles.unavailableHour,
-              isSelected && styles.selectedHour,
-            ]}
-            disabled={isUnavailable}
+            key={slot.start_time}
+            onPress={() => onHourPress(slot)}
+            style={[styles.hourButton, isSelected && styles.selectedHour]}
           >
-            <Text
-              center
-              margin-5
-              style={isUnavailable ? styles.unavailableText : null}
-            >
-              {hour}
+            <Text center margin-5>
+              {`${slot.start_time} - ${slot.end_time}`}
             </Text>
           </TouchableOpacity>
         );
@@ -106,7 +118,8 @@ const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDa
         <View padding-20>
           {!showSchedule ? (
             <Calendar
-              enableSwipeMonths
+              enableSwipeMonths={false} 
+              hideArrows={true}
               current={today}
               minDate={today}
               onDayPress={onDayPress}
@@ -139,6 +152,7 @@ const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDa
                 data={groupedSchedule}
                 renderItem={renderScheduleRow}
                 keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{ paddingHorizontal: 20 }}
               />
             </View>
           )}
@@ -156,14 +170,18 @@ const CustomCalendar = ({ showCalendar = true, closeModal = () => { }, setInfoDa
             style={styles.acceptButton}
             onPress={() => {
               if (showSchedule) {
-                setInfoDate({ ...infoDate, time: selectedHour })
+                setInfoDate({
+                  ...infoDate,
+                  time: `${selectedHour} - ${
+                    slots.find((slot) => slot.start_time === selectedHour)
+                      ?.end_time
+                  }`,
+                });
                 closeModal();
-                setShowSchedule(false)
-                console.log(selectedHour)
+                setShowSchedule(false);
               } else {
                 setInfoDate({ ...infoDate, date: date });
-                setShowSchedule(true);
-                console.log(date)
+                getSlots();
               }
             }}
           >
@@ -215,7 +233,7 @@ const styles = StyleSheet.create({
     padding: 5,
     margin: 5,
     alignItems: "center",
-    width: 80,
+    width: 130,
   },
   unavailableHour: {
     backgroundColor: "transparent",

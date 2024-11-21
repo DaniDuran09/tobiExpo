@@ -173,6 +173,17 @@ class ApiFetcher {
     return await this._get(`/appointments?pet_id=${id}`);
   }
 
+  async getAvailabilityDaysByPartnerId(id) {
+    return await this._get(`/partners/${id}/availability/days`);
+  }
+
+  async getAvailabilitySlotsByServices(id, date, services) {
+    const urlComplement = services
+    .map(service => `service_ids[]=${service.id}`)
+    .join('&');
+    return await this._get(`/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
+  }
+
   async registerAppointments(data) {
     return await this._post("/appointments", data);
   }

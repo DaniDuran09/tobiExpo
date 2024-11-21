@@ -12,7 +12,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors, gradientColors } from "../../styles/Colors";
-import AppStorage from "../../modules/AppStorage";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
@@ -34,7 +33,6 @@ const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = React.useState({});
 
   const apiFetcher = new ApiFetcher();
-  const appStorage = new AppStorage();
 
   React.useEffect(() => {
     fetchDta();
@@ -71,8 +69,7 @@ const HomeScreen = ({ navigation }) => {
   const fetchInfoAppointmentPet = async (id) => {
     try {
       const response = await apiFetcher.getAppointmentsByPet(id);
-      if (response.data.length > 0) return response.data[0].date_service;
-      else return "";
+      return response.data.length > 0 ? response.data[0].date_service : "";
     } catch (error) {
       console.log("Error: ", error);
       Toast.show({
@@ -80,7 +77,6 @@ const HomeScreen = ({ navigation }) => {
         text1: "Error",
         text2: `No hemos podido obtener la información`,
       });
-      // navigation.goBack();
     }
   };
 
@@ -93,37 +89,32 @@ const HomeScreen = ({ navigation }) => {
     };
 
     if (item?.service_date) {
-      const serviceDate = momentTZ(item?.service_date);
+      const serviceDate = momentTZ(item?.service_date).tz(
+        "America/Mexico_City"
+      );
       const today = momentTZ();
 
-      console.log("today: ", today);
+      service = momentTZ(item?.service_date).utc().format("DD.MMM");
 
-      // console.log(
-      //   "serviceDate: ",
-      //   serviceDate.format("dddd D [de] MMMM, h:mm [hrs]")
-      // );
-
-      service = momentTZ(item?.service_date).format("DD[.]MMM");
       const daysDifference = serviceDate.diff(today, "days");
-      if (daysDifference < 0) {
-        remainingDays = {
-          text: "La cita ya pasó",
-          color: "red",
-        };
-      } else if (daysDifference === 0) {
+      // if (daysDifference < 0) {
+      //   // remainingDays = {
+      //   //   text: "---",
+      //   //   color: "red",
+      //   // };
+      // }
+      if (daysDifference === 0) {
         remainingDays = {
           text: "La cita es hoy",
           color: "green",
         };
-      } else {
+      } else if (daysDifference > 0) {
         remainingDays = {
           text: `${daysDifference} días`,
           color: "green",
         };
       }
-    } //else {
-    //   service = "Sin citas";
-    // }
+    }
 
     return (
       <View>
@@ -138,9 +129,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <AnimatedImage
             source={{ uri: item?.picture }}
-            style={{ height: 35,
-              width: 35,
-              borderRadius: 32, }}
+            style={{ height: 35, width: 35, borderRadius: 32 }}
             loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
             animationDuration={500}
           />
@@ -293,46 +282,11 @@ const HomeScreen = ({ navigation }) => {
               </View>
             </TouchableWithoutFeedback>
           </LinearGradient>
-          <TouchableWithoutFeedback
-          /* onPress={() =>
-              navigation.navigate("HomeProfileDetails", { item, tabIndex: 0 })
-            }*/
-          >
+          <TouchableWithoutFeedback>
             <View elevation={5} style={styles.elevation}>
               <Text style={{ fontSize: 14, color: "grey", fontWeight: "bold" }}>
                 NUTRICIÓN
               </Text>
-              {/*
-              <Text ttext90M>
-                Ingesta diaria recomendada
-              </Text>
-              <Text
-                text80BL
-              >
-                ---
-              </Text>
-              <Text ttext90M>
-                Entre --- raciones al día
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  {item.activity_level.stable ? null : <></>}
-                  {/* <Text
-                    style={{ fontSize: 14, color: "black", fontWeight: "300" }}
-                  >{`${item.activity_level_status.percent}%`}</Text> 
-                  <></>
-                </View>
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "300" }}
-                >
-                  + info
-                </Text>
-              </View>*/}
               <Text>PROXIMAMENTE...</Text>
             </View>
           </TouchableWithoutFeedback>
@@ -346,59 +300,11 @@ const HomeScreen = ({ navigation }) => {
             flexDirection: "row",
           }}
         >
-          <TouchableWithoutFeedback
-          /*onPress={() =>
-              navigation.navigate("HomeProfileDetails", { item, tabIndex: 3 })
-            }*/
-          >
+          <TouchableWithoutFeedback>
             <View elevation={5} style={styles.elevation}>
               <Text style={{ fontSize: 14, color: "grey", fontWeight: "bold" }}>
                 ACTIVIDAD
               </Text>
-              {/*
-              <Text ttext90M>
-                Recomendación
-              </Text>
-              <Text
-                text80BL
-              >{`${item.activity_level_status.steps} pasos`}</Text>
-              <Text ttext90M>
-                ---
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: item.activity_level.stable ? "green" : "red",
-                  fontWeight: "bold",
-                }}
-              >
-                {item.activity_level.steps}
-              </Text>
-               
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  {item.activity_level.stable ? null : (
-                    <Image
-                      source={require("../../assets/Polygon.png")}
-                      style={{ height: 15, width: 15, marginRight: 5 }}
-                      resizeMode={"contain"}
-                    />
-                  )}
-                  <Text
-                    style={{ fontSize: 14, color: "black", fontWeight: "300" }}
-                  >{`${item.activity_level_status.percent}%`}</Text>
-                </View>
-                <Text
-                  style={{ fontSize: 14, color: "black", fontWeight: "300" }}
-                >
-                  + info
-                </Text>
-              </View>*/}
               <Text>PROXIMAMENTE...</Text>
             </View>
           </TouchableWithoutFeedback>

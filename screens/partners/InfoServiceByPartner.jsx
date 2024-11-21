@@ -2,38 +2,44 @@ import {
   Image,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
-  CheckBox,
-  Touchable,
   FlatList,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Colors } from "../../styles/Colors";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import vetOption4 from "../../assets/vet-option4.png";
-import vetOption5 from "../../assets/vet-option5.png";
-import DatePicker from "react-native-date-picker";
 import { useNavigation } from "@react-navigation/native";
-import { Checkbox } from "react-native-ui-lib";
+import { Text, View } from "react-native-ui-lib";
+import { RenderServices } from "../../components/renders/RenderServices";
+import ApiFetcher from "../../modules/ApiFetcher";
+import CustomCalendar from "../../components/appointments/CustomCalendar";
+import { RenderPets } from "../../components/renders/RenderPets";
 
 const InfoServiceByPartner = ({ route }) => {
+
+  const apiFetcher = new ApiFetcher()
+
   const { partner, services } = route.params;
   const [selectedServices, setSelectedServices] = useState([]);
-  const [isCheked, setIsChecked] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [openTime, setOpenTime] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [availabilityDays, setAvailabilityDays] = useState([]);
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [pets, setPets] = useState([]);
   const [infoDate, setInfoDate] = useState({
     date: "",
     time: "",
   });
 
-  console.log("Lo que recibo: ", partner);
+  useEffect(() => {
+    fetchPets()
+  }, [])
+  
 
   const navigation = useNavigation();
+
+  const disabledSelectDate = useMemo(
+    () => !(partner && selectedServices),
+    [partner, selectedServices]
+  );
 
   const goToResume = () => {
     navigation.navigate("ResumeDateByPartner");
@@ -47,32 +53,40 @@ const InfoServiceByPartner = ({ route }) => {
     });
   };
 
-  const renderServices = (item) => {
-    const isChecked = selectedServices.includes(item);
-    return (
-      <View style={styles.option}>
-        <View style={styles.mainContainer}>
-          <Text style={styles.title}>{item.name}</Text>
-          <View style={styles.imageContainer}>
-            <Image source={vetOption5} style={styles.image} />
-            <View style={{ width: "80%" }}>
-              <Text style={styles.description}>{item.description}</Text>
-              <View style={styles.priceContainer}>
-                <Text style={styles.price}>{item.price}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View>
-          <Checkbox
-            color={Colors.primaryColor}
-            value={isChecked}
-            onValueChange={() => toggleServiceSelection(item)}
-          />
-        </View>
-      </View>
-    );
+  const fetchPets = async () => {
+    console.log("ENTRO")
+    // setLoading(true);
+    try {
+      const response = await apiFetcher.getPets();
+      setPets(response.data);
+      console.log("me ejecuto")
+    } catch (error) {
+      console.error("Error: ", error);
+    } finally {
+      // setLoading(false);
+    }
   };
+
+  const getCalendar = async () => {
+    try {
+      const response = await apiFetcher.getAvailabilityDaysByPartnerId(
+        partner.id
+      );
+      setAvailabilityDays(response.available_days);
+      setShowCalendar(true);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error inesperado",
+        text2: `Intenta de nuevo más tarde`,
+      });
+      setShowCalendar(false);
+    }
+  };
+
+  const handleSelectPet = (pet) => setSelectedPet(pet);
+
+  const closeModal = () => setShowCalendar(false);
 
   return (
     <ScrollView style={styles.container}>
@@ -91,18 +105,62 @@ const InfoServiceByPartner = ({ route }) => {
         </Text>
       </View>
       <View>
+      <View padding-16>
+            <FlatList
+              data={pets}
+              horizontal={true}
+              renderItem={({ item }) => (
+                <RenderPets
+                  pet={item}
+                  selectedPet={selectedPet}
+                  handleSelectPet={handleSelectPet}
+                />
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
         <Text style={styles.mainTitle}>Agendar cita</Text>
       </View>
-      <View style={styles.servicesContainer}>
-        <FlatList
-          keyExtractor={(item, index) => `item-${index}`}
-          data={services}
-          renderItem={({ item }) => renderServices(item)}
-        />
-      </View>
+      <View marginT-10 style={styles.servicesContainer}>
+            <FlatList
+              keyExtractor={(item, index) => `item-${index}`}
+              data={services}
+              renderItem={({ item }) => (
+                <RenderServices
+                  item={item}
+                  selectedServices={selectedServices}
+                  toggleServiceSelection={toggleServiceSelection}
+                />
+              )}
+            />
+          </View>
       <View style={styles.dateContainer}>
-        <Text style={styles.title}>Fecha y hora</Text>
-        <View style={styles.endContainer}>
+      <View marginT-20 marginB-20>
+            <Text text70BO>Fecha y hora</Text>
+            <View>
+              <TouchableOpacity
+                disabled={disabledSelectDate}
+                onPress={getCalendar}
+              >
+                <View row spread style={styles.textInput}>
+                  <Text>Selecciona una fecha</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View>
+              <CustomCalendar
+                showCalendar={showCalendar}
+                closeModal={closeModal}
+                setInfoDate={setInfoDate}
+                infoDate={infoDate}
+                availabilityDays={availabilityDays}
+                specialistId={1}
+                selectedServices={selectedServices}
+              />
+            </View>
+          </View>
+        {/* <View style={styles.endContainer}>
           <TouchableOpacity onPress={() => setOpen(true)}>
             <View elevation={5} style={styles.textInput}>
               <DatePicker
@@ -174,7 +232,7 @@ const InfoServiceByPartner = ({ route }) => {
               />
             </View>
           </TouchableOpacity>
-        </View>
+        </View> */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={goToResume}>
             <Text style={styles.textButton}>Continuar</Text>

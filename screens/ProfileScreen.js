@@ -29,11 +29,8 @@ const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cameraType, setCameraType] = useState("front");
-  const [activeModal, setActiveModal] = useState(false);
   const [imageSource, setImageSource] = useState(null);
 
-  const [picture, setPicture] = useState(0);
   const [userData, setUserData] = useState({});
   const [showDeleteModal, setShowDeletModal] = useState(false);
   const [idItemSelected, setIdItemSelected] = useState(0);
@@ -54,18 +51,18 @@ const ProfileScreen = ({ route, navigation }) => {
     }, [navigation])
   );
 
-  useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const { status } =
+  //       await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //     if (status !== "granted") {
+  //       Alert.alert(
+  //         "Permiso necesario",
+  //         "Se requieren permisos para acceder a la galería"
+  //       );
+  //     }
+  //   })();
+  // }, []);
 
   const selectImageFromLibrary = async () => {
     try {
@@ -113,7 +110,6 @@ const ProfileScreen = ({ route, navigation }) => {
   const closeModal = () => setModalVisible(false);
 
   const petList = async () => {
-    console.log("------ LLAMO A PETLIST ------");
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);

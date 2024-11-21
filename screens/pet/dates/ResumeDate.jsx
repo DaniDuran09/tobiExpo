@@ -13,7 +13,6 @@ import vetOption1 from "../../../assets/vet-option1.png";
 import calendar from "../../../assets/calendar-icon-date.png";
 import location from "../../../assets/location-icon.png";
 import especialist from "../../../assets/vet-option5.png";
-import parking from "../../../assets/parking.png";
 import phone from "../../../assets/phone-icon.png";
 import { ScrollView } from "react-native-gesture-handler";
 import MapViewComponent from "../../partners/MapViewComponent";
@@ -22,7 +21,6 @@ import { ActionSheet, Text } from "react-native-ui-lib";
 
 const ResumeDate = ({ navigation, route }) => {
   const { item } = route.params;
-  console.log("Esto estoy recibiendo: ", item.appointment_pet_services);
   const dateFormated = momentTZ(
     item.appointment_pet_services[0].appointment_time.start_time
   ).format("dddd D [de] MMMM, h:mm [hrs]");

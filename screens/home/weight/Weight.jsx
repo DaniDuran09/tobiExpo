@@ -1,21 +1,38 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Recomendation from "../../../components/Recomendation";
 import ChallengeModal from "../../../components/ChallengeModal";
 import { useNavigation } from "@react-navigation/native";
+import { calculateIdealWeight } from "../../../utils/scripts";
+import CorrectWeight from "../../../components/pet/CorrectWeight";
 
 const Weight = (props) => {
   const { item } = props;
-  console.log("item: ", item);
   const [success, setSuccess] = useState(false);
   const navigation = useNavigation();
   const [challengeVisible, setChallengeVisible] = useState(false);
   const closeModalChallenge = () => {
     setChallengeVisible(false);
   };
+
+  const rangeOne = useMemo(() => {
+    return item?.weight_status?.ideal_weight?.from / 1000;
+  }, [item]);
+  const rangeTwo = useMemo(() => {
+    return item?.weight_status?.ideal_weight?.to / 1000;
+  }, [item]);
+
+  const realWeight = useMemo(() => {
+    return calculateIdealWeight(rangeOne, rangeTwo, item?.weight_status.weight);
+  }, [item]);
+
+  useEffect(() => {
+    setSuccess(realWeight.ideal);
+  }, []);
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -27,11 +44,20 @@ const Weight = (props) => {
             />
             <Text style={styles.realText}>Real</Text>
           </View>
-          <Text style={styles.kgText}>
+          <Text
+            style={[styles.kgText, realWeight.ideal && { color: Colors.green }]}
+          >
             {parseInt(item.weight_status.weight)} kg
           </Text>
           <Text style={styles.lastUpdate}>Último registro --.--.--</Text>
-          <TouchableOpacity style={styles.updateButton} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={() =>
+              navigation.navigate("EditPet", {
+                id: item.id,
+              })
+            }
+          >
             <Text style={styles.updateTetx}>Actualizar peso real</Text>
           </TouchableOpacity>
         </View>
@@ -48,28 +74,16 @@ const Weight = (props) => {
               fontSize: 14,
               color: "black",
               fontWeight: "bold",
-              marginTop: 10
+              marginTop: 10,
             }}
-          >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
-            item?.weight_status?.ideal_weight?.to / 1000
-          } Kg`}</Text>
-          <View style={styles.triangleContianer}>
+          >{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
+          {/* <View style={styles.triangleContianer}>
             <Icon name="triangle" size={20} color={Colors.red} />
             <Text style={styles.weightPoints}>...</Text>
-          </View>
+          </View> */}
         </View>
         {success ? (
-          <View style={styles.successWeight}>
-            <View style={styles.successIconAndText}>
-              <Icon name="thumb-up-outline" size={20} color={Colors.green} />
-              <View>
-                <Text style={styles.goodText}>¡Bien hecho! </Text>
-                <Text style={styles.infoText}>
-                  Tu mascota está dentro del rango de su peso ideal.{" "}
-                </Text>
-              </View>
-            </View>
-          </View>
+          <CorrectWeight/>
         ) : (
           <Recomendation
             title={"Recomendación"}
@@ -148,26 +162,6 @@ const styles = StyleSheet.create({
   weightPoints: {
     marginLeft: 3,
     color: Colors.primaryColor,
-  },
-  successWeight: {
-    borderWidth: 1,
-    borderColor: Colors.green,
-    padding: 15,
-    borderRadius: 8,
-  },
-  successIconAndText: {
-    flexDirection: "row",
-    gap: 10,
-    width: "90%",
-  },
-  goodText: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 16,
-    fontWeight: "300",
   },
   containerInfo: {
     marginTop: 15,

@@ -1,18 +1,9 @@
-import { FlatList, Image, ScrollView, StyleSheet } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, ScrollView, StyleSheet } from "react-native";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import vetOption1 from "../../../assets/vet-option1.png";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import {
-  AnimatedImage,
-  Checkbox,
-  DateTimePicker,
-  LoaderScreen,
-  RadioButton,
-  Text,
-  View,
-} from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { addAppointment } from "../../../redux/slice/appointmentSlice";
@@ -20,26 +11,31 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomCalendar from "../../../components/appointments/CustomCalendar";
 import AppStorage from "../../../modules/AppStorage";
 import Loading from "../../../components/Loading";
+import { RenderUsers } from "../../../components/renders/RenderUsers";
+import { RenderServices } from "../../../components/renders/RenderServices";
+import { RenderPets } from "../../../components/renders/RenderPets";
 
 const InfoServiceForDate = ({ route }) => {
-  const { users, partnerId, partnerLocation } = route.params;
+  const { users, partnerId, partnerLocation, specialist } = route.params;
   const service = useSelector((state) => state?.appointment?.service);
-  const [isCheked, setIsChecked] = useState(false);
+
   const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [availabilityDays, setAvailabilityDays] = useState([]);
   const [pets, stePets] = useState([]);
   const [infoDate, setInfoDate] = useState({
     date: "",
     time: "",
   });
   const appStorage = new AppStorage();
-  const [specialistId, setSpecialistId] = useState()
+  const [specialistId, setSpecialistId] = useState();
 
-  const minimumDate = new Date(); // Fecha actual
-  minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
+  const disabledSelectDate = useMemo(
+    () => !(specialistId && selectedPet && selectedServices),
+    [specialistId, selectedPet, selectedServices]
+  );
 
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
@@ -48,27 +44,11 @@ const InfoServiceForDate = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      // console.log("resetseos")
-      // if(route?.params){
-      //   console.log("reseteo")
-      //   console.log("reseteo")
-      //   resetParams();
-      // }
+      if (specialist) setSpecialistId(specialist.id);
       fetchPets();
-      return () => { };
+      return () => {};
     }, [])
   );
-
-  const resetParams = () => {
-    scrollToTop()
-    setIsChecked(false);
-    setSelectedServices([])
-    setSelectedPet(null);
-    setInfoDate({
-      date: "",
-      time: "",
-    });
-  };
 
   const fetchPets = async () => {
     setLoading(true);
@@ -82,83 +62,17 @@ const InfoServiceForDate = ({ route }) => {
     }
   };
 
-  const scrollToTop = () => {
-    scrollViewRef.current.scrollTo({ y: 0, animated: false });
-  };
-
   const toggleServiceSelection = (service) => {
     setSelectedServices((prevSelected) => {
       return prevSelected.includes(service)
         ? prevSelected.filter((s) => s !== service)
         : [...prevSelected, service];
     });
-    console.log('id cita: ', service?.id)
   };
 
   const handleSelectPet = (pet) => setSelectedPet(pet);
 
-  const renderPets = (pet) => {
-    const isSelected = selectedPet?.id === pet.id;
-    return (
-      <TouchableOpacity onPress={() => handleSelectPet(pet)}>
-        <View
-          center
-          marginR-25
-          style={selectedPet && !isSelected && { opacity: 0.6 }}
-        >
-          <AnimatedImage
-            source={{ uri: pet?.picture }}
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: 64,
-              borderWidth: isSelected ? 3 : 0,
-              borderColor: isSelected ? Colors.primaryColor : "transparent",
-            }}
-            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-            animationDuration={500}
-            resizeMode="cover"
-          />
-          <Text color={isSelected && Colors.primaryColor} text70R>
-            {pet?.name}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderUsers = (user) => {
-    const isSelected = specialistId == user.id
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          setSpecialistId(user.id)
-        }}
-      >
-        <View center marginR-25 style={specialistId && !isSelected && { opacity: 0.6 }}>
-          <AnimatedImage
-            source={{ uri: user.picture }}
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: 64,
-              borderWidth: isSelected ? 3 : 0,
-              borderColor: isSelected ? Colors.primaryColor : "transparent",
-            }}
-            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-            animationDuration={500}
-            resizeMode="cover"
-
-          />
-          <Text color={isSelected && Colors.primaryColor} text70R>{user.display_name}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-
   const goToResume = async () => {
-    //console.log(infoDate)
     if (
       infoDate.date == "" ||
       infoDate.time == "" ||
@@ -182,23 +96,20 @@ const InfoServiceForDate = ({ route }) => {
             partner_id: partnerId,
             user_id: user.id,
             name: user.name,
-            description: '',
+            description: "",
             date_service: infoDate.date,
-            appointment_pet_services_attributes: [
-
-            ]
-          }
-        }
+            appointment_pet_services_attributes: [],
+          },
+        };
         selectedServices.forEach((service) => {
           payload.appointment.appointment_pet_services_attributes.push({
             pet_id: selectedPet.id,
             service_id: service.id,
             user_id: specialistId,
-            start_time: infoDate.time
+            start_time: infoDate.time,
           });
         });
 
-        console.log("Payload: ", payload.appointment.appointment_pet_services_attributes[0])
         dispatch(
           addAppointment({
             pet: selectedPet,
@@ -217,59 +128,29 @@ const InfoServiceForDate = ({ route }) => {
           text2: `Intenta de nuevo más tarde`,
         });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-
     }
-
-    //   navigation.navigate("Resume", { resetParams: resetParams });
-    // }
-
-
-
-
-
   };
 
-  const closeModal = () => setShowCalendar(false)
-
-  // Limites para las horas (no permitir horas entre las 8 PM y las 8 AM)
-  const isTimeAllowed = (selectedDate) => {
-    const hours = selectedDate.getHours();
-    return !(hours >= 20 || hours < 8); // 8 PM (20) a 8 AM (8)
+  const getCalendar = async () => {
+    try {
+      const response = await apiFetcher.getAvailabilityDaysByPartnerId(
+        specialistId
+      );
+      setAvailabilityDays(response.available_days);
+      setShowCalendar(true);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error inesperado",
+        text2: `Intenta de nuevo más tarde`,
+      });
+      setShowCalendar(false);
+    }
   };
 
-  const renderServices = (item) => {
-    const isChecked = selectedServices.includes(item);
-    return (
-      <View row spread marginB-40>
-        <View>
-          <Text text70BO>{item?.name}</Text>
-          <View row spread gap-10 marginT-5>
-            <Image source={vetOption1} style={styles.image} />
-            <View>
-              <Text>{item?.description}</Text>
-              <View
-                center
-                padding-5
-                width={80}
-                marginT-10
-                style={styles.priceContainer}
-              >
-                <Text text90BO color={Colors.primaryColor}>
-                  ${item?.price}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View>
-          <RadioButton label={''} color={Colors.primaryColor} selected={isChecked} onPress={() => toggleServiceSelection(item)} />
-        </View>
-      </View>
-    );
-  };
-
+  const closeModal = () => setShowCalendar(false);
 
   return (
     <View flex backgroundColor={Colors.white}>
@@ -281,11 +162,48 @@ const InfoServiceForDate = ({ route }) => {
       )}
       <ScrollView ref={scrollViewRef}>
         <View>
+          {specialist && (
+            <>
+              <View center margin-20>
+                <AnimatedImage
+                  source={{ uri: specialist?.picture }}
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 64,
+                  }}
+                  loader={
+                    <LoaderScreen color={Colors.primaryColor} size={35} />
+                  }
+                  animationDuration={500}
+                  resizeMode="cover"
+                />
+                <View marginT-10 center>
+                  <Text>{specialist?.display_name}</Text>
+                  <Text>Descripción pendiente</Text>
+                  <Text>Pendiente Céd. Prof. 123456</Text>
+                </View>
+              </View>
+              <View
+                margin-10
+                marginH-0
+                borderBottomWidth={0.3}
+                borderColor={Colors.gray}
+              />
+            </>
+          )}
+
           <View padding-16>
             <FlatList
               data={pets}
               horizontal={true}
-              renderItem={({ item }) => renderPets(item)}
+              renderItem={({ item }) => (
+                <RenderPets
+                  pet={item}
+                  selectedPet={selectedPet}
+                  handleSelectPet={handleSelectPet}
+                />
+              )}
               keyExtractor={(item) => item.id.toString()}
               showsHorizontalScrollIndicator={false}
             />
@@ -304,50 +222,46 @@ const InfoServiceForDate = ({ route }) => {
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={service}
-              renderItem={({ item }) => renderServices(item)}
+              renderItem={({ item }) => (
+                <RenderServices
+                  item={item}
+                  selectedServices={selectedServices}
+                  toggleServiceSelection={toggleServiceSelection}
+                />
+              )}
             />
           </View>
-          <View marginT-20 marginB-20>
-            <Text text70BO marginB-10>Especialistas </Text>
-            <FlatList
-              data={users}
-              horizontal={true}
-              renderItem={({ item }) => renderUsers(item)}
-              keyExtractor={(item) => item.id.toString()}
-              showsHorizontalScrollIndicator={false}
-
-            />
-          </View>
+          {!specialist && (
+            <View marginT-20 marginB-20>
+              <Text text70BO marginB-10>
+                Especialistas{" "}
+              </Text>
+              <FlatList
+                data={users}
+                horizontal={true}
+                renderItem={({ item }) => (
+                  <RenderUsers
+                    specialistId={specialistId}
+                    user={item}
+                    setSpecialistId={setSpecialistId}
+                  />
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                showsHorizontalScrollIndicator={false}
+              />
+            </View>
+          )}
           <View marginT-20 marginB-20>
             <Text text70BO>Fecha y hora</Text>
             <View>
-              <TouchableOpacity onPress={() => setShowCalendar(true)}>
+              <TouchableOpacity
+                disabled={disabledSelectDate}
+                onPress={getCalendar}
+              >
                 <View row spread style={styles.textInput}>
                   <Text>Selecciona una fecha</Text>
                 </View>
               </TouchableOpacity>
-              {/* <View row spread style={styles.textInput}>
-                <DateTimePicker
-                  style={{ height: 60, width: 300 }}
-                  placeholder={"Selecciona una hora"}
-                  mode={"time"}
-                  onChange={(time) => {
-                    if (isTimeAllowed(time))
-                      setInfoDate({ ...infoDate, time: time });
-                    else
-                      Toast.show({
-                        type: "error",
-                        text1: "Hora inválida",
-                        text2: `Selecciona un hora válida`,
-                      });
-                  }}
-                />
-                <Image
-                  source={require("../../../assets/clock-icon-black.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View> */}
             </View>
             <View>
               <CustomCalendar
@@ -355,6 +269,9 @@ const InfoServiceForDate = ({ route }) => {
                 closeModal={closeModal}
                 setInfoDate={setInfoDate}
                 infoDate={infoDate}
+                availabilityDays={availabilityDays}
+                specialistId={specialistId}
+                selectedServices={selectedServices}
               />
             </View>
           </View>

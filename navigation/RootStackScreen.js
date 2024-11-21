@@ -4,7 +4,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import SplashScreen from "../screens/SplashScreen";
 import SignInScreen from "../screens/SignInScreen";
-import SignUpScreen from "../screens/SignUpScreen";
 import SignInPetScreen from "../screens/SignInPetScreen";
 import SignInPetInfo2Screen from "../screens/SignInPetInfo2Screen";
 import SignInPetInfoScreen from "../screens/SignInPetInfoScreen";
@@ -61,7 +60,6 @@ const RootStackScreen = ({}) => (
       name="SignInPetInfo2Screen"
       component={SignInPetInfo2Screen}
     />
-    <RootStack.Screen name="SignUpScreen" component={SignUpScreen} />
     <RootStack.Screen
       name="SearchItem"
       component={SearchItem}

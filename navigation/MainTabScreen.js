@@ -7,16 +7,13 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {
   Image,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Text,
   Share,
   Alert,
-  Touchable,
 } from 'react-native';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import DetailsScreen from '../screens/DetailsScreen';
-import ExploreScreen from '../screens/ExploreScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProfileDetails from '../screens/ProfileDetails';
 import ProfileEdit from '../screens/ProfileEdit';
@@ -209,14 +206,11 @@ const HomeStackScreen = ({navigation}) => (
       }}
     />
     <HomeStack.Screen
-      name="EditPet"
-      component={EditPet}
-      options={{
-        headerShown: true,
-        headerBackTitleVisible: false,
-        title: 'Editar mascota',
-        headerTintColor: 'black',
-      }}
+       name="EditPet"
+       component={EditMyPet}
+       options={{
+         headerShown: false,
+       }}
     />
     <HomeStack.Screen
       name="SelectPartner"
@@ -600,15 +594,4 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen name="ScreenMaps" component={ScreenMaps} />
     {/* <ProfileStack.Screen name="RootStack" component={RootStackScreen} /> */}
   </ProfileStack.Navigator>
-);
-
-const ExploreStackScreen = ({navigation}) => (
-  <HeartStack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}>
-    <HeartStack.Screen name="ExploreScreen" component={ExploreScreen} />
-    <HeartStack.Screen name="PartnersDetails" component={PartnersDetails} />
-    <HeartStack.Screen name="ScreenMaps" component={ScreenMaps} />
-  </HeartStack.Navigator>
 );
