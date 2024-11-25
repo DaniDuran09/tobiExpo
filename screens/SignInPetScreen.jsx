@@ -16,12 +16,14 @@ import {
 // import { LinearGradient } from 'expo-linear-gradient';
 // import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // import Feather from 'react-native-vector-icons/Feather';
-import DatePicker from 'react-native-date-picker';
+
 import {Colors} from '../styles/Colors';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {setUserInfo} from '../redux/slice/userSlice';
 import {useDispatch, useSelector} from 'react-redux';
 import {formatDateToDDMMYYYY} from '../utils/scripts';
+import { DateTimePicker } from 'react-native-ui-lib';
+import DatePicker from 'react-native-date-picker';
 
 // import { useDispatch, useSelector } from 'react-redux';
 // import { generalDataAction } from '../redux/generalDuck';
@@ -72,7 +74,7 @@ const SignInPetScreen = props => {
     setData({...data, gender: gender})
   },[gender])
 
-
+console.log("data: ",data.birthday)
 
   return (
     <View style={styles.container}>
@@ -278,7 +280,7 @@ const SignInPetScreen = props => {
                 </View>
               </TouchableWithoutFeedback>
             </View>
-            <TouchableWithoutFeedback elevation={5} onPress={() => setOpen(true)}>
+            {/* <TouchableWithoutFeedback elevation={5} onPress={() => setOpen(true)}> */}
               <View
                 style={{
                   width: '90%',
@@ -291,39 +293,32 @@ const SignInPetScreen = props => {
                   height: 60,
                   marginTop: '5%',
                 }}>
-                <DatePicker
-                  modal
-                  open={open}
-                  date={date}
-                  onConfirm={date => {
-                    setOpen(false);
-                    setData({...data, birthday: date});
+                
+                <DateTimePicker
+                display="spinner"
+                  style={[
+                    styles.birthdayContainer,
+                    { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
+                  ]}
+                  title={"Cumpleaños"}
+                  placeholder={
+                    data.birthday === ""
+                      ? "Fecha de nacimiento"
+                      : `${data?.birthday.toLocaleDateString("es-us")}`
+                  }
+                  mode={"date"}
+                  onChange={(selectedDate) => {
+                    setData({...data,birthday:selectedDate});
                   }}
-                  onCancel={() => {
-                    setOpen(false);
-                  }}
-                  locale={'es'}
-                  mode={'date'}
-                  title={'Cumpleaños'}
                 />
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 15,
-                    color: 'black',
-                    paddingVertical: 10,
-                  }}>
-                  {data.birthday === ''
-                    ? 'Cumpleaños'
-                    : `${data?.birthday.toLocaleDateString('es-us')}`}
-                </Text>
-                <Image
+                
+                {/* <Image
                   source={require('../assets/pastel.png')}
                   style={{height: 30, width: 30}}
                   resizeMode={'contain'}
-                />
+                /> */}
               </View>
-            </TouchableWithoutFeedback>
+            {/* </TouchableWithoutFeedback> */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

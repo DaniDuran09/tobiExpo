@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
     flex: 1,
-    padd: 15,
+    paddingTop: 20,
   },
   photoContainer: {
     alignItems: "center",

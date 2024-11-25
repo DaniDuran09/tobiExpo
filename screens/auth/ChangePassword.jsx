@@ -40,13 +40,6 @@ const ChangePassword = ({ route }) => {
         repeatNewPassword != "" &&
         newPassword == repeatNewPassword
     );
-    console.log(
-      "isValid: ",
-      pin.length > 6 &&
-        newPassword != "" &&
-        repeatNewPassword != "" &&
-        newPassword == repeatNewPassword
-    );
   }, [newPassword, repeatNewPassword, pin]);
 
   useEffect(() => {
@@ -112,8 +105,6 @@ const ChangePassword = ({ route }) => {
       const data = {
         email: emailToSend,
       };
-
-      console.log("Lo que voy a mandar: ", data);
 
       await apiFetcher.sendPin(data);
       Toast.show({

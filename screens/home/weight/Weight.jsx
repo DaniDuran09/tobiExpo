@@ -32,7 +32,7 @@ const Weight = (props) => {
   useEffect(() => {
     setSuccess(realWeight.ideal);
   }, []);
-
+console.log('item',item)
   return (
     <ScrollView>
       <View style={styles.container}>

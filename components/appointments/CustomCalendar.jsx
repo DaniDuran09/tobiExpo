@@ -1,4 +1,4 @@
-import { FlatList, Modal, StyleSheet, TouchableOpacity } from "react-native";
+import { ActivityIndicator, FlatList, Modal, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Text, View } from "react-native-ui-lib";
 import { Calendar, CalendarUtils } from "react-native-calendars";
@@ -9,7 +9,7 @@ import Toast from "react-native-toast-message";
 
 const CustomCalendar = ({
   showCalendar = true,
-  closeModal = () => {},
+  closeModal = () => { },
   setInfoDate,
   infoDate,
   availabilityDays = [],
@@ -20,6 +20,7 @@ const CustomCalendar = ({
   const apiFetcher = new ApiFetcher();
 
   const [showSchedule, setShowSchedule] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [slots, setSlots] = useState([]);
   const [selectedHour, setSelectedHour] = useState(null);
   const [date, setDate] = useState(today);
@@ -58,6 +59,7 @@ const CustomCalendar = ({
   };
 
   const getSlots = async () => {
+    setLoading(true)
     try {
       const response = await apiFetcher.getAvailabilitySlotsByServices(
         specialistId,
@@ -78,10 +80,12 @@ const CustomCalendar = ({
       }
     } catch (error) {
       console.log("Error: ", error);
+    } finally {
+      setLoading(false)
     }
   };
 
-  
+
 
   const onHourPress = (slot) => {
     setSelectedHour(slot.start_time);
@@ -118,7 +122,7 @@ const CustomCalendar = ({
         <View padding-20>
           {!showSchedule ? (
             <Calendar
-              enableSwipeMonths={false} 
+              enableSwipeMonths={false}
               hideArrows={true}
               current={today}
               minDate={today}
@@ -167,15 +171,15 @@ const CustomCalendar = ({
             <Text text70BO>{showSchedule ? "Atrás" : "Cancelar"}</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={loading}
             style={styles.acceptButton}
             onPress={() => {
               if (showSchedule) {
                 setInfoDate({
                   ...infoDate,
-                  time: `${selectedHour} - ${
-                    slots.find((slot) => slot.start_time === selectedHour)
-                      ?.end_time
-                  }`,
+                  time: `${selectedHour} - ${slots.find((slot) => slot.start_time === selectedHour)
+                    ?.end_time
+                    }`,
                 });
                 closeModal();
                 setShowSchedule(false);
@@ -185,9 +189,13 @@ const CustomCalendar = ({
               }
             }}
           >
-            <Text text70BO color={Colors.white}>
-              {showSchedule ? "Aceptar" : "Seleccionar"}
-            </Text>
+            {!loading ?
+              <Text text70BO color={Colors.white}>
+                {showSchedule ? "Aceptar" : "Seleccionar"}
+              </Text>
+              :
+              <ActivityIndicator size="small" color={Colors.white} />
+            }
           </TouchableOpacity>
         </View>
       </View>

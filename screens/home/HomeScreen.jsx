@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -20,6 +20,9 @@ import { setUserInfo } from "../../redux/slice/userSlice";
 import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../utils/moment";
+import { calculateIdealWeight } from "../../utils/scripts";
+import Icon from "react-native-vector-icons/Entypo";
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -41,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       fetchDta();
-      return () => {};
+      return () => { };
     }, [navigation])
   );
 
@@ -55,7 +58,7 @@ const HomeScreen = ({ navigation }) => {
       const petsWithAppointments = await Promise.all(
         list.data.map(async (pet) => {
           const response = await fetchInfoAppointmentPet(pet.id);
-          return { ...pet, service_date: response };
+          return { ...pet, service_date: response.date_service, status: response.appointment_status };
         })
       );
       setData(petsWithAppointments);
@@ -69,7 +72,7 @@ const HomeScreen = ({ navigation }) => {
   const fetchInfoAppointmentPet = async (id) => {
     try {
       const response = await apiFetcher.getAppointmentsByPet(id);
-      return response.data.length > 0 ? response.data[0].date_service : "";
+      return response.data.length > 0 ? response.data[0] : {};
     } catch (error) {
       console.log("Error: ", error);
       Toast.show({
@@ -81,6 +84,9 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = (item) => {
+    const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
+    const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
+    const realWeight = calculateIdealWeight(rangeOne, rangeTwo, item?.weight_status.weight);
     // console.log(item?.service_date);
     let service = "---";
     let remainingDays = {
@@ -88,7 +94,7 @@ const HomeScreen = ({ navigation }) => {
       color: "black",
     };
 
-    if (item?.service_date) {
+    if (item.status ==="actived" && item?.service_date) {
       const serviceDate = momentTZ(item?.service_date).tz(
         "America/Mexico_City"
       );
@@ -114,6 +120,7 @@ const HomeScreen = ({ navigation }) => {
           color: "green",
         };
       }
+
     }
 
     return (
@@ -240,16 +247,16 @@ const HomeScreen = ({ navigation }) => {
                     color: "black",
                     fontWeight: "bold",
                   }}
-                >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
-                  item?.weight_status?.ideal_weight?.to / 1000
-                } Kg`}</Text>
+                >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${item?.weight_status?.ideal_weight?.to / 1000
+                  } Kg`}</Text>
                 <Text ttext90M>Real</Text>
                 <Text
-                  style={{
+
+                  style={[{
                     fontSize: 14,
                     color: "red",
                     fontWeight: "bold",
-                  }}
+                  }, realWeight.ideal && { color: Colors.green }]}
                 >{`${item.weight} Kg`}</Text>
                 <View
                   style={{
@@ -258,13 +265,7 @@ const HomeScreen = ({ navigation }) => {
                   }}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {item.activity_level.stable ? null : (
-                      <Image
-                        source={require("../../assets/Polygon3.png")}
-                        style={{ height: 15, width: 15 }}
-                        resizeMode={"contain"}
-                      />
-                    )}
+                    {!realWeight.ideal && <Icon name={realWeight.down ? "triangle-down" : "triangle-up"} color="red" size={25} />}
                     <Text
                       style={{
                         fontSize: 14,

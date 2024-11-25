@@ -174,7 +174,8 @@ const UserStepsRegister = () => {
     let valid;
     switch (step) {
       case 0:
-        valid = validFirsScreen();
+        // valid = validFirsScreen();
+        valid= true
         console.log("Entro: ", user);
         break;
       case 1:

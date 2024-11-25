@@ -39,7 +39,6 @@ import ApiFetcher from "../../../modules/ApiFetcher";
     };
   
     const goToIdInfoPet = (pet) => {
-      
       navigation.navigate("PetAppointment", {pet: pet})
     }
   

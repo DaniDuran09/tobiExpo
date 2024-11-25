@@ -1,4 +1,4 @@
-import { FlatList, ScrollView, StyleSheet } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, StyleSheet } from "react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -14,6 +14,8 @@ import Loading from "../../../components/Loading";
 import { RenderUsers } from "../../../components/renders/RenderUsers";
 import { RenderServices } from "../../../components/renders/RenderServices";
 import { RenderPets } from "../../../components/renders/RenderPets";
+import momentTZ from "../../../utils/moment";
+
 
 const InfoServiceForDate = ({ route }) => {
   const { users, partnerId, partnerLocation, specialist } = route.params;
@@ -21,6 +23,7 @@ const InfoServiceForDate = ({ route }) => {
 
   const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingCalendar, setLoadingCalendar] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [selectedServices, setSelectedServices] = useState([]);
   const [availabilityDays, setAvailabilityDays] = useState([]);
@@ -37,6 +40,15 @@ const InfoServiceForDate = ({ route }) => {
     [specialistId, selectedPet, selectedServices]
   );
 
+  const formatDate = useMemo(() => {
+    if (!infoDate.date || !infoDate.time) return "";
+    const [startTime] = infoDate.time.split(" - ");
+    const dateTime = `${infoDate.date}T${startTime}`;
+    const formattedDate = momentTZ(dateTime).locale("es").format("dddd D [de] MMMM [de] YYYY, h:mm A");
+    return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  }, [infoDate]);
+  
+
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -46,7 +58,7 @@ const InfoServiceForDate = ({ route }) => {
     useCallback(() => {
       if (specialist) setSpecialistId(specialist.id);
       fetchPets();
-      return () => {};
+      return () => { };
     }, [])
   );
 
@@ -133,7 +145,10 @@ const InfoServiceForDate = ({ route }) => {
     }
   };
 
+  console.log("infoDate: ", infoDate)
+
   const getCalendar = async () => {
+    setLoadingCalendar(true)
     try {
       const response = await apiFetcher.getAvailabilityDaysByPartnerId(
         specialistId
@@ -147,6 +162,8 @@ const InfoServiceForDate = ({ route }) => {
         text2: `Intenta de nuevo más tarde`,
       });
       setShowCalendar(false);
+    } finally {
+      setLoadingCalendar(false)
     }
   };
 
@@ -255,12 +272,20 @@ const InfoServiceForDate = ({ route }) => {
             <Text text70BO>Fecha y hora</Text>
             <View>
               <TouchableOpacity
-                disabled={disabledSelectDate}
+                disabled={disabledSelectDate || loadingCalendar}
                 onPress={getCalendar}
               >
-                <View row spread style={styles.textInput}>
-                  <Text>Selecciona una fecha</Text>
-                </View>
+                {!loadingCalendar ?
+                  <View row spread style={styles.textInput}>
+                    <Text>{infoDate.date && infoDate.time ?
+                      formatDate
+                      : "Selecciona una fecha"}</Text>
+                  </View>
+                  :
+                  <View style={styles.textInput} center>
+                    <ActivityIndicator size="small" color={Colors.primaryColor} />
+                  </View>
+                }
               </TouchableOpacity>
             </View>
             <View>
