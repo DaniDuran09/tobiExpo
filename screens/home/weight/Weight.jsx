@@ -1,41 +1,77 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Recomendation from "../../../components/Recomendation";
 import ChallengeModal from "../../../components/ChallengeModal";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { calculateIdealWeight } from "../../../utils/scripts";
 import CorrectWeight from "../../../components/pet/CorrectWeight";
+import ApiFetcher from "../../../modules/ApiFetcher";
+import Loading from "../../../components/Loading";
 
 const Weight = (props) => {
   const { item } = props;
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pet, setPet] = useState({});
   const navigation = useNavigation();
   const [challengeVisible, setChallengeVisible] = useState(false);
+
+  const apiFetcher = new ApiFetcher();
+
   const closeModalChallenge = () => {
     setChallengeVisible(false);
   };
 
   const rangeOne = useMemo(() => {
-    return item?.weight_status?.ideal_weight?.from / 1000;
-  }, [item]);
+    return pet?.ideal_weight?.from / 1000;
+  }, [pet]);
   const rangeTwo = useMemo(() => {
-    return item?.weight_status?.ideal_weight?.to / 1000;
-  }, [item]);
+    return pet?.ideal_weight?.to / 1000;
+  }, [pet]);
 
   const realWeight = useMemo(() => {
-    return calculateIdealWeight(rangeOne, rangeTwo, item?.weight_status.weight);
-  }, [item]);
+    return calculateIdealWeight(rangeOne, rangeTwo, parseInt(pet?.weight));
+  }, [pet]);
+
+  console.log("pet: ", realWeight)
+
+  const getPet = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getPetById(item.id);
+      setPet(response.data);
+    } catch (error) {
+      console.log("Error: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useFocusEffect(
+    useCallback(() => {
+      getPet();
+      return () => {};
+    }, [navigation])
+  );
+
 
   useEffect(() => {
-    setSuccess(realWeight.ideal);
-  }, []);
-console.log('item',item)
+    setSuccess(realWeight?.ideal);
+  }, [pet]);
+
   return (
     <ScrollView>
       <View style={styles.container}>
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
         <View style={styles.realWeightContainer}>
           <View style={styles.statusContainer}>
             <Image
@@ -45,11 +81,11 @@ console.log('item',item)
             <Text style={styles.realText}>Real</Text>
           </View>
           <Text
-            style={[styles.kgText, realWeight.ideal && { color: Colors.green }]}
+            style={[styles.kgText, realWeight?.ideal && { color: Colors.green }]}
           >
-            {parseInt(item.weight_status.weight)} kg
+            {parseInt(pet.weight)} kg
           </Text>
-          <Text style={styles.lastUpdate}>Último registro --.--.--</Text>
+          <Text style={styles.lastUpdate}>Último registro: {pet.weight_updated_at ? pet.weight_updated_at : "Sin fecha"}</Text>
           <TouchableOpacity
             style={styles.updateButton}
             onPress={() =>
@@ -83,7 +119,7 @@ console.log('item',item)
           </View> */}
         </View>
         {success ? (
-          <CorrectWeight/>
+          <CorrectWeight />
         ) : (
           <Recomendation
             title={"Recomendación"}

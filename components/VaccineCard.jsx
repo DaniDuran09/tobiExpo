@@ -32,12 +32,12 @@ const VaccineCard = (props) => {
           {backgroundColor: Colors.white},
         ]}>
         <Text style={styles.dewormerName}>
-          Marca:{''} <Text style={{color: Colors.black}}>________</Text>
+          Marca:{''} <Text style={{color: Colors.black}}>{info?.item?.isCompleted ? info?.item?.brand : "__________"}</Text>
         </Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.date}>Vencimiento</Text>
-        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.application_day).format("DD.MM.YYYY") : "____________"}</Text>
+        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.next_dose).format("DD.MM.YYYY") : "____________"}</Text>
       </View>
     </View>
     <View style={styles.iconContainer}>

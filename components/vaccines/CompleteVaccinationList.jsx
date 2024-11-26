@@ -38,7 +38,7 @@ const CompleteVaccinationList = (props) => {
       });
 
       setVaccinationList(combinedVaccines);
-      console.log("Vaccination list: ", combinedVaccines);
+      // console.log("Vaccination list: ", combinedVaccines);
     } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }

@@ -49,7 +49,10 @@ const PetVaccinesRecord = ({ route }) => {
           : { ...vaccine, isCompleted: false };
       });
 
+      console.log("combinedVaccines: ", combinedVaccines)
+
       setVaccinationList(combinedVaccines);
+
     } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }

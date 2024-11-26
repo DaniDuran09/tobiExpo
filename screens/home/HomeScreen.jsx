@@ -23,7 +23,6 @@ import momentTZ from "../../utils/moment";
 import { calculateIdealWeight } from "../../utils/scripts";
 import Icon from "react-native-vector-icons/Entypo";
 
-
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
@@ -44,7 +43,7 @@ const HomeScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       fetchDta();
-      return () => { };
+      return () => {};
     }, [navigation])
   );
 
@@ -58,7 +57,11 @@ const HomeScreen = ({ navigation }) => {
       const petsWithAppointments = await Promise.all(
         list.data.map(async (pet) => {
           const response = await fetchInfoAppointmentPet(pet.id);
-          return { ...pet, service_date: response.date_service, status: response.appointment_status };
+          return {
+            ...pet,
+            service_date: response.date_service,
+            status: response.appointment_status,
+          };
         })
       );
       setData(petsWithAppointments);
@@ -72,6 +75,8 @@ const HomeScreen = ({ navigation }) => {
   const fetchInfoAppointmentPet = async (id) => {
     try {
       const response = await apiFetcher.getAppointmentsByPet(id);
+
+      console.log("response: ", response.data[0])
       return response.data.length > 0 ? response.data[0] : {};
     } catch (error) {
       console.log("Error: ", error);
@@ -84,9 +89,15 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = (item) => {
+
+    console.log("ITEM: ", item)
     const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
     const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
-    const realWeight = calculateIdealWeight(rangeOne, rangeTwo, item?.weight_status.weight);
+    const realWeight = calculateIdealWeight(
+      rangeOne,
+      rangeTwo,
+      item?.weight_status.weight
+    );
     // console.log(item?.service_date);
     let service = "---";
     let remainingDays = {
@@ -94,33 +105,32 @@ const HomeScreen = ({ navigation }) => {
       color: "black",
     };
 
-    if (item.status ==="actived" && item?.service_date) {
+    if (item.status === "actived" && item?.service_date) {
       const serviceDate = momentTZ(item?.service_date).tz(
         "America/Mexico_City"
       );
-      const today = momentTZ();
+      const today = momentTZ().tz("America/Mexico_City");
 
-      service = momentTZ(item?.service_date).utc().format("DD.MMM");
+      const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
+      if (daysDifference < 0) {
+        remainingDays = {
+          text: "---",
+          color: "black",
+        };
+      } else if (daysDifference === 0) {
+        service = momentTZ(item?.service_date).utc().format("DD.MMM");
 
-      const daysDifference = serviceDate.diff(today, "days");
-      // if (daysDifference < 0) {
-      //   // remainingDays = {
-      //   //   text: "---",
-      //   //   color: "red",
-      //   // };
-      // }
-      if (daysDifference === 0) {
         remainingDays = {
           text: "La cita es hoy",
           color: "green",
         };
       } else if (daysDifference > 0) {
+        service = momentTZ(item?.service_date).utc().format("DD.MMM");
         remainingDays = {
           text: `${daysDifference} días`,
           color: "green",
         };
       }
-
     }
 
     return (
@@ -247,16 +257,19 @@ const HomeScreen = ({ navigation }) => {
                     color: "black",
                     fontWeight: "bold",
                   }}
-                >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${item?.weight_status?.ideal_weight?.to / 1000
-                  } Kg`}</Text>
+                >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
+                  item?.weight_status?.ideal_weight?.to / 1000
+                } Kg`}</Text>
                 <Text ttext90M>Real</Text>
                 <Text
-
-                  style={[{
-                    fontSize: 14,
-                    color: "red",
-                    fontWeight: "bold",
-                  }, realWeight.ideal && { color: Colors.green }]}
+                  style={[
+                    {
+                      fontSize: 14,
+                      color: "red",
+                      fontWeight: "bold",
+                    },
+                    realWeight.ideal && { color: Colors.green },
+                  ]}
                 >{`${item.weight} Kg`}</Text>
                 <View
                   style={{
@@ -265,7 +278,13 @@ const HomeScreen = ({ navigation }) => {
                   }}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {!realWeight.ideal && <Icon name={realWeight.down ? "triangle-down" : "triangle-up"} color="red" size={25} />}
+                    {!realWeight.ideal && (
+                      <Icon
+                        name={realWeight.down ? "triangle-down" : "triangle-up"}
+                        color="red"
+                        size={25}
+                      />
+                    )}
                     <Text
                       style={{
                         fontSize: 14,

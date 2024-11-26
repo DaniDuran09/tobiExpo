@@ -149,16 +149,16 @@ const SelectVaccines = (props) => {
           text2: `Completa todos los datos de las vacunas seleccionadas`,
         });
         allVaccinesInserted = false;
+        setSaveLoading(false);
         break;
       } else {
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: momentTZ(vaccine.application_day.moment).format(
-            "dddd D [de] MMMM, h:mm [hrs]"
-          ),
-          dose: vaccine.dose <= 0 ? 1 : vaccine.dose,
+          application_day: momentTZ(vaccine.application_day).format("DD/MM/YYYY"),
+          dose: 0,
           brand: vaccine.brand,
+          applied_by: vaccine.partner
         };
         try {
           console.log("La data a mandar: ", data);
@@ -177,7 +177,7 @@ const SelectVaccines = (props) => {
           });
           allVaccinesInserted = false;
         } finally {
-          setLoading(false);
+          setSaveLoading(false);
         }
       }
     }
@@ -286,7 +286,7 @@ const SelectVaccines = (props) => {
                       >
                         <Text>{vaccine.partner ? vaccine.partner : "Aplicado por"}</Text>
                       </TouchableOpacity>
-                      <View marginT-10>
+                      {/* <View marginT-10>
                         <Text>Etiqueta</Text>
                         <TouchableOpacity
                           disabled={!vaccine.isChecked}
@@ -318,7 +318,7 @@ const SelectVaccines = (props) => {
                             />
                           )}
                         </TouchableOpacity>
-                      </View>
+                      </View> */}
                     </View>
                   </View>
                 ))}
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   },
   dateButton: {
     backgroundColor: Colors.white,
-    width: "75%",
+    width: 150,
     padding: 8,
     marginTop: "4%",
     height: 40,
