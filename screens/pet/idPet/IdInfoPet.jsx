@@ -3,7 +3,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -11,6 +10,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "../../../styles/Colors";
 import WithoutPhoto from "../../../components/WithoutPhoto";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 const IdInfoPet = ({ route }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -18,19 +18,16 @@ const IdInfoPet = ({ route }) => {
 
   const [option, setOption] = useState(1);
 
-  const dispatch = useDispatch();
-
-  console.log("EL user: ", user)
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.containerInfo}>
         <View style={styles.headerContainer}>
           {pet?.picture ? (
-            <Image
+            <AnimatedImage
               source={{ uri: pet.picture }}
               style={styles.image}
-              resizeMode={"cover"}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
             />
           ) : (
             <WithoutPhoto />
@@ -46,14 +43,6 @@ const IdInfoPet = ({ route }) => {
           >
             <Text style={option === 1 ? styles.selected : styles.notSelected}>
               INFORMACIÓN
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={option === 2 ? styles.optionSelected : {}}
-            onPress={() => setOption(2)}
-          >
-            <Text style={option === 2 ? styles.selected : styles.notSelected}>
-              QR
             </Text>
           </TouchableOpacity>
         </View>
@@ -75,7 +64,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={user?.name} />
+              <Text style={styles.Text}>{user?.name}</Text>
             </View>
             <View style={styles.rowInformation}>
               <View style={styles.containerImage}>
@@ -90,7 +79,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={user?.phone} />
+              <Text style={styles.Text}>{user?.phone}</Text>
             </View>
 
             <View style={styles.rowInformation}>
@@ -106,7 +95,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={user?.email} />
+              <Text style={styles.Text}>{user?.email}</Text>
             </View>
           </View>
         </View>
@@ -126,7 +115,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={pet?.name} />
+              <Text style={styles.Text}>{pet?.name}</Text>
             </View>
             <View style={styles.rowInformation}>
               <View style={styles.containerImage}>
@@ -141,7 +130,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={pet.age.toString()} />
+              <Text style={styles.Text}>{pet?.age}</Text>
             </View>
 
             <View style={styles.rowInformation}>
@@ -157,7 +146,7 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput style={styles.textInput} value={pet.pet_breed.name} />
+              <Text style={styles.Text}>{pet?.pet_breed.name}</Text>
             </View>
             <View style={styles.rowInformation}>
               <View style={styles.containerImage}>
@@ -172,67 +161,8 @@ const IdInfoPet = ({ route }) => {
             <View style={styles.containerTextInformation}>
               <View style={styles.containerImage} />
 
-              <TextInput
-                style={styles.textInput}
-                value={pet.gender}
-              />
+              <Text style={styles.Text}>{pet?.gender}</Text>
             </View>
-          </View>
-        </View>
-        {/* <View style={styles.userInfo}>
-          <Text style={styles.title}>Estado de salud</Text>
-          <View style={styles.info}>
-            <View style={styles.rowInformation}>
-              <View style={styles.containerImage}>
-                <Image
-                  source={require("../../../assets/hospital-icon.png")}
-                  style={{ height: 20, width: 20 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-              <Text style={styles.textInformation}>Alergias</Text>
-            </View>
-            <View style={styles.containerTextInformation}>
-              <View style={styles.containerImage} />
-
-              <TextInput style={styles.textInput} value={"Ninguna"} />
-            </View>
-            <View style={styles.rowInformation}>
-              <View style={styles.containerImage}>
-                <Image
-                  source={require("../../../assets/cardiology-icon.png")}
-                  style={{ height: 20, width: 25 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-              <Text style={styles.textInformation}>Condición existente</Text>
-            </View>
-            <View style={styles.containerTextInformation}>
-              <View style={styles.containerImage} />
-
-              <TextInput style={styles.textInput} value={"???????"} />
-            </View>
-          </View>
-        </View> */}
-        <View style={styles.containerButton}>
-          {/* <TouchableOpacity style={styles.button} onPress={() => {}}>
-            <Text
-              style={styles.textButton}
-            >
-              Registrar
-            </Text>
-          </TouchableOpacity> */}
-          <View style={styles.bottomContainer}>
-            <TouchableOpacity style={styles.containerEditInfo}>
-            <Text
-              style={styles.textEdit}
-            >Editar información</Text>
-                <Image
-                  source={require("../../../assets/arrowRigth.png")}
-                  style={{ height: 15, width: 10 }}
-                  resizeMode={"cover"}
-                />
-            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -317,7 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  textInput: {
+  Text: {
     fontWeight: "900",
     fontSize: 16,
   },
@@ -341,19 +271,19 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
   },
-  containerButton:{
+  containerButton: {
     alignItems: "center",
-    marginBottom: 20
+    marginBottom: 20,
   },
-  bottomContainer:{
-    width: "80%"
+  bottomContainer: {
+    width: "80%",
   },
   containerEditInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  textEdit:{
+  textEdit: {
     fontSize: 14,
-    color: Colors.primaryColor
+    color: Colors.primaryColor,
   },
 });

@@ -100,7 +100,7 @@ const ResumeDate = ({ navigation, route }) => {
               />
               <View style={styles.changeContainer}>
                 <Text style={styles.description}>{dateFormated}</Text>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   onPress={() =>
                     navigation.navigate("ChangeDate", {
                       info: item.appointment_pet_services[0],
@@ -108,7 +108,7 @@ const ResumeDate = ({ navigation, route }) => {
                   }
                 >
                   <Text style={styles.changeDate}>Cambiar fecha</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </View>
           </View>

@@ -2,8 +2,11 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Colors } from "../styles/Colors";
 
-const ChallengeModal = (props) => {
-  const { challengeVisible, closeModalChallenge, text } = props;
+const ChallengeModal = ({
+  challengeVisible = false,
+  closeModalChallenge = () => {},
+  text = "",
+}) => {
   return (
     <Modal
       transparent={true}
@@ -13,13 +16,14 @@ const ChallengeModal = (props) => {
     >
       <View style={styles.modalContainer} onPress={closeModalChallenge}>
         <View style={styles.modalContent}>
-        <TouchableOpacity style={styles.closeContainer} onPress={closeModalChallenge}>
-          <Text style={styles.close}>X</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.closeContainer}
+            onPress={closeModalChallenge}
+          >
+            <Text style={styles.close}>X</Text>
+          </TouchableOpacity>
           <View style={styles.containerTitleModal}>
-            <Text style={styles.titleModal}>
-              {text}
-            </Text>
+            <Text style={styles.titleModal}>{text}</Text>
           </View>
         </View>
       </View>
@@ -35,10 +39,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 32,
     color: Colors.primaryColor,
-    textAlign: "center"
+    textAlign: "center",
   },
   containerTitleModal: {
-    padding: 20
+    padding: 20,
   },
   modalContainer: {
     flex: 1,
@@ -52,22 +56,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryColor,
     opacity: 0.9,
     width: "93%",
-    height: "33%",
     padding: 20,
     borderRadius: 12,
     justifyContent: "center",
     elevation: 5,
     maxWidth: 500,
   },
-  closeContainer:{
+  closeContainer: {
     position: "absolute",
     alignSelf: "flex-end",
     top: 15,
     right: 15,
-    zIndex: 2
+    zIndex: 2,
   },
-  close:{
+  close: {
     fontSize: 20,
-    fontWeight: "600"
+    fontWeight: "600",
   },
 });

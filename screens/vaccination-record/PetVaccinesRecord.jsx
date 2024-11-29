@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import VaccineCard from "../../components/VaccineCard";
 import EmptyVaccines from "../../components/vaccines/EmptyVaccines";
 import Loading from "../../components/Loading";
+import Recomendation from "../../components/Recomendation";
 
 const PetVaccinesRecord = ({ route }) => {
   const { id } = route.params;
@@ -124,6 +125,13 @@ const PetVaccinesRecord = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+      <Recomendation
+            title={"Recomendación"}
+            info={
+              "Programa una cita con un especialista para completar el esquema de salud de tu mascota."
+            }
+            oneOption={true}
+          />
       <FlatList
         data={vaccinationList}
         renderItem={(vaccine) => <VaccineCard info={vaccine} />}

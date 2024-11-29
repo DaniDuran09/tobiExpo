@@ -66,7 +66,6 @@ const CustomCalendar = ({
         date,
         selectedServices
       );
-      console.log("Response: ", response);
       if (response.available_slots.length > 0) {
         setSlots(response.available_slots);
         setShowSchedule(true);

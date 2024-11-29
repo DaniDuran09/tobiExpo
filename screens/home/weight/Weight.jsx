@@ -17,7 +17,7 @@ const Weight = (props) => {
   const [loading, setLoading] = useState(false);
   const [pet, setPet] = useState({});
   const navigation = useNavigation();
-  const [challengeVisible, setChallengeVisible] = useState(false);
+  const [challengeVisible, setChallengeVisible] = useState();
 
   const apiFetcher = new ApiFetcher();
 
@@ -25,18 +25,10 @@ const Weight = (props) => {
     setChallengeVisible(false);
   };
 
-  const rangeOne = useMemo(() => {
-    return pet?.ideal_weight?.from / 1000;
-  }, [pet]);
-  const rangeTwo = useMemo(() => {
-    return pet?.ideal_weight?.to / 1000;
-  }, [pet]);
+  const rangeOne = pet?.ideal_weight?.from / 1000;
+  const rangeTwo = pet?.ideal_weight?.to / 1000;
 
-  const realWeight = useMemo(() => {
-    return calculateIdealWeight(rangeOne, rangeTwo, parseInt(pet?.weight));
-  }, [pet]);
-
-  console.log("pet: ", realWeight)
+  const realWeight = calculateIdealWeight(rangeOne, rangeTwo, parseInt(pet?.weight));
 
   const getPet = async () => {
     setLoading(true);
@@ -49,7 +41,6 @@ const Weight = (props) => {
       setLoading(false);
     }
   };
-
 
   useFocusEffect(
     useCallback(() => {
@@ -113,10 +104,6 @@ const Weight = (props) => {
               marginTop: 10,
             }}
           >{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
-          {/* <View style={styles.triangleContianer}>
-            <Icon name="triangle" size={20} color={Colors.red} />
-            <Text style={styles.weightPoints}>...</Text>
-          </View> */}
         </View>
         {success ? (
           <CorrectWeight />
@@ -127,13 +114,14 @@ const Weight = (props) => {
               "Programa una cita con un especialista en nutrición para el cuidado de tu mascota."
             }
             setVisible={setChallengeVisible}
+            oneOption={true}
           />
         )}
         <ChallengeModal
           closeModalChallenge={closeModalChallenge}
           challengeVisible={challengeVisible}
           text={
-            "Te aconsejamos realizar la actividad recomendada para tu mascota."
+            "El bienestar de tu mascota es lo más importante. Consulta a un especialista para asegurarte de que esté en el rango ideal."
           }
         />
       </View>
