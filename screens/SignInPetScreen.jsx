@@ -49,7 +49,7 @@ const SignInPetScreen = props => {
 
   const selectGender = val => {
     setGender(val);
-    setData({ ...data, gender: gender });
+    setData({ ...data, gender: val });
   };
 
   useEffect(() => {
@@ -129,7 +129,7 @@ const SignInPetScreen = props => {
               style={styles.textInput}
               autoCapitalize="none"
               value={data.name}
-              onChangeText={val => setData({ ...data, name: val })}
+              onChangeText={val => setData({ ...data, name: val , gender:gender })}
             />
             <View
               style={{

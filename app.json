@@ -25,6 +25,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws"
+        }
+      },
       "package": "com.tobi"
     },
     "web": {
