@@ -69,6 +69,12 @@ const InfoServiceForDate = ({ route }) => {
       stePets(response.data);
     } catch (error) {
       console.error("Error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `No pudimos acceder a tus mascotas, inténtalo de nuevo más tarde`,
+      });
+      navigation.goBack()
     } finally {
       setLoading(false);
     }

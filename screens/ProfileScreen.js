@@ -24,6 +24,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
+import Toast from "react-native-toast-message";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -78,10 +79,11 @@ const ProfileScreen = ({ route, navigation }) => {
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al cargar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      Toast.show({
+        type: "error",
+        text1: "Ha ocurrido un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -117,7 +119,11 @@ const ProfileScreen = ({ route, navigation }) => {
       setUserData(user);
     } catch (e) {
       console.log("Error: ", e);
-      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }

@@ -67,6 +67,11 @@ const HomeScreen = ({ navigation }) => {
       setData(petsWithAppointments);
     } catch (e) {
       console.log("Error: ", e);
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }
@@ -89,8 +94,6 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = (item) => {
-
-    console.log("ITEM: ", item)
     const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
     const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
     const realWeight = calculateIdealWeight(
@@ -98,7 +101,6 @@ const HomeScreen = ({ navigation }) => {
       rangeTwo,
       item?.weight_status.weight
     );
-    // console.log(item?.service_date);
     let service = "---";
     let remainingDays = {
       text: "---",

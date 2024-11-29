@@ -130,6 +130,7 @@ const UserStepsRegister = () => {
         text1: "Ocurrió un error al hacer el registro",
         text2: `Intente de nuevo más tarde`,
       });
+      
       navigation.reset({
         index: 0,
         routes: [{ name: "LoginScreen" }],
@@ -174,8 +175,7 @@ const UserStepsRegister = () => {
     let valid;
     switch (step) {
       case 0:
-        // valid = validFirsScreen();
-        valid= true
+         valid = validFirsScreen();
         console.log("Entro: ", user);
         break;
       case 1:

@@ -24,7 +24,7 @@ const SignInPetInfoScreen = props => {
   const dispatch = useDispatch();
 
   const {pet, user} = props;
-
+  console.log('props: ',pet)
 
   const [check, setCheck] = useState(false);
   const [loading, setLoading] = useState(false);

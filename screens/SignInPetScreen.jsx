@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,11 +17,11 @@ import {
 // import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // import Feather from 'react-native-vector-icons/Feather';
 
-import {Colors} from '../styles/Colors';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import {setUserInfo} from '../redux/slice/userSlice';
-import {useDispatch, useSelector} from 'react-redux';
-import {formatDateToDDMMYYYY} from '../utils/scripts';
+import { Colors } from '../styles/Colors';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { setUserInfo } from '../redux/slice/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { formatDateToDDMMYYYY } from '../utils/scripts';
 import { DateTimePicker } from 'react-native-ui-lib';
 import DatePicker from 'react-native-date-picker';
 
@@ -29,7 +29,7 @@ import DatePicker from 'react-native-date-picker';
 // import { generalDataAction } from '../redux/generalDuck';
 
 const SignInPetScreen = props => {
-  const { data, setData} = props;
+  const { data, setData } = props;
 
   const [date, setDate] = React.useState(new Date());
   const [open, setOpen] = React.useState(false);
@@ -41,45 +41,46 @@ const SignInPetScreen = props => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    selectPet(1)
-  }, [])
-  
-
   const selectPet = val => {
+    console.log('----------')
     setPet(val);
-    setData({...data, typePet: val});
+    setData({ ...data, typePet: val });
   };
 
   const selectGender = val => {
     setGender(val);
+    setData({ ...data, gender: gender });
   };
 
   useEffect(() => {
+    console.log('first')
     const updatedInfo = {
       ...userInfo,
       pet: [
         {
           name: data.namePet,
           last_name: '',
-          age: formatDateToDDMMYYYY(date),
+          gender: gender,
+          //age: formatDateToDDMMYYYY(date),
           birthday: formatDateToDDMMYYYY(date)
         },
       ],
     };
     dispatch(setUserInfo(updatedInfo));
-  }, [data, gender, date]);
+  }, [data, gender,date]);
 
-  useEffect(()=>{
-    setData({...data, gender: gender})
-  },[gender])
+  useEffect(() => {
+    setData({ ...data, gender: gender })
+  }, [gender])
 
-console.log("data: ",data.birthday)
+  useEffect(() => {
+    setData({ ...data, typePet: pet })
+  }, [pet])
 
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
-        style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}
+        style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
         behavior={Platform.OS == 'ios' && 'height'}
         enabled>
         <ScrollView>
@@ -87,11 +88,11 @@ console.log("data: ",data.birthday)
             style={{
               alignItems: 'flex-start',
               paddingLeft: 20,
-              
+
             }}>
             <Image
               source={require('../assets/frame.png')}
-              style={{height: 80, width: 150, marginTop: 25}}
+              style={{ height: 80, width: 150, marginTop: 25 }}
               resizeMode={'contain'}
             />
             <Text
@@ -128,7 +129,7 @@ console.log("data: ",data.birthday)
               style={styles.textInput}
               autoCapitalize="none"
               value={data.name}
-              onChangeText={val => setData({...data, name: val})} 
+              onChangeText={val => setData({ ...data, name: val })}
             />
             <View
               style={{
@@ -157,7 +158,7 @@ console.log("data: ",data.birthday)
                         ? require('../assets/selected-dog.png')
                         : require('../assets/dog.png')
                     }
-                    style={{height: 30, width: 30}}
+                    style={{ height: 30, width: 30 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -189,7 +190,7 @@ console.log("data: ",data.birthday)
                         ? require('../assets/selected-cat.png')
                         : require('../assets/cat.png')
                     }
-                    style={{height: 25, width: 25}}
+                    style={{ height: 25, width: 25 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -231,7 +232,7 @@ console.log("data: ",data.birthday)
                         ? require('../assets/selected-gender-M.png')
                         : require('../assets/gender-M.png')
                     }
-                    style={{height: 30, width: 30}}
+                    style={{ height: 30, width: 30 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -264,7 +265,7 @@ console.log("data: ",data.birthday)
                         ? require('../assets/selected-gender-H.png')
                         : require('../assets/gender-H.png')
                     }
-                    style={{height: 25, width: 25}}
+                    style={{ height: 25, width: 25 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -281,43 +282,44 @@ console.log("data: ",data.birthday)
               </TouchableWithoutFeedback>
             </View>
             {/* <TouchableWithoutFeedback elevation={5} onPress={() => setOpen(true)}> */}
-              <View
-                style={{
-                  width: '90%',
-                  backgroundColor: 'white',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingHorizontal: '5%',
-                  borderRadius: 4,
-                  height: 60,
-                  marginTop: '5%',
-                }}>
-                
-                <DateTimePicker
+            <View
+              style={{
+                width: '90%',
+                backgroundColor: 'white',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: '5%',
+                borderRadius: 4,
+                height: 60,
+                marginTop: '5%',
+              }}>
+
+              <DateTimePicker
                 display="spinner"
-                  style={[
-                    styles.birthdayContainer,
-                    { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
-                  ]}
-                  title={"Cumpleaños"}
-                  placeholder={
-                    data.birthday === ""
-                      ? "Fecha de nacimiento"
-                      : `${data?.birthday.toLocaleDateString("es-us")}`
-                  }
-                  mode={"date"}
-                  onChange={(selectedDate) => {
-                    setData({...data,birthday:selectedDate});
-                  }}
-                />
-                
-                {/* <Image
+                style={[
+                  styles.birthdayContainer,
+                  { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
+                ]}
+                title={"Cumpleaños"}
+                placeholder={
+                  data.birthday === ""
+                    ? "Fecha de nacimiento"
+                    : `${data?.birthday}`
+                }
+                mode={"date"}
+                onChange={(selectedDate) => {
+                  setDate(selectedDate)
+                  setData({ ...data, birthday: formatDateToDDMMYYYY(selectedDate) });
+                }}
+              />
+
+              {/* <Image
                   source={require('../assets/pastel.png')}
                   style={{height: 30, width: 30}}
                   resizeMode={'contain'}
                 /> */}
-              </View>
+            </View>
             {/* </TouchableWithoutFeedback> */}
           </View>
         </ScrollView>
@@ -328,7 +330,7 @@ console.log("data: ",data.birthday)
 
 export default SignInPetScreen;
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
