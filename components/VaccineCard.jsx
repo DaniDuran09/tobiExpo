@@ -2,9 +2,14 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, gradientColors } from '../styles/Colors'
+import momentTZ from '../utils/moment';
+import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
+
+
 
 const VaccineCard = (props) => {
     const {info} = props;
+    console.log("vaccine: ", info)
   return (
     <View style={styles.mainContainer}>
     <View style={styles.sectionContainer}>
@@ -17,7 +22,7 @@ const VaccineCard = (props) => {
       </LinearGradient>
       <View style={styles.infoContainer}>
         <Text style={styles.date}>Fecha de aplicación</Text>
-        <Text style={styles.dateText}>__________</Text>
+        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.application_day).format("DD.MM.YYYY") : "____________"}</Text>
       </View>
     </View>
     <View style={styles.sectionContainer}>
@@ -27,19 +32,23 @@ const VaccineCard = (props) => {
           {backgroundColor: Colors.white},
         ]}>
         <Text style={styles.dewormerName}>
-          Marca:{''} <Text style={{color: Colors.black}}>________</Text>
+          Marca:{''} <Text style={{color: Colors.black}}>{info?.item?.isCompleted ? info?.item?.brand : "__________"}</Text>
         </Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.date}>Vencimiento</Text>
-        <Text style={styles.dateText}>__________</Text>
+        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.next_dose).format("DD.MM.YYYY") : "____________"}</Text>
       </View>
     </View>
     <View style={styles.iconContainer}>
-      <Image
-        source={require('../assets/images/warning-icon.png')}
-        resizeMode="contain"
-      />
+      <SimpleLineIcons
+          name={info?.item?.isCompleted  ? "check" : "exclamation"}
+          size={20}
+          color={Colors.gray}
+          style={
+            info?.item?.isCompleted ? { color: Colors.green } : { color: Colors.red }
+          }
+        />
     </View>
   </View>
   )

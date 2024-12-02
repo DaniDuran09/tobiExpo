@@ -35,6 +35,8 @@ class ApiFetcher {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
       const response = await axios.get(url, { headers, timeout: 15000 });
+    console.log("headers: ", headers)
+
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in GET request:", error);
@@ -97,6 +99,14 @@ class ApiFetcher {
   async updateUser(data) {
     return await this._put(`/profile/update/information`, data);
   }
+
+  async sendPin(data) {
+    return await this._post(`/forgot/password`, data);
+  }
+
+  async updatePassword(data) {
+    return await this._put(`/forgot/password`, data);
+  }
   
   async getProfile() {
     return await this._get("/profile");
@@ -125,6 +135,7 @@ class ApiFetcher {
   }
 
   async getPetById(id) {
+    console.log("id: ", id)
     return await this._get(`/pets/${id}`);
   }
 
@@ -135,6 +146,10 @@ class ApiFetcher {
   // vaccines
   async getVaccines(id) {
     return await this._get(`/pets/${id}/vaccines`);
+  }
+
+  async getVaccinesRecords(id) {
+    return await this._get(`/pets/${id}/vaccination_records`);
   }
 
   async saveVaccine(data) {
@@ -159,6 +174,17 @@ class ApiFetcher {
 
   async getAppointmentsByPet(id) {
     return await this._get(`/appointments?pet_id=${id}`);
+  }
+
+  async getAvailabilityDaysByPartnerId(id) {
+    return await this._get(`/partners/${id}/availability/days`);
+  }
+
+  async getAvailabilitySlotsByServices(id, date, services) {
+    const urlComplement = services
+    .map(service => `service_ids[]=${service.id}`)
+    .join('&');
+    return await this._get(`/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
   }
 
   async registerAppointments(data) {

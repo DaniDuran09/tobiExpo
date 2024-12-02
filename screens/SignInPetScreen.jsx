@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,18 +16,20 @@ import {
 // import { LinearGradient } from 'expo-linear-gradient';
 // import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // import Feather from 'react-native-vector-icons/Feather';
+
+import { Colors } from '../styles/Colors';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { setUserInfo } from '../redux/slice/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { formatDateToDDMMYYYY } from '../utils/scripts';
+import { DateTimePicker } from 'react-native-ui-lib';
 import DatePicker from 'react-native-date-picker';
-import {Colors} from '../styles/Colors';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import {setUserInfo} from '../redux/slice/userSlice';
-import {useDispatch, useSelector} from 'react-redux';
-import {formatDateToDDMMYYYY} from '../utils/scripts';
 
 // import { useDispatch, useSelector } from 'react-redux';
 // import { generalDataAction } from '../redux/generalDuck';
 
 const SignInPetScreen = props => {
-  const {user, data, setData} = props;
+  const { data, setData } = props;
 
   const [date, setDate] = React.useState(new Date());
   const [open, setOpen] = React.useState(false);
@@ -39,61 +41,46 @@ const SignInPetScreen = props => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    selectPet(1)
-  }, [])
-  
-
   const selectPet = val => {
+    console.log('----------')
     setPet(val);
-    setData({...data, typePet: val});
+    setData({ ...data, typePet: val });
   };
 
   const selectGender = val => {
     setGender(val);
+    setData({ ...data, gender: val });
   };
 
   useEffect(() => {
+    console.log('first')
     const updatedInfo = {
       ...userInfo,
       pet: [
         {
           name: data.namePet,
           last_name: '',
-          age: formatDateToDDMMYYYY(date),
+          gender: gender,
+          //age: formatDateToDDMMYYYY(date),
           birthday: formatDateToDDMMYYYY(date)
         },
       ],
     };
     dispatch(setUserInfo(updatedInfo));
-  }, [data, gender, date]);
+  }, [data, gender,date]);
 
-  useEffect(()=>{
-    setData({...data, gender: gender})
-  },[gender])
+  useEffect(() => {
+    setData({ ...data, gender: gender })
+  }, [gender])
 
-  
-
-  const onSubmit = () => {
-    // const petDta = {
-    //   name: data.namePet.toString(),
-    //   typePet: pet,
-    //   gender: gender,
-    //   birthday: data.birthday,
-    // };
-    // if ((data.birthday === "" || data.namePet === "")) {
-    //   Alert.alert("Tobi", "Debes llenar todos los campos", [
-    //     { text: "OK", onPress: () => null },
-    //   ]);
-    // } else {
-    //   navigation.navigate("SignInPetInfoScreen", { pet: petDta, user: user });
-    // }
-  };
+  useEffect(() => {
+    setData({ ...data, typePet: pet })
+  }, [pet])
 
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
-        style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}
+        style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}
         behavior={Platform.OS == 'ios' && 'height'}
         enabled>
         <ScrollView>
@@ -101,11 +88,11 @@ const SignInPetScreen = props => {
             style={{
               alignItems: 'flex-start',
               paddingLeft: 20,
-              
+
             }}>
             <Image
               source={require('../assets/frame.png')}
-              style={{height: 80, width: 150, marginTop: 25}}
+              style={{ height: 80, width: 150, marginTop: 25 }}
               resizeMode={'contain'}
             />
             <Text
@@ -142,7 +129,7 @@ const SignInPetScreen = props => {
               style={styles.textInput}
               autoCapitalize="none"
               value={data.name}
-              onChangeText={val => setData({...data, name: val})} 
+              onChangeText={val => setData({ ...data, name: val , gender:gender })}
             />
             <View
               style={{
@@ -171,7 +158,7 @@ const SignInPetScreen = props => {
                         ? require('../assets/selected-dog.png')
                         : require('../assets/dog.png')
                     }
-                    style={{height: 30, width: 30}}
+                    style={{ height: 30, width: 30 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -203,7 +190,7 @@ const SignInPetScreen = props => {
                         ? require('../assets/selected-cat.png')
                         : require('../assets/cat.png')
                     }
-                    style={{height: 25, width: 25}}
+                    style={{ height: 25, width: 25 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -245,7 +232,7 @@ const SignInPetScreen = props => {
                         ? require('../assets/selected-gender-M.png')
                         : require('../assets/gender-M.png')
                     }
-                    style={{height: 30, width: 30}}
+                    style={{ height: 30, width: 30 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -278,7 +265,7 @@ const SignInPetScreen = props => {
                         ? require('../assets/selected-gender-H.png')
                         : require('../assets/gender-H.png')
                     }
-                    style={{height: 25, width: 25}}
+                    style={{ height: 25, width: 25 }}
                     resizeMode={'contain'}
                   />
                   <Text
@@ -294,52 +281,46 @@ const SignInPetScreen = props => {
                 </View>
               </TouchableWithoutFeedback>
             </View>
-            <TouchableWithoutFeedback elevation={5} onPress={() => setOpen(true)}>
-              <View
-                style={{
-                  width: '90%',
-                  backgroundColor: 'white',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingHorizontal: '5%',
-                  borderRadius: 4,
-                  height: 60,
-                  marginTop: '5%',
-                }}>
-                <DatePicker
-                  modal
-                  open={open}
-                  date={date}
-                  onConfirm={date => {
-                    setOpen(false);
-                    setData({...data, birthday: date});
-                  }}
-                  onCancel={() => {
-                    setOpen(false);
-                  }}
-                  locale={'es'}
-                  mode={'date'}
-                  title={'Cumpleaños'}
-                />
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 15,
-                    color: 'black',
-                    paddingVertical: 10,
-                  }}>
-                  {data.birthday === ''
-                    ? 'Cumpleaños'
-                    : `${data?.birthday.toLocaleDateString('es-us')}`}
-                </Text>
-                <Image
+            {/* <TouchableWithoutFeedback elevation={5} onPress={() => setOpen(true)}> */}
+            <View
+              style={{
+                width: '90%',
+                backgroundColor: 'white',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingHorizontal: '5%',
+                borderRadius: 4,
+                height: 60,
+                marginTop: '5%',
+              }}>
+
+              <DateTimePicker
+                display="spinner"
+                style={[
+                  styles.birthdayContainer,
+                  { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
+                ]}
+                title={"Cumpleaños"}
+                placeholder={
+                  data.birthday === ""
+                    ? "Fecha de nacimiento"
+                    : `${data?.birthday}`
+                }
+                mode={"date"}
+                onChange={(selectedDate) => {
+                  setDate(selectedDate)
+                  setData({ ...data, birthday: formatDateToDDMMYYYY(selectedDate) });
+                }}
+              />
+
+              {/* <Image
                   source={require('../assets/pastel.png')}
                   style={{height: 30, width: 30}}
                   resizeMode={'contain'}
-                />
-              </View>
-            </TouchableWithoutFeedback>
+                /> */}
+            </View>
+            {/* </TouchableWithoutFeedback> */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -349,7 +330,7 @@ const SignInPetScreen = props => {
 
 export default SignInPetScreen;
 
-const {height, width} = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {

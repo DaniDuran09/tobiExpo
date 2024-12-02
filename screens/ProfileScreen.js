@@ -24,16 +24,14 @@ import { useFocusEffect } from "@react-navigation/native";
 import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
+import Toast from "react-native-toast-message";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cameraType, setCameraType] = useState("front");
-  const [activeModal, setActiveModal] = useState(false);
   const [imageSource, setImageSource] = useState(null);
 
-  const [picture, setPicture] = useState(0);
   const [userData, setUserData] = useState({});
   const [showDeleteModal, setShowDeletModal] = useState(false);
   const [idItemSelected, setIdItemSelected] = useState(0);
@@ -54,18 +52,18 @@ const ProfileScreen = ({ route, navigation }) => {
     }, [navigation])
   );
 
-  useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const { status } =
+  //       await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //     if (status !== "granted") {
+  //       Alert.alert(
+  //         "Permiso necesario",
+  //         "Se requieren permisos para acceder a la galería"
+  //       );
+  //     }
+  //   })();
+  // }, []);
 
   const selectImageFromLibrary = async () => {
     try {
@@ -81,10 +79,11 @@ const ProfileScreen = ({ route, navigation }) => {
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al cargar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      Toast.show({
+        type: "error",
+        text1: "Ha ocurrido un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -113,7 +112,6 @@ const ProfileScreen = ({ route, navigation }) => {
   const closeModal = () => setModalVisible(false);
 
   const petList = async () => {
-    console.log("------ LLAMO A PETLIST ------");
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
@@ -121,7 +119,11 @@ const ProfileScreen = ({ route, navigation }) => {
       setUserData(user);
     } catch (e) {
       console.log("Error: ", e);
-      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }

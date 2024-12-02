@@ -9,14 +9,25 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
+import { useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { setServiceInfo } from "../../redux/slice/appointmentSlice";
 
-const ListPartners = ({ route, navigation }) => {
-  const { partners, action, services } = route.params;
+const ListPartners = ({ route }) => {
+  const { partnerId, partnerLocation, partners,services, action, vaccine } = route.params;
   const [loading, setLoading] = useState(true);
+  
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
 
-  useEffect(() => {
-    console.log("Lo que recibo: ", services);
-  }, []);
+  const goToCreateDate = (specialist) => {
+    navigation.navigate("InfoServiceForDate", {
+      partnerId: partnerId,
+      partnerLocation: partnerLocation,
+      specialist: specialist
+    });
+    dispatch(setServiceInfo(services));
+  };
 
   const renderItem = (item) => {
     return (
@@ -24,11 +35,9 @@ const ListPartners = ({ route, navigation }) => {
         style={styles.elevation}
         onPress={() =>
           action
-            ? action(item.name)
-            : navigation.navigate("InfoServiceByPartner", {
-                partner: item,
-                services: services,
-              })
+            ? action(item.name, vaccine)
+            : goToCreateDate(item)
+
         }
       >
         <Image
@@ -52,6 +61,9 @@ const ListPartners = ({ route, navigation }) => {
       </TouchableOpacity>
     );
   };
+
+  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Veterinarios</Text>

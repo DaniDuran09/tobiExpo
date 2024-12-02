@@ -4,26 +4,14 @@ import {
   Text,
   StyleSheet,
   Image,
-  Alert,
   Dimensions,
   TouchableWithoutFeedback,
-  Modal,
-  TouchableOpacity,
   TextInput,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-// import * as Animatable from 'react-native-animatable';
-// import { LinearGradient } from 'expo-linear-gradient';
-// import FontAwesome from 'react-native-vector-icons/FontAwesome';
-// import Feather from 'react-native-vector-icons/Feather';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-
 import {useDispatch, useSelector} from 'react-redux';
-import SearchableDropdown from 'react-native-searchable-dropdown';
-// import { generalDataAction } from '../redux/generalDuck';
-
-import {signIn as signInService, petBrands, activity} from '../services';
 import {Colors} from '../styles/Colors';
 import {ScrollView} from 'react-native-gesture-handler';
 import ViewLoading from '../components/ViewLoading';
@@ -33,24 +21,13 @@ import {setUserInfo} from '../redux/slice/userSlice';
 const SignInPetInfoScreen = props => {
   const [selectedBrand, setSelectedBrand] = useState({});
   const [selectedActivity, setSelectedActivity] = useState(1);
-  const [data, setData] = useState({
-    username: '',
-    password: '',
-    check_textInputChange: false,
-    secureTextEntry: true,
-    isValidUser: true,
-    isValidPassword: true,
-  });
   const dispatch = useDispatch();
 
-  // const general = useSelector(store => store.general)
   const {pet, user} = props;
+  console.log('props: ',pet)
 
-  const [array, setArray] = useState([]);
-  const [activityPet, setActivityPet] = useState([]);
   const [check, setCheck] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [modalSearch, setModalSearch] = useState(false);
   const navigation = useNavigation();
 
   const userInfo = useSelector(store => store.user.userInfo);
@@ -71,56 +48,6 @@ const SignInPetInfoScreen = props => {
     };
     dispatch(setUserInfo(updatedInfo));
   }, [check, selectedBrand]);
-
-  // const petBrand = (type) => {
-  //   petBrands(type)
-  //     .then((response) => {
-  //       console.log("petBrand", response.data);
-  //       setArray(response.data);
-  //       activityLevel();
-  //     })
-  //     .catch((err) => {
-  //       console.log("err", err);
-  //       Alert.alert("Sucedio un error!", "El servicio no esta disponible", [
-  //         { text: "OK", onPress: () => setLoading(false) },
-  //       ]);
-  //     });
-  // };
-
-  // const activityLevel = () => {
-  //   activity()
-  //     .then((response) => {
-  //       setActivityPet(response.data);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => {
-  //       console.log("err", err);
-  //       setLoading(false);
-  //       Alert.alert("Sucedio un error!", "El servicio no esta disponible", [
-  //         { text: "OK", onPress: () => setLoading(false) },
-  //       ]);
-  //     });
-  // };
-
-  const submitInfo = () => {
-    const info = {
-      activity_level_id: selectedActivity,
-      pet_breed_id: selectedBrand.id,
-      sterilized: check,
-    };
-    if (selectedBrand === '' || selectedBrand === '') {
-      Alert.alert('Tobi', 'Debes llenar todos los campos', [
-        {text: 'OK', onPress: () => null},
-      ]);
-    } else {
-      console.log('El usuario: ', user);
-      navigation.navigate('SignInPetInfo2Screen', {
-        info: info,
-        pet: pet,
-        user: user,
-      });
-    }
-  };
 
   const goToSearchItem = async type => {
     navigation.navigate('SearchItem', {

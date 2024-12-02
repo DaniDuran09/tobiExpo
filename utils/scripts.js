@@ -24,6 +24,16 @@ export const calculatePetAge = (birthday) => {
   return age;
 };
 
+export const calculateIdealWeight = (rangeOne, rangeTwo, realWeight) => {
+  if (realWeight >= rangeOne && realWeight <= rangeTwo) {
+    return { ideal: true, up: false, down: false };
+  } else if (realWeight > rangeTwo) {
+    return { ideal: false, up: true, down: false };
+  } else if (realWeight < rangeOne) {
+    return { ideal: false, up: false, down: true };
+  }
+};
+
 export const formatDateToDDMMYYYY = (date) => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, "0");

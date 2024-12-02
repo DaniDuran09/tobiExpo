@@ -35,20 +35,15 @@ const PartnersGeneralInfo = ({ route }) => {
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  
-
   useEffect(() => {
     dispatch(clearAppointments())
     getPartnerInfo();
   }, []);
 
-  useEffect(() => {
-    console.log("El item: ", item);
-  }, [item]);
-
   const getPartnerInfo = async () => {
     try {
       const partner = await apiFetcher.getPartnersById(id);
+      // console.log("Si entro y regreso lo siguiente: ", partner.data)
       if (partner.code == 200 || partner.code == 201) setItem(partner.data);
       setIsLoading(false);
     } catch (error) {
@@ -77,15 +72,17 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-  
+
 
   const renderUsers = (user) => {
     return (
       <TouchableOpacity
         onPress={() =>
           navigation.navigate("ListPartners", {
+            partnerId: item.partner.id,
             partners: item.users,
-            services: item.services
+            services: item.services,
+            partnerLocation: partnerLocation
           })
         }
       >
@@ -101,7 +98,7 @@ const PartnersGeneralInfo = ({ route }) => {
     );
   };
 
-  const partenerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
+  const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,7 +124,7 @@ const PartnersGeneralInfo = ({ route }) => {
             </View>
             <View style={styles.infoContainer}>
               <Text style={styles.mainTitle}>{item.partner.name}</Text>
-              <Text style={styles.itemDirection}>{partenerLocation}</Text>
+              <Text style={styles.itemDirection}>{partnerLocation}</Text>
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>Servicios</Text>
@@ -144,8 +141,10 @@ const PartnersGeneralInfo = ({ route }) => {
                       key={index}
                       picture={service.picture}
                       service={service}
-                      partenerLocation={partenerLocation}
+                      partnerLocation={partnerLocation}
                       listService={item.services}
+                      users={item.users}
+                      partnerId={item.partner.id}
                     />
                   ))}
                 </View>
@@ -191,7 +190,7 @@ const PartnersGeneralInfo = ({ route }) => {
               </View>
               <Text style={styles.itemDirection}>Información adicional</Text>
               <View style={styles.extraInfo}>
-                <View style={styles.flexContain}>
+                {/* <View style={styles.flexContain}>
                   <Image
                     source={require("../../assets/parking.png")}
                     style={styles.icon}
@@ -203,7 +202,7 @@ const PartnersGeneralInfo = ({ route }) => {
                       Estacionamiento en vía pública
                     </Text>
                   </View>
-                </View>
+                </View> */}
 
                 <View style={styles.flexContain}>
                   <Image

@@ -21,6 +21,7 @@ import { setPetInfo } from "../../../redux/slice/petSlice";
 import TobiButton from "../../../components/TobiButton";
 import { DateTimePicker } from "react-native-ui-lib";
 
+
 const RegisterNewPet = (props) => {
   const { pet, setPet } = props;
 
@@ -171,19 +172,37 @@ const RegisterNewPet = (props) => {
           <DateTimePicker
             style={[
               styles.birthdayContainer,
-              { paddingHorizontal: 0, marginTop: 0, width: 300 },
+              { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
             ]}
-            title={"Select time"}
+            title={"Select date"}
             placeholder={
-              petInfo?.birthday == ""
-                ? "Cumpleaños"
-                : date?.toLocaleDateString("es-us")
+            ""
             }
             mode={"date"}
             onChange={(selectedDate) => {
               setDate(selectedDate);
             }}
           />
+
+          {/*
+          <DateTimePicker
+          style={[
+            styles.birthdayContainer,
+            { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
+          ]}
+          title={"Select date"}
+          placeholder={
+            user?.birtday === ""
+              ? "Fecha de nacimiento"
+              : `${user?.birtday?.toLocaleDateString("es-us")}`
+          }
+          mode={"date"}
+          onChange={(selectedDate) => {
+            setDate(selectedDate);
+            handleDateConfirm(selectedDate)
+          }}
+        />
+          */}
           <Image
             source={require("../../../assets/pastel.png")}
             style={{ height: 30, width: 30 }}

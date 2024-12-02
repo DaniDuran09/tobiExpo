@@ -125,7 +125,7 @@ const ResumeDateByPartner = () => {
               </Text>
             </View>
           </View>
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.textSection}>Estacionamiento</Text>
             <View style={styles.rowSection}>
               <Image
@@ -137,7 +137,7 @@ const ResumeDateByPartner = () => {
                 Estacionamiento en vía pública.
               </Text>
             </View>
-          </View>
+          </View> */}
           <View style={styles.section}>
             <Text style={styles.textSection}>Teléfono</Text>
             <View style={styles.rowSection}>

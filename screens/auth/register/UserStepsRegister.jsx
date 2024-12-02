@@ -56,6 +56,7 @@ const UserStepsRegister = () => {
   };
 
   const validFirsScreen = () => {
+
     if (
       user.name === "" ||
       user.last_name === "" ||
@@ -70,8 +71,27 @@ const UserStepsRegister = () => {
         text2: `Debes llenar todos los campos`,
       });
       return false;
-    } else if (!validateEmail(user.email)) {
-      Alert.alert("Tobi", "La estructura del correo es inválida");
+    }else if(user.password.length<6){
+      Toast.show({
+        type: "error",
+        text1: "Contraseña inválida",
+        text2: `La contraseña no debe ser menor a 6 caracteres`,
+      });
+      return false;
+    } else if(user.phone.length<10){
+      Toast.show({
+        type: "error",
+        text1: "Número de teléfono invalido",
+        text2: `El número de teléfono no debe ser menor a 10 dígitos`,
+      });
+      return false;
+    }
+    else if (!validateEmail(user.email)) {
+      Toast.show({
+        type: "error",
+        text1: "Correo inválido",
+        text2: `La estructura del correo es inválida`,
+      });
       return false;
     } else return true;
   };
@@ -108,7 +128,11 @@ const UserStepsRegister = () => {
   const doRegister = async () => {
     try {
       console.log("Lo que trataré de mandarle: ", userInfo);
-      const response = await apiFetcher.registerUser(userInfo);
+      const { userInfo: nestedUserInfo, ...newUserInfo } = userInfo;
+      
+      
+      console.log('newUserInfo :',newUserInfo)
+      const response = await apiFetcher.registerUser(newUserInfo);
       console.log("Response: ", response);
       if (response.code != 200 && response.code != 201) {
         Toast.show({
@@ -130,6 +154,7 @@ const UserStepsRegister = () => {
         text1: "Ocurrió un error al hacer el registro",
         text2: `Intente de nuevo más tarde`,
       });
+      
       navigation.reset({
         index: 0,
         routes: [{ name: "LoginScreen" }],
@@ -174,7 +199,7 @@ const UserStepsRegister = () => {
     let valid;
     switch (step) {
       case 0:
-        valid = validFirsScreen();
+         valid = validFirsScreen();
         console.log("Entro: ", user);
         break;
       case 1:

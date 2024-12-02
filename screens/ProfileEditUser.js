@@ -107,8 +107,12 @@ const ProfileEditUser = ({ route, navigation }) => {
       const response = await apiFetcher.getProfile();
       if (response) setUserData(response.data);
     } catch (e) {
-      console.log("Error: ", e);
-      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
+      console.log("Error: ", e); 
+      Toast.show({
+        type: "error",
+        text1: "Ha ocurrido un error",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }

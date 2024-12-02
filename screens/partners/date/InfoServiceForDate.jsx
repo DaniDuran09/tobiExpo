@@ -1,39 +1,53 @@
-import { FlatList, Image, ScrollView, StyleSheet } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, ScrollView, StyleSheet } from "react-native";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import vetOption1 from "../../../assets/vet-option1.png";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import {
-  AnimatedImage,
-  Checkbox,
-  DateTimePicker,
-  LoaderScreen,
-  Text,
-  View,
-} from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { addAppointment } from "../../../redux/slice/appointmentSlice";
 import { useDispatch, useSelector } from "react-redux";
-import vetOption5 from "../../../assets/vet-option5.png";
+import CustomCalendar from "../../../components/appointments/CustomCalendar";
+import AppStorage from "../../../modules/AppStorage";
+import Loading from "../../../components/Loading";
+import { RenderUsers } from "../../../components/renders/RenderUsers";
+import { RenderServices } from "../../../components/renders/RenderServices";
+import { RenderPets } from "../../../components/renders/RenderPets";
+import momentTZ from "../../../utils/moment";
+
 
 const InfoServiceForDate = ({ route }) => {
-  console.log("route: ", route)
+  const { users, partnerId, partnerLocation, specialist } = route.params;
   const service = useSelector((state) => state?.appointment?.service);
-  const [isCheked, setIsChecked] = useState(false);
+
+  const [showCalendar, setShowCalendar] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingCalendar, setLoadingCalendar] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [availabilityDays, setAvailabilityDays] = useState([]);
   const [pets, stePets] = useState([]);
   const [infoDate, setInfoDate] = useState({
     date: "",
     time: "",
   });
+  const appStorage = new AppStorage();
+  const [specialistId, setSpecialistId] = useState();
 
-  const minimumDate = new Date(); // Fecha actual
-  minimumDate.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
+  const disabledSelectDate = useMemo(
+    () => !(specialistId && selectedPet && selectedServices),
+    [specialistId, selectedPet, selectedServices]
+  );
+
+  const formatDate = useMemo(() => {
+    if (!infoDate.date || !infoDate.time) return "";
+    const [startTime] = infoDate.time.split(" - ");
+    const dateTime = `${infoDate.date}T${startTime}`;
+    const formattedDate = momentTZ(dateTime).locale("es").format("dddd D [de] MMMM [de] YYYY, h:mm A");
+    return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  }, [infoDate]);
+  
 
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();
@@ -42,26 +56,11 @@ const InfoServiceForDate = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      if(route.params){
-        console.log("reseteo")
-        console.log("reseteo")
-        resetParams();
-      }
+      if (specialist) setSpecialistId(specialist.id);
       fetchPets();
-      return () => {};
-    }, [navigation])
+      return () => { };
+    }, [])
   );
-
-  const resetParams = () => {
-    scrollToTop()
-    setIsChecked(false);
-    setSelectedServices([])
-    setSelectedPet(null);
-    setInfoDate({
-      date: "",
-      time: "",
-    });
-  };
 
   const fetchPets = async () => {
     setLoading(true);
@@ -70,11 +69,15 @@ const InfoServiceForDate = ({ route }) => {
       stePets(response.data);
     } catch (error) {
       console.error("Error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `No pudimos acceder a tus mascotas, inténtalo de nuevo más tarde`,
+      });
+      navigation.goBack()
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const scrollToTop = () => {
-    scrollViewRef.current.scrollTo({ y: 0, animated: false });
   };
 
   const toggleServiceSelection = (service) => {
@@ -87,134 +90,143 @@ const InfoServiceForDate = ({ route }) => {
 
   const handleSelectPet = (pet) => setSelectedPet(pet);
 
-  const renderPets = (pet) => {
-    const isSelected = selectedPet?.id === pet.id;
-    return (
-      <TouchableOpacity onPress={() => handleSelectPet(pet)}>
-        <View
-          center
-          marginR-25
-          style={selectedPet && !isSelected && { opacity: 0.6 }}
-        >
-          <AnimatedImage
-            source={{ uri: pet?.picture }}
-            style={{
-              width: 70,
-              height: 70,
-              borderRadius: 64,
-              borderWidth: isSelected ? 3 : 0,
-              borderColor: isSelected ? Colors.primaryColor : "transparent",
-            }}
-            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-            animationDuration={500}
-            resizeMode="cover"
-          />
-          <Text color={isSelected && Colors.primaryColor} text70R>
-            {pet?.name}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const goToResume = () => {
-    console.log(infoDate)
+  const goToResume = async () => {
     if (
       infoDate.date == "" ||
       infoDate.time == "" ||
       selectedServices.length < 1 ||
-      !selectedPet
+      !selectedPet ||
+      !selectedServices ||
+      !specialistId
     ) {
       Toast.show({
         type: "error",
         text1: "Datos incompletos",
         text2: `Completa todos los campos`,
       });
-    } else{
-      dispatch(
-        addAppointment({
-          pet: selectedPet,
-          date: infoDate.date,
-          time: infoDate.time,
-          service: selectedServices,
-          partenerLocation: service.partenerLocation,
-        })
+    } else {
+      setLoading(true);
+      try {
+        const user = await appStorage.getUser();
+
+        const payload = {
+          appointment: {
+            partner_id: partnerId,
+            user_id: user.id,
+            name: user.name,
+            description: "",
+            date_service: infoDate.date,
+            appointment_pet_services_attributes: [],
+          },
+        };
+        selectedServices.forEach((service) => {
+          payload.appointment.appointment_pet_services_attributes.push({
+            pet_id: selectedPet.id,
+            service_id: service.id,
+            user_id: specialistId,
+            start_time: infoDate.time,
+          });
+        });
+
+        dispatch(
+          addAppointment({
+            pet: selectedPet,
+            date: infoDate.date,
+            time: infoDate.time,
+            service: selectedServices,
+            partenerLocation: partnerLocation,
+          })
+        );
+
+        navigation.navigate("Resume", { payload: payload });
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Ocurrió un error inesperado",
+          text2: `Intenta de nuevo más tarde`,
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  console.log("infoDate: ", infoDate)
+
+  const getCalendar = async () => {
+    setLoadingCalendar(true)
+    try {
+      const response = await apiFetcher.getAvailabilityDaysByPartnerId(
+        specialistId
       );
-    navigation.navigate("Resume");
-  }
+      setAvailabilityDays(response.available_days);
+      setShowCalendar(true);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error inesperado",
+        text2: `Intenta de nuevo más tarde`,
+      });
+      setShowCalendar(false);
+    } finally {
+      setLoadingCalendar(false)
+    }
   };
 
-  // Limites para las horas (no permitir horas entre las 8 PM y las 8 AM)
-  const isTimeAllowed = (selectedDate) => {
-    const hours = selectedDate.getHours();
-    return !(hours >= 20 || hours < 8); // 8 PM (20) a 8 AM (8)
-  };
-
-  const renderServices = (item) => {
-    const isChecked = selectedServices.includes(item);
-    return (
-      // <View style={styles.option}>
-      //   <View style={styles.mainContainer}>
-      //     <Text style={styles.title}>{item.name}</Text>
-      //     <View style={styles.imageContainer}>
-      //       <Image source={vetOption5} style={styles.image} />
-      //       <View style={{ width: "80%" }}>
-      //         <Text style={styles.description}>{item.description}</Text>
-      //         <View style={styles.priceContainer}>
-      //           <Text style={styles.price}>{item.price}</Text>
-      //         </View>
-      //       </View>
-      //     </View>
-      //   </View>
-      //   <View>
-      //     <Checkbox
-      //       color={Colors.primaryColor}
-      //       value={isChecked}
-      //       onValueChange={() => toggleServiceSelection(item)}
-      //     />
-      //   </View>
-      // </View>
-      <View row spread marginB-40>
-        <View>
-          <Text text70BO>{item?.name}</Text>
-          <View row spread gap-10 marginT-5>
-            <Image source={vetOption1} style={styles.image} />
-            <View>
-              <Text>{item?.description}</Text>
-              <View
-                center
-                padding-5
-                width={80}
-                marginT-10
-                style={styles.priceContainer}
-              >
-                <Text text90BO color={Colors.primaryColor}>
-                  ${item?.price}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View>
-          <Checkbox
-            color={Colors.primaryColor}
-            value={isChecked}
-            onValueChange={() => toggleServiceSelection(item)}
-          />
-        </View>
-      </View>
-    );
-  };
+  const closeModal = () => setShowCalendar(false);
 
   return (
     <View flex backgroundColor={Colors.white}>
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
       <ScrollView ref={scrollViewRef}>
         <View>
+          {specialist && (
+            <>
+              <View center margin-20>
+                <AnimatedImage
+                  source={{ uri: specialist?.picture }}
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 64,
+                  }}
+                  loader={
+                    <LoaderScreen color={Colors.primaryColor} size={35} />
+                  }
+                  animationDuration={500}
+                  resizeMode="cover"
+                />
+                <View marginT-10 center>
+                  <Text>{specialist?.display_name}</Text>
+                  <Text>Descripción pendiente</Text>
+                  <Text>Pendiente Céd. Prof. 123456</Text>
+                </View>
+              </View>
+              <View
+                margin-10
+                marginH-0
+                borderBottomWidth={0.3}
+                borderColor={Colors.gray}
+              />
+            </>
+          )}
+
           <View padding-16>
             <FlatList
               data={pets}
               horizontal={true}
-              renderItem={({ item }) => renderPets(item)}
+              renderItem={({ item }) => (
+                <RenderPets
+                  pet={item}
+                  selectedPet={selectedPet}
+                  handleSelectPet={handleSelectPet}
+                />
+              )}
               keyExtractor={(item) => item.id.toString()}
               showsHorizontalScrollIndicator={false}
             />
@@ -233,48 +245,65 @@ const InfoServiceForDate = ({ route }) => {
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={service}
-              renderItem={({ item }) => renderServices(item)}
+              renderItem={({ item }) => (
+                <RenderServices
+                  item={item}
+                  selectedServices={selectedServices}
+                  toggleServiceSelection={toggleServiceSelection}
+                />
+              )}
             />
           </View>
+          {!specialist && (
+            <View marginT-20 marginB-20>
+              <Text text70BO marginB-10>
+                Especialistas{" "}
+              </Text>
+              <FlatList
+                data={users}
+                horizontal={true}
+                renderItem={({ item }) => (
+                  <RenderUsers
+                    specialistId={specialistId}
+                    user={item}
+                    setSpecialistId={setSpecialistId}
+                  />
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                showsHorizontalScrollIndicator={false}
+              />
+            </View>
+          )}
           <View marginT-20 marginB-20>
             <Text text70BO>Fecha y hora</Text>
             <View>
-              <View row spread style={styles.textInput}>
-                <DateTimePicker
-                  minimumDate={minimumDate}
-                  style={{ height: 60, width: 300 }}
-                  placeholder={"Selecciona el día"}
-                  mode={"date"}
-                  onChange={(date) => setInfoDate({ ...infoDate, date: date })}
-                />
-                <Image
-                  source={require("../../../assets/calendar-icon-black.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View>
-              <View row spread style={styles.textInput}>
-                <DateTimePicker
-                  style={{ height: 60, width: 300 }}
-                  placeholder={"Selecciona una hora"}
-                  mode={"time"}
-                  onChange={(time) => {
-                    if (isTimeAllowed(time))
-                      setInfoDate({ ...infoDate, time: time });
-                    else
-                      Toast.show({
-                        type: "error",
-                        text1: "Hora inválida",
-                        text2: `Selecciona un hora válida`,
-                      });
-                  }}
-                />
-                <Image
-                  source={require("../../../assets/clock-icon-black.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View>
+              <TouchableOpacity
+                disabled={disabledSelectDate || loadingCalendar}
+                onPress={getCalendar}
+              >
+                {!loadingCalendar ?
+                  <View row spread style={styles.textInput}>
+                    <Text>{infoDate.date && infoDate.time ?
+                      formatDate
+                      : "Selecciona una fecha"}</Text>
+                  </View>
+                  :
+                  <View style={styles.textInput} center>
+                    <ActivityIndicator size="small" color={Colors.primaryColor} />
+                  </View>
+                }
+              </TouchableOpacity>
+            </View>
+            <View>
+              <CustomCalendar
+                showCalendar={showCalendar}
+                closeModal={closeModal}
+                setInfoDate={setInfoDate}
+                infoDate={infoDate}
+                availabilityDays={availabilityDays}
+                specialistId={specialistId}
+                selectedServices={selectedServices}
+              />
             </View>
           </View>
           <View flex bottom>
@@ -331,6 +360,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 60,
     marginTop: "5%",
+  },
+  personImage: {
+    height: 60,
+    width: 60,
+    borderRadius: 32,
   },
   saveButton: {
     width: "100%",

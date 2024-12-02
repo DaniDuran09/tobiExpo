@@ -1,24 +1,68 @@
 import { Image, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Recomendation from "../../../components/Recomendation";
 import ChallengeModal from "../../../components/ChallengeModal";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { calculateIdealWeight } from "../../../utils/scripts";
+import CorrectWeight from "../../../components/pet/CorrectWeight";
+import ApiFetcher from "../../../modules/ApiFetcher";
+import Loading from "../../../components/Loading";
 
 const Weight = (props) => {
   const { item } = props;
-  console.log("item: ", item);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pet, setPet] = useState({});
   const navigation = useNavigation();
-  const [challengeVisible, setChallengeVisible] = useState(false);
+  const [challengeVisible, setChallengeVisible] = useState();
+
+  const apiFetcher = new ApiFetcher();
+
   const closeModalChallenge = () => {
     setChallengeVisible(false);
   };
+
+  const rangeOne = pet?.ideal_weight?.from / 1000;
+  const rangeTwo = pet?.ideal_weight?.to / 1000;
+
+  const realWeight = calculateIdealWeight(rangeOne, rangeTwo, parseInt(pet?.weight));
+
+  const getPet = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getPetById(item.id);
+      setPet(response.data);
+    } catch (error) {
+      console.log("Error: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getPet();
+      return () => {};
+    }, [navigation])
+  );
+
+
+  useEffect(() => {
+    setSuccess(realWeight?.ideal);
+  }, [pet]);
+
   return (
     <ScrollView>
       <View style={styles.container}>
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
         <View style={styles.realWeightContainer}>
           <View style={styles.statusContainer}>
             <Image
@@ -27,11 +71,20 @@ const Weight = (props) => {
             />
             <Text style={styles.realText}>Real</Text>
           </View>
-          <Text style={styles.kgText}>
-            {parseInt(item.weight_status.weight)} kg
+          <Text
+            style={[styles.kgText, realWeight?.ideal && { color: Colors.green }]}
+          >
+            {parseInt(pet.weight)} kg
           </Text>
-          <Text style={styles.lastUpdate}>Último registro --.--.--</Text>
-          <TouchableOpacity style={styles.updateButton} onPress={() => {}}>
+          <Text style={styles.lastUpdate}>Último registro: {pet.weight_updated_at ? pet.weight_updated_at : "Sin fecha"}</Text>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={() =>
+              navigation.navigate("EditPet", {
+                id: item.id,
+              })
+            }
+          >
             <Text style={styles.updateTetx}>Actualizar peso real</Text>
           </TouchableOpacity>
         </View>
@@ -48,28 +101,12 @@ const Weight = (props) => {
               fontSize: 14,
               color: "black",
               fontWeight: "bold",
-              marginTop: 10
+              marginTop: 10,
             }}
-          >{`${item?.weight_status?.ideal_weight?.from / 1000} Kg - ${
-            item?.weight_status?.ideal_weight?.to / 1000
-          } Kg`}</Text>
-          <View style={styles.triangleContianer}>
-            <Icon name="triangle" size={20} color={Colors.red} />
-            <Text style={styles.weightPoints}>...</Text>
-          </View>
+          >{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
         </View>
         {success ? (
-          <View style={styles.successWeight}>
-            <View style={styles.successIconAndText}>
-              <Icon name="thumb-up-outline" size={20} color={Colors.green} />
-              <View>
-                <Text style={styles.goodText}>¡Bien hecho! </Text>
-                <Text style={styles.infoText}>
-                  Tu mascota está dentro del rango de su peso ideal.{" "}
-                </Text>
-              </View>
-            </View>
-          </View>
+          <CorrectWeight />
         ) : (
           <Recomendation
             title={"Recomendación"}
@@ -77,13 +114,14 @@ const Weight = (props) => {
               "Programa una cita con un especialista en nutrición para el cuidado de tu mascota."
             }
             setVisible={setChallengeVisible}
+            oneOption={true}
           />
         )}
         <ChallengeModal
           closeModalChallenge={closeModalChallenge}
           challengeVisible={challengeVisible}
           text={
-            "Te aconsejamos realizar la actividad recomendada para tu mascota."
+            "El bienestar de tu mascota es lo más importante. Consulta a un especialista para asegurarte de que esté en el rango ideal."
           }
         />
       </View>
@@ -148,26 +186,6 @@ const styles = StyleSheet.create({
   weightPoints: {
     marginLeft: 3,
     color: Colors.primaryColor,
-  },
-  successWeight: {
-    borderWidth: 1,
-    borderColor: Colors.green,
-    padding: 15,
-    borderRadius: 8,
-  },
-  successIconAndText: {
-    flexDirection: "row",
-    gap: 10,
-    width: "90%",
-  },
-  goodText: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 16,
-    fontWeight: "300",
   },
   containerInfo: {
     marginTop: 15,

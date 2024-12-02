@@ -10,6 +10,7 @@ import momentTZ from "../../../utils/moment";
 import { Text } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import Loading from "../../../components/Loading";
+import { format, parse } from "@formkit/tempo"
 
 const PetDate = ({ navigation, route }) => {
   const { pet } = route.params;
@@ -29,6 +30,7 @@ const PetDate = ({ navigation, route }) => {
     try {
       const response = await apiFetcher.getAppointmentsByPet(pet.id);
       if (response.data.length > 0) {
+        console.log("response: ", response.data)
         setAppointment(response.data);
         setExistAppointment(true);
       }
@@ -121,15 +123,14 @@ const PetDate = ({ navigation, route }) => {
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
-              <View style={styles.appointmentsList}>
-                <FlatList
-                  data={appointment}
-                  renderItem={({ item }) => renderItem(item)}
-                  keyExtractor={(item) => item.id}
-                  style={styles.flatList}
-                />
-              </View>
             </View>
+              <FlatList
+                data={appointment}
+                renderItem={({ item }) => renderItem(item)}
+                keyExtractor={(item) => item.id}
+                style={styles.flatList}
+              />
+
           </View>
         ) : (
           <NoDates />
@@ -145,11 +146,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    padding: 15,
+    
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    padding: 15,
   },
   petInfo: {
     marginLeft: "5%",
@@ -168,7 +170,7 @@ const styles = StyleSheet.create({
   },
   appointments: {
     marginTop: "10%",
-    padding: 5,
+    padding: 15,
   },
   appointmentContainer: {
     flexDirection: "row",
@@ -192,7 +194,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   appointmentsList: {
-    marginTop: 30,
+    marginTop: 10,
+    marginBottom: 10,
   },
   imageCalendar: {
     width: 24,
@@ -202,6 +205,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 25,
+    paddingHorizontal: 15
   },
   imageInfoContainer: {
     flexDirection: "row",

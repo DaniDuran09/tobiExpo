@@ -237,7 +237,7 @@ const EditMyPet = ({ route }) => {
             <TextInput
               placeholderTextColor="#000"
               style={styles.textInput}
-              value={petInfo.weight}
+              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ''}
               onChangeText={(value) =>
                 setPetInfo({ ...petInfo, weight: value })
               }
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
     flex: 1,
-    padd: 15,
+    paddingTop: 20,
   },
   photoContainer: {
     alignItems: "center",
