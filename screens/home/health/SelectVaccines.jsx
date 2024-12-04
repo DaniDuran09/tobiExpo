@@ -155,10 +155,12 @@ const SelectVaccines = (props) => {
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: momentTZ(vaccine.application_day).format("DD/MM/YYYY"),
+          application_day: momentTZ(vaccine.application_day).format(
+            "DD/MM/YYYY"
+          ),
           dose: 0,
           brand: vaccine.brand,
-          applied_by: vaccine.partner
+          applied_by: vaccine.partner,
         };
         try {
           console.log("La data a mandar: ", data);
@@ -188,10 +190,11 @@ const SelectVaccines = (props) => {
   };
 
   const handleSelectPartner = (name, vaccine) => {
-    setVaccines(prevVaccines =>
-      prevVaccines.map(v => (v.id === vaccine.id ? { ...v, partner: name } : v))
+    setVaccines((prevVaccines) =>
+      prevVaccines.map((v) =>
+        v.id === vaccine.id ? { ...v, partner: name } : v
+      )
     );
-    navigation.goBack();
     navigation.goBack();
   };
 
@@ -237,6 +240,7 @@ const SelectVaccines = (props) => {
                           <Text key={index}>· {subVaccine}</Text>
                         ))}
                       <DateTimePicker
+                        display="spinner"
                         style={[
                           styles.dateButton,
                           !vaccine.isChecked && { opacity: 0.5 },
@@ -282,9 +286,16 @@ const SelectVaccines = (props) => {
                           !vaccine.isChecked && { opacity: 0.5 },
                         ]}
                         disabled={!vaccine.isChecked}
-                        onPress={()=> navigation.navigate('SelectPartner', {action:handleSelectPartner, vaccine: vaccine })}
+                        onPress={() =>
+                          navigation.navigate("SelectPartner", {
+                            action: handleSelectPartner,
+                            vaccine: vaccine,
+                          })
+                        }
                       >
-                        <Text>{vaccine.partner ? vaccine.partner : "Aplicado por"}</Text>
+                        <Text>
+                          {vaccine.partner ? vaccine.partner : "Aplicado por"}
+                        </Text>
                       </TouchableOpacity>
                       {/* <View marginT-10>
                         <Text>Etiqueta</Text>

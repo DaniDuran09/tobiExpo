@@ -33,12 +33,14 @@ const ListPartners = ({ route }) => {
     return (
       <TouchableOpacity
         style={styles.elevation}
-        onPress={() =>
-          action
-            ? action(item.name, vaccine)
-            : goToCreateDate(item)
+        onPress={() =>{
+          if(action){
+            action(item.name, vaccine)
+            navigation.goBack()
+          }
+          else goToCreateDate(item)
 
-        }
+        }}
       >
         <Image
           source={{ uri: item.picture }}

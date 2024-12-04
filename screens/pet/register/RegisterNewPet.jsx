@@ -57,6 +57,8 @@ const RegisterNewPet = (props) => {
     dispatch(setPetInfo(updatedInfo));
   }, [name, date, gender]);
 
+  console.log("pet?.birtday: ", pet?.birtday)
+
   return (
     <View style={styles.container}>
       <HeaderTitle title={"Tu mascota | Quién es"} />
@@ -170,18 +172,21 @@ const RegisterNewPet = (props) => {
         </View>
         <View style={styles.birthdayContainer}>
           <DateTimePicker
+          display="spinner"
             style={[
               styles.birthdayContainer,
               { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
             ]}
             title={"Select date"}
-            placeholder={
-            ""
-            }
             mode={"date"}
             onChange={(selectedDate) => {
               setDate(selectedDate);
             }}
+            placeholder={
+              !pet?.birtday
+                ? "Fecha de nacimiento"
+                : `${pet?.birtday?.toLocaleDateString("es-us")}`
+            }
           />
 
           {/*

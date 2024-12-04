@@ -8,6 +8,7 @@ import { calculateIdealWeight } from "../../utils/scripts";
 import Icon from "react-native-vector-icons/Entypo";
 
 const RenderSections = ({ item }) => {
+    console.log("item: ", item)
   const calculateRemainingDays = (serviceDate, today) => {
     const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
 
@@ -49,8 +50,10 @@ const RenderSections = ({ item }) => {
     item?.weight_status?.weight
   );
 
+  console.log("rangeOne : ", rangeOne)
+
   const { service, remainingDays } = getServiceStatus(item);
-  
+
   return (
     <View>
       <View row centerV gap-10 marginB-10>
@@ -109,12 +112,12 @@ const RenderSections = ({ item }) => {
                 <Text
                   color={"red"}
                   text80BO
-                  style={realWeight.ideal && { color: Colors.green }}
+                  style={realWeight?.ideal && { color: Colors.green }}
                 >{`${item.weight} Kg`}</Text>
 
-                {!realWeight.ideal && (
+                {!realWeight?.ideal && (
                   <Icon
-                    name={realWeight.down ? "triangle-down" : "triangle-up"}
+                    name={realWeight?.down ? "triangle-down" : "triangle-up"}
                     color="red"
                     size={25}
                   />

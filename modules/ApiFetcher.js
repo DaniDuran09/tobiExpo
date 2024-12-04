@@ -34,8 +34,8 @@ class ApiFetcher {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
+      console.log("headers: ", headers)
       const response = await axios.get(url, { headers, timeout: 15000 });
-    console.log("headers: ", headers)
 
       return this.handleErrors(response);
     } catch (error) {
