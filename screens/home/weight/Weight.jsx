@@ -1,8 +1,6 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Image, StyleSheet, ScrollView} from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import { Colors } from "../../../styles/Colors";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Recomendation from "../../../components/Recomendation";
 import ChallengeModal from "../../../components/ChallengeModal";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -10,6 +8,7 @@ import { calculateIdealWeight } from "../../../utils/scripts";
 import CorrectWeight from "../../../components/pet/CorrectWeight";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Loading from "../../../components/Loading";
+import { View,Card,Text,TouchableOpacity } from "react-native-ui-lib";
 
 const Weight = (props) => {
   const { item } = props;
@@ -55,56 +54,44 @@ const Weight = (props) => {
   }, [pet]);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+     
       {loading && (
         <Loading
           textColor={Colors.primaryColor}
           backgroundColorProp={Colors.white}
         />
       )}
-        <View style={styles.realWeightContainer}>
-          <View style={styles.statusContainer}>
-            <Image
-              source={require("../../../assets/balance.png")}
-              style={styles.imageBalance}
-            />
-            <Text style={styles.realText}>Real</Text>
-          </View>
+        <CardInfo title="Real" image={require("../../../assets/balance.png")}>
           <Text
-            style={[styles.kgText, realWeight?.ideal && { color: Colors.green }]}
-          >
-            {parseInt(pet.weight)} kg
+            marginT-20
+            text60BO
+            color={realWeight?.ideal?Colors.green:Colors.primaryColor}                          
+            >
+              {parseInt(pet.weight)} kg
+            </Text>           
+            <Text marginT-25 style={styles.lastUpdate}>Último registro: {pet.weight_updated_at ? pet.weight_updated_at : "Sin fecha"}</Text>            
+
+            <TouchableOpacity
+              marginT-10              
+              onPress={() =>
+                navigation.navigate("EditPet", {
+                  id: item.id,
+                })
+              }
+            >
+              <Text underline style={styles.updateTetx}>Actualizar peso real</Text>            
+            </TouchableOpacity>
+        </CardInfo>
+
+        <CardInfo title="Rango ideal" image={require("../../../assets/balance.png")}>
+          <Text
+              marginT-10
+              text80BO              
+            >{`${rangeOne} Kg - ${rangeTwo} Kg`}
           </Text>
-          <Text style={styles.lastUpdate}>Último registro: {pet.weight_updated_at ? pet.weight_updated_at : "Sin fecha"}</Text>
-          <TouchableOpacity
-            style={styles.updateButton}
-            onPress={() =>
-              navigation.navigate("EditPet", {
-                id: item.id,
-              })
-            }
-          >
-            <Text style={styles.updateTetx}>Actualizar peso real</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.realWeightContainer}>
-          <View style={styles.statusContainer}>
-            <Image
-              source={require("../../../assets/balance.png")}
-              style={styles.imageBalance}
-            />
-            <Text style={styles.realText}>Rango ideal</Text>
-          </View>
-          <Text
-            style={{
-              fontSize: 14,
-              color: "black",
-              fontWeight: "bold",
-              marginTop: 10,
-            }}
-          >{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
-        </View>
+        </CardInfo>
+              
         {success ? (
           <CorrectWeight />
         ) : (
@@ -123,116 +110,53 @@ const Weight = (props) => {
           text={
             "El bienestar de tu mascota es lo más importante. Consulta a un especialista para asegurarte de que esté en el rango ideal."
           }
-        />
-      </View>
+        />      
     </ScrollView>
   );
 };
+
+const CardInfo = ({title,image,children})=>{
+  return (
+    <Card padding-15 br8 backgroundColor={Colors.mediumWhite} style={styles.realWeightContainer} >
+      <View row centerV>
+          <Image
+            source={image}
+            style={styles.imageBalance}                       
+          />
+          <Text text65 style={styles.realText}>{title}</Text>
+      </View>
+      {children}
+    </Card>
+  )
+}
 
 export default Weight;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    padding: 15,
+    flex: 1,    
   },
-  realWeightContainer: {
-    backgroundColor: Colors.mediumWhite,
-    padding: 15,
-    borderRadius: 8,
+  contentContainer:{
+    backgroundColor: Colors.white,
+    padding:15
+  },
+  realWeightContainer: {   
     marginBottom: "5%",
   },
   imageBalance: {
-    width: 20,
-    height: 20,
-  },
-  statusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+    width:20,
+    height:20,
+  }, 
   realText: {
     fontSize: 18,
     marginLeft: 10,
     fontWeight: "600",
   },
-  kgText: {
-    marginTop: 20,
-    fontSize: 20,
-    fontWeight: "700",
-    color: Colors.primaryColor,
-  },
-  lastUpdate: {
-    marginTop: 25,
+ 
+  lastUpdate: {    
     fontWeight: "300",
   },
-  updateButton: {
-    marginTop: 10,
-  },
   updateTetx: {
-    textDecorationLine: "underline",
     fontWeight: "500",
-  },
-  textWeight: {
-    marginTop: 25,
-    color: Colors.primaryColor,
-    marginLeft: 10,
-  },
-  triangleContianer: {
-    marginTop: 10,
-    flexDirection: "row",
-    alignItems: "flex-end",
-  },
-  weightPoints: {
-    marginLeft: 3,
-    color: Colors.primaryColor,
-  },
-  containerInfo: {
-    marginTop: 15,
-    backgroundColor: Colors.pink,
-    padding: 20,
-    borderRadius: 8,
-    flexDirection: "row",
-    gap: 15,
-  },
-  image: {
-    width: 140,
-    height: 180,
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  info: {
-    fontSize: 16,
-    marginTop: 12,
-    color: Colors.primaryColor,
-  },
-  priceContainer: {
-    borderWidth: 0.8,
-    borderColor: Colors.primaryColor,
-    marginTop: 12,
-    borderRadius: 4,
-    backgroundColor: Colors.white,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 8,
-  },
-  infoPrice: {
-    color: Colors.primaryColor,
-  },
-  button: {
-    marginTop: 12,
-  },
-  textButton: {
-    fontSize: 16,
-    textDecorationLine: "underline",
-  },
-  containerLetters: {
-    width: "50%",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    gap: 10,
   },
 });
