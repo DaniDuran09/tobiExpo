@@ -1,105 +1,34 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
-import { Colors } from "../../../styles/Colors";
-import { useNavigation } from "@react-navigation/native";
 import ChallengeModal from "../../../components/ChallengeModal";
 import Recomendation from "../../../components/Recomendation";
+import { View, Text } from "react-native-ui-lib";
 
 const Welfare = () => {
-  const navigation = useNavigation();
   const [challengeVisible, setChallengeVisible] = useState(false);
-  const closeModalChallenge = () => {
-    console.log("Me presiono")
-    setChallengeVisible(false);
-  };
+  const closeModalChallenge = () => setChallengeVisible(false);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
+    <View flex padding-10 marginT-10>
+      <Text text65BO marginB-15>
         ¿Con qué frecuencia debo bañar y asear a mi mascota?
       </Text>
-      <Text style={styles.text}>
+      <Text text70L>
         Para que tu mascota esté sana, felíz y limpia, considera por lo menos
         una vez por mes.
       </Text>
       <Recomendation
-            title={"GROOMING, SPA Y ESTÉTICA"}
-            info={
-              "¿Quieres programar un baño/aseo para tu mascota?"
-            }
-            setVisible={setChallengeVisible}
-          />
+        title={"GROOMING, SPA Y ESTÉTICA"}
+        info={"¿Quieres programar un baño/aseo para tu mascota?"}
+        setVisible={setChallengeVisible}
+      />
       <ChallengeModal
         closeModalChallenge={closeModalChallenge}
         challengeVisible={challengeVisible}
-        text={"En los días sin baño mantén el deslanado para evitar la formación de nudos."}
+        text={
+          "En los días sin baño mantén el deslanado para evitar la formación de nudos."
+        }
       />
     </View>
   );
 };
 
 export default Welfare;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    marginTop: "8%",
-    padding: 10
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 15,
-  },
-  text: {
-    fontSize: 16,
-    fontWeight: "300",
-  },
-  containerInfo: {
-    marginTop: 15,
-    backgroundColor: Colors.pink,
-    padding: 20,
-    borderRadius: 8,
-    flexDirection: "row",
-    gap: 15,
-  },
-  image: {
-    width: 140,
-    height: 180,
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  info: {
-    fontSize: 16,
-    marginTop: 12,
-    color: Colors.primaryColor,
-  },
-  priceContainer: {
-    borderWidth: 0.8,
-    borderColor: Colors.primaryColor,
-    marginTop: 12,
-    borderRadius: 4,
-    backgroundColor: Colors.white,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 8,
-  },
-  infoPrice: {
-    color: Colors.primaryColor,
-  },
-  button: {
-    marginTop: 12,
-  },
-  textButton: {
-    fontSize: 16,
-    textDecorationLine: "underline",
-  },
-  containerLetters: {
-    width: "50%",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-});
