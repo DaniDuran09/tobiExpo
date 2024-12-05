@@ -13,24 +13,18 @@ import ServiceOption from "../../components/ServiceOption";
 
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
-import AppStorage from "../../modules/AppStorage";
-import { getPartensId } from "../../services";
-// import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import ApiFetcher from "../../modules/ApiFetcher";
 import MapViewComponent from "./MapViewComponent";
-import { ActionSheet, Text, View } from "react-native-ui-lib";
+import { Text, View } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
 
-  const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
   const dispatch = useDispatch()
-
-  const partner = [{}, {}, {}, {}];
 
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -189,21 +183,7 @@ const PartnersGeneralInfo = ({ route }) => {
                 />
               </View>
               <Text style={styles.itemDirection}>Información adicional</Text>
-              <View style={styles.extraInfo}>
-                {/* <View style={styles.flexContain}>
-                  <Image
-                    source={require("../../assets/parking.png")}
-                    style={styles.icon}
-                    resizeMode={"cover"}
-                  />
-                  <View>
-                    <Text style={styles.itemTitle}>Estacionamiento</Text>
-                    <Text style={styles.itemDirection}>
-                      Estacionamiento en vía pública
-                    </Text>
-                  </View>
-                </View> */}
-
+              <View style={styles.extraInfo}>          
                 <View style={styles.flexContain}>
                   <Image
                     source={require("../../assets/phone-icon.png")}
