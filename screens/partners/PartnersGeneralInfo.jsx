@@ -20,6 +20,7 @@ import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 import { UserItem } from "../../components/UserItem";
 import { ServicesOptionsList } from "../../components/ServicesOptionsList";
+import PartnersContactInformation from "./PartnersContactInformation";
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
@@ -91,96 +92,69 @@ const PartnersGeneralInfo = ({ route }) => {
     );
   };
 
+  if(isLoading){
+    return (
+      <SafeAreaView style={styles.container}/>
+    )
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.containerAll}>
-        {isLoading ? (
-          <></>
-        ) : (
-          <>
-            <View style={styles.headerContainer}>
-              <Image
-                source={{ uri: partner.picture }}
-                style={styles.imageItem}
-                resizeMode="cover"
-              />
-              <TouchableOpacity
-                onPress={() => shareInfo(partner.latitude)}
-              >
-                <Image
-                  source={require("../../assets/share.png")}
-                  style={{ height: 25, width: 25, marginRight: 15 }}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.infoContainer}>
-              <Text style={styles.mainTitle}>{partner.name}</Text>
-              <Text style={styles.itemDirection}>{partnerLocation}</Text>
-            </View>
-            <View style={styles.servicesContainer}>
-              <Text style={styles.itemTitle}>Servicios</Text>             
-              <ServicesOptionsList 
-                services={services} 
-                partnerLocation={partnerLocation} 
-                users={users} 
-                partnerId={partner.partnerId}
-              />
-            </View>
-            <View style={styles.servicesContainer}>
-              <Text style={styles.itemTitle}>
-                {type == 2 ? "Especialistas" : "Estilistas"}
-              </Text>
-              <View
-                style={users.length != 0 ? styles.personsContainer : {}}
-              >
-                 <FlatList
-                      data={users}
-                      horizontal={true}
-                      renderItem={({ item }) => renderUsers(item)}
-                      keyExtractor={(item) => item.id.toString()}
-                      showsHorizontalScrollIndicator={false}
-                      ListEmptyComponent={()=>(
-                        <View style={styles.notServices}>
-                        <Text style={styles.itemDirection}>
-                          No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
-                          disponibles uwu
-                        </Text>
-                      </View>
-                      )}
-                    />
-              </View>
-            </View>
-            <View style={styles.servicesContainer}>
-              <Text style={styles.itemTitle}>Detalles</Text>
-              <Text style={styles.itemDirection}>Dirección</Text>
-              <View style={styles.mapCompanyContain}>
-                <MapViewComponent
-                  latitude={partner.latitude}
-                  longitude={partner.longitude}
-                  title={partner.name}
-                  description={partner.description}
-                />
-              </View>
-              <Text style={styles.itemDirection}>Información adicional</Text>
-              <View style={styles.extraInfo}>          
-                <View style={styles.flexContain}>
-                  <Image
-                    source={require("../../assets/phone-icon.png")}
-                    style={styles.icon}
-                    resizeMode={"cover"}
-                  />
-                  <View>
-                    <Text style={styles.itemTitle}>Teléfono</Text>
-                    <Text style={styles.itemDirection}>
-                      {partner.phone}
-                    </Text>
-                  </View>
+        <View style={styles.headerContainer}>
+            <Image
+              source={{ uri: partner.picture }}
+              style={styles.imageItem}
+              resizeMode="cover"
+            />
+            <TouchableOpacity
+              onPress={() => shareInfo(partner.latitude)}
+            >
+            <Image
+              source={require("../../assets/share.png")}
+              style={{ height: 25, width: 25, marginRight: 15 }}
+            />
+            </TouchableOpacity>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.mainTitle}>{partner.name}</Text>
+          <Text style={styles.itemDirection}>{partnerLocation}</Text>
+        </View>
+        <View style={styles.servicesContainer}>
+          <Text style={styles.itemTitle}>Servicios</Text>             
+          <ServicesOptionsList 
+            services={services} 
+            partnerLocation={partnerLocation} 
+            users={users} 
+            partnerId={partner.partnerId}
+          />
+        </View>
+        <View style={styles.servicesContainer}>
+          <Text style={styles.itemTitle}>
+            {type == 2 ? "Especialistas" : "Estilistas"}
+          </Text>
+          <View
+            style={users.length != 0 ? styles.personsContainer : {}}
+          >
+            <FlatList
+                data={users}
+                horizontal={true}
+                renderItem={({ item }) => renderUsers(item)}
+                keyExtractor={(item) => item.id.toString()}
+                showsHorizontalScrollIndicator={false}
+                ListEmptyComponent={()=>(
+                  <View style={styles.notServices}>
+                  <Text style={styles.itemDirection}>
+                    No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
+                    disponibles uwu
+                  </Text>
                 </View>
-              </View>
-            </View>
-          </>
-        )}
+                )}
+              />
+          </View>
+        </View>
+        <PartnersContactInformation partner={partner}/>
       </ScrollView>
     </SafeAreaView>
   );
