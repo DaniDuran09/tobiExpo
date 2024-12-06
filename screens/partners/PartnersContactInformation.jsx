@@ -1,14 +1,13 @@
-import {Text, Image} from "react-native-ui-lib"
-import { View,StyleSheet } from "react-native"
+import {Text, Image, View} from "react-native-ui-lib"
 import MapViewComponent from "./MapViewComponent"
 import { Colors } from "../../styles/Colors"
 
 export default function PartnersContactInformation({partner}) {
     return (
-        <View style={styles.servicesContainer}>
-            <Text style={styles.itemTitle}>Detalles</Text>
-            <Text style={styles.itemDirection}>Dirección</Text>
-            <View style={styles.mapCompanyContain}>
+        <View marginT-15 paddingB-20 style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.5}}>
+            <Text text50BO>Detalles</Text>
+            <Text text70 marginT-5 marginB-5 color={Colors.gray}>Dirección</Text>
+            <View centerH style={{maxHeight:240}}>
                 <MapViewComponent
                     latitude={partner.latitude}
                     longitude={partner.longitude}
@@ -16,17 +15,20 @@ export default function PartnersContactInformation({partner}) {
                     description={partner.description}
                 />
             </View>
-            <Text style={styles.itemDirection}>Información adicional</Text>
-            <View style={styles.extraInfo}>
-                <View style={styles.flexContain}>
+            <Text text70 marginT-5 color={Colors.gray}>Información adicional</Text>
+            <View marginT-20 >
+                <View row marginB-15>
                     <Image
-                        source={require("../../assets/phone-icon.png")}
-                        style={styles.icon}
-                        resizeMode={"cover"}
+                        source={require("../../assets/phone-icon.png")}                                            
+                        resizeMode={"cover"}                           
+                        width={30}
+                        height={30}
+                        marginR-15
+                        
                     />
                     <View>
-                        <Text style={styles.itemTitle}>Teléfono</Text>
-                        <Text style={styles.itemDirection}>
+                        <Text text60BO>Teléfono</Text>
+                        <Text text70 marginT-5 color={Colors.gray}>
                             {partner.phone}
                         </Text>
                     </View>
@@ -35,41 +37,3 @@ export default function PartnersContactInformation({partner}) {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    servicesContainer: {
-        marginTop: 15,
-        paddingBottom: 20,
-        borderBottomColor: Colors.gray,
-        borderBottomWidth: 0.5,
-    },
-    itemTitle: {
-        fontSize: 22,
-        fontWeight: "700",
-    },
-    itemDirection: {
-        fontSize: 15,
-        marginTop: 5,
-        color: Colors.gray,
-    },
-    mapContainer: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    extraInfo: {
-        marginTop: 20,
-    },
-    flexContain: {
-        flexDirection: "row",
-        marginBottom: 15,
-    },
-    icon: {
-        width: 30,
-        height: 30,
-        marginRight: 15,
-    },
-    mapCompanyContain: {
-        alignItems: "center",
-        maxHeight: 240,
-    },
-})
