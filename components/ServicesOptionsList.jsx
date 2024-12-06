@@ -1,13 +1,13 @@
-import { StyleSheet,View,Text } from "react-native"
 import { Colors } from "../styles/Colors"
 import ServiceOption from "./ServiceOption"
+import { Text, View } from "react-native-ui-lib"
 
 export function ServicesOptionsList({services=[],partnerLocation,users,partnerId}) {
 
     if(services.length == 0){
         return (
-            <View style={styles.notServices}>
-              <Text style={styles.itemDirection}>
+            <View marginT-10 center>
+              <Text text70 marginT-5 color={Colors.gray}>
                 No hay servicios disponibles actualmente
               </Text>
             </View>
@@ -15,7 +15,7 @@ export function ServicesOptionsList({services=[],partnerLocation,users,partnerId
     }
 
     return (
-        <View style={styles.optionsContainer}>
+        <View row marginT-10 style={{flexWrap:'wrap',gap:10}}>
             {services.map((service, index) => (
                 <ServiceOption
                     key={index}
@@ -32,20 +32,3 @@ export function ServicesOptionsList({services=[],partnerLocation,users,partnerId
 }
 
 
-const styles = StyleSheet.create({
-    notServices: {
-        marginTop: 10,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    itemDirection: {
-        fontSize: 15,
-        marginTop: 5,
-        color: Colors.gray,
-    },
-    optionsContainer: {
-        marginTop: 10,
-        flexDirection: "row",
-        flexWrap: "wrap",
-    },
-})

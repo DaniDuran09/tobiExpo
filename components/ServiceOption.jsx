@@ -1,20 +1,10 @@
-import { Image, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import { Image, StyleSheet } from "react-native";
+import React from "react";
 import { Colors } from "../styles/Colors";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import groomingOption1 from "../assets/grooming-option1.png";
-import groomingOption2 from "../assets/grooming-option2.png";
-import groomingOption3 from "../assets/grooming-option3.png";
-import groomingOption4 from "../assets/grooming-option4.png";
-import groomingOption5 from "../assets/grooming-option5.png";
-import groomingOption6 from "../assets/grooming-option6.png";
-import vetOption1 from "../assets/vet-option1.png";
-import vetOption2 from "../assets/vet-option2.png";
-import vetOption4 from "../assets/vet-option4.png";
-import vetOption5 from "../assets/vet-option5.png";
 import { useNavigation } from "@react-navigation/native";
 import { setServiceInfo } from "../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
+import { View,Text,TouchableOpacity } from "react-native-ui-lib";
 
 const ServiceOption = (props) => {
   const { service, picture, listService, users, partnerId, partnerLocation } = props;
@@ -31,11 +21,12 @@ const ServiceOption = (props) => {
   };
   return (
     <View style={styles.containerOption}>
-      <TouchableOpacity style={styles.button} onPress={goToCreateDate}>
-        <Text style={styles.text}>{service?.name}</Text>
+      <TouchableOpacity centerH onPress={goToCreateDate}>
+        <Text text80M color={Colors.black} center>{service?.name}</Text>
         <Image
-          source={{ uri: picture }}
-          style={styles.image}
+          source={{ uri: picture }}          
+          width={50}
+          height={50}
           resizeMode={"contain"}
         />
       </TouchableOpacity>
@@ -49,24 +40,8 @@ const styles = StyleSheet.create({
   containerOption: {
     borderColor: Colors.primaryColor,
     borderWidth: 2,
-    margin: 5,
-    marginTop: 10,
     width: "30%",
     borderRadius: 16,
-    justifyContent: "center",
-    padding: 5,
-  },
-  button: {
-    alignItems: "center",
-  },
-  image: {
-    height: 50,
-    width: 50,
-    marginTop: 5,
-  },
-  text: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+    padding: 5
+  }
 });
