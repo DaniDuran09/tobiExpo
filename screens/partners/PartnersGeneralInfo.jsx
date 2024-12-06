@@ -18,6 +18,8 @@ import MapViewComponent from "./MapViewComponent";
 import { Text, View } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
+import { UserItem } from "../../components/UserItem";
+import { ServicesOptionsList } from "../../components/ServicesOptionsList";
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
@@ -29,6 +31,11 @@ const PartnersGeneralInfo = ({ route }) => {
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
+  const services = item.services??[]
+  const users = item.users??[]
+  const partner = item.partner
+  const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
+
   useEffect(() => {
     dispatch(clearAppointments())
     getPartnerInfo();
@@ -37,6 +44,7 @@ const PartnersGeneralInfo = ({ route }) => {
   const getPartnerInfo = async () => {
     try {
       const partner = await apiFetcher.getPartnersById(id);
+      console.log(JSON.stringify(partner.data,null," "))
       // console.log("Si entro y regreso lo siguiente: ", partner.data)
       if (partner.code == 200 || partner.code == 201) setItem(partner.data);
       setIsLoading(false);
@@ -66,33 +74,23 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-
-
-  const renderUsers = (user) => {
+  const renderUsers= (user) => {
     return (
-      <TouchableOpacity
+      <UserItem
         onPress={() =>
           navigation.navigate("ListPartners", {
-            partnerId: item.partner.id,
-            partners: item.users,
-            services: item.services,
+            partnerId: partner.id,
+            partners: users,
+            services: services,
             partnerLocation: partnerLocation
           })
         }
-      >
-        <View center marginR-25>
-          <Image
-            source={{ uri: user.picture }}
-            style={styles.personImage}
-            resizeMode="cover"
-          />
-          <Text text70R>{user.display_name}</Text>
-        </View>
-      </TouchableOpacity>
+        picture={{uri:user.picture}}       
+        name={user.display_name}
+      />
     );
   };
 
-  const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -103,12 +101,12 @@ const PartnersGeneralInfo = ({ route }) => {
           <>
             <View style={styles.headerContainer}>
               <Image
-                source={{ uri: item.partner.picture }}
+                source={{ uri: partner.picture }}
                 style={styles.imageItem}
                 resizeMode="cover"
               />
               <TouchableOpacity
-                onPress={() => shareInfo(item.partner.latitude)}
+                onPress={() => shareInfo(partner.latitude)}
               >
                 <Image
                   source={require("../../assets/share.png")}
@@ -117,58 +115,40 @@ const PartnersGeneralInfo = ({ route }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.infoContainer}>
-              <Text style={styles.mainTitle}>{item.partner.name}</Text>
+              <Text style={styles.mainTitle}>{partner.name}</Text>
               <Text style={styles.itemDirection}>{partnerLocation}</Text>
             </View>
             <View style={styles.servicesContainer}>
-              <Text style={styles.itemTitle}>Servicios</Text>
-              {item.services.length == 0 ? (
-                <View style={styles.notServices}>
-                  <Text style={styles.itemDirection}>
-                    No hay servicios disponibles actualmente
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.optionsContainer}>
-                  {item.services.map((service, index) => (
-                    <ServiceOption
-                      key={index}
-                      picture={service.picture}
-                      service={service}
-                      partnerLocation={partnerLocation}
-                      listService={item.services}
-                      users={item.users}
-                      partnerId={item.partner.id}
-                    />
-                  ))}
-                </View>
-              )}
+              <Text style={styles.itemTitle}>Servicios</Text>             
+              <ServicesOptionsList 
+                services={services} 
+                partnerLocation={partnerLocation} 
+                users={users} 
+                partnerId={partner.partnerId}
+              />
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>
                 {type == 2 ? "Especialistas" : "Estilistas"}
               </Text>
               <View
-                style={item.users.length != 0 ? styles.personsContainer : {}}
+                style={users.length != 0 ? styles.personsContainer : {}}
               >
-                {item?.users?.length == 0 ? (
-                  <View style={styles.notServices}>
-                    <Text style={styles.itemDirection}>
-                      No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
-                      disponibles
-                    </Text>
-                  </View>
-                ) : (
-                  <>
-                    <FlatList
-                      data={item.users}
+                 <FlatList
+                      data={users}
                       horizontal={true}
                       renderItem={({ item }) => renderUsers(item)}
                       keyExtractor={(item) => item.id.toString()}
                       showsHorizontalScrollIndicator={false}
+                      ListEmptyComponent={()=>(
+                        <View style={styles.notServices}>
+                        <Text style={styles.itemDirection}>
+                          No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
+                          disponibles uwu
+                        </Text>
+                      </View>
+                      )}
                     />
-                  </>
-                )}
               </View>
             </View>
             <View style={styles.servicesContainer}>
@@ -176,10 +156,10 @@ const PartnersGeneralInfo = ({ route }) => {
               <Text style={styles.itemDirection}>Dirección</Text>
               <View style={styles.mapCompanyContain}>
                 <MapViewComponent
-                  latitude={item.partner.latitude}
-                  longitude={item.partner.longitude}
-                  title={item.partner.name}
-                  description={item.partner.description}
+                  latitude={partner.latitude}
+                  longitude={partner.longitude}
+                  title={partner.name}
+                  description={partner.description}
                 />
               </View>
               <Text style={styles.itemDirection}>Información adicional</Text>
@@ -193,7 +173,7 @@ const PartnersGeneralInfo = ({ route }) => {
                   <View>
                     <Text style={styles.itemTitle}>Teléfono</Text>
                     <Text style={styles.itemDirection}>
-                      {item.partner.phone}
+                      {partner.phone}
                     </Text>
                   </View>
                 </View>
@@ -217,12 +197,7 @@ const styles = StyleSheet.create({
     height: 90,
     width: 90,
     borderRadius: 11,
-  },
-  personImage: {
-    height: 60,
-    width: 60,
-    borderRadius: 32,
-  },
+  },  
   containerAll: {
     padding: 10,
   },
