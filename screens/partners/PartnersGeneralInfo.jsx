@@ -1,7 +1,5 @@
 import {
-  Image,
   ScrollView,
-  StyleSheet,
   Share,
   Alert,
   FlatList,
@@ -9,18 +7,17 @@ import {
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ServiceOption from "../../components/ServiceOption";
-
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
-import MapViewComponent from "./MapViewComponent";
-import { Text, View } from "react-native-ui-lib";
+import { Text, View, Image } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 import { UserItem } from "../../components/UserItem";
 import { ServicesOptionsList } from "../../components/ServicesOptionsList";
 import PartnersContactInformation from "./PartnersContactInformation";
+import Toast from 'react-native-toast-message';
+
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
@@ -51,7 +48,13 @@ const PartnersGeneralInfo = ({ route }) => {
       setIsLoading(false);
     } catch (error) {
       console.log("Error: ", error);
-      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
+      Toast.show(
+        {
+          type: 'error',
+          text1: 'Ha ocurrido un error',
+          text2: "Inténtelo de nuevo más tarde",
+        }
+      )      
     }
   };
 
@@ -94,18 +97,20 @@ const PartnersGeneralInfo = ({ route }) => {
 
   if(isLoading){
     return (
-      <SafeAreaView style={styles.container}/>
+      <SafeAreaView style={{flex: 1,backgroundColor: Colors.white}}/>
     )
   }
 
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.containerAll}>
-        <View style={styles.headerContainer}>
+    <SafeAreaView style={{flex: 1,backgroundColor: Colors.white,}}>
+      <ScrollView style={{padding:10}}>
+        <View row spread>
             <Image
               source={{ uri: partner.picture }}
-              style={styles.imageItem}
+              height={90}
+              width={90}
+              style={{borderRadius: 11}}
               resizeMode="cover"
             />
             <TouchableOpacity
@@ -113,16 +118,18 @@ const PartnersGeneralInfo = ({ route }) => {
             >
             <Image
               source={require("../../assets/share.png")}
-              style={{ height: 25, width: 25, marginRight: 15 }}
+              width={25}
+              height={25}
+              marginR-15              
             />
             </TouchableOpacity>
         </View>
-        <View style={styles.infoContainer}>
-          <Text style={styles.mainTitle}>{partner.name}</Text>
-          <Text style={styles.itemDirection}>{partnerLocation}</Text>
+        <View marginT-15 paddingB-40 style={{borderBottomColor: Colors.gray,borderBottomWidth: 0.5}}>
+          <Text text40H>{partner.name}</Text>
+          <Text text70 marginT-5 color={Colors.gray}>{partnerLocation}</Text>
         </View>
-        <View style={styles.servicesContainer}>
-          <Text style={styles.itemTitle}>Servicios</Text>             
+        <View marginT-15 paddingB-20 style={{borderBottomColor: Colors.gray,borderBottomWidth: 0.5}}>
+          <Text text60BO>Servicios</Text>             
           <ServicesOptionsList 
             services={services} 
             partnerLocation={partnerLocation} 
@@ -130,12 +137,12 @@ const PartnersGeneralInfo = ({ route }) => {
             partnerId={partner.partnerId}
           />
         </View>
-        <View style={styles.servicesContainer}>
-          <Text style={styles.itemTitle}>
+        <View marginT-15 paddingB-20 style={{borderBottomColor: Colors.gray,borderBottomWidth: 0.5}}>
+          <Text text60BO>
             {type == 2 ? "Especialistas" : "Estilistas"}
           </Text>
           <View
-            style={users.length != 0 ? styles.personsContainer : {}}
+            style={users.length != 0 ? {margin: 20,flexDirection: "row",justifyContent: "space-between"} : {}}
           >
             <FlatList
                 data={users}
@@ -144,10 +151,10 @@ const PartnersGeneralInfo = ({ route }) => {
                 keyExtractor={(item) => item.id.toString()}
                 showsHorizontalScrollIndicator={false}
                 ListEmptyComponent={()=>(
-                  <View style={styles.notServices}>
-                  <Text style={styles.itemDirection}>
+                  <View marginT-10 center>
+                  <Text text70 marginT-5 color={Colors.gray}>
                     No hay {type == 2 ? "especialistas" : "estilistas"}{" "}
-                    disponibles uwu
+                    disponibles
                   </Text>
                 </View>
                 )}
@@ -161,87 +168,3 @@ const PartnersGeneralInfo = ({ route }) => {
 };
 
 export default PartnersGeneralInfo;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  imageItem: {
-    height: 90,
-    width: 90,
-    borderRadius: 11,
-  },  
-  containerAll: {
-    padding: 10,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  mainTitle: {
-    fontSize: 30,
-    fontWeight: "800",
-  },
-  itemTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-  },
-  itemDirection: {
-    fontSize: 15,
-    marginTop: 5,
-    color: Colors.gray,
-  },
-  infoContainer: {
-    marginTop: 15,
-    paddingBottom: 40,
-    borderBottomColor: Colors.gray,
-    borderBottomWidth: 0.5,
-  },
-  servicesContainer: {
-    marginTop: 15,
-    paddingBottom: 20,
-    borderBottomColor: Colors.gray,
-    borderBottomWidth: 0.5,
-  },
-  optionsContainer: {
-    marginTop: 10,
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  personsContainer: {
-    margin: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  mapContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  map: {
-    marginTop: 10,
-    maxWidth: 400,
-    maxHeight: 200,
-  },
-  mapCompanyContain: {
-    alignItems: "center",
-    maxHeight: 240,
-  },
-  extraInfo: {
-    marginTop: 20,
-  },
-  flexContain: {
-    flexDirection: "row",
-    marginBottom: 15,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    marginRight: 15,
-  },
-  notServices: {
-    marginTop: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
