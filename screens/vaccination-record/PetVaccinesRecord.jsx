@@ -33,31 +33,31 @@ const PetVaccinesRecord = ({ route }) => {
     getPetInfo();
   }, []);
 
-  const getVaccinesToThisPet = async (completedVaccines) => {
-    console.log(completedVaccines);
-    try {
-      const response = await apiFetcher.getVaccines(id);
+  // const getVaccinesToThisPet = async (completedVaccines) => {
+  //   console.log(completedVaccines);
+  //   try {
+  //     const response = await apiFetcher.getVaccines(id);
 
-      setDewormingList(response.data.dewormers);
-      const allVaccines = response.data.vaccines;
-      const combinedVaccines = allVaccines.map((vaccine) => {
-        const completedVaccine = completedVaccines.find(
-          (completed) => completed.vaccine_id === vaccine.id
-        );
+  //     setDewormingList(response.data.dewormers);
+  //     const allVaccines = response.data.vaccines;
+  //     const combinedVaccines = allVaccines.map((vaccine) => {
+  //       const completedVaccine = completedVaccines.find(
+  //         (completed) => completed.vaccine_id === vaccine.id
+  //       );
 
-        return completedVaccine
-          ? { ...completedVaccine, isCompleted: true, name: vaccine.name }
-          : { ...vaccine, isCompleted: false };
-      });
+  //       return completedVaccine
+  //         ? { ...completedVaccine, isCompleted: true, name: vaccine.name }
+  //         : { ...vaccine, isCompleted: false };
+  //     });
 
-      console.log("combinedVaccines: ", combinedVaccines)
+  //     console.log("combinedVaccines: ", combinedVaccines)
 
-      setVaccinationList(combinedVaccines);
+  //     setVaccinationList(combinedVaccines);
 
-    } catch (error) {
-      console.error("Error fetching vaccines: ", error);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Error fetching vaccines: ", error);
+  //   }
+  // };
 
   const getPetInfo = async () => {
     setLoadData(true);
@@ -66,8 +66,10 @@ const PetVaccinesRecord = ({ route }) => {
       if (petResponse.code == 200) setPetInfo(petResponse.data);
       {
         const vaccinesResponse = await apiFetcher.getVaccinesRecords(id);
-        if (vaccinesResponse.data.length > 0) {
-          getVaccinesToThisPet(vaccinesResponse.data);
+        console.log("vaccinesResponse: ", vaccinesResponse.data);
+        if (vaccinesResponse.data.vaccines_records.length > 0) {
+          // getVaccinesToThisPet(vaccinesResponse.data);
+          setVaccinationList(vaccinesResponse.data.vaccines_records);
         }
       }
     } catch (error) {
@@ -82,6 +84,8 @@ const PetVaccinesRecord = ({ route }) => {
       setLoadData(false);
     }
   };
+
+  console.log("pet: ", petInfo)
 
   return (
     <View style={styles.container}>
@@ -104,7 +108,7 @@ const PetVaccinesRecord = ({ route }) => {
         <Text style={styles.petName}>{petInfo?.name}</Text>
         <Text style={styles.infoPet}>
           {petInfo?.age} años | {petInfo?.gender == "male" ? "Macho" : "Hembra"}{" "}
-          | Golden
+          | {petInfo?.pet_breed.name}
         </Text>
       </View>
       <View style={styles.selectContainer}>
@@ -126,18 +130,18 @@ const PetVaccinesRecord = ({ route }) => {
         </TouchableOpacity>
       </View>
       <Recomendation
-            title={"Recomendación"}
-            info={
-              "Programa una cita con un especialista para completar el esquema de salud de tu mascota."
-            }
-            oneOption={true}
-          />
+        title={"Recomendación"}
+        info={
+          "Programa una cita con un especialista para completar el esquema de salud de tu mascota."
+        }
+        oneOption={true}
+      />
       <FlatList
         data={vaccinationList}
         renderItem={(vaccine) => <VaccineCard info={vaccine} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
-        ListEmptyComponent={<EmptyVaccines />}
+        ListEmptyComponent={<EmptyVaccines text={'Registra las vacunas de tu mascota en la sección de SALUD'}/>}
       />
     </View>
   );

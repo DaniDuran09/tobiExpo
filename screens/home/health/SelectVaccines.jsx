@@ -24,7 +24,6 @@ import {
   View,
 } from "react-native-ui-lib";
 import momentTZ from "../../../utils/moment";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import ImageOption from "../../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 
@@ -346,7 +345,7 @@ const SelectVaccines = (props) => {
             </View>
           </>
         ) : (
-          <EmptyVaccines />
+          <EmptyVaccines text={'Aún no es necesario aplicar alguna vacuna a tu mascota'}/>
         )}
         <ImageOption
           visible={modalVisible}

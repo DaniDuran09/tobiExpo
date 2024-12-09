@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../styles/Colors";
 
 const Recomendation = ({
+  image = "",
   title = "",
   info = "",
   setVisible = false,
@@ -12,7 +13,10 @@ const Recomendation = ({
   const navigation = useNavigation();
   return (
     <View style={styles.containerInfo}>
-      <Image source={require("../assets/prueba.png")} style={styles.image} />
+      <Image
+        source={image ? image : require("../assets/prueba.png")}
+        style={styles.image}
+      />
       <View style={styles.containerLetters}>
         <Text style={styles.infoTitle}>{title}</Text>
         <Text style={styles.info}>{info}</Text>

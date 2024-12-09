@@ -1,10 +1,10 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
-const EmptyVaccines = () => {
+const EmptyVaccines = ({text}) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Aún no es necesario aplicar alguna vacuna a tu mascota</Text>
+      <Text style={styles.text}>{text}</Text>
     </View>
   );
 };

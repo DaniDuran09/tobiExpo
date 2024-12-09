@@ -8,7 +8,6 @@ import { calculateIdealWeight } from "../../utils/scripts";
 import Icon from "react-native-vector-icons/Entypo";
 
 const RenderSections = ({ item }) => {
-    console.log("item: ", item)
   const calculateRemainingDays = (serviceDate, today) => {
     const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
 
@@ -50,12 +49,10 @@ const RenderSections = ({ item }) => {
     item?.weight_status?.weight
   );
 
-  console.log("rangeOne : ", rangeOne)
-
   const { service, remainingDays } = getServiceStatus(item);
 
   return (
-    <View>
+    <View marginB-25>
       <View row centerV gap-10 marginB-10>
         <AnimatedImage
           source={{ uri: item?.picture }}

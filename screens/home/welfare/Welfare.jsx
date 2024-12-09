@@ -1,17 +1,18 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { Colors } from "../../../styles/Colors";
-import { useNavigation } from "@react-navigation/native";
 import ChallengeModal from "../../../components/ChallengeModal";
 import Recomendation from "../../../components/Recomendation";
+import Dog from "../../../assets/images/dog-image.png";
+import Cat from "../../../assets/images/cat-image.png";
 
-const Welfare = () => {
-  const navigation = useNavigation();
+const Welfare = ({ pet }) => {
+
   const [challengeVisible, setChallengeVisible] = useState(false);
   const closeModalChallenge = () => {
-    console.log("Me presiono")
     setChallengeVisible(false);
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
@@ -22,16 +23,17 @@ const Welfare = () => {
         una vez por mes.
       </Text>
       <Recomendation
-            title={"GROOMING, SPA Y ESTÉTICA"}
-            info={
-              "¿Quieres programar un baño/aseo para tu mascota?"
-            }
-            setVisible={setChallengeVisible}
-          />
+        image={pet?.pet_breed?.type_pet?.value == "cat" ? Cat : Dog}
+        title={"GROOMING, SPA Y ESTÉTICA"}
+        info={"¿Quieres programar un baño/aseo para tu mascota?"}
+        setVisible={setChallengeVisible}
+      />
       <ChallengeModal
         closeModalChallenge={closeModalChallenge}
         challengeVisible={challengeVisible}
-        text={"En los días sin baño mantén el deslanado para evitar la formación de nudos."}
+        text={
+          "En los días sin baño mantén el deslanado para evitar la formación de nudos."
+        }
       />
     </View>
   );
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: "8%",
-    padding: 10
+    padding: 10,
   },
   title: {
     fontSize: 18,

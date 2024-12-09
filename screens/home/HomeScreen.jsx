@@ -109,13 +109,12 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View center>
-        <View marginT-30>
+      <View center marginT-30>
+        
           {data.length > 0 ? (
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={data}
-              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               refreshControl={
                 <RefreshControl
                   refreshing={loading}
@@ -133,7 +132,7 @@ const HomeScreen = ({ navigation }) => {
             <NoPetsHome />
           )}
         </View>
-      </View>
+      
     </SafeAreaView>
   );
 };

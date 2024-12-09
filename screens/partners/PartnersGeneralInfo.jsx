@@ -18,9 +18,10 @@ import { getPartensId } from "../../services";
 // import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import ApiFetcher from "../../modules/ApiFetcher";
 import MapViewComponent from "./MapViewComponent";
-import { ActionSheet, Text, View } from "react-native-ui-lib";
+import { Text, View } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
+import { OpenDirectionMap } from "../../components/appointments/OpenDirection";
 
 const PartnersGeneralInfo = ({ route }) => {
   const { id, type } = route.params;
@@ -28,15 +29,16 @@ const PartnersGeneralInfo = ({ route }) => {
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const partner = [{}, {}, {}, {}];
 
   const [item, setItem] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [showActionSheet, setShowActionSheet] = useState(false);
 
   useEffect(() => {
-    dispatch(clearAppointments())
+    dispatch(clearAppointments());
     getPartnerInfo();
   }, []);
 
@@ -72,7 +74,9 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-
+  const handleDirections = () => {
+    setShowActionSheet(true);
+  };
 
   const renderUsers = (user) => {
     return (
@@ -82,7 +86,7 @@ const PartnersGeneralInfo = ({ route }) => {
             partnerId: item.partner.id,
             partners: item.users,
             services: item.services,
-            partnerLocation: partnerLocation
+            partnerLocation: partnerLocation,
           })
         }
       >
@@ -179,7 +183,9 @@ const PartnersGeneralInfo = ({ route }) => {
             </View>
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>Detalles</Text>
-              <Text style={styles.itemDirection}>Dirección</Text>
+              <TouchableOpacity onPress={handleDirections}>
+              <Text style={styles.changeDate}>Ver dirección</Text>
+              </TouchableOpacity>
               <View style={styles.mapCompanyContain}>
                 <MapViewComponent
                   latitude={item.partner.latitude}
@@ -221,6 +227,12 @@ const PartnersGeneralInfo = ({ route }) => {
             </View>
           </>
         )}
+        <OpenDirectionMap
+          latitude={item.partner.latitude}
+          longitude={item.partner.longitude}
+          setShowActionSheet={setShowActionSheet}
+          showActionSheet={showActionSheet}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -260,7 +272,7 @@ const styles = StyleSheet.create({
   },
   itemDirection: {
     fontSize: 15,
-    marginTop: 5,
+    marginVertical: 5,
     color: Colors.gray,
   },
   infoContainer: {
@@ -314,5 +326,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  changeDate: {
+    color: "#2269C5",
+    fontSize: 14,
+    fontWeight: "800",
+    marginVertical: 10
   },
 });

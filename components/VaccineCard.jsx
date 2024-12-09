@@ -22,7 +22,7 @@ const VaccineCard = (props) => {
       </LinearGradient>
       <View style={styles.infoContainer}>
         <Text style={styles.date}>Fecha de aplicación</Text>
-        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.application_day).format("DD.MM.YYYY") : "____________"}</Text>
+        <Text style={styles.dateText}>{info?.item?.applied ? momentTZ(info?.item?.application_day).format("DD.MM.YYYY") : "____________"}</Text>
       </View>
     </View>
     <View style={styles.sectionContainer}>
@@ -32,21 +32,21 @@ const VaccineCard = (props) => {
           {backgroundColor: Colors.white},
         ]}>
         <Text style={styles.dewormerName}>
-          Marca:{''} <Text style={{color: Colors.black}}>{info?.item?.isCompleted ? info?.item?.brand : "__________"}</Text>
+          Marca:{''} <Text style={{color: Colors.black}}>{info?.item?.applied ? info?.item?.brand : "__________"}</Text>
         </Text>
       </View>
       <View style={styles.infoContainer}>
         <Text style={styles.date}>Vencimiento</Text>
-        <Text style={styles.dateText}>{info?.item?.isCompleted ? momentTZ(info?.item?.next_dose).format("DD.MM.YYYY") : "____________"}</Text>
+        <Text style={styles.dateText}>{info?.item?.applied ? momentTZ(info?.item?.next_dose).format("DD.MM.YYYY") : "____________"}</Text>
       </View>
     </View>
     <View style={styles.iconContainer}>
       <SimpleLineIcons
-          name={info?.item?.isCompleted  ? "check" : "exclamation"}
+          name={info?.item?.applied  ? "check" : "exclamation"}
           size={20}
           color={Colors.gray}
           style={
-            info?.item?.isCompleted ? { color: Colors.green } : { color: Colors.red }
+            info?.item?.applied ? { color: Colors.green } : { color: Colors.red }
           }
         />
     </View>

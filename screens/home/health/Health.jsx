@@ -40,7 +40,6 @@ const Health = (props) => {
 
   const [isVaccinated, setIsVaccinated] = useState(false);
   const [completedVaccines, setCompletedVaccines] = useState([]);
-  
 
   const apiFetcher = new ApiFetcher();
 
@@ -49,14 +48,13 @@ const Health = (props) => {
   }, []);
 
   const getVaccionesInfo = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await apiFetcher.getVaccinesRecords(pet.id);
-      if(response.data.length > 0){
-        setIsVaccinated(true)
-        setCompletedVaccines(response.data)
-      }
-        else setIsVaccinated(false);
+      if (response.data.vaccines_records.length > 0) {
+        setIsVaccinated(true);
+        setCompletedVaccines(response.data);
+      } else setIsVaccinated(false);
     } catch (error) {
       console.log("Error al verificar las vacunas: ", error);
       Toast.show({
@@ -64,8 +62,8 @@ const Health = (props) => {
         text1: "Error al conseguir la información",
         text2: `Intente de nuevo más tarde`,
       });
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,9 +91,17 @@ const Health = (props) => {
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 5 }}>
-      {loading && <Loading textColor={Colors.primaryColor} backgroundColorProp={Colors.white}/>}
+      {loading && (
+        <Loading
+          textColor={Colors.primaryColor}
+          backgroundColorProp={Colors.white}
+        />
+      )}
       {isVaccinated ? (
-        <CompleteVaccinationList completedVaccines={completedVaccines} petId={pet.id}/>
+        <CompleteVaccinationList
+          completedVaccines={completedVaccines}
+          petId={pet.id}
+        />
       ) : (
         <View style={styles.container}>
           {!finishScreen ? (
@@ -114,9 +120,6 @@ const Health = (props) => {
                   ) : (
                     <SelectVaccines petId={pet.id} onSaveVaccines={nextStep} />
                   )}
-                  {/* {vaccineVisible && (
-                  
-                )} */}
                 </View>
               ) : (
                 <View>
@@ -188,20 +191,6 @@ const Health = (props) => {
                         style={styles.textInput}
                         onPress={() => setOpen(true)}
                       >
-                        {/* <DatePicker
-                        modal
-                        open={open}
-                        date={date}
-                        onConfirm={date => {
-                          setOpen(false);
-                        }}
-                        onCancel={() => {
-                          setOpen(false);
-                        }}
-                        locale={'es'}
-                        mode={'date'}
-                        title={'Elegir fecha'}
-                      /> */}
                         <Text style={styles.vaccineName}>
                           {data.date === ""
                             ? "Elegir fecha"
@@ -337,7 +326,10 @@ const Health = (props) => {
               />
             </>
           ) : (
-            <CompleteVaccinationList completedVaccines={completedVaccines} petId={pet.id}/>
+            <CompleteVaccinationList
+              completedVaccines={completedVaccines}
+              petId={pet.id}
+            />
           )}
         </View>
       )}

@@ -28,7 +28,7 @@ const HomeProfileDetails = ({ route }) => {
 
   const renderScene = SceneMap({
     first: () => <Health pet={item} />,
-    second: Welfare,
+    second:  () => <Welfare pet={item} />,
     three: () => <Weight item={item} />,
   });
 
