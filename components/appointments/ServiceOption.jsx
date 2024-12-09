@@ -1,8 +1,8 @@
 import { Image, StyleSheet } from "react-native";
 import React from "react";
-import { Colors } from "../styles/Colors";
+import { Colors } from "../../styles/Colors";
 import { useNavigation } from "@react-navigation/native";
-import { setServiceInfo } from "../redux/slice/appointmentSlice";
+import { setServiceInfo } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 import { View,Text,TouchableOpacity } from "react-native-ui-lib";
 
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryColor,
     borderWidth: 2,
     width: "30%",
+    height: "25%",
     borderRadius: 16,
     padding: 5
   }

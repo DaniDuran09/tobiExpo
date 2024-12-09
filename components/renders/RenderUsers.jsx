@@ -1,5 +1,5 @@
 import { Colors } from "../../styles/Colors";
-import { UserItem } from "../UserItem";
+import { UserItem } from "./UserItem";
 
   export const RenderUsers = ({user, specialistId, setSpecialistId}) => {
     const isSelected = specialistId == user.id
