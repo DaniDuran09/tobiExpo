@@ -26,7 +26,14 @@ const PartnersGeneralInfo = ({ route }) => {
 
   const services = item.services ?? [];
   const users = item.users ?? [];
-  const partner = item.partner;
+  const partner = item.partner ?? {
+    picture: null,
+    latitude: 0,
+    longitude: 0,
+    name: "",
+    id: ""
+  };
+
   const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
   useEffect(() => {
@@ -86,13 +93,16 @@ const PartnersGeneralInfo = ({ route }) => {
       )}
       <ScrollView style={{ padding: 10 }}>
         <View row spread>
-          <Image
-            source={{ uri: partner.picture }}
-            height={90}
-            width={90}
-            style={{ borderRadius: 11 }}
-            resizeMode="cover"
-          />
+          {
+            !isLoading &&
+            <Image
+              source={{ uri: partner.picture }}
+              height={90}
+              width={90}
+              style={{ borderRadius: 11 }}
+              resizeMode="cover"
+            />
+          }
           <TouchableOpacity onPress={() => shareInfo(partner.latitude)}>
             <Image
               source={require("../../assets/share.png")}
@@ -135,10 +145,10 @@ const PartnersGeneralInfo = ({ route }) => {
             style={
               users.length != 0
                 ? {
-                    margin: 20,
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }
+                  margin: 20,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }
                 : {}
             }
           >
