@@ -22,11 +22,12 @@ import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import CompleteVaccinationList from "../../../components/vaccines/CompleteVaccinationList";
 import Loading from "../../../components/Loading";
+import SelectDeworming from "./SelectDeworming";
 
 const Health = (props) => {
   const { pet } = props;
   const [vaccineVisible, setVaccineVisible] = useState(false);
-  const [deworming, setDeworming] = useState(false);
+  const [deworming, setDeworming] = useState(true);
   const [dewormingVisible, setDewormingVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = React.useState(false);
@@ -133,186 +134,127 @@ const Health = (props) => {
                       changeVisible={setDewormingVisible}
                     />
                   ) : (
-                    <View style={styles.containerSelectSection}>
-                      <Text style={styles.selectText}>
-                        1. ¿Con que frecuencia desparasitas a tu mascota?
-                      </Text>
-                      <View style={styles.containerVaccinesSections}>
-                        <Image
-                          source={despa}
-                          style={styles.vaccinesImage}
-                          resizeMode="contain"
-                        />
-                        <View>
-                          <View style={styles.vaccine}>
-                            <TouchableOpacity onPress={() => {}}>
-                              <Icon
-                                name="crop-square"
-                                size={25}
-                                color={Colors.gray}
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Text style={styles.vaccineName}>Mensual</Text>
-                            </View>
-                          </View>
-                          <View style={styles.vaccine}>
-                            <TouchableOpacity onPress={() => {}}>
-                              <Icon
-                                name="crop-square"
-                                size={25}
-                                color={Colors.gray}
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Text style={styles.vaccineName}>Trimestral</Text>
-                            </View>
-                          </View>
-                          <View style={styles.vaccine}>
-                            <TouchableOpacity onPress={() => {}}>
-                              <Icon
-                                name="crop-square"
-                                size={25}
-                                color={Colors.gray}
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Text style={styles.vaccineName}>
-                                No lo he desparasitado
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                      <Text style={styles.selectText}>
-                        2. ¿Cuándo fue la última desparasitación de tu mascota?
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.textInput}
-                        onPress={() => setOpen(true)}
-                      >
-                        <Text style={styles.vaccineName}>
-                          {data.date === ""
-                            ? "Elegir fecha"
-                            : `${data?.date.toLocaleDateString("es-us")}`}
-                        </Text>
-                      </TouchableOpacity>
-                      <Text style={styles.selectText}>3. ¿Qué tipo?</Text>
-                      <View style={styles.containerVaccinesSections}>
-                        <View style={styles.vaccinesImage} />
-                        <View>
-                          <View style={styles.vaccine}>
-                            <TouchableOpacity onPress={() => {}}>
-                              <Icon
-                                name="crop-square"
-                                size={25}
-                                color={Colors.gray}
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Text style={styles.vaccineName}>Interna</Text>
+                    // <View style={styles.containerSelectSection}>
+                    //   <Text style={styles.selectText}>
+                    //     1. ¿Con qué frecuencia desparasitas a tu mascota?
+                    //   </Text>
+                    //   <View style={styles.containerVaccinesSections}>
+                    //     <Image
+                    //       source={despa}
+                    //       style={styles.vaccinesImage}
+                    //       resizeMode="contain"
+                    //     />
+                    //     <View>
+                    //       <View style={styles.vaccine}>
+                    //         <TouchableOpacity onPress={() => {}}>
+                    //           <Icon
+                    //             name="crop-square"
+                    //             size={25}
+                    //             color={Colors.gray}
+                    //           />
+                    //         </TouchableOpacity>
+                    //         <View>
+                    //           <Text style={styles.vaccineName}>Mensual</Text>
+                    //         </View>
+                    //       </View>
+                    //       <View style={styles.vaccine}>
+                    //         <TouchableOpacity onPress={() => {}}>
+                    //           <Icon
+                    //             name="crop-square"
+                    //             size={25}
+                    //             color={Colors.gray}
+                    //           />
+                    //         </TouchableOpacity>
+                    //         <View>
+                    //           <Text style={styles.vaccineName}>Trimestral</Text>
+                    //         </View>
+                    //       </View>
+                    //       <View style={styles.vaccine}>
+                    //         <TouchableOpacity onPress={() => {}}>
+                    //           <Icon
+                    //             name="crop-square"
+                    //             size={25}
+                    //             color={Colors.gray}
+                    //           />
+                    //         </TouchableOpacity>
+                    //         <View>
+                    //           <Text style={styles.vaccineName}>
+                    //             No lo he desparasitado
+                    //           </Text>
+                    //         </View>
+                    //       </View>
+                    //     </View>
+                    //   </View>
+                    //   <Text style={styles.selectText}>
+                    //     2. ¿Cuándo fue la última desparasitación de tu mascota?
+                    //   </Text>
+                    //   <TouchableOpacity
+                    //     style={styles.textInput}
+                    //     onPress={() => setOpen(true)}
+                    //   >
+                    //     <Text style={styles.vaccineName}>
+                    //       {data.date === ""
+                    //         ? "Elegir fecha"
+                    //         : `${data?.date.toLocaleDateString("es-us")}`}
+                    //     </Text>
+                    //   </TouchableOpacity>
+                    //   <Text style={styles.selectText}>3. ¿Qué tipo?</Text>
+                    //   <View style={styles.containerVaccinesSections}>
+                    //     <View style={styles.vaccinesImage} />
+                    //     <View>
+                    //       <View style={styles.vaccine}>
+                    //         <TouchableOpacity onPress={() => {}}>
+                    //           <Icon
+                    //             name="crop-square"
+                    //             size={25}
+                    //             color={Colors.gray}
+                    //           />
+                    //         </TouchableOpacity>
+                    //         <View>
+                    //           <Text style={styles.vaccineName}>Interna</Text>
+                    //           <TouchableOpacity
+                    //             style={styles.dateButton}
+                    //             onPress={() => setFinishScreen(true)}
+                    //           >
+                    //             <Text style={styles.dateText}>
+                    //               Aplicado por
+                    //             </Text>
+                    //           </TouchableOpacity>
+                    //         </View>
+                    //       </View>
+                    //       <View style={styles.vaccine}>
+                    //         <TouchableOpacity onPress={() => {}}>
+                    //           <Icon
+                    //             name="crop-square"
+                    //             size={25}
+                    //             color={Colors.gray}
+                    //           />
+                    //         </TouchableOpacity>
+                    //         <View>
+                    //           <Text style={styles.vaccineName}>Externa</Text>
 
-                              <Dropdown
-                                style={[
-                                  styles.dateButton,
-                                  isFocus && { borderColor: "blue" },
-                                ]}
-                                placeholderStyle={styles.placeholderStyle}
-                                selectedTextStyle={styles.selectedTextStyle}
-                                iconStyle={styles.iconStyle}
-                                data={brand}
-                                maxHeight={300}
-                                labelField="label"
-                                valueField="value"
-                                placeholder={!isFocus ? "Marca" : "..."}
-                                value={value}
-                                onFocus={() => setIsFocus(true)}
-                                onBlur={() => setIsFocus(false)}
-                                onChange={(item) => {
-                                  setValue(item.value);
-                                  setIsFocus(false);
-                                }}
-                                // renderLeftIcon={() => (
-                                //   <AntDesign
-                                //     style={styles.icon}
-                                //     color={isFocus ? 'blue' : 'black'}
-                                //     name="Safety"
-                                //     size={20}
-                                //   />
-                                // )}
-                              />
-
-                              <TouchableOpacity
-                                style={styles.dateButton}
-                                onPress={() => setFinishScreen(true)}
-                              >
-                                <Text style={styles.dateText}>
-                                  Aplicado por
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                          <View style={styles.vaccine}>
-                            <TouchableOpacity onPress={() => {}}>
-                              <Icon
-                                name="crop-square"
-                                size={25}
-                                color={Colors.gray}
-                              />
-                            </TouchableOpacity>
-                            <View>
-                              <Text style={styles.vaccineName}>Externa</Text>
-
-                              <Dropdown
-                                style={[
-                                  styles.dateButton,
-                                  isFocus && { borderColor: "blue" },
-                                ]}
-                                placeholderStyle={styles.placeholderStyle}
-                                selectedTextStyle={styles.selectedTextStyle}
-                                iconStyle={styles.iconStyle}
-                                data={brand}
-                                maxHeight={300}
-                                labelField="label"
-                                valueField="value"
-                                placeholder={!isFocus ? "Marca" : "..."}
-                                value={value}
-                                onFocus={() => setIsFocus(true)}
-                                onBlur={() => setIsFocus(false)}
-                                onChange={(item) => {
-                                  setValue(item.value);
-                                  setIsFocus(false);
-                                }}
-                                // renderLeftIcon={() => (
-                                //   <AntDesign
-                                //     style={styles.icon}
-                                //     color={isFocus ? 'blue' : 'black'}
-                                //     name="Safety"
-                                //     size={20}
-                                //   />
-                                // )}
-                              />
-                              <TouchableOpacity
-                                style={styles.dateButton}
-                                onPress={() => {}}
-                              >
-                                <Text style={styles.dateText}>
-                                  Aplicado por
-                                </Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                      <View style={styles.buttonContainer}>
-                        <TouchableOpacity
-                          style={styles.button}
-                          onPress={() => getVaccionesInfo()}
-                        >
-                          <Text style={styles.textButton}>Confirmar</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
+                    //           <TouchableOpacity
+                    //             style={styles.dateButton}
+                    //             onPress={() => {}}
+                    //           >
+                    //             <Text style={styles.dateText}>
+                    //               Aplicado por
+                    //             </Text>
+                    //           </TouchableOpacity>
+                    //         </View>
+                    //       </View>
+                    //     </View>
+                    //   </View>
+                    //   <View style={styles.buttonContainer}>
+                    //     <TouchableOpacity
+                    //       style={styles.button}
+                    //       onPress={() => getVaccionesInfo()}
+                    //     >
+                    //       <Text style={styles.textButton}>Confirmar</Text>
+                    //     </TouchableOpacity>
+                    //   </View>
+                    // </View>
+                    <SelectDeworming/>
                   )}
                 </View>
               )}

@@ -20,6 +20,7 @@ import {
   Checkbox,
   DateTimePicker,
   Picker,
+  RadioButton,
   Text,
   View,
 } from "react-native-ui-lib";
@@ -151,12 +152,11 @@ const SelectVaccines = (props) => {
         setSaveLoading(false);
         break;
       } else {
+        console.log("vaccine.application_day: ", vaccine.application_day);
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: momentTZ(vaccine.application_day).format(
-            "DD/MM/YYYY"
-          ),
+          application_day: vaccine.application_day,
           dose: 0,
           brand: vaccine.brand,
           applied_by: vaccine.partner,
@@ -218,7 +218,21 @@ const SelectVaccines = (props) => {
                 {vaccines.map((vaccine) => (
                   <View key={vaccine.id} style={styles.vaccine}>
                     <View style={{ marginTop: 5 }}>
-                      <Checkbox
+                      <RadioButton
+                        label={""}
+                        color={Colors.primaryColor}
+                        selected={vaccine.isChecked}
+                        onPress={(checked) => {
+                          setVaccines(
+                            vaccines.map((v) =>
+                              v.id === vaccine.id
+                                ? { ...v, isChecked: checked }
+                                : v
+                            )
+                          );
+                        }}
+                      />
+                      {/* <Checkbox
                         color={Colors.primaryColor}
                         value={vaccine.isChecked}
                         onValueChange={(checked) => {
@@ -230,7 +244,7 @@ const SelectVaccines = (props) => {
                             )
                           );
                         }}
-                      />
+                      /> */}
                     </View>
                     <View>
                       <Text style={styles.vaccineName}>{vaccine.name}</Text>
@@ -345,7 +359,9 @@ const SelectVaccines = (props) => {
             </View>
           </>
         ) : (
-          <EmptyVaccines text={'Aún no es necesario aplicar alguna vacuna a tu mascota'}/>
+          <EmptyVaccines
+            text={"Aún no es necesario aplicar alguna vacuna a tu mascota"}
+          />
         )}
         <ImageOption
           visible={modalVisible}

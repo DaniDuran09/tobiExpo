@@ -228,8 +228,8 @@ const PartnersGeneralInfo = ({ route }) => {
           </>
         )}
         <OpenDirectionMap
-          latitude={item.partner.latitude}
-          longitude={item.partner.longitude}
+          latitude={item?.partner?.latitude}
+          longitude={item?.partner?.longitude}
           setShowActionSheet={setShowActionSheet}
           showActionSheet={showActionSheet}
         />
