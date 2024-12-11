@@ -19,18 +19,23 @@ const FinalScreenRegisterPet = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permisos insuficientes",
-          "Se necesitan permisos para acceder a la biblioteca de imágenes."
-        );
-      }
+      
     })();
-  }, []);
+  }, []);*/
+  const getPermissionsLibrary = async () => {
+    const { status } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permisos insuficientes",
+        "Se necesitan permisos para acceder a la biblioteca de imágenes."
+      );
+    } 
+      else selectImageFromLibrary()
+    
+  }
 
   const closeModal = () => {
     setModalVisible(false);
@@ -60,7 +65,7 @@ const FinalScreenRegisterPet = (props) => {
   };
 
   const takePhoto = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Permisos insuficientes",
@@ -120,7 +125,7 @@ const FinalScreenRegisterPet = (props) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
+        selectImageFromLibrary={getPermissionsLibrary}
         takePhoto={takePhoto}
       />
     </View>

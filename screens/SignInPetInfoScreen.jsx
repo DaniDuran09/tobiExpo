@@ -23,10 +23,11 @@ const SignInPetInfoScreen = props => {
   const [selectedActivity, setSelectedActivity] = useState(1);
   const dispatch = useDispatch();
 
-  const {pet, user} = props;
+  const {pet, user, setData} = props;
   console.log('props: ',pet)
 
   const [check, setCheck] = useState(false);
+  const [weight, setWeight] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
@@ -40,6 +41,7 @@ const SignInPetInfoScreen = props => {
       pet: [
         {
           ...pet,
+          weight: weight,
           activity_level_id: selectedActivity,
           pet_breed_id: selectedBrand.id,
           sterilized: check,
@@ -47,7 +49,8 @@ const SignInPetInfoScreen = props => {
       ],
     };
     dispatch(setUserInfo(updatedInfo));
-  }, [check, selectedBrand]);
+    setData({...pet, weight: weight})
+  }, [check, selectedBrand, weight]);
 
   const goToSearchItem = async type => {
     navigation.navigate('SearchItem', {
@@ -164,7 +167,7 @@ const SignInPetInfoScreen = props => {
                 style={styles.textInput}
                 autoCapitalize="none"
                 keyboardType="numeric"
-                onChangeText={val => (pet.weight = val)}
+                onChangeText={val => setWeight(val)}
               />
 
               <View style={[styles.textInput]}>
