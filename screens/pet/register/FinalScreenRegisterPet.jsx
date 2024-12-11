@@ -28,13 +28,23 @@ const FinalScreenRegisterPet = (props) => {
     const { status } =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
+      requestPermissionsLibrary()
       Alert.alert(
         "Permisos insuficientes",
         "Se necesitan permisos para acceder a la biblioteca de imágenes."
       );
     } 
       else selectImageFromLibrary()
-    
+  }
+  const requestPermissionsLibrary = async () => {
+    const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (status !== "granted") {
+      Alert.alert(
+        "Permisos insuficientes",
+        "Se necesitan permisos para acceder a la biblioteca de imágenes."
+      );
+    } 
+      else getPermissionsLibrary()
   }
 
   const closeModal = () => {
@@ -63,6 +73,25 @@ const FinalScreenRegisterPet = (props) => {
       console.log("Error: ", error);
     }
   };
+  const getPermissionsCamera = async () => {
+    const {status} = await ImagePicker.getCameraPermissionsAsync()
+    if (status !== "granted") {
+      requestPermissionsCamera();
+      Alert.alert(
+        "Permisos insuficientes",
+        "Se necesitan permisos para acceder a la cámara."
+      );
+    }else takePhoto()
+  }
+  const requestPermissionsCamera = async () => {
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+    if (status !== "granted") {
+      Alert.alert(
+        "Permisos insuficientes",
+        "Se necesitan permisos para acceder a la cámara."
+      );
+    }else getPermissionsCamera()
+  }
 
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -81,7 +110,7 @@ const FinalScreenRegisterPet = (props) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
@@ -126,7 +155,7 @@ const FinalScreenRegisterPet = (props) => {
         visible={modalVisible}
         closeModal={closeModal}
         selectImageFromLibrary={getPermissionsLibrary}
-        takePhoto={takePhoto}
+        takePhoto={getPermissionsCamera}
       />
     </View>
   );

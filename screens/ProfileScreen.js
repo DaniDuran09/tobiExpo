@@ -64,6 +64,30 @@ const ProfileScreen = ({ route, navigation }) => {
   //     }
   //   })();
   // }, []);
+const getLibraryPermission = async () => {
+  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+  console.log('STATUS LIBRARY',status)
+  if (status !== "granted") {
+    requestLibraryPermissions()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else selectImageFromLibrary()
+}
+const requestLibraryPermissions = async () => {
+  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+  if (status !== "granted") {
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else getLibraryPermission()
+}
 
   const selectImageFromLibrary = async () => {
     try {
@@ -74,7 +98,7 @@ const ProfileScreen = ({ route, navigation }) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
@@ -88,6 +112,32 @@ const ProfileScreen = ({ route, navigation }) => {
     }
   };
 
+  const getCameraPermission = async () => {
+    const {status} = await ImagePicker.getCameraPermissionsAsync()
+    console.log('STATUS ',status)
+  if (status !== "granted") {
+    requestCameraPermissions()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else takePhoto()
+  }
+  
+  const requestCameraPermissions = async () =>{
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+  if (status !== "granted") {
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else getCameraPermission()
+  }
+
   const takePhoto = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
@@ -96,7 +146,7 @@ const ProfileScreen = ({ route, navigation }) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
@@ -342,8 +392,8 @@ const ProfileScreen = ({ route, navigation }) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
-        takePhoto={takePhoto}
+        selectImageFromLibrary={getLibraryPermission}
+        takePhoto={getCameraPermission}
       />
     </View>
   );
