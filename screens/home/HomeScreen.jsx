@@ -93,7 +93,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
-      <View row gap-15 paddingH-15 marginT-20>
+      <View row gap-15 paddingH-15 marginT-30>
         <Avatar.Image
           source={{
             uri: userData.picture,

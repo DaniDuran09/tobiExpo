@@ -14,7 +14,8 @@ const CompleteVaccinationList = (props) => {
   const apiFetcher = new ApiFetcher();
 
   useEffect(() => {
-    if (completedVaccines && completedVaccines.length > 0 && petId) {
+    console.log("first")
+    if (completedVaccines && petId) {
       getVaccinesToThisPet();
     }
   }, [completedVaccines, petId]);
@@ -26,18 +27,13 @@ const CompleteVaccinationList = (props) => {
       );
 
       setDewormingList(response.data.dewormers)
-      const allVaccines = response.data.vaccines;
-      const combinedVaccines = allVaccines.map((vaccine) => {
-        const completedVaccine = completedVaccines.find(
-          (completed) => completed.vaccine_id === vaccine.id
-        );
-
-        return completedVaccine
-          ? { ...completedVaccine, isCompleted: true, name: vaccine.name }
-          : { ...vaccine, isCompleted: false };
-      });
-
-      setVaccinationList(combinedVaccines);
+      const vaccinesResponse = await apiFetcher.getVaccinesRecords(petId);
+      console.log("vaccinesResponse: ", vaccinesResponse.data);
+      if (vaccinesResponse.data.vaccines_records.length > 0) {
+        // getVaccinesToThisPet(vaccinesResponse.data);
+        console.log("vaccinesResponse.data.vaccines_records: ", vaccinesResponse.data.vaccines_records)
+        setVaccinationList(vaccinesResponse.data.vaccines_records);
+      }
     } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }

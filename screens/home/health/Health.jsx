@@ -254,7 +254,11 @@ const Health = (props) => {
                     //     </TouchableOpacity>
                     //   </View>
                     // </View>
-                    <SelectDeworming/>
+                    <SelectDeworming petId={pet.id} action={()=>{
+                      setFinishScreen(true)
+                      setChallengeVisible(true)
+                    }}
+                      />
                   )}
                 </View>
               )}
