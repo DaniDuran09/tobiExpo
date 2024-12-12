@@ -49,7 +49,7 @@ const EditMyPet = ({ route }) => {
     getPetInfo();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -60,8 +60,48 @@ const EditMyPet = ({ route }) => {
         );
       }
     })();
-  }, []);
+  }, []);*/
+const getPermissionsCamera = async () => {
+  const {status} = await ImagePicker.getCameraPermissionsAsync();
+  console.log('STATUS --- ',status)
+  if (status !== "granted") {
+    requestPermissionsCamera()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la camara.`,
+    });
+  } 
+    else takePhoto()
+}
 
+  const requestLibraryPermissions = async () => {
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+    if (status !== "granted") {
+      closeModal()
+      Toast.show({
+        type: "error",
+        text2:`Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } 
+      else getPermissionsLibrary()
+  }
+
+  const getPermissionsLibrary = async () => {
+    const { status } =
+      await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      requestLibraryPermissions()
+      Toast.show({
+        type: "error",
+        text2:`Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } 
+      else selectImageFromLibrary()
+    
+  }
   const getPetInfo = async () => {
     setLoadData(true);
     try {
@@ -70,7 +110,11 @@ const EditMyPet = ({ route }) => {
       else console.log("Algo salió mal");
     } catch (error) {
       console.log("Error: ", error);
-      Alert.alert("Ocurrió un error", "Intenta de nuevo más tarde");
+      Toast.show({
+        type: "error",
+        text1: "No se pudo cargar la foto",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
       navigation.goBack();
     } finally {
       setLoadData(false);
@@ -88,7 +132,7 @@ const EditMyPet = ({ route }) => {
 
       if (!result.canceled) {
         console.log("result; ", result.assets[0]);
-        setImageSource(result.assets[0]);
+        setImageSource(result.assets[0].uri);
         closeModal();
       }
     } catch (error) {
@@ -101,25 +145,40 @@ const EditMyPet = ({ route }) => {
     }
   };
 
+  const requestPermissionsCamera = async () => {
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+    if (status !== "granted") {
+      closeModal()
+      Toast.show({
+        type: "error",
+        text2:`Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la camara.`,
+      });
+    } 
+      else getPermissionsCamera()
+  }
+
   const takePhoto = async () => {
+    console.log("llego a takephoto")
     try {
+      console.log("entro al try")
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-
+      console.log('RESULT ',result)
       if (!result.canceled) {
-        setImageSource(result[0].uri);
+        setImageSource(result.assets[0].uri);
         closeModal();
       }
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "No se pudo tomar la foto",
-        text2: `Inténtalo de nuevo más tarde`,
-      });
-      console.log("Error: ", error);
+      // Toast.show({
+      //   type: "error",
+      //   text1: "No se pudo tomar la foto",
+      //   text2: `Inténtalo de nuevo más tarde`,
+      // });
+      console.error("Error: ", error);
     }
   };
 
@@ -207,7 +266,7 @@ const EditMyPet = ({ route }) => {
             <Image
               source={
                 imageSource
-                  ? { uri: imageSource.uri }
+                  ? { uri: imageSource }
                   : { uri: petInfo.picture }
               }
               style={styles.image}
@@ -275,8 +334,8 @@ const EditMyPet = ({ route }) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
-        takePhoto={takePhoto}
+        selectImageFromLibrary={getPermissionsLibrary}
+        takePhoto={getPermissionsCamera}
       />
     </SafeAreaView>
   );

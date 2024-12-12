@@ -39,7 +39,7 @@ const ProfileEditUser = ({ route, navigation }) => {
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -50,7 +50,31 @@ const ProfileEditUser = ({ route, navigation }) => {
         );
       }
     })();
-  }, []);
+  }, []);*/
+  const getLibraryPermission = async () => {
+    const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+    console.log('STATUS LIBRARY',status)
+    if (status !== "granted") {
+      requestLibraryPermissions()
+      Toast.show({
+        type: "error",
+        text2:`Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } 
+      else selectImageFromLibrary()
+  }
+  const requestLibraryPermissions = async () => {
+    const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text2:`Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } 
+      else getLibraryPermission()
+  }
 
   const selectImageFromLibrary = async () => {
     try {
@@ -74,6 +98,31 @@ const ProfileEditUser = ({ route, navigation }) => {
       console.log("Error: ", error);
     }
   };
+  const getCameraPermission = async () => {
+    const {status} = await ImagePicker.getCameraPermissionsAsync()
+    console.log('STATUS ',status)
+  if (status !== "granted") {
+    requestCameraPermissions()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else takePhoto()
+  }
+  
+  const requestCameraPermissions = async () =>{
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+  if (status !== "granted") {
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else getCameraPermission()
+  }
 
   const takePhoto = async () => {
     try {
@@ -400,8 +449,8 @@ const ProfileEditUser = ({ route, navigation }) => {
         <ImageOption
           visible={modalVisible}
           closeModal={closeModal}
-          selectImageFromLibrary={selectImageFromLibrary}
-          takePhoto={takePhoto}
+          selectImageFromLibrary={getLibraryPermission}
+          takePhoto={getCameraPermission}
         />
       </SafeAreaView>
     </>

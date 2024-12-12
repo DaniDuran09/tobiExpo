@@ -112,6 +112,7 @@ const UserStepsRegister = () => {
   };
 
   const validThirdScreen = () => {
+    console.log("NO ES VALIDO: ", data.weight)
     if (data.pet_breed_id != 0 && data.weight != 0) {
       return true;
     } else {
@@ -132,7 +133,7 @@ const UserStepsRegister = () => {
       
       
       console.log('newUserInfo :',newUserInfo)
-      const response = await apiFetcher.registerUser(newUserInfo);
+      const response = await apiFetcher.registerUser(userInfo);
       console.log("Response: ", response);
       if (response.code != 200 && response.code != 201) {
         Toast.show({
@@ -227,7 +228,7 @@ const UserStepsRegister = () => {
       case 1:
         return <SignInPetScreen user={user} data={data} setData={setData} />;
       case 2:
-        return <SignInPetInfoScreen pet={data} user={user} />;
+        return <SignInPetInfoScreen pet={data} setData={setData}  user={user} />;
       case 3:
         return (
           <FinalScreenRegisterPet
