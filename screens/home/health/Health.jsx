@@ -27,7 +27,7 @@ import SelectDeworming from "./SelectDeworming";
 const Health = (props) => {
   const { pet } = props;
   const [vaccineVisible, setVaccineVisible] = useState(false);
-  const [deworming, setDeworming] = useState(true);
+  const [deworming, setDeworming] = useState(false);
   const [dewormingVisible, setDewormingVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = React.useState(false);

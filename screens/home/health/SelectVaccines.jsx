@@ -152,12 +152,12 @@ const SelectVaccines = (props) => {
         setSaveLoading(false);
         break;
       } else {
-        console.log("vaccine.application_day: ", vaccine.application_day);
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
           application_day: vaccine.application_day,
           dose: 0,
+          applied: true,
           brand: vaccine.brand,
           applied_by: vaccine.partner,
         };
@@ -218,7 +218,7 @@ const SelectVaccines = (props) => {
                 {vaccines.map((vaccine) => (
                   <View key={vaccine.id} style={styles.vaccine}>
                     <View style={{ marginTop: 5 }}>
-                      <RadioButton
+                      {/* <RadioButton
                         label={""}
                         color={Colors.primaryColor}
                         selected={vaccine.isChecked}
@@ -231,8 +231,8 @@ const SelectVaccines = (props) => {
                             )
                           );
                         }}
-                      />
-                      {/* <Checkbox
+                      /> */}
+                      <Checkbox
                         color={Colors.primaryColor}
                         value={vaccine.isChecked}
                         onValueChange={(checked) => {
@@ -244,7 +244,7 @@ const SelectVaccines = (props) => {
                             )
                           );
                         }}
-                      /> */}
+                      />
                     </View>
                     <View>
                       <Text style={styles.vaccineName}>{vaccine.name}</Text>

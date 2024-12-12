@@ -85,6 +85,11 @@ const SelectDeworming = ({ petId }) => {
       };
       const response = await apiFetcher.saveDewormer(payload)
       console.log("response: ", response)
+      Toast.show({
+        type: "success",
+        text1: "Desparacitación guardada",
+        text2: `Se guardó la desparacitación con éxito`,
+      });
     } catch (error) {
       Toast.show({
         type: "error",

@@ -8,13 +8,12 @@ import momentTZ from "../../utils/moment";
 
 const CompleteVaccinationList = (props) => {
   const { completedVaccines, petId } = props;
-  const [vaccinationList, setVaccinationList] = useState([]);
+  const [vaccinationList, setVaccinationList] = useState({ applied: [], notApplied: [] });
   const [dewormingList, setDewormingList] = useState([]);
 
   const apiFetcher = new ApiFetcher();
 
   useEffect(() => {
-    console.log("first")
     if (completedVaccines && petId) {
       getVaccinesToThisPet();
     }
@@ -22,19 +21,23 @@ const CompleteVaccinationList = (props) => {
 
   const getVaccinesToThisPet = async () => {
     try {
-      const response = await apiFetcher.getVaccines(
-        petId
-      );
-
-      setDewormingList(response.data.dewormers)
+      const response = await apiFetcher.getVaccines(petId);
       const vaccinesResponse = await apiFetcher.getVaccinesRecords(petId);
-      console.log("vaccinesResponse: ", vaccinesResponse.data);
+
       if (vaccinesResponse.data.vaccines_records.length > 0) {
-        // getVaccinesToThisPet(vaccinesResponse.data);
-        console.log("vaccinesResponse.data.vaccines_records: ", vaccinesResponse.data.vaccines_records)
-        setVaccinationList(vaccinesResponse.data.vaccines_records);
+        setVaccinationList({
+          applied: vaccinesResponse.data.vaccines_records.map((vaccine) => ({
+            ...vaccine,
+            isCompleted: true,
+          })),
+          notApplied: vaccinesResponse.data.vaccines_expired.map((vaccine) => ({
+            ...vaccine,
+            isCompleted: false,
+          })),
+        });
+        setDewormingList(response.data.dewormers_records);
       }
-    } catch (error) {
+    }  catch (error) {
       console.error("Error fetching vaccines: ", error);
     }
   };
@@ -45,18 +48,47 @@ const CompleteVaccinationList = (props) => {
         <SimpleLineIcons
           name={item.isCompleted ? "check" : "close"}
           size={20}
-          color={Colors.gray}
-          style={
-            item.isCompleted ? { color: Colors.green } : { color: Colors.red }
-          }
+          style={{
+            color: item.isCompleted ? Colors.green : Colors.red,
+          }}
         />
         <View>
-        <Text text70>{item.name}</Text>
-        <Text text90L>{item.isCompleted ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}` : "Vencida"}</Text>
+          <Text text70>{item.name}</Text>
+          <Text text90L>
+            {item.isCompleted
+              ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}`
+              : "No aplicada"}
+          </Text>
         </View>
       </View>
     );
   };
+
+  const renderDerwomers = ({ item }) => {
+
+    console.log("item: ", item)
+    return (
+      <View padding-10 row gap-10 centerV>
+        <SimpleLineIcons
+          name={item.isCompleted ? "check" : "close"}
+          size={20}
+          style={{
+            // color: item.isCompleted ? Colors.green : Colors.red,
+          }}
+        />
+        <View>
+          <Text text70>{item.name}</Text>
+          <Text text90L>
+            {/* {item.isCompleted
+              ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}`
+              : "No aplicada"} */}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  
   return (
     <View flex marginT-10 padding-10>
       <View backgroundColor={Colors.lightBlue} br20 padding-15>
@@ -76,7 +108,11 @@ const CompleteVaccinationList = (props) => {
           />
         </View>
         <View>
-          <FlatList data={vaccinationList} renderItem={renderItem} />
+        <FlatList
+          data={[...vaccinationList.applied, ...vaccinationList.notApplied]} // Combinamos ambas listas
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()} // Asegúrate de que cada vacuna tenga un `id`
+        />
         </View>
       </View>
       <View backgroundColor={Colors.lightBlue} br20 padding-15 marginT-20>
@@ -96,7 +132,7 @@ const CompleteVaccinationList = (props) => {
           />
         </View>
         <View>
-          <FlatList data={dewormingList} renderItem={renderItem} />
+          <FlatList data={dewormingList} renderItem={renderDerwomers} />
         </View>
       </View>
     </View>

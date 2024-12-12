@@ -219,7 +219,9 @@ const LoginScreen = ({ navigation }) => {
             flexDirection: "row",
           }}
         >
-          <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ForgotPassword")}
+          >
             <Text
               style={{
                 fontSize: 14,

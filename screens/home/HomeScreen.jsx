@@ -109,7 +109,7 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View center marginT-30>
+      <View center marginT-30 marginB-90>
         
           {data.length > 0 ? (
             <FlatList
