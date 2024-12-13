@@ -1,282 +1,146 @@
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ScrollView,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { StyleSheet, View, ScrollView } from "react-native";
 import { Colors } from "../../../styles/Colors";
 import SelectVaccines from "./SelectVaccines";
 import InformationView from "./InformationView";
 import vaccineImage from "../../../assets/vet-option1.png";
 import dewormingImage from "../../../assets/vet-option2.png";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import despa from "../../../assets/despa-black.png";
 import ChallengeModal from "../../../components/ChallengeModal";
-import FinishScreen from "./FinishScreen";
-import { Dropdown } from "react-native-element-dropdown";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import CompleteVaccinationList from "../../../components/vaccines/CompleteVaccinationList";
 import Loading from "../../../components/Loading";
 import SelectDeworming from "./SelectDeworming";
 
-const Health = (props) => {
-  const { pet } = props;
-  const [vaccineVisible, setVaccineVisible] = useState(false);
-  const [deworming, setDeworming] = useState(false);
-  const [dewormingVisible, setDewormingVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [open, setOpen] = React.useState(false);
-  const [data, setData] = React.useState({
-    date: "",
+const Health = ({ pet }) => {
+  const [state, setState] = useState({
+    vaccineVisible: false,
+    deworming: false,
+    dewormingVisible: false,
+    loading: true,
+    challengeVisible: false,
+    finishScreen: false,
+    isVaccinated: false,
+    completedVaccines: [],
   });
-  const [value, setValue] = useState(null);
-  const [isFocus, setIsFocus] = useState(false);
-  const [challengeVisible, setChallengeVisible] = useState(false);
-  const [finishScreen, setFinishScreen] = useState(false);
 
-  const [isVaccinated, setIsVaccinated] = useState(false);
-  const [completedVaccines, setCompletedVaccines] = useState([]);
+  const [challengeModalText, setChallengeModalText] = useState("");
 
   const apiFetcher = new ApiFetcher();
 
-  useEffect(() => {
-    getVaccionesInfo();
-  }, []);
-
-  const getVaccionesInfo = async () => {
-    setLoading(true);
+  const getVaccinesInfo = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
     try {
       const response = await apiFetcher.getVaccinesRecords(pet.id);
-      if (response.data.vaccines_records.length > 0) {
-        setIsVaccinated(true);
-        setCompletedVaccines(response.data);
-      } else setIsVaccinated(false);
+      if (response.data.vaccines_expired.length > 0)
+        setChallengeModalText(
+          "Sabemos que a veces se olvidan algunas cosas, nosotros te ayudamos a completar el esquema de salud de tu mascota."
+        );
+      else
+        setChallengeModalText(
+          "¡Muy bien! El esquema de salud de tu mascota está completo."
+        );
+      const isVaccinated = response.data.vaccines_records.length > 0;
+      setState((prev) => ({
+        ...prev,
+        isVaccinated,
+        completedVaccines: isVaccinated ? response.data : [],
+      }));
     } catch (error) {
-      console.log("Error al verificar las vacunas: ", error);
+      console.error("Error al verificar las vacunas: ", error);
       Toast.show({
         type: "error",
         text1: "Error al conseguir la información",
-        text2: `Intente de nuevo más tarde`,
+        text2: "Intente de nuevo más tarde",
       });
     } finally {
-      setLoading(false);
+      setState((prev) => ({ ...prev, loading: false }));
     }
-  };
+  }, [pet.id]);
 
-  const brand = [
-    { label: "Item 1", value: "1" },
-    { label: "Item 2", value: "2" },
-    { label: "Item 3", value: "3" },
-    { label: "Item 4", value: "4" },
-    { label: "Item 5", value: "5" },
-    { label: "Item 6", value: "6" },
-    { label: "Item 7", value: "7" },
-    { label: "Item 8", value: "8" },
-  ];
+  useEffect(() => {
+    getVaccinesInfo();
+  }, [getVaccinesInfo]);
 
-  const closeModalChallenge = () => {
-    setFinishScreen(true);
-    setChallengeVisible(false);
-  };
+  const handleNextStep = () =>
+    setState((prev) => ({ ...prev, deworming: true, challengeVisible: false }));
 
-  const nextStep = () => {
-    setDeworming(true);
-    // setFinishScreen(true);
-    setChallengeVisible(false);
-  };
+  const closeModalChallenge = () =>
+    setState((prev) => ({
+      ...prev,
+      finishScreen: true,
+      challengeVisible: false,
+    }));
+
+  const {
+    vaccineVisible,
+    deworming,
+    dewormingVisible,
+    loading,
+    challengeVisible,
+    finishScreen,
+    isVaccinated,
+    completedVaccines,
+  } = state;
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 5 }}>
+    <ScrollView contentContainerStyle={styles.mainContent}>
       {loading && (
         <Loading
           textColor={Colors.primaryColor}
           backgroundColorProp={Colors.white}
         />
       )}
-      {isVaccinated ? (
+      {isVaccinated || !finishScreen ? (
         <CompleteVaccinationList
           completedVaccines={completedVaccines}
           petId={pet.id}
         />
       ) : (
         <View style={styles.container}>
-          {!finishScreen ? (
-            <>
-              {!deworming ? (
-                <View>
-                  {!vaccineVisible ? (
-                    <InformationView
-                      image={vaccineImage}
-                      text={
-                        "Te ayudamos a tener tu mascota sana. Completa el esquema de salud para darle seguimiento. "
-                      }
-                      type={"vacunas"}
-                      changeVisible={setVaccineVisible}
-                    />
-                  ) : (
-                    <SelectVaccines petId={pet.id} onSaveVaccines={nextStep} />
-                  )}
-                </View>
-              ) : (
-                <View>
-                  {!dewormingVisible ? (
-                    <InformationView
-                      image={dewormingImage}
-                      text={
-                        "La desparasitación es esencial para reducir los parásitos internos y externos de tu mascota. Completa el registro para darle seguimiento."
-                      }
-                      type={"desparacitación"}
-                      changeVisible={setDewormingVisible}
-                    />
-                  ) : (
-                    // <View style={styles.containerSelectSection}>
-                    //   <Text style={styles.selectText}>
-                    //     1. ¿Con qué frecuencia desparasitas a tu mascota?
-                    //   </Text>
-                    //   <View style={styles.containerVaccinesSections}>
-                    //     <Image
-                    //       source={despa}
-                    //       style={styles.vaccinesImage}
-                    //       resizeMode="contain"
-                    //     />
-                    //     <View>
-                    //       <View style={styles.vaccine}>
-                    //         <TouchableOpacity onPress={() => {}}>
-                    //           <Icon
-                    //             name="crop-square"
-                    //             size={25}
-                    //             color={Colors.gray}
-                    //           />
-                    //         </TouchableOpacity>
-                    //         <View>
-                    //           <Text style={styles.vaccineName}>Mensual</Text>
-                    //         </View>
-                    //       </View>
-                    //       <View style={styles.vaccine}>
-                    //         <TouchableOpacity onPress={() => {}}>
-                    //           <Icon
-                    //             name="crop-square"
-                    //             size={25}
-                    //             color={Colors.gray}
-                    //           />
-                    //         </TouchableOpacity>
-                    //         <View>
-                    //           <Text style={styles.vaccineName}>Trimestral</Text>
-                    //         </View>
-                    //       </View>
-                    //       <View style={styles.vaccine}>
-                    //         <TouchableOpacity onPress={() => {}}>
-                    //           <Icon
-                    //             name="crop-square"
-                    //             size={25}
-                    //             color={Colors.gray}
-                    //           />
-                    //         </TouchableOpacity>
-                    //         <View>
-                    //           <Text style={styles.vaccineName}>
-                    //             No lo he desparasitado
-                    //           </Text>
-                    //         </View>
-                    //       </View>
-                    //     </View>
-                    //   </View>
-                    //   <Text style={styles.selectText}>
-                    //     2. ¿Cuándo fue la última desparasitación de tu mascota?
-                    //   </Text>
-                    //   <TouchableOpacity
-                    //     style={styles.textInput}
-                    //     onPress={() => setOpen(true)}
-                    //   >
-                    //     <Text style={styles.vaccineName}>
-                    //       {data.date === ""
-                    //         ? "Elegir fecha"
-                    //         : `${data?.date.toLocaleDateString("es-us")}`}
-                    //     </Text>
-                    //   </TouchableOpacity>
-                    //   <Text style={styles.selectText}>3. ¿Qué tipo?</Text>
-                    //   <View style={styles.containerVaccinesSections}>
-                    //     <View style={styles.vaccinesImage} />
-                    //     <View>
-                    //       <View style={styles.vaccine}>
-                    //         <TouchableOpacity onPress={() => {}}>
-                    //           <Icon
-                    //             name="crop-square"
-                    //             size={25}
-                    //             color={Colors.gray}
-                    //           />
-                    //         </TouchableOpacity>
-                    //         <View>
-                    //           <Text style={styles.vaccineName}>Interna</Text>
-                    //           <TouchableOpacity
-                    //             style={styles.dateButton}
-                    //             onPress={() => setFinishScreen(true)}
-                    //           >
-                    //             <Text style={styles.dateText}>
-                    //               Aplicado por
-                    //             </Text>
-                    //           </TouchableOpacity>
-                    //         </View>
-                    //       </View>
-                    //       <View style={styles.vaccine}>
-                    //         <TouchableOpacity onPress={() => {}}>
-                    //           <Icon
-                    //             name="crop-square"
-                    //             size={25}
-                    //             color={Colors.gray}
-                    //           />
-                    //         </TouchableOpacity>
-                    //         <View>
-                    //           <Text style={styles.vaccineName}>Externa</Text>
-
-                    //           <TouchableOpacity
-                    //             style={styles.dateButton}
-                    //             onPress={() => {}}
-                    //           >
-                    //             <Text style={styles.dateText}>
-                    //               Aplicado por
-                    //             </Text>
-                    //           </TouchableOpacity>
-                    //         </View>
-                    //       </View>
-                    //     </View>
-                    //   </View>
-                    //   <View style={styles.buttonContainer}>
-                    //     <TouchableOpacity
-                    //       style={styles.button}
-                    //       onPress={() => getVaccionesInfo()}
-                    //     >
-                    //       <Text style={styles.textButton}>Confirmar</Text>
-                    //     </TouchableOpacity>
-                    //   </View>
-                    // </View>
-                    <SelectDeworming petId={pet.id} action={()=>{
-                      setFinishScreen(true)
-                      setChallengeVisible(true)
-                    }}
-                      />
-                  )}
-                </View>
-              )}
-
-              <ChallengeModal
-                closeModalChallenge={closeModalChallenge}
-                challengeVisible={challengeVisible}
+          {!deworming ? (
+            vaccineVisible ? (
+              <SelectVaccines petId={pet.id} onSaveVaccines={handleNextStep} />
+            ) : (
+              <InformationView
+                image={vaccineImage}
                 text={
-                  "¡Muy bien! El esquema de salud de tu mascota está completo."
+                  "Te ayudamos a tener tu mascota sana. Completa el esquema de salud para darle seguimiento."
+                }
+                type="vacunas"
+                changeVisible={(visible) =>
+                  setState((prev) => ({ ...prev, vaccineVisible: visible }))
                 }
               />
-            </>
-          ) : (
-            <CompleteVaccinationList
-              completedVaccines={completedVaccines}
+            )
+          ) : dewormingVisible ? (
+            <SelectDeworming
               petId={pet.id}
+              action={() =>
+                setState((prev) => ({
+                  ...prev,
+                  finishScreen: true,
+                  challengeVisible: true,
+                }))
+              }
+            />
+          ) : (
+            <InformationView
+              image={dewormingImage}
+              text={
+                "La desparasitación es esencial para reducir los parásitos internos y externos de tu mascota. Completa el registro para darle seguimiento."
+              }
+              type="desparacitación"
+              changeVisible={(visible) =>
+                setState((prev) => ({ ...prev, dewormingVisible: visible }))
+              }
             />
           )}
+          <ChallengeModal
+            closeModalChallenge={closeModalChallenge}
+            challengeVisible={challengeVisible}
+            text={challengeModalText}
+          />
         </View>
       )}
     </ScrollView>
@@ -290,70 +154,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
   },
-  selectText: {
-    fontSize: 14,
-  },
-  buttonContainer: {
-    marginTop: "10%",
-  },
-  button: {
-    borderWidth: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 60,
-    borderColor: Colors.primaryColor,
-  },
-  textButton: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: Colors.primaryColor,
-  },
   mainContent: {
     flexGrow: 1,
-  },
-
-  containerSelectSection: {
-    marginTop: "10%",
-  },
-  containerVaccinesSections: {
-    marginTop: "5%",
-    backgroundColor: Colors.lightBlue,
-    padding: 10,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 25,
-  },
-  vaccinesImage: {
-    height: 30,
-    width: 30,
-    marginTop: 10,
-    marginLeft: 10,
-  },
-  vaccine: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 15,
-    marginLeft: 10,
-  },
-  vaccineName: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  textInput: {
-    backgroundColor: Colors.lightBlue,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: "5%",
-    borderRadius: 4,
-    height: 60,
-    marginTop: "5%",
-    marginBottom: "5%",
-  },
-  dateButton: {
-    backgroundColor: Colors.white,
-    width: 100,
-    padding: 8,
-    marginTop: "4%",
+    padding: 5,
   },
 });

@@ -17,7 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 
-const SelectDeworming = ({ petId }) => {
+const SelectDeworming = ({ petId, action }) => {
   const navigation = useNavigation();
   const apiFetcher = new ApiFetcher();
 
@@ -84,7 +84,7 @@ const SelectDeworming = ({ petId }) => {
         last_deworming: date,
       };
       const response = await apiFetcher.saveDewormer(payload)
-      console.log("response: ", response)
+      action()
       Toast.show({
         type: "success",
         text1: "Desparacitación guardada",
@@ -132,7 +132,7 @@ const SelectDeworming = ({ petId }) => {
   );
 
   const renderDewormingType = ({ item }) => (
-    <View row gap-10>
+    <View row gap-10 marginB-10>
       <View>
         <RadioButton
           label={""}

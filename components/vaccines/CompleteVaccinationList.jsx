@@ -8,7 +8,10 @@ import momentTZ from "../../utils/moment";
 
 const CompleteVaccinationList = (props) => {
   const { completedVaccines, petId } = props;
-  const [vaccinationList, setVaccinationList] = useState({ applied: [], notApplied: [] });
+  const [vaccinationList, setVaccinationList] = useState({
+    applied: [],
+    notApplied: [],
+  });
   const [dewormingList, setDewormingList] = useState([]);
 
   const apiFetcher = new ApiFetcher();
@@ -21,9 +24,7 @@ const CompleteVaccinationList = (props) => {
 
   const getVaccinesToThisPet = async () => {
     try {
-      const response = await apiFetcher.getVaccines(petId);
       const vaccinesResponse = await apiFetcher.getVaccinesRecords(petId);
-
       if (vaccinesResponse.data.vaccines_records.length > 0) {
         setVaccinationList({
           applied: vaccinesResponse.data.vaccines_records.map((vaccine) => ({
@@ -35,60 +36,43 @@ const CompleteVaccinationList = (props) => {
             isCompleted: false,
           })),
         });
-        setDewormingList(response.data.dewormers_records);
       }
-    }  catch (error) {
+      if (vaccinesResponse.data.dewormers_records.length > 0) {
+        setDewormingList(
+          vaccinesResponse.data.dewormers_records.map((dewomer) => ({
+            ...dewomer,
+            name: dewomer.deworming_type,
+            isCompleted: true,
+          }))
+        );
+      }
+    } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }
   };
-
   const renderItem = ({ item }) => {
+    const { isCompleted, name, next_dose } = item;
     return (
       <View padding-10 row gap-10 centerV>
         <SimpleLineIcons
-          name={item.isCompleted ? "check" : "close"}
+          name={isCompleted ? "check" : "close"}
           size={20}
           style={{
             color: item.isCompleted ? Colors.green : Colors.red,
           }}
         />
         <View>
-          <Text text70>{item.name}</Text>
+          <Text text70>{name}</Text>
           <Text text90L>
             {item.isCompleted
-              ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}`
-              : "No aplicada"}
+              ? `Vencimiento ${momentTZ(next_dose).format("DD.MM.YYYY")}`
+              : "Vencida"}
           </Text>
         </View>
       </View>
     );
   };
 
-  const renderDerwomers = ({ item }) => {
-
-    console.log("item: ", item)
-    return (
-      <View padding-10 row gap-10 centerV>
-        <SimpleLineIcons
-          name={item.isCompleted ? "check" : "close"}
-          size={20}
-          style={{
-            // color: item.isCompleted ? Colors.green : Colors.red,
-          }}
-        />
-        <View>
-          <Text text70>{item.name}</Text>
-          <Text text90L>
-            {/* {item.isCompleted
-              ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}`
-              : "No aplicada"} */}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
-  
   return (
     <View flex marginT-10 padding-10>
       <View backgroundColor={Colors.lightBlue} br20 padding-15>
@@ -108,11 +92,11 @@ const CompleteVaccinationList = (props) => {
           />
         </View>
         <View>
-        <FlatList
-          data={[...vaccinationList.applied, ...vaccinationList.notApplied]} // Combinamos ambas listas
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()} // Asegúrate de que cada vacuna tenga un `id`
-        />
+          <FlatList
+            data={[...vaccinationList.applied, ...vaccinationList.notApplied]}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
       </View>
       <View backgroundColor={Colors.lightBlue} br20 padding-15 marginT-20>
@@ -132,7 +116,11 @@ const CompleteVaccinationList = (props) => {
           />
         </View>
         <View>
-          <FlatList data={dewormingList} renderItem={renderDerwomers} />
+          <FlatList
+            data={dewormingList}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
       </View>
     </View>
