@@ -1,38 +1,34 @@
-import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { FlatList } from "react-native";
 import { useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import calendar from "../../../assets/calendar-icon-date.png";
 import location from "../../../assets/location-icon.png";
 import phone from "../../../assets/phone-icon.png";
-import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
-import Entypo from "react-native-vector-icons/Entypo";
 import PaymentScreen from "../../../components/appointments/PaymentScreen";
 import {
   AnimatedImage,
-  ExpandableSection,
   LoaderScreen,
   Text,
   View,
+  Image,
+  TouchableOpacity
 } from "react-native-ui-lib";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import momentTZ from "../../../utils/moment";
-import AppStorage from "../../../modules/AppStorage";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Loading from "../../../components/Loading";
 import Toast from "react-native-toast-message";
+import ResumeSectionContainer from "../../../components/appointments/ResumeSectionContainer";
 
 const Resume = ({ route }) => {
   const { payload } = route.params;
   const appointment = useSelector((state) => state?.appointment?.appointment);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
   const [expanded, setExpanded] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState("");
 
-  const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
 
   const handleSheetChanges = useCallback((index) => {
@@ -70,27 +66,9 @@ const Resume = ({ route }) => {
     setExpanded(false);
   };
 
-  const formatDateTime = (date, time) => {
-    const combinedDateTime = momentTZ(date).set({
-      hour: momentTZ(time).hour(),
-      minute: momentTZ(time).minute(),
-    });
-    const formattedDateTime = combinedDateTime.format(
-      "dddd D [de] MMMM, h:mm [hrs]"
-    );
-    return (
-      formattedDateTime.charAt(0).toUpperCase() + formattedDateTime.slice(1)
-    );
-  };
-
-  //console.log("appointment?.service_: ", appointment?.service)
   const totalPrice = appointment?.service.reduce((sum, item) => {
-    /*const priceWithTax =
-      parseFloat(item.price) +
-      (parseFloat(item.price) * parseInt(item.tax_percent)) / 100;
-    return sum + priceWithTax + 10; // Añadir 10 a cada precio calculado*/
     const priceToPay = parseFloat(item.price)
-    
+
     return sum + priceToPay
 
   }, 0) + 10;
@@ -104,44 +82,36 @@ const Resume = ({ route }) => {
         />
       )}
       <ScrollView style={expanded && { opacity: 0.1 }}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Resumen de la cita</Text>
-          <TouchableOpacity
-          // onPress={() => navigation.navigate("InfoServiceForDate")}
-          >
+        <View row centerV padding-15 gap-10>
+          <Text text65BO >Resumen de la cita</Text>
+          <TouchableOpacity>
             <Image
               source={require("../../../assets/edit-date.png")}
-              style={styles.editIcon}
+              width={15}
+              height={15}
             />
           </TouchableOpacity>
         </View>
-        {/* <FlatList
-          data={appointments}
-          renderItem={renderAppointment}
-          keyExtractor={(item, index) => index.toString()}
-        /> */}
-        {/* <ExpandableSection
-        expanded={expandedAppointment === item}
-        sectionHeader={ */}
         <View
           row
           centerV
           marginT-15
           padding-15
           spread
+          marginB-10
+          backgroundColor={Colors.white}
           style={{
             shadowColor: Colors.gray,
             shadowOffset: { width: 0, height: 3 },
-            // shadowOpacity: expandedAppointment !== item && 0.5,
             shadowRadius: 2,
-            marginBottom: 10,
-            backgroundColor: Colors.white,
           }}
         >
           <View row centerV gap-10>
             <AnimatedImage
               source={{ uri: appointment?.pet?.picture }}
-              style={{ width: 70, height: 70, borderRadius: 64 }}
+              width={70}
+              height={70}
+              style={{ borderRadius: 64 }}
               loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
               animationDuration={500}
               resizeMode="cover"
@@ -151,114 +121,67 @@ const Resume = ({ route }) => {
               <Text text70>{appointment?.pet?.pet_breed?.description}</Text>
             </View>
           </View>
-          {/* <Entypo
-              name={
-                expandedAppointment === item ? "chevron-up" : "chevron-down"
-              }
-              size={25}
-              color={Colors.gray}
-            /> */}
         </View>
-        {/* }
-        onPress={() =>
-          setExpandedAppointment(expandedAppointment === item ? null : item)
-        }
-      > */}
-        <View style={styles.servicesContainer} margin-15>
-          <View style={styles.section}>
-            <Text text70BO>Servicios</Text>
-            <View style={styles.rowSection}>
-              {/* <Image
-                source={calendar}
-                style={styles.image}
-                resizeMode="contain"
-              /> */}
-              <View>
-                {appointment?.service.map(({ name }) => (
-                  <View row gap-5 centerV>
-                    <Text text100>{`\u25CF`}</Text>
-                    <Text style={styles.description}>{name}</Text>
-                  </View>
-                ))}
+        <View margin-15 padding-15 style={{ borderRadius: 16, borderColor: Colors.blue, borderWidth: 1.5 }}>
+          <ResumeSectionContainer title="Servicios">
+            {appointment?.service.map(({ name }) => (
+              <View row gap-5 centerV>
+                <Text text100>{`\u25CF`}</Text>
+                <Text text70>{name}</Text>
               </View>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text text70BO>Día y hora</Text>
-            <View style={styles.rowSection}>
-              <Image
-                source={calendar}
-                style={styles.image}
-                resizeMode="contain"
-              />
-              <Text style={styles.description}>{appointment?.time}</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text text70BO>Importe</Text>
-            <View style={styles.rowSection}>
-              <Text text70BO color={Colors.primaryColor}>
-                $
-              </Text>
-              <Text style={styles.description}>{totalPrice}</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text text70BO>Dirección</Text>
-            <View style={styles.rowSection}>
-              <Image
-                source={location}
-                style={{ width: 20, height: 20 }}
-                resizeMode="contain"
-              />
-              <Text style={styles.description}>{appointment?.partenerLocation}</Text>
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text text70BO>Teléfono</Text>
-            <View style={styles.rowSection}>
-              <Image source={phone} style={styles.image} resizeMode="cover" />
-              <Text style={styles.description}>55 555 5555</Text>
-            </View>
-          </View>
-        </View>
-        {/* </ExpandableSection> */}
-        <TouchableOpacity
-        // onPress={() => {
-        //   resetParams();
-        //   navigation.navigate("InfoServiceForDate");
-        // }}
-        >
-          {/* <Text style={styles.title} marginL-5> */}
+            ))}
+          </ResumeSectionContainer>
 
-          {/* </Text> */}
-        </TouchableOpacity>
+          <ResumeSectionContainer title="Día y hora">
+            <Image
+              source={calendar}
+              width={25}
+              height={25}
+              resizeMode="contain"
+            />
+            <Text text70>{appointment?.time}</Text>
+          </ResumeSectionContainer>
+
+          <ResumeSectionContainer title="Importe">
+            <Text text70BO color={Colors.primaryColor}>
+              $
+            </Text>
+            <Text text70>{totalPrice}</Text>
+          </ResumeSectionContainer>
+
+          <ResumeSectionContainer title="Dirección">
+            <Image
+              source={location}
+              width={20}
+              height={20}
+              resizeMode="contain"
+            />
+            <Text text70>{appointment?.partenerLocation}</Text>
+          </ResumeSectionContainer>
+
+          <ResumeSectionContainer title="Teléfono">
+            <Image source={phone} width={25} height={25} resizeMode="cover" />
+            <Text text70>55 555 5555</Text>
+          </ResumeSectionContainer>
+
+        </View>
         <View flex padding-15>
-          <Text marginT-20 style={styles.title}>
+          <Text marginT-20 text65BO>
             Resumen
           </Text>
-          <View style={styles.servicesContainer}>
+          <View padding-15 style={{ borderRadius: 16, borderColor: Colors.blue, borderWidth: 1.5 }}>
             <Text text70BO>Productos y servicios</Text>
-            <FlatList 
-            row spread marginT-10
-            data={appointment.service}
-            renderItem={({item}) => (
-            <View row spread marginT-10>
-            <Text>{item.name}</Text>
-            <Text>${item.price_total}</Text>
-          </View>
-            )} 
-            keyExtractor={item => item.id.toString()} 
+            <FlatList
+              row spread marginT-10
+              data={appointment.service}
+              renderItem={({ item }) => (
+                <View row spread marginT-10>
+                  <Text>{item.name}</Text>
+                  <Text>${item.price_total}</Text>
+                </View>
+              )}
+              keyExtractor={item => item.id.toString()}
             />
-            {/* <Text>{appointments[0]?.service?.name}</Text>*/}
-
-            {/* <View row spread marginT-10>
-              <Text>Impuesto IVA %</Text>
-              <Text>
-                $
-                {totalPay}
-              </Text>
-            </View> */}
             <View row spread marginT-10>
             </View>
             <View row spread marginT-10>
@@ -267,13 +190,21 @@ const Resume = ({ route }) => {
             </View>
             <View row spread marginT-10>
               <Text text70BO>Total a pagar</Text>
-              <Text text70BO>${ totalPrice}</Text> 
+              <Text text70BO>${totalPrice}</Text>
             </View>
           </View>
         </View>
       </ScrollView>
       <View bottom marginB-15>
-        <TouchableOpacity style={styles.saveButton} onPress={goToPay}>
+        <TouchableOpacity marginT-30 marginB-0 center
+          style={{
+            width: "95%",
+            height: 60,
+            borderWidth: 0.5,
+            borderColor: Colors.primaryColor,
+            alignSelf: "center",
+          }}
+          onPress={goToPay}>
           <Text text70BO color={Colors.primaryColor}>
             Confirmar
           </Text>
@@ -290,7 +221,7 @@ const Resume = ({ route }) => {
           borderColor: Colors.black,
         }}
       >
-        <BottomSheetView style={styles.contentContainer}>
+        <BottomSheetView style={{ padding: 15 }}>
           <PaymentScreen checkoutUrl={checkoutUrl} closeBottomSheet={closeBottomSheet} />
         </BottomSheetView>
       </BottomSheet>
@@ -299,68 +230,3 @@ const Resume = ({ route }) => {
 };
 
 export default Resume;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    padding: 15,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  editIcon: {
-    width: 15,
-    height: 15,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 15,
-  },
-  servicesContainer: {
-    marginTop: "5%",
-    borderRadius: 16,
-    borderColor: Colors.blue,
-    borderWidth: 1.5,
-    padding: 15,
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  image: {
-    width: 25,
-    height: 25,
-  },
-  textSection: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  rowSection: {
-    marginTop: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    width: "70%",
-  },
-  description: {
-    fontSize: 16,
-  },
-  saveButton: {
-    marginTop: 30,
-    width: "95%",
-    height: 60,
-    borderWidth: 0.5,
-    borderColor: Colors.primaryColor,
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 0,
-  },
-  contentContainer: {
-    padding: 15,
-  },
-});
