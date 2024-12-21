@@ -2,16 +2,13 @@ import React from "react";
 import {
   TouchableOpacity,
   TextInput,
-  Platform,
   StyleSheet,
-  Alert,
   Dimensions,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  ScrollView,
 } from "react-native";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import AppStorage from "../../modules/AppStorage";
 import { setUserInfo } from "../../redux/slice/userSlice";
@@ -20,82 +17,21 @@ import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
 import ApiFetcher from "../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
-import { View,Image,Text } from "react-native-ui-lib";
+import { View, Image, Text } from "react-native-ui-lib";
 
 const LoginScreen = ({ navigation }) => {
-  const [data, setData] = React.useState({
-    username: "",
-    password: "",
-    check_textInputChange: false,
-    secureTextEntry: true,
-    isValidUser: true,
-    isValidPassword: true,
-  });
+
   const [input, setInput] = React.useState({
     username: "",
     password: "",
   });
+
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(true);
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
-
-  const textInputChange = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        username: val,
-        check_textInputChange: true,
-        isValidUser: true,
-      });
-    } else {
-      setData({
-        ...data,
-        username: val,
-        check_textInputChange: false,
-        isValidUser: false,
-      });
-    }
-  };
-
-  const handlePasswordChange = (val) => {
-    if (val.trim().length >= 6) {
-      setData({
-        ...data,
-        password: val,
-        isValidPassword: true,
-      });
-    } else {
-      setData({
-        ...data,
-        password: val,
-        isValidPassword: false,
-      });
-    }
-  };
-
-  const updateSecureTextEntry = () => {
-    setData({
-      ...data,
-      secureTextEntry: !data.secureTextEntry,
-    });
-  };
-
-  const handleValidUser = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        isValidUser: true,
-      });
-    } else {
-      setData({
-        ...data,
-        isValidUser: false,
-      });
-    }
-  };
 
   const loginHandle = async ({ username, password }) => {
     setLoading(true);
@@ -135,11 +71,10 @@ const LoginScreen = ({ navigation }) => {
         />
       )}
       <View
-        height={height/1}
+        height={height / 1}
         width={width}
-        backgroundColor="#EF4136"       
+        backgroundColor="#EF4136"
       >
-        {/* <Loader active={loading} /> */}
         <View
           height={"20%"}
           width={"100%"}
@@ -152,7 +87,7 @@ const LoginScreen = ({ navigation }) => {
           <Image
             source={require("../../assets/Logo.png")}
             height={80}
-            width={150}                        
+            width={150}
             resizeMode={"contain"}
           />
         </View>
@@ -161,7 +96,7 @@ const LoginScreen = ({ navigation }) => {
           width={"100%"}
           centerH
           style={{
-            justifyContent: "space-around",            
+            justifyContent: "space-around",
           }}
         >
           <TextInput
@@ -180,20 +115,19 @@ const LoginScreen = ({ navigation }) => {
           />
           <View
             row
-            centerV            
+            centerV
             style={[
               styles.textInput,
               {
                 justifyContent: "space-between",
-                flexDirection: "row",                
+                flexDirection: "row",
               },
             ]}
           >
             <TextInput
               placeholder="Contraseña"
               secureTextEntry={visible}
-              //elevation={5}
-              style={{width:"80%",height:60}}
+              style={{ width: "80%", height: 60 }}
               placeholderTextColor="#000"
               autoCapitalize="none"
               onChangeText={(val) => setInput({ ...input, password: val })}
@@ -202,8 +136,8 @@ const LoginScreen = ({ navigation }) => {
               <Entypo
                 name={visible ? "eye-with-line" : "eye"}
                 size={25}
-                color={Colors.gray}              
-                style={{marginRight: 20}}
+                color={Colors.gray}
+                style={{ marginRight: 20 }}
               />
             </TouchableOpacity>
           </View>
@@ -213,16 +147,16 @@ const LoginScreen = ({ navigation }) => {
           width={"100%"}
           row
           centerV
-          style={{          
-            justifyContent: "space-around",            
+          style={{
+            justifyContent: "space-around",
           }}
         >
-          <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
+          <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
             <Text
               text80R
               center
               color={"#E6F8DB"}
-              underline              
+              underline
             >
               ¿Olvidaste tu contraseña?
             </Text>
@@ -231,7 +165,7 @@ const LoginScreen = ({ navigation }) => {
             text80R
             center
             color={"#E6F8DB"}
-            onPress={() => navigation.navigate("UserStepsRegister")}            
+            onPress={() => navigation.navigate("UserStepsRegister")}
           >
             Registrarse
           </Text>
@@ -239,7 +173,7 @@ const LoginScreen = ({ navigation }) => {
         <View
           height={"15%"}
           width={"100%"}
-          center          
+          center
         >
           <TouchableWithoutFeedback onPress={() => loginHandle(input)}>
             <View
@@ -247,14 +181,14 @@ const LoginScreen = ({ navigation }) => {
               width={"80%"}
               backgroundColor="#FA6650"
               centerV
-              style={{                            
-                borderRadius: 32,                
+              style={{
+                borderRadius: 32,
               }}
             >
               <Text
                 center
                 text70BO
-                color="white"                
+                color="white"
               >
                 Entrar
               </Text>
@@ -263,25 +197,20 @@ const LoginScreen = ({ navigation }) => {
         </View>
         <View
           height={"30%"}
-          width={"100%"}          
+          width={"100%"}
         >
-          {/* <Image
-              source={require("../assets/huella_w.png")}
-              style={{ height: 45, width: 45 }}
-              resizeMode={"contain"}
-            /> */}
           <View style={{ position: "absolute", bottom: "20%", left: "20%" }}>
-            <Text              
+            <Text
               center
               color={"#E6F8DB"}
-              style={{fontSize:14,fontWeight:300}}
+              style={{ fontSize: 14, fontWeight: 300 }}
             >
               Al registrarse, aceptas el
             </Text>
-            <Text              
+            <Text
               center
-              color={"#E6F8DB"}      
-              style={{fontSize:14,fontWeight:300}}
+              color={"#E6F8DB"}
+              style={{ fontSize: 14, fontWeight: 300 }}
             >
               Aviso de usuario y la Política de Privacidad.
             </Text>
@@ -297,47 +226,6 @@ export default LoginScreen;
 const { height, width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#009387",
-  },
-  header: {
-    flex: 1,
-    justifyContent: "flex-end",
-    paddingHorizontal: 20,
-    paddingBottom: 50,
-  },
-  footer: {
-    flex: 3,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-  text_header: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  text_footer: {
-    color: "#05375a",
-    fontSize: 18,
-  },
-  action: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f2f2f2",
-    paddingBottom: 5,
-  },
-  actionError: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#FF0000",
-    paddingBottom: 5,
-  },
   textInput: {
     height: 60,
     width: "90%",
@@ -352,28 +240,5 @@ const styles = StyleSheet.create({
       height: 1,
       width: 1,
     },
-  },
-  errorMsg: {
-    color: "#FF0000",
-    fontSize: 14,
-  },
-  button: {
-    alignItems: "center",
-    marginTop: 50,
-  },
-  signIn: {
-    width: "100%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  textSign: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  passwordStyles: {
-    width: "80%",
-    height: 60,
-  },
+  }
 });
