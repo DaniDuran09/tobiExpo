@@ -62,7 +62,7 @@ const FinalScreenRegisterPet = (props) => {
       console.log("result: ", result);
       if (!result.canceled) {
         closeModal();
-        setImageSource({ uri: result.assets[0] });
+        setImageSource(result.assets[0]);
         dispatch(setPicturePet(result.assets[0]));
       }
     } catch (error) {
@@ -111,7 +111,8 @@ const FinalScreenRegisterPet = (props) => {
       });
 
       if (!result.canceled) {
-        setImageSource({ uri: result.uri });
+        setImageSource(result.assets[0]);
+        dispatch(setPicturePet(result.assets[0]));
         closeModal();
       }
     } catch (error) {
@@ -133,7 +134,7 @@ const FinalScreenRegisterPet = (props) => {
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.imageContainer}>
               <Image
-                source={imageSource.uri}
+                source={{uri: imageSource.uri}}
                 style={styles.imageSelected}
                 resizeMode={"cover"}
               />

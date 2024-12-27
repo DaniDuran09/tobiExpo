@@ -91,7 +91,7 @@ const Health = ({ pet }) => {
           backgroundColorProp={Colors.white}
         />
       )}
-      {isVaccinated || !finishScreen ? (
+      {isVaccinated || finishScreen ? (
         <CompleteVaccinationList
           completedVaccines={completedVaccines}
           petId={pet.id}

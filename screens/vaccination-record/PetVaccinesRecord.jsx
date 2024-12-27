@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -129,6 +130,7 @@ const PetVaccinesRecord = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
+      <ScrollView>
       <Recomendation
         title={"Recomendación"}
         info={
@@ -141,8 +143,10 @@ const PetVaccinesRecord = ({ route }) => {
         renderItem={(vaccine) => <VaccineCard info={vaccine} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 20 }}
+        scrollEnabled={false}
         ListEmptyComponent={<EmptyVaccines text={'Registra las vacunas de tu mascota en la sección de SALUD'}/>}
       />
+      </ScrollView>
     </View>
   );
 };

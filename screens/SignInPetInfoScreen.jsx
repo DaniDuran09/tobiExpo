@@ -38,7 +38,7 @@ const SignInPetInfoScreen = props => {
   useEffect(() => {
     const updatedInfo = {
       ...userInfo,
-      pet: [
+      pet:
         {
           ...pet,
           weight: weight,
@@ -46,7 +46,6 @@ const SignInPetInfoScreen = props => {
           pet_breed_id: selectedBrand.id,
           sterilized: check,
         },
-      ],
     };
     dispatch(setUserInfo(updatedInfo));
     setData({...pet, weight: weight})

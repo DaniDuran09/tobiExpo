@@ -25,6 +25,7 @@ import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
+import { setUserInfo } from "../redux/slice/userSlice";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -43,14 +44,32 @@ const ProfileScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     petList();
+    getUserInfo()
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       petList();
+      getUserInfo()
       return () => {};
     }, [navigation])
   );
+
+  const getUserInfo = async () => {
+    try {
+      const user = await apiFetcher.getProfile();
+      setUserData(user.data);
+      dispatch(setUserInfo(user.data));
+      console.log("SÍ TRAJE LA INFORMACIÍON ")
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text2:`Error en el perfil`,
+        text1: `No pudimos traer la información del perfil.`,
+      });
+    }
+   
+  }
 
   // useEffect(() => {
   //   (async () => {
@@ -165,8 +184,9 @@ const requestLibraryPermissions = async () => {
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
-      const user = await appStorage.getUser();
-      setUserData(user);
+      // const user = await appStorage.getUser();
+      // console.log("user: ", user)
+      // setUserData(user);
     } catch (e) {
       console.log("Error: ", e);
       Toast.show({

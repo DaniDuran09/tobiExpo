@@ -2,11 +2,11 @@ import { AnimatedImage, LoaderScreen, Text, TouchableOpacity, View } from "react
 import { Colors } from "../../styles/Colors";
 
 export const RenderUsers = ({user, specialistId, setSpecialistId}) => {
-    const isSelected = specialistId == user.id
+    const isSelected = specialistId?.id == user.id
     return (
       <TouchableOpacity
         onPress={() => {
-          setSpecialistId(user.id)
+          setSpecialistId(user)
         }}
       >
         <View center marginR-25 style={specialistId && !isSelected && { opacity: 0.6 }}>

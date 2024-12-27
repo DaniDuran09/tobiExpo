@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, RefreshControl, SafeAreaView } from "react-native";
+import { BackHandler, FlatList, Platform, RefreshControl, SafeAreaView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../styles/Colors";
@@ -69,27 +69,51 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchInfoAppointmentPet = async (id) => {
     const response = await apiFetcher.getAppointmentsByPet(id);
-
+  
     if (response.data.length === 0) return {};
-
-    const today = momentTZ().tz("America/Mexico_City");
-
-    const closestAppointment = response.data.reduce((closest, current) => {
-      const currentDate = momentTZ(current.date_service).tz(
-        "America/Mexico_City"
-      );
-      const closestDate = momentTZ(closest.date_service).tz(
-        "America/Mexico_City"
-      );
-
+  
+    const today = momentTZ().tz("America/Mexico_City").startOf("day");
+  
+    const futureAppointments = response.data.filter((appointment) => {
+      const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
+      return appointmentDate.isSameOrAfter(today);
+    });
+  
+    if (futureAppointments.length === 0) return {};
+  
+    const closestAppointment = futureAppointments.reduce((closest, current) => {
+      const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
+      const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
+  
       const currentDiff = Math.abs(currentDate.diff(today, "days"));
       const closestDiff = Math.abs(closestDate.diff(today, "days"));
-
+  
       return currentDiff < closestDiff ? current : closest;
     });
-
+  
     return closestAppointment;
   };
+
+  useEffect(() => {
+    const backAction = () => {
+      if (Platform.OS === 'android') {
+        console.log("ENTROOOO")
+        BackHandler.exitApp();
+        return true;
+      }
+      return false; 
+    };
+
+    if (Platform.OS === 'android') {
+      BackHandler.addEventListener('hardwareBackPress', backAction);
+    }
+    return () => {
+      if (Platform.OS === 'android') {
+        BackHandler.removeEventListener('hardwareBackPress', backAction);
+      }
+    };
+  }, []);
+  
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>

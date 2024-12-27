@@ -21,6 +21,7 @@ import ApiFetcher from "../../modules/ApiFetcher";
 import * as ImagePicker from "expo-image-picker";
 import ViewLoading from "../../components/ViewLoading";
 import Toast from "react-native-toast-message";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 const EditMyPet = ({ route }) => {
   const { id, refreshData } = route.params;
@@ -61,47 +62,42 @@ const EditMyPet = ({ route }) => {
       }
     })();
   }, []);*/
-const getPermissionsCamera = async () => {
-  const {status} = await ImagePicker.getCameraPermissionsAsync();
-  console.log('STATUS --- ',status)
-  if (status !== "granted") {
-    requestPermissionsCamera()
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la camara.`,
-    });
-  } 
-    else takePhoto()
-}
+  const getPermissionsCamera = async () => {
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    console.log("STATUS --- ", status);
+    if (status !== "granted") {
+      requestPermissionsCamera();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la camara.`,
+      });
+    } else takePhoto();
+  };
 
   const requestLibraryPermissions = async () => {
-    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      closeModal()
+      closeModal();
       Toast.show({
         type: "error",
-        text2:`Permisos insuficientes.`,
+        text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
       });
-    } 
-      else getPermissionsLibrary()
-  }
+    } else getPermissionsLibrary();
+  };
 
   const getPermissionsLibrary = async () => {
-    const { status } =
-      await ImagePicker.getMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      requestLibraryPermissions()
+      requestLibraryPermissions();
       Toast.show({
         type: "error",
-        text2:`Permisos insuficientes.`,
+        text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
       });
-    } 
-      else selectImageFromLibrary()
-    
-  }
+    } else selectImageFromLibrary();
+  };
   const getPetInfo = async () => {
     setLoadData(true);
     try {
@@ -132,7 +128,7 @@ const getPermissionsCamera = async () => {
 
       if (!result.canceled) {
         console.log("result; ", result.assets[0]);
-        setImageSource(result.assets[0].uri);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -146,30 +142,29 @@ const getPermissionsCamera = async () => {
   };
 
   const requestPermissionsCamera = async () => {
-    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      closeModal()
+      closeModal();
       Toast.show({
         type: "error",
-        text2:`Permisos insuficientes.`,
+        text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la camara.`,
       });
-    } 
-      else getPermissionsCamera()
-  }
+    } else getPermissionsCamera();
+  };
 
   const takePhoto = async () => {
-    console.log("llego a takephoto")
+    console.log("llego a takephoto");
     try {
-      console.log("entro al try")
+      console.log("entro al try");
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-      console.log('RESULT ',result)
+      console.log("RESULT ", result);
       if (!result.canceled) {
-        setImageSource(result.assets[0].uri);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -186,14 +181,13 @@ const getPermissionsCamera = async () => {
 
   const savePhoto = async () => {
     try {
-      console.log("imageSource: ", imageSource);
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
-
+      console.log("formdata: ", formData._parts);
       const response = await apiFetcher.updatePicturePet(id, formData);
       console.log("Response: ", response);
       if (response.code == 200) {
@@ -252,7 +246,16 @@ const getPermissionsCamera = async () => {
               alignItems: "flex-end",
             }}
           >
-            <TouchableOpacity style={styles.readyButton} onPress={updatePet}>
+            <TouchableOpacity
+              style={[
+                styles.readyButton,
+                (petInfo.name == "" || petInfo.weight == 0) && {
+                  backgroundColor: "gray",
+                },
+              ]}
+              onPress={updatePet}
+              disabled={petInfo.name == ""}
+            >
               {loadData ? (
                 <ActivityIndicator size={"small"} color={Colors.white} />
               ) : (
@@ -263,14 +266,16 @@ const getPermissionsCamera = async () => {
         </View>
         <View style={styles.imageContainer}>
           <View>
-            <Image
+            <AnimatedImage
               source={
                 imageSource
-                  ? { uri: imageSource }
+                  ? { uri: imageSource.uri }
                   : { uri: petInfo.picture }
               }
               style={styles.image}
               resizeMode={"cover"}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
             />
           </View>
         </View>
@@ -294,9 +299,10 @@ const getPermissionsCamera = async () => {
             />
             <Text style={styles.label}>Peso de tu mascota (Kg)</Text>
             <TextInput
+              keyboardType="numeric"
               placeholderTextColor="#000"
               style={styles.textInput}
-              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ''}
+              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ""}
               onChangeText={(value) =>
                 setPetInfo({ ...petInfo, weight: value })
               }
@@ -361,6 +367,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 5,
   },
   textInput: {
     height: 60,

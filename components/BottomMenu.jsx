@@ -195,7 +195,7 @@ const BottomMenu = () => {
           }}
         >
           <Text text70BO black>
-            Cartilla digitalizada
+            Cartilla de salud digitalizada
           </Text>
         </View>
         <View

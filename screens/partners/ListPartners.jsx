@@ -29,6 +29,8 @@ const ListPartners = ({ route }) => {
     dispatch(setServiceInfo(services));
   };
 
+  console.log("partners: ", partners)
+
   const renderItem = (item) => {
     return (
       <TouchableOpacity
@@ -50,10 +52,9 @@ const ListPartners = ({ route }) => {
         <View style={styles.infoContainer}>
           <Text>{item.name}</Text>
           <Text>
-            MVZ con especialidad en Cirugía interna para razas pequeñas. Perros
-            y gatos.
+          {item.description}
           </Text>
-          <Text>Céd. Prof. 123456</Text>
+          <Text>{item.professional_license}</Text>
         </View>
         <Image
           source={require(".././../assets/arrowRigth.png")}

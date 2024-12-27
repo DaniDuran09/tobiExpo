@@ -36,6 +36,7 @@ const StepsRegister = () => {
   const savePet = async () => {
     setLoading(true);
     try {
+      console.log("LE VOY A MANDAR: ", petInfo)
       const response = await apiFetcher.registerPet(petInfo);
       if (response.code == 200) {
         setIdPet(response.data.id);
@@ -64,7 +65,7 @@ const StepsRegister = () => {
       const formData = new FormData();
       formData.append("picture", {
         uri: picturePet.uri,
-        type: picturePet.type,
+        type: "image/jpeg",
         name: picturePet.fileName,
       });
       const response = await apiFetcher.updatePicturePet(idPet, formData);

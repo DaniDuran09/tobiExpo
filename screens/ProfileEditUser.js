@@ -52,29 +52,27 @@ const ProfileEditUser = ({ route, navigation }) => {
     })();
   }, []);*/
   const getLibraryPermission = async () => {
-    const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
-    console.log('STATUS LIBRARY',status)
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    console.log("STATUS LIBRARY", status);
     if (status !== "granted") {
-      requestLibraryPermissions()
+      requestLibraryPermissions();
       Toast.show({
         type: "error",
-        text2:`Permisos insuficientes.`,
+        text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
       });
-    } 
-      else selectImageFromLibrary()
-  }
+    } else selectImageFromLibrary();
+  };
   const requestLibraryPermissions = async () => {
-    const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Toast.show({
         type: "error",
-        text2:`Permisos insuficientes.`,
+        text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
       });
-    } 
-      else getLibraryPermission()
-  }
+    } else getLibraryPermission();
+  };
 
   const selectImageFromLibrary = async () => {
     try {
@@ -86,8 +84,8 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        console.log("Resukt: ", result.assets);
-        setImageSource({ uri: result.assets[0]?.uri });
+        console.log("Resukt: ", result.assets[0]);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -99,30 +97,28 @@ const ProfileEditUser = ({ route, navigation }) => {
     }
   };
   const getCameraPermission = async () => {
-    const {status} = await ImagePicker.getCameraPermissionsAsync()
-    console.log('STATUS ',status)
-  if (status !== "granted") {
-    requestCameraPermissions()
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else takePhoto()
-  }
-  
-  const requestCameraPermissions = async () =>{
-    const {status} = await ImagePicker.requestCameraPermissionsAsync()
-  if (status !== "granted") {
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else getCameraPermission()
-  }
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    console.log("STATUS ", status);
+    if (status !== "granted") {
+      requestCameraPermissions();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else takePhoto();
+  };
+
+  const requestCameraPermissions = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else getCameraPermission();
+  };
 
   const takePhoto = async () => {
     try {
@@ -133,7 +129,8 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        setImageSource({ uri: result.assets[0]?.uri });
+        console.log("result: ", result);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -156,7 +153,7 @@ const ProfileEditUser = ({ route, navigation }) => {
       const response = await apiFetcher.getProfile();
       if (response) setUserData(response.data);
     } catch (e) {
-      console.log("Error: ", e); 
+      console.log("Error: ", e);
       Toast.show({
         type: "error",
         text1: "Ha ocurrido un error",
@@ -169,10 +166,11 @@ const ProfileEditUser = ({ route, navigation }) => {
 
   const savePhoto = async () => {
     try {
+      console.log("imageSource: ", imageSource);
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
 
@@ -246,6 +244,8 @@ const ProfileEditUser = ({ route, navigation }) => {
       setLoading(false);
     }
   };
+
+  console.log("imageSource.uri: ", imageSource);
 
   return (
     <>
@@ -332,7 +332,9 @@ const ProfileEditUser = ({ route, navigation }) => {
                   {userData.picture ? (
                     <Image
                       source={
-                        imageSource ? imageSource : { uri: userData.picture }
+                        imageSource
+                          ? { uri: imageSource.uri }
+                          : { uri: userData.picture }
                       }
                       style={styles.image}
                       resizeMode={"cover"}
@@ -413,10 +415,7 @@ const ProfileEditUser = ({ route, navigation }) => {
               </View>
             </View>
           </KeyboardAvoidingView>
-          <View
-            center
-            paddingB-15
-          >
+          <View center paddingB-15>
             {/* <TouchableOpacity
                   style={styles.changeButton}
                   onPress={() => navigation.navigate('MyCards')}>

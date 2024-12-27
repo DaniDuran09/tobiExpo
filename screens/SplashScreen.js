@@ -44,7 +44,7 @@ const SplashScreen = ({ navigation }) => {
   };
 
   return (
-    <Swiper style={styles.wrapper} showsButtons={false}>
+    <Swiper showsButtons={false}>
       <View
         style={{
           backgroundColor: "#EF4136", //#E6F8DB
@@ -171,30 +171,10 @@ const SplashScreen = ({ navigation }) => {
                 fontFamily: Platform.OS === "android" ? "Poppins" : null,
               }}
             >
-              Rastrea y coordina
-            </Text>
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "bold",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              las actividad y la
-            </Text>
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "bold",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              salud de tu mascota
+              Digitaliza la cartilla de vacunación de tu mascota
             </Text>
           </View>
-          <View style={{ width: "80%", paddingTop: "10%" }}>
+          <View style={{ width: "80%", paddingTop: "10%"}}>
             <Text
               style={{
                 fontSize: 22,
@@ -204,28 +184,7 @@ const SplashScreen = ({ navigation }) => {
                 fontFamily: Platform.OS === "android" ? "Poppins" : null,
               }}
             >
-              Nunca olvidarás darle
-            </Text>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "400",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              el amor y el cuidado a
-            </Text>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "400",
-                textAlign: "left",
-                color: "#E6F8DB",
-                fontFamily: Platform.OS === "android" ? "Poppins" : null,
-              }}
-            >
-              a tu mascota
+              Llévala siempre contigo, de manera digital y segura
             </Text>
           </View>
         </View>
@@ -269,28 +228,9 @@ const SplashScreen = ({ navigation }) => {
                 fontFamily: Platform.OS === "android" ? "Poppins" : null,
               }}
             >
-              Recompensas para
+             Planes de salud personalizados 
             </Text>
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "bold",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              cuida a los nuevos
-            </Text>
-            <Text
-              style={{
-                fontSize: 26,
-                fontWeight: "bold",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              miembros de la familia
-            </Text>
+            
           </View>
           <View style={{ width: "80%", paddingTop: "10%" }}>
             <Text
@@ -302,27 +242,7 @@ const SplashScreen = ({ navigation }) => {
                 fontFamily: Platform.OS === "android" ? "Poppins" : null,
               }}
             >
-              Recibe descuentos y/o
-            </Text>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "400",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              beneficios en todos los
-            </Text>
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "400",
-                textAlign: "left",
-                color: "#E6F8DB",
-              }}
-            >
-              productos y servicios
+              Obten un plan de salud personalizado según las necesidades de cada mascota
             </Text>
           </View>
         </View>

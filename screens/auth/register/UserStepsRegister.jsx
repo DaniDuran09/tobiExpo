@@ -28,7 +28,7 @@ const UserStepsRegister = () => {
     last_name: "",
     phone: "",
     email: "",
-    birtday: "",
+    birthday: "",
     password: "",
   });
   const [data, setData] = useState({
@@ -62,7 +62,7 @@ const UserStepsRegister = () => {
       user.last_name === "" ||
       user.email === "" ||
       user.phone === "" ||
-      user.birtday === "" ||
+      user.birthday === "" ||
       user.password === ""
     ) {
       Toast.show({
@@ -170,7 +170,7 @@ const UserStepsRegister = () => {
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
 

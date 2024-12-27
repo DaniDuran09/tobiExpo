@@ -45,7 +45,7 @@ const PartnersGeneralInfo = ({ route }) => {
   const getPartnerInfo = async () => {
     try {
       const partner = await apiFetcher.getPartnersById(id);
-      // console.log("Si entro y regreso lo siguiente: ", partner.data)
+      console.log("partner: ", partner.data)
       if (partner.code == 200 || partner.code == 201) setItem(partner.data);
       setIsLoading(false);
     } catch (error) {
@@ -184,7 +184,7 @@ const PartnersGeneralInfo = ({ route }) => {
             <View style={styles.servicesContainer}>
               <Text style={styles.itemTitle}>Detalles</Text>
               <TouchableOpacity onPress={handleDirections}>
-              <Text style={styles.changeDate}>Ver dirección</Text>
+                <Text style={styles.changeDate}>Ver dirección</Text>
               </TouchableOpacity>
               <View style={styles.mapCompanyContain}>
                 <MapViewComponent
@@ -291,6 +291,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
     flexWrap: "wrap",
+    alignItems: "center",
   },
   personsContainer: {
     margin: 20,
@@ -331,6 +332,6 @@ const styles = StyleSheet.create({
     color: "#2269C5",
     fontSize: 14,
     fontWeight: "800",
-    marginVertical: 10
+    marginVertical: 10,
   },
 });

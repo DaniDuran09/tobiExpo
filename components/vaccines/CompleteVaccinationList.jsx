@@ -85,11 +85,11 @@ const CompleteVaccinationList = (props) => {
             />
             <Text text80BO>Esquema de vacunación</Text>
           </View>
-          <Image
+          {/* <Image
             source={require("../../assets/edit-date.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
-          />
+          /> */}
         </View>
         <View>
           <FlatList
@@ -109,11 +109,11 @@ const CompleteVaccinationList = (props) => {
             />
             <Text text80BO>Desparacitaciones</Text>
           </View>
-          <Image
+          {/* <Image
             source={require("../../assets/edit-date.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
-          />
+          /> */}
         </View>
         <View>
           <FlatList

@@ -16,6 +16,7 @@ import { Colors } from "../../../styles/Colors";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
+import { formatDateToDDMMYYYY } from "../../../utils/scripts";
 
 const SelectDeworming = ({ petId, action }) => {
   const navigation = useNavigation();
@@ -40,6 +41,9 @@ const SelectDeworming = ({ petId, action }) => {
   const [dewormingType, setDewormingType] = useState([
     { id: 1, value: "Interna", brand: "", isChecked: false },
     { id: 2, value: "Externa", brand: "", isChecked: false },
+    { id: 3, value: "Ambas en una aplicación", brand: "", isChecked: false },
+    { id: 4, value: "Ninguna", brand: "", isChecked: false },
+
   ]);
 
   useEffect(() => {

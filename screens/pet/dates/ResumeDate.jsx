@@ -3,7 +3,6 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  View,
   Linking,
   Platform,
 } from "react-native";
@@ -17,7 +16,7 @@ import phone from "../../../assets/phone-icon.png";
 import { ScrollView } from "react-native-gesture-handler";
 import MapViewComponent from "../../partners/MapViewComponent";
 import momentTZ from "../../../utils/moment";
-import { ActionSheet, Text } from "react-native-ui-lib";
+import { ActionSheet, Text, View } from "react-native-ui-lib";
 
 const ResumeDate = ({ navigation, route }) => {
   const { item } = route.params;
@@ -57,6 +56,8 @@ const ResumeDate = ({ navigation, route }) => {
     }
   };
 
+  console.log("itm: ", item?.appointment_pet_services[0])
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{padding: 15,}}>
@@ -86,7 +87,13 @@ const ResumeDate = ({ navigation, route }) => {
                 resizeMode="contain"
               />
               <Text style={styles.description}>
-                {item?.appointment_pet_services[0]?.service?.name}
+              {item?.appointment_pet_services.map(({ service }) => (
+                  <View row gap-5 centerV>
+                    <Text text100>{`\u25CF`}</Text>
+                    <Text style={styles.description}>{service.name}</Text>
+                  </View>
+                ))}
+                {/* {item?.appointment_pet_services[0]?.service?.name} */}
               </Text>
             </View>
           </View>
@@ -134,7 +141,7 @@ const ResumeDate = ({ navigation, route }) => {
                   style={{ width: 20, height: 20 }}
                   resizeMode="contain"
                 />
-                <Text style={styles.changeDate}>Dirección pendiente</Text>
+                <Text style={styles.changeDate}>Ver cómo llegar</Text>
               </View>
             </TouchableOpacity>
           </View>

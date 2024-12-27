@@ -152,17 +152,20 @@ const SelectVaccines = (props) => {
         setSaveLoading(false);
         break;
       } else {
+        console.log("vaccine: ", momentTZ(vaccine.application_day).format('DD/MM/YY'))
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: vaccine.application_day,
+          application_day:  momentTZ(vaccine.application_day).format('DD/MM/YY'),
           dose: 0,
           applied: true,
           brand: vaccine.brand,
           applied_by: vaccine.partner,
         };
+
+        console.log("data: ", data)
         try {
-          console.log("La data a mandar: ", data);
+          
           await insertVaccine(data);
           Toast.show({
             type: "success",
@@ -170,7 +173,7 @@ const SelectVaccines = (props) => {
             text2: `Se guardaron las vacunas con éxito`,
           });
         } catch (error) {
-          console.error("Error inserting vaccine: ", error);
+          console.log("error: ", error)
           Toast.show({
             type: "error",
             text1: "Error al guardar las vacunas",

@@ -7,7 +7,6 @@ import Dog from "../../../assets/images/dog-image.png";
 import Cat from "../../../assets/images/cat-image.png";
 
 const Welfare = ({ pet }) => {
-
   const [challengeVisible, setChallengeVisible] = useState(false);
   const closeModalChallenge = () => {
     setChallengeVisible(false);
@@ -19,8 +18,9 @@ const Welfare = ({ pet }) => {
         ¿Con qué frecuencia debo bañar y asear a mi mascota?
       </Text>
       <Text style={styles.text}>
-        Para que tu mascota esté sana, felíz y limpia, considera por lo menos
-        una vez por mes.
+        {pet?.pet_breed?.type_pet?.value == "cat"
+          ? "Para que tu mascota esté sana, felíz y limpia, considera por lo menos una vez cada dos meses."
+          : "Para que tu mascota esté sana, felíz y limpia, considera por lo menos una vez por mes."}
       </Text>
       <Recomendation
         image={pet?.pet_breed?.type_pet?.value == "cat" ? Cat : Dog}
@@ -32,7 +32,9 @@ const Welfare = ({ pet }) => {
         closeModalChallenge={closeModalChallenge}
         challengeVisible={challengeVisible}
         text={
-          "En los días sin baño mantén el deslanado para evitar la formación de nudos."
+          pet?.pet_breed?.type_pet?.value == "cat"
+            ? "Aunque a los gatitos no les guste el agua, ¡también se bañan!"
+            : "En los días sin baño mantén el deslanado para evitar la formación de nudos."
         }
       />
     </View>

@@ -38,13 +38,13 @@ const NoPetsHome = () => {
         </View>
         <View style={styles.block}>
           <Text style={styles.blockTitle}>NUTRICIÓN</Text>
-          <Text>PROXIMAMENTE...</Text>
+          <Text>PRÓXIMAMENTE...</Text>
         </View>
       </View>
       <View style={styles.blockContainer}>
         <View style={styles.block}>
           <Text style={styles.blockTitle}>ACTIVIDAD</Text>
-          <Text>PROXIMAMENTE...</Text>
+          <Text>PRÓXIMAMENTE...</Text>
         </View>
         <View style={{height: '100%', width: '45%'}}></View>
       </View>
@@ -67,13 +67,7 @@ const styles = StyleSheet.create({
     width: "110%",
     textAlign: "center",
     backgroundColor: Colors.white,
-    shadowColor: '#000000',
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    shadowOffset: {
-      height: 4,
-      width: 1,
-    },
+    
   },
   blockTitle: {
     fontSize: 14,
@@ -84,7 +78,8 @@ const styles = StyleSheet.create({
     marginTop: '5%',
     flexDirection: 'row',
     gap: 20,
-    height: '25%',
+    width: "90%",
+    height: 200,
     opacity: 0.5,
   },
   block: {

@@ -42,7 +42,7 @@ const SignInScreen = (props) => {
       last_name: user.last_name,
       email: user.email,
       phone: user.phone,
-      birtday: formatDateToDDMMYYYY(date),
+      birthday: formatDateToDDMMYYYY(date),
       password: user.password,
     };
     dispatch(setUserInfo(updatedInfo));
@@ -67,7 +67,7 @@ const SignInScreen = (props) => {
         text2: `La fecha de nacimiento no puede ser hace más de 100 años.`,
       });
     } else {
-      setUser({ ...user, birtday: selectedDate });
+      setUser({ ...user, birthday: selectedDate });
       setOpen(false);
     }
   };
@@ -241,9 +241,9 @@ const SignInScreen = (props) => {
                   ]}
                   title={"Select date"}
                   placeholder={
-                    user?.birtday === ""
+                    user?.birthday === ""
                       ? "Fecha de nacimiento"
-                      : `${user?.birtday?.toLocaleDateString("es-us")}`
+                      : `${user?.birthday?.toLocaleDateString("es-us")}`
                   }
                   mode={"date"}
                   onChange={(selectedDate) => {

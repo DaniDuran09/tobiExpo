@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useColorScheme, View } from "react-native";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { NavigationContainer } from "@react-navigation/native";
@@ -8,9 +8,12 @@ import RootStackScreen from "./navigation/RootStackScreen";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "./utils/toastConfig";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function App(): React.JSX.Element {
   const [publishableKey, setPublishableKey] = useState("");
+
+  const colorScheme = useColorScheme();
 
   const fetchPublishableKey = async () => {
     // const key = await fetchKey(); // fetch key from your server here
@@ -29,6 +32,10 @@ export default function App(): React.JSX.Element {
       merchantIdentifier="com.tobi" // required for Apple Pay
       // urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
     >
+      <StatusBar
+        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={colorScheme === "dark" ? "#000" : "#fff"}
+      />
       <Provider store={store}>
         <NavigationContainer>
           <RootStackScreen />
