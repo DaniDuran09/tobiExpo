@@ -34,6 +34,10 @@ const ProfileEditUser = ({ route, navigation }) => {
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [imageSource, setImageSource] = useState(null);
+  const [permissionsRequested, setPermissionsRequested] = useState({
+    camera: false,
+    library: false,
+  });
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
@@ -51,27 +55,37 @@ const ProfileEditUser = ({ route, navigation }) => {
       }
     })();
   }, []);*/
-  const getLibraryPermission = async () => {
+  const getPermissionsLibrary = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-    console.log("STATUS LIBRARY", status);
+    console.log("status: ", status);
     if (status !== "granted") {
-      requestLibraryPermissions();
+      if (!permissionsRequested.library) {
+        setPermissionsRequested((prev) => ({ ...prev, library: true }));
+        await requestLibraryPermissions();
+      }
+      closeModal()
       Toast.show({
         type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
       });
-    } else selectImageFromLibrary();
+    } else {
+      selectImageFromLibrary();
+    }
   };
+
   const requestLibraryPermissions = async () => {
-    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
+      closeModal();
       Toast.show({
         type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
       });
-    } else getLibraryPermission();
+    } else {
+      getPermissionsLibrary();
+    }
   };
 
   const selectImageFromLibrary = async () => {
@@ -96,28 +110,36 @@ const ProfileEditUser = ({ route, navigation }) => {
       console.log("Error: ", error);
     }
   };
-  const getCameraPermission = async () => {
+  const getPermissionsCamera = async () => {
     const { status } = await ImagePicker.getCameraPermissionsAsync();
-    console.log("STATUS ", status);
+    console.log("STATUS --- ", status);
     if (status !== "granted") {
-      requestCameraPermissions();
+      if (!permissionsRequested.camera) {
+        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
+        await requestPermissionsCamera();
+      }
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else takePhoto();
+    } else {
+      takePhoto();
+    }
   };
 
-  const requestCameraPermissions = async () => {
+  const requestPermissionsCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
+      closeModal();
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else getCameraPermission();
+    } else {
+      getPermissionsCamera();
+    }
   };
 
   const takePhoto = async () => {
@@ -448,8 +470,8 @@ const ProfileEditUser = ({ route, navigation }) => {
         <ImageOption
           visible={modalVisible}
           closeModal={closeModal}
-          selectImageFromLibrary={getLibraryPermission}
-          takePhoto={getCameraPermission}
+          selectImageFromLibrary={getPermissionsLibrary}
+          takePhoto={getPermissionsCamera}
         />
       </SafeAreaView>
     </>

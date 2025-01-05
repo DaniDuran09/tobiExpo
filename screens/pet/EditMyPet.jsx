@@ -43,6 +43,10 @@ const EditMyPet = ({ route }) => {
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [imageSource, setImageSource] = useState(null);
+  const [permissionsRequested, setPermissionsRequested] = useState({
+    camera: false,
+    library: false,
+  });
 
   const apiFetcher = new ApiFetcher();
 
@@ -50,54 +54,57 @@ const EditMyPet = ({ route }) => {
     getPetInfo();
   }, []);
 
-  /*useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
-      }
-    })();
-  }, []);*/
   const getPermissionsCamera = async () => {
     const { status } = await ImagePicker.getCameraPermissionsAsync();
     console.log("STATUS --- ", status);
     if (status !== "granted") {
-      requestPermissionsCamera();
+      if (!permissionsRequested.camera) {
+        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
+        await requestPermissionsCamera();
+      }
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la camara.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else takePhoto();
+    } else {
+      takePhoto();
+    }
   };
 
   const requestLibraryPermissions = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       closeModal();
       Toast.show({
         type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
       });
-    } else getPermissionsLibrary();
+    } else {
+      getPermissionsLibrary();
+    }
   };
 
   const getPermissionsLibrary = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    console.log("status: ", status);
     if (status !== "granted") {
-      requestLibraryPermissions();
+      if (!permissionsRequested.library) {
+        setPermissionsRequested((prev) => ({ ...prev, library: true }));
+        await requestLibraryPermissions();
+      }
+      closeModal()
       Toast.show({
         type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
       });
-    } else selectImageFromLibrary();
+    } else {
+      selectImageFromLibrary();
+    }
   };
+ 
   const getPetInfo = async () => {
     setLoadData(true);
     try {
@@ -148,9 +155,11 @@ const EditMyPet = ({ route }) => {
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la camara.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else getPermissionsCamera();
+    } else {
+      getPermissionsCamera();
+    }
   };
 
   const takePhoto = async () => {

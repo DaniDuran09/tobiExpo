@@ -9,7 +9,6 @@ import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 
 const VaccineCard = (props) => {
     const {info} = props;
-    console.log("vaccine: ", info)
   return (
     <View style={styles.mainContainer}>
     <View style={styles.sectionContainer}>
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
+        height: 60
       },
       vaccineName: {
         fontWeight: '700',

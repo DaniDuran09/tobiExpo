@@ -23,15 +23,18 @@ const PetVaccinesRecord = ({ route }) => {
 
   const [option, setOption] = useState(1);
   const [loadData, setLoadData] = useState(false);
-  const [vaccines, setVaccines] = useState(null);
+  const [vaccinesExpired, setVaccinesExpired] = useState([]);
   const [petInfo, setPetInfo] = useState(null);
-  const [vaccinationList, setVaccinationList] = useState([]);
+  const [vaccinationList, setVaccinationList] = useState({
+    applied: [],
+    notApplied: [],
+  });
   const [dewormingList, setDewormingList] = useState([]);
 
   const apiFetcher = new ApiFetcher();
 
   useEffect(() => {
-    getPetInfo();
+    getVaccinesToThisPet();
   }, []);
 
   // const getVaccinesToThisPet = async (completedVaccines) => {
@@ -60,6 +63,53 @@ const PetVaccinesRecord = ({ route }) => {
   //   }
   // };
 
+  const getVaccinesToThisPet = async () => {
+    setLoadData(true);
+    try {
+      const petResponse = await apiFetcher.getPetById(id);
+      if (petResponse.code == 200) setPetInfo(petResponse.data);
+      if (petResponse.code == 200) setPetInfo(petResponse.data);
+      {
+        const vaccinesResponse = await apiFetcher.getVaccinesRecords(id);
+        setVaccinesExpired(vaccinesResponse.data.vaccines_expired);
+        setDewormingList(vaccinesResponse.data.dewormers_records);
+        if (vaccinesResponse.data.vaccines_records.length > 0) {
+          setVaccinationList({
+            applied: vaccinesResponse.data.vaccines_records.map((vaccine) => ({
+              ...vaccine,
+              isCompleted: true,
+            })),
+            notApplied: vaccinesResponse.data.vaccines_expired.map(
+              (vaccine) => ({
+                ...vaccine,
+                isCompleted: false,
+              })
+            ),
+          });
+        }
+        // console.log("vaccinesResponse.data.dewormers_records.length: ", petId)
+        if (vaccinesResponse.data.dewormers_records.length > 0) {
+          setDewormingList(
+            vaccinesResponse.data.dewormers_records.map((dewomer) => ({
+              ...dewomer,
+              name: dewomer.deworming_type,
+              isCompleted: true,
+            }))
+          );
+        }
+      }
+    } catch (error) {
+      console.log("error: ", error)
+      Toast.show({
+        type: "error",
+        text1: "Error mascota no encontrada",
+        text2: `Inténte de nuevo más tarde`,
+      });
+    } finally {
+      setLoadData(false);
+    }
+  };
+
   const getPetInfo = async () => {
     setLoadData(true);
     try {
@@ -68,6 +118,8 @@ const PetVaccinesRecord = ({ route }) => {
       {
         const vaccinesResponse = await apiFetcher.getVaccinesRecords(id);
         console.log("vaccinesResponse: ", vaccinesResponse.data);
+        setVaccinesExpired(vaccinesResponse.data.vaccines_expired);
+        setDewormingList(vaccinesResponse.data.dewormers_records);
         if (vaccinesResponse.data.vaccines_records.length > 0) {
           // getVaccinesToThisPet(vaccinesResponse.data);
           setVaccinationList(vaccinesResponse.data.vaccines_records);
@@ -86,7 +138,7 @@ const PetVaccinesRecord = ({ route }) => {
     }
   };
 
-  console.log("pet: ", petInfo)
+  console.log("pet: ", petInfo);
 
   return (
     <View style={styles.container}>
@@ -131,21 +183,27 @@ const PetVaccinesRecord = ({ route }) => {
         </TouchableOpacity>
       </View>
       <ScrollView>
-      <Recomendation
-        title={"Recomendación"}
-        info={
-          "Programa una cita con un especialista para completar el esquema de salud de tu mascota."
-        }
-        oneOption={true}
-      />
-      <FlatList
-        data={vaccinationList}
-        renderItem={(vaccine) => <VaccineCard info={vaccine} />}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        scrollEnabled={false}
-        ListEmptyComponent={<EmptyVaccines text={'Registra las vacunas de tu mascota en la sección de SALUD'}/>}
-      />
+        {vaccinesExpired.length > 0 && (
+          <Recomendation
+            title={"Recomendación"}
+            info={
+              "Programa una cita con un especialista para completar el esquema de salud de tu mascota."
+            }
+            oneOption={true}
+          />
+        )}
+        <FlatList
+          data={option == 1 ? [...vaccinationList.applied, ...vaccinationList.notApplied] : dewormingList}
+          renderItem={(vaccine) => <VaccineCard info={vaccine} />}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          scrollEnabled={false}
+          ListEmptyComponent={
+            <EmptyVaccines
+              text={"Registra las vacunas de tu mascota en la sección de SALUD"}
+            />
+          }
+        />
       </ScrollView>
     </View>
   );

@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import { formatDateToDDMMYYYY } from "../../../utils/scripts";
+import momentTZ from "../../../utils/moment";
 
 const SelectDeworming = ({ petId, action }) => {
   const navigation = useNavigation();
@@ -28,22 +29,37 @@ const SelectDeworming = ({ petId, action }) => {
   const [selectedBrand, setSelectedBrand] = useState();
   const [frecuencyValue, setFrecuencyValue] = useState("");
   const [derwomerId, setDerwomerId] = useState("");
-  const [dewormingTypeValue, setDewormingTypeValue] = useState("");
+  const [dewormingTypeValue, setDewormingTypeValue] = useState([]);
 
   const [frequencies, setFrequencies] = useState([
     { id: 1, value: "Anual", isChecked: false },
     { id: 2, value: "Semestral", isChecked: false },
     { id: 3, value: "Trimestral", isChecked: false },
     { id: 4, value: "Mensual", isChecked: false },
-    { id: 5, value: "No lo he desparacitado", isChecked: false },
+    {
+      id: 5,
+      value: "No lo he desparacitado",
+      isChecked: false,
+    },
   ]);
 
   const [dewormingType, setDewormingType] = useState([
-    { id: 1, value: "Interna", brand: "", isChecked: false },
-    { id: 2, value: "Externa", brand: "", isChecked: false },
-    { id: 3, value: "Ambas en una aplicación", brand: "", isChecked: false },
-    { id: 4, value: "Ninguna", brand: "", isChecked: false },
-
+    { id: 1, value: "Interna", brand: "", isChecked: false, enabled: true },
+    { id: 2, value: "Externa", brand: "", isChecked: false, enabled: true },
+    {
+      id: 3,
+      value: "Ambas en una aplicación",
+      brand: "",
+      isChecked: false,
+      enabled: true,
+    },
+    // {
+    //   id: 4,
+    //   value: "Ninguna",
+    //   brand: "",
+    //   isChecked: false,
+    //   showOptions: false,
+    // },
   ]);
 
   useEffect(() => {
@@ -52,8 +68,9 @@ const SelectDeworming = ({ petId, action }) => {
 
   const getDerwomings = async () => {
     try {
+      console.log("petid: ", petId)
       const response = await apiFetcher.getVaccines(petId);
-      setDerwomerId(response.data.dewormers[0].id)
+      setDerwomerId(response.data.dewormers[0].id);
       const data = response.data.dewormer_brands.map((dewormer) => ({
         label: dewormer,
         value: dewormer,
@@ -69,26 +86,47 @@ const SelectDeworming = ({ petId, action }) => {
   };
 
   const handleSelectPartner = (name, deworming) => {
-    setPartner(name)
+    setPartner(name);
     navigation.goBack();
   };
 
   const save = async () => {
+    if (frecuencyValue == "No lo he desparacitado") {
+      action();
+      Toast.show({
+        type: "success",
+        text1: "Información guardada",
+        text2: `Se guardó la desparacitación con éxito`,
+      });
+      return;
+    } else if (!date || !frecuencyValue || !dewormingTypeValue) {
+      return Toast.show({
+        type: "error",
+        text1: "Completa todos los cammpos",
+        text2: `Datos incompletos`,
+      });
+    }
     try {
-      const payload = {
-        pet_id: petId,
-        vaccine_id: derwomerId,
-        application_day: date,
-        dose: 0,
-        brand: selectedBrand,
-        applied_by: partner,
-        applied: true,
-        deworming_type: dewormingTypeValue,
-        deworming_frequency: frecuencyValue,
-        last_deworming: date,
-      };
-      const response = await apiFetcher.saveDewormer(payload)
-      action()
+      dewormingType.map(async (derwomer) => {
+        if (derwomer.isChecked) {
+          const payload = {
+            pet_id: petId,
+            vaccine_id: derwomerId,
+            application_day: date,
+            dose: 0,
+            brand: derwomer.brand || "",
+            applied_by: partner || "",
+            applied: true,
+            deworming_type: derwomer.value,
+            deworming_frequency: frecuencyValue,
+            last_deworming: date,
+          };
+          console.log("payload: ", payload);
+          await apiFetcher.saveDewormer(payload);
+        }
+      });
+
+      action();
       Toast.show({
         type: "success",
         text1: "Desparacitación guardada",
@@ -114,14 +152,25 @@ const SelectDeworming = ({ petId, action }) => {
   };
 
   const handleSelectDewormingBrand = (type, value, id) => {
-    setSelectedBrand(value)
-    setDewormingTypeValue(type)
+    setSelectedBrand(value);
+    setDewormingTypeValue(type);
     setDewormingType((prevDewormingType) =>
       prevDewormingType.map((item) =>
         item.id === id ? { ...item, brand: value } : item
       )
     );
   };
+
+  // useEffect(() => {
+  //   if (frecuencyValue === "No lo he desparacitado") {
+  //     setDewormingTypeValue("Ninguna");
+  //     setDewormingType((prevDewormingType) =>
+  //       prevDewormingType.map((d) =>
+  //         d.id === 4 ? { ...d, isChecked: true } : { ...d, isChecked: false }
+  //       )
+  //     );
+  //   }
+  // }, [frecuencyValue]);
 
   const renderFrequency = ({ item }) => (
     <View row centerV gap-5 marginB-5>
@@ -135,55 +184,85 @@ const SelectDeworming = ({ petId, action }) => {
     </View>
   );
 
-  const renderDewormingType = ({ item }) => (
-    <View row gap-10 marginB-10>
-      <View>
-        <RadioButton
-          label={""}
-          color={Colors.primaryColor}
-          onPress={() => {
-            setDewormingType((prevDewormingType) =>
-              prevDewormingType.map((d) =>
-                d.id === item.id
-                  ? { ...d, isChecked: true }
-                  : { ...d, isChecked: false }
-              )
-            );
-          }}
-          selected={item.isChecked}
-        />
+  const renderDewormingType = ({ item }) => {
+    const isFrequencyDisabled = frecuencyValue === "No lo he desparacitado";
+
+    const handleDewormingSelection = (selectedItem, checked, id) => {
+      if (selectedItem.id == 3) {
+        setDewormingType((prevDewormingType) =>
+          prevDewormingType.map((d) =>
+            d.id != selectedItem.id
+              ? { ...d, isChecked: false }
+              : { ...d, isChecked: checked }
+          )
+        );
+      } else {
+        setDewormingType((prevDewormingType) =>
+          prevDewormingType.map((d) =>
+            d.id === selectedItem.id ? { ...d, isChecked: checked } : d
+          )
+        );
+        if (dewormingType[2]?.isChecked) {
+          setDewormingType((prevDewormingType) =>
+            prevDewormingType.map((d, index) =>
+              index === 2 ? { ...d, isChecked: false } : d
+            )
+          );
+        }
+      }
+    };
+
+    return (
+      <View row gap-10 marginB-10>
+        <View>
+          <RadioButton
+            label={""}
+            color={Colors.primaryColor}
+            selected={item.isChecked}
+            onPress={() => {
+              handleDewormingSelection(item, !item.isChecked, item.id);
+            }}
+          />
+        </View>
+        <View>
+          <Text text70M style={isFrequencyDisabled && { opacity: 0.5 }}>
+            {item.value}
+          </Text>
+
+          <>
+            <Picker
+              editable={!isFrequencyDisabled && item.isChecked}
+              style={[
+                styles.dateButton,
+                (!item.isChecked || isFrequencyDisabled) && { opacity: 0.5 },
+              ]}
+              placeholder={"Marca"}
+              onChange={(value) =>
+                handleSelectDewormingBrand(item.value, value, item.id)
+              }
+              value={item.brand}
+              items={brands}
+            />
+            <TouchableOpacity
+              style={[
+                styles.dateButton,
+                (!item.isChecked || isFrequencyDisabled) && { opacity: 0.5 },
+              ]}
+              disabled={!item.isChecked || isFrequencyDisabled}
+              onPress={() =>
+                navigation.navigate("SelectPartner", {
+                  action: handleSelectPartner,
+                  vaccine: "Despa",
+                })
+              }
+            >
+              <Text>{partner ? partner : "Aplicado por"}</Text>
+            </TouchableOpacity>
+          </>
+        </View>
       </View>
-      <View>
-        <Text text70M>{item.value}</Text>
-        <Picker
-          editable={item.isChecked}
-          style={[
-            styles.dateButton,
-            !item.isChecked && { opacity: 0.5 },
-          ]}
-          placeholder={"Marca"}
-          onChange={(value) => handleSelectDewormingBrand(item.value, value, item.id)}
-          value={item.brand}
-          items={brands}
-        />
-        <TouchableOpacity
-          style={[
-            styles.dateButton,
-            !item.isChecked && { opacity: 0.5 },
-          ]}
-          disabled={!item.isChecked}
-          onPress={() =>
-            navigation.navigate("SelectPartner", {
-              action: handleSelectPartner,
-              vaccine: "Despa",
-            })
-          }
-        >
-          <Text>{partner ? partner : "Aplicado por"}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View padding-10>
@@ -198,10 +277,15 @@ const SelectDeworming = ({ petId, action }) => {
           />
         </View>
       </View>
-      <Text text70M marginT-10>
+      <Text
+        text70M
+        marginT-10
+        style={frecuencyValue == "No lo he desparacitado" && { opacity: 0.5 }}
+      >
         2. ¿Cuándo fue la última desparasitación de tu mascota?
       </Text>
       <DateTimePicker
+        editable={frecuencyValue != "No lo he desparacitado"}
         display="spinner"
         style={[
           {
@@ -215,10 +299,14 @@ const SelectDeworming = ({ petId, action }) => {
         placeholder={"Fecha de aplicación"}
         mode={"date"}
         onChange={(date) => {
-          setDate(date.toLocaleDateString("es-us"));
+          setDate(momentTZ(date).format("DD/MM/YYYY"));
         }}
       />
-      <Text text70M marginT-10>
+      <Text
+        text70M
+        marginT-10
+        style={frecuencyValue == "No lo he desparacitado" && { opacity: 0.5 }}
+      >
         3. ¿Qué tipo?
       </Text>
       <View

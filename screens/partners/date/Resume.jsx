@@ -90,7 +90,7 @@ const Resume = ({ route }) => {
       return sum + priceToPay;
     }, 0);
 
-    console.log("appointment: ", appointment)
+    console.log("appointment: ", appointment.service)
 
   return (
     <View flex backgroundColor={Colors.white}>
@@ -222,7 +222,7 @@ const Resume = ({ route }) => {
               renderItem={({ item }) => (
                 <View row spread marginT-10>
                   <Text>{item.name}</Text>
-                  <Text>${item.price_total}</Text>
+                  <Text>${item.price}</Text>
                 </View>
               )}
               keyExtractor={(item) => item.id.toString()}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import { Colors } from "../../../styles/Colors";
 import SelectVaccines from "./SelectVaccines";
@@ -11,6 +11,7 @@ import Toast from "react-native-toast-message";
 import CompleteVaccinationList from "../../../components/vaccines/CompleteVaccinationList";
 import Loading from "../../../components/Loading";
 import SelectDeworming from "./SelectDeworming";
+import { useNavigation } from "@react-navigation/native";
 
 const Health = ({ pet }) => {
   const [state, setState] = useState({
@@ -24,7 +25,14 @@ const Health = ({ pet }) => {
     completedVaccines: [],
   });
 
+  const scrollViewRef = useRef(null);
+  const navigation = useNavigation()
+
   const [challengeModalText, setChallengeModalText] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [vaccinesCompleted, setVaccinesCompleted] = useState(false);
+  const [dewromingsCompleted, setDewromingsCompleted] = useState(false);
 
   const apiFetcher = new ApiFetcher();
 
@@ -40,7 +48,11 @@ const Health = ({ pet }) => {
         setChallengeModalText(
           "¡Muy bien! El esquema de salud de tu mascota está completo."
         );
+
+        console.log("response.data.dewormers_expired: ", response.data.dewormers_expired)
       const isVaccinated = response.data.vaccines_records.length > 0;
+      response.data.vaccines_expired.length == 0 && setVaccinesCompleted(true)
+      response.data.dewormers_expired.length == 0 && setDewromingsCompleted(true)
       setState((prev) => ({
         ...prev,
         isVaccinated,
@@ -56,14 +68,21 @@ const Health = ({ pet }) => {
     } finally {
       setState((prev) => ({ ...prev, loading: false }));
     }
-  }, [pet.id]);
+  }, [pet.id, navigation]);
 
   useEffect(() => {
     getVaccinesInfo();
-  }, [getVaccinesInfo]);
+  }, [refresh]);
 
-  const handleNextStep = () =>
-    setState((prev) => ({ ...prev, deworming: true, challengeVisible: false }));
+  const handleNextStep = () => {
+    if (redirect) closeModalChallenge();
+    else
+      setState((prev) => ({
+        ...prev,
+        deworming: true,
+        challengeVisible: false,
+      }));
+  };
 
   const closeModalChallenge = () =>
     setState((prev) => ({
@@ -71,6 +90,31 @@ const Health = ({ pet }) => {
       finishScreen: true,
       challengeVisible: false,
     }));
+
+  const registerVaccines = () => {
+    setRedirect(true);
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    setState((prev) => ({
+      ...prev,
+      isVaccinated: false,
+      finishScreen: false,
+      vaccineVisible: true,
+      challengeVisible: false,
+    }));
+  };
+
+  const registerDewormings = () => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    setState((prev) => ({
+      ...prev,
+      isVaccinated: false,
+      finishScreen: false,
+      deworming: true,
+      vaccineVisible: false,
+      dewormingVisible: true,
+      challengeVisible: false,
+    }));
+  };
 
   const {
     vaccineVisible,
@@ -84,7 +128,7 @@ const Health = ({ pet }) => {
   } = state;
 
   return (
-    <ScrollView contentContainerStyle={styles.mainContent}>
+    <ScrollView ref={scrollViewRef} contentContainerStyle={styles.mainContent}>
       {loading && (
         <Loading
           textColor={Colors.primaryColor}
@@ -93,8 +137,12 @@ const Health = ({ pet }) => {
       )}
       {isVaccinated || finishScreen ? (
         <CompleteVaccinationList
+        vaccinesCompleted={vaccinesCompleted}
+        dewromingsCompleted={dewromingsCompleted}
           completedVaccines={completedVaccines}
           petId={pet.id}
+          registerVaccines={registerVaccines}
+          registerDewormings={registerDewormings}
         />
       ) : (
         <View style={styles.container}>
@@ -116,12 +164,14 @@ const Health = ({ pet }) => {
           ) : dewormingVisible ? (
             <SelectDeworming
               petId={pet.id}
-              action={() =>
+              action={() =>{
                 setState((prev) => ({
                   ...prev,
                   finishScreen: true,
                   challengeVisible: true,
                 }))
+                setRefresh(true)
+              }
               }
             />
           ) : (

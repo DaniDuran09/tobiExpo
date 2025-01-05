@@ -152,20 +152,19 @@ const SelectVaccines = (props) => {
         setSaveLoading(false);
         break;
       } else {
-        console.log("vaccine: ", momentTZ(vaccine.application_day).format('DD/MM/YY'))
+        console.log("vaccine: ", vaccine.application_day);
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day:  momentTZ(vaccine.application_day).format('DD/MM/YY'),
+          application_day: vaccine.application_day,
           dose: 0,
           applied: true,
           brand: vaccine.brand,
           applied_by: vaccine.partner,
         };
 
-        console.log("data: ", data)
+        console.log("data: ", data);
         try {
-          
           await insertVaccine(data);
           Toast.show({
             type: "success",
@@ -173,7 +172,7 @@ const SelectVaccines = (props) => {
             text2: `Se guardaron las vacunas con éxito`,
           });
         } catch (error) {
-          console.log("error: ", error)
+          console.log("error: ", error);
           Toast.show({
             type: "error",
             text1: "Error al guardar las vacunas",
@@ -265,13 +264,18 @@ const SelectVaccines = (props) => {
                         placeholder={"Fecha de aplicación"}
                         mode={"date"}
                         onChange={(date) => {
+                          console.log(
+                            "fecha: ",
+                            momentTZ(date).format("DD/MM/YYYY")
+                          );
+
                           setVaccines(
                             vaccines.map((v) =>
                               v.id === vaccine.id
                                 ? {
                                     ...v,
                                     application_day:
-                                      date.toLocaleDateString("es-us"),
+                                      momentTZ(date).format("DD/MM/YYYY"),
                                   }
                                 : v
                             )
@@ -362,9 +366,17 @@ const SelectVaccines = (props) => {
             </View>
           </>
         ) : (
-          <EmptyVaccines
-            text={"Aún no es necesario aplicar alguna vacuna a tu mascota"}
-          />
+          <View>
+            <EmptyVaccines
+              text={"Aún no es necesario aplicar otra vacuna a tu mascota"}
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.textButton}>Regresar</Text>
+            </TouchableOpacity>
+          </View>
         )}
         <ImageOption
           visible={modalVisible}
