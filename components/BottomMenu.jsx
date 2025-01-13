@@ -4,7 +4,7 @@ import { Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Text } from "react-native-ui-lib";
 
-const BottomMenu = () => {
+const BottomMenu = ({ disabledOption = false }) => {
   const navigation = useNavigation();
   const addNewPet = () => {
     navigation.navigate("RegisterNewPet");
@@ -25,8 +25,9 @@ const BottomMenu = () => {
         </Text>
       </View>
       <TouchableOpacity
+        disabled={disabledOption}
         onPress={() => screenNavigate("IdMyPet")}
-        style={styles.section}
+        style={[styles.section, disabledOption && {opacity: 0.5}]}
       >
         <View style={styles.sectionContainer}>
           <Image
@@ -68,8 +69,9 @@ const BottomMenu = () => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
+      disabled={disabledOption}
         onPress={() => screenNavigate("Appointments")}
-        style={styles.section}
+        style={[styles.section, disabledOption && {opacity: 0.5}]}
       >
         <View
           style={{
@@ -118,8 +120,9 @@ const BottomMenu = () => {
         </View>
       </TouchableOpacity>
       <TouchableOpacity
+      disabled={disabledOption}
         onPress={() => screenNavigate("History")}
-        style={styles.section}
+        style={[styles.section, disabledOption && {opacity: 0.5}]}
       >
         <View
           style={{
@@ -169,8 +172,9 @@ const BottomMenu = () => {
       </TouchableOpacity>
 
       <TouchableOpacity
+      disabled={disabledOption}
         onPress={() => screenNavigate("SelectPetVaccines")}
-        style={styles.section}
+        style={[styles.section, disabledOption && {opacity: 0.5}]}
       >
         <View
           style={{

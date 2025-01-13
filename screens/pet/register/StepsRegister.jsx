@@ -36,7 +36,6 @@ const StepsRegister = () => {
   const savePet = async () => {
     setLoading(true);
     try {
-      console.log("LE VOY A MANDAR: ", petInfo)
       const response = await apiFetcher.registerPet(petInfo);
       if (response.code == 200) {
         setIdPet(response.data.id);

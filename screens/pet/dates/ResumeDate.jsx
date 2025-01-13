@@ -56,8 +56,6 @@ const ResumeDate = ({ navigation, route }) => {
     }
   };
 
-  console.log("itm: ", item?.appointment_pet_services[0])
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{padding: 15,}}>

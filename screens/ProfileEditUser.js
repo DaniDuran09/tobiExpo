@@ -57,7 +57,6 @@ const ProfileEditUser = ({ route, navigation }) => {
   }, []);*/
   const getPermissionsLibrary = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-    console.log("status: ", status);
     if (status !== "granted") {
       if (!permissionsRequested.library) {
         setPermissionsRequested((prev) => ({ ...prev, library: true }));
@@ -98,7 +97,6 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        console.log("Resukt: ", result.assets[0]);
         setImageSource(result.assets[0]);
         closeModal();
       }
@@ -112,7 +110,6 @@ const ProfileEditUser = ({ route, navigation }) => {
   };
   const getPermissionsCamera = async () => {
     const { status } = await ImagePicker.getCameraPermissionsAsync();
-    console.log("STATUS --- ", status);
     if (status !== "granted") {
       if (!permissionsRequested.camera) {
         setPermissionsRequested((prev) => ({ ...prev, camera: true }));
@@ -188,7 +185,6 @@ const ProfileEditUser = ({ route, navigation }) => {
 
   const savePhoto = async () => {
     try {
-      console.log("imageSource: ", imageSource);
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
@@ -197,7 +193,6 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
-      console.log("Response: ", response);
       if (response.code == 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
@@ -225,9 +220,7 @@ const ProfileEditUser = ({ route, navigation }) => {
         age: userData.age,
       };
 
-      console.log("que");
       const response = await apiFetcher.updateUser(newData);
-      console.log("La respuesta: ", response);
       if (response.code == 200) {
         dispatch(setUserInfo(response.data));
         Toast.show({
@@ -266,8 +259,6 @@ const ProfileEditUser = ({ route, navigation }) => {
       setLoading(false);
     }
   };
-
-  console.log("imageSource.uri: ", imageSource);
 
   return (
     <>

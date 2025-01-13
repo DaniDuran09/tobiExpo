@@ -11,8 +11,6 @@ export const calculatePetAge = (birthday) => {
   const birthDate = new Date(birthday);
   const today = new Date();
 
-  console.log("birthDate: ", birthDate)
-  console.log("today: ", today)
 
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDifference = today.getMonth() - birthDate.getMonth();
@@ -23,8 +21,6 @@ export const calculatePetAge = (birthday) => {
   ) {
     age--;
   }
-
-  console.log("age: ", age)
 
   return age;
 };

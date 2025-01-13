@@ -403,7 +403,7 @@ const requestLibraryPermissions = async () => {
           )}
         </View>
       </View>
-      <BottomMenu />
+      <BottomMenu disabledOption={data.length <= 0}/>
       <DeleteModal
         visible={showDeleteModal}
         closeModal={closeDeleteModal}

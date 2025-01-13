@@ -34,7 +34,7 @@ class ApiFetcher {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
-      console.log("headers: ", headers)
+      // console.log("headers: ", headers)
       const response = await axios.get(url, { headers, timeout: 15000 });
 
       return this.handleErrors(response);
@@ -148,7 +148,6 @@ class ApiFetcher {
 
   // vaccines
   async getVaccines(id) {
-    console.log("ID: ", id)
     return await this._get(`/pets/${id}/vaccines`);
   }
 

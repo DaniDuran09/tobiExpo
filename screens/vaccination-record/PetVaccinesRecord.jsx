@@ -117,7 +117,6 @@ const PetVaccinesRecord = ({ route }) => {
       if (petResponse.code == 200) setPetInfo(petResponse.data);
       {
         const vaccinesResponse = await apiFetcher.getVaccinesRecords(id);
-        console.log("vaccinesResponse: ", vaccinesResponse.data);
         setVaccinesExpired(vaccinesResponse.data.vaccines_expired);
         setDewormingList(vaccinesResponse.data.dewormers_records);
         if (vaccinesResponse.data.vaccines_records.length > 0) {
@@ -138,7 +137,6 @@ const PetVaccinesRecord = ({ route }) => {
     }
   };
 
-  console.log("pet: ", petInfo);
 
   return (
     <View style={styles.container}>

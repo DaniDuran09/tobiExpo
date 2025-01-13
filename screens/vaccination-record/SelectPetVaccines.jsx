@@ -46,7 +46,6 @@ import { Colors } from "../../styles/Colors";
     }
   
     const renderPets = (item) => {
-      console.log("item: ", item);
       return (
         <TouchableOpacity style={styles.item} onPress={() => goToIdInfoPet(item.id)}>
           <View style={styles.leftSection}>

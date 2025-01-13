@@ -57,8 +57,6 @@ const RegisterNewPet = (props) => {
     dispatch(setPetInfo(updatedInfo));
   }, [name, date, gender]);
 
-  console.log("pet?.birthday: ", pet?.birthday)
-
   return (
     <View style={styles.container}>
       <HeaderTitle title={"Tu mascota | Quién es"} />

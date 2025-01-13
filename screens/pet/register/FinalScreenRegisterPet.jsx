@@ -32,7 +32,6 @@ const FinalScreenRegisterPet = (props) => {
   }, []);*/
   const getPermissionsLibrary = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-    console.log("status: ", status);
     if (status !== "granted") {
       if (!permissionsRequested.library) {
         setPermissionsRequested((prev) => ({ ...prev, library: true }));
@@ -91,7 +90,6 @@ const FinalScreenRegisterPet = (props) => {
   };
   const getPermissionsCamera = async () => {
     const { status } = await ImagePicker.getCameraPermissionsAsync();
-    console.log("STATUS --- ", status);
     if (status !== "granted") {
       if (!permissionsRequested.camera) {
         setPermissionsRequested((prev) => ({ ...prev, camera: true }));

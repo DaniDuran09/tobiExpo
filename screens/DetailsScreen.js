@@ -43,8 +43,6 @@ const DetailsScreen = ({navigation}) => {
       const token = await appStorage.getAppToken();
       const blogData = await apiFetcher.getBlogs()
 
-      console.log("blogData: ", blogData)
-
       if (blogData) setData(blogData.data);
     } catch (error) {
       // Alert.alert("Sucesió un error!", "Error")

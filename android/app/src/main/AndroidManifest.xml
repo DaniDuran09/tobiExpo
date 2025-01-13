@@ -19,7 +19,7 @@
 
     <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws" 
+        android:value="AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s" 
       />
 
     <meta-data android:name="expo.modules.updates.ENABLED" android:value="true"/>

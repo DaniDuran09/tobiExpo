@@ -199,6 +199,40 @@ const SelectVaccines = (props) => {
     navigation.goBack();
   };
 
+  const setValidDate = (selectedDate, vaccine) => {
+    const today = momentTZ();
+    const oneYearAgo = today.clone().subtract(1, "year");
+
+    if (!momentTZ(selectedDate).isValid()) {
+      Toast.show({
+        type: "error",
+        text1: "Fecha inválida",
+        text2: `Introduce una fecha válida`,
+      });
+      return;
+    }
+
+    if (momentTZ(selectedDate).isBefore(oneYearAgo)) {
+      Toast.show({
+        type: "error",
+        text1: "Fecha inválida",
+        text2: `No puedes introduciar fechas de vacunas mayores a 1 año`,
+      });
+      return;
+    }
+
+    setVaccines(
+      vaccines.map((v) =>
+        v.id === vaccine.id
+          ? {
+              ...v,
+              application_day: momentTZ(selectedDate).format("DD/MM/YYYY"),
+            }
+          : v
+      )
+    );
+  };
+
   return (
     <>
       {loading && (
@@ -264,23 +298,9 @@ const SelectVaccines = (props) => {
                         placeholder={"Fecha de aplicación"}
                         mode={"date"}
                         onChange={(date) => {
-                          console.log(
-                            "fecha: ",
-                            momentTZ(date).format("DD/MM/YYYY")
-                          );
-
-                          setVaccines(
-                            vaccines.map((v) =>
-                              v.id === vaccine.id
-                                ? {
-                                    ...v,
-                                    application_day:
-                                      momentTZ(date).format("DD/MM/YYYY"),
-                                  }
-                                : v
-                            )
-                          );
+                          setValidDate(date, vaccine);
                         }}
+                        value={vaccine.application_day && vaccine.application_day}
                       />
                       <Picker
                         editable={vaccine.isChecked}

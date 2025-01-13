@@ -15,7 +15,7 @@
       "supportsTablet": true,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws"
+          "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
       "bundleIdentifier": "com.tobi"
@@ -27,7 +27,7 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws"
+          "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
       "package": "com.tobi"
