@@ -64,7 +64,7 @@ const StepsRegister = () => {
       const formData = new FormData();
       formData.append("picture", {
         uri: picturePet.uri,
-        type: picturePet.type,
+        type: "image/jpeg",
         name: picturePet.fileName,
       });
       const response = await apiFetcher.updatePicturePet(idPet, formData);

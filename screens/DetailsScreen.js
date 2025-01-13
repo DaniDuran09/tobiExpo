@@ -21,6 +21,7 @@ import Loading from '../components/Loading';
 import Toast from 'react-native-toast-message';
 import ScreenServerError from '../components/ScreenServerError';
 import ScreenInternetError from '../components/ScreenInternetError';
+import ApiFetcher from '../modules/ApiFetcher';
 
 const {width, height} = Dimensions.get('window');
 
@@ -31,6 +32,7 @@ const DetailsScreen = ({navigation}) => {
   // const { token } = useSelector((store) => store.general.user);
 
   const appStorage = new AppStorage();
+  const apiFetcher = new ApiFetcher()
 
   React.useEffect(() => {
     blog();
@@ -39,7 +41,7 @@ const DetailsScreen = ({navigation}) => {
   const blog = async () => {
     try {
       const token = await appStorage.getAppToken();
-      const blogData = await getBlog(token);
+      const blogData = await apiFetcher.getBlogs()
 
       if (blogData) setData(blogData.data);
     } catch (error) {
@@ -114,10 +116,10 @@ const DetailsScreen = ({navigation}) => {
           backgroundColorProp={Colors.white}
         />
       )}
-      {error ? (
+      {/* {error ? (
         // <ScreenServerError refetch={blog}/>
         <ScreenInternetError action={blog}/>
-      ) : (
+      ) : ( */}
         <View style={{width: width, height: '80%'}}>
           <FlatList
             // numColumns={3}
@@ -133,7 +135,7 @@ const DetailsScreen = ({navigation}) => {
             renderItem={({item}) => renderItem(item)}
           />
         </View>
-      )}
+      {/* )} */}
     </View>
   );
 };

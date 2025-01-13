@@ -28,7 +28,7 @@ const UserStepsRegister = () => {
     last_name: "",
     phone: "",
     email: "",
-    birtday: "",
+    birthday: "",
     password: "",
   });
   const [data, setData] = useState({
@@ -47,7 +47,6 @@ const UserStepsRegister = () => {
   useEffect(() => {
     dispatch(clearUser());
     dispatch(clearPetInfo());
-    console.log("UserInfo: ", userInfo);
   }, []);
 
   const validateEmail = (email) => {
@@ -62,7 +61,7 @@ const UserStepsRegister = () => {
       user.last_name === "" ||
       user.email === "" ||
       user.phone === "" ||
-      user.birtday === "" ||
+      user.birthday === "" ||
       user.password === ""
     ) {
       Toast.show({
@@ -97,11 +96,9 @@ const UserStepsRegister = () => {
   };
 
   const validSecondScreen = () => {
-    console.log("data: ", data);
     if (data.namePet != "" && data.birthday != "" && data.typePet != 0) {
       return true;
     } else {
-      console.log("Data: ", data);
       Toast.show({
         type: "error",
         text1: "Campos incompletos",
@@ -115,7 +112,6 @@ const UserStepsRegister = () => {
     if (data.pet_breed_id != 0 && data.weight != 0) {
       return true;
     } else {
-      console.log("Data: ", data);
       Toast.show({
         type: "error",
         text1: "Campos incompletos",
@@ -127,13 +123,10 @@ const UserStepsRegister = () => {
 
   const doRegister = async () => {
     try {
-      console.log("Lo que trataré de mandarle: ", userInfo);
       const { userInfo: nestedUserInfo, ...newUserInfo } = userInfo;
       
+      const response = await apiFetcher.registerUser(userInfo);
       
-      console.log('newUserInfo :',newUserInfo)
-      const response = await apiFetcher.registerUser(newUserInfo);
-      console.log("Response: ", response);
       if (response.code != 200 && response.code != 201) {
         Toast.show({
           type: "error",
@@ -145,7 +138,6 @@ const UserStepsRegister = () => {
           routes: [{ name: "LoginScreen" }],
         });
       } else {
-        console.log("LE MANDO LA INFO PORQUE ENTRO AL ELSE");
         await saveInfoUser(response.data);
       }
     } catch (error) {
@@ -165,16 +157,14 @@ const UserStepsRegister = () => {
 
   const savePhoto = async () => {
     try {
-      console.log("el image: ", imageSource);
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
-      console.log("Response: ", response);
       if (response.code == 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
@@ -189,7 +179,6 @@ const UserStepsRegister = () => {
   };
 
   const saveInfoUser = async (data) => {
-    console.log("ESTO TENGO EN LA DATAAAA: ", data);
     await appStorage.saveUser(data);
     dispatch(setUserInfo(data));
     await appStorage.saveAppToken(data.token);
@@ -200,7 +189,6 @@ const UserStepsRegister = () => {
     switch (step) {
       case 0:
          valid = validFirsScreen();
-        console.log("Entro: ", user);
         break;
       case 1:
         valid = validSecondScreen();
@@ -227,7 +215,7 @@ const UserStepsRegister = () => {
       case 1:
         return <SignInPetScreen user={user} data={data} setData={setData} />;
       case 2:
-        return <SignInPetInfoScreen pet={data} user={user} />;
+        return <SignInPetInfoScreen pet={data} setData={setData}  user={user} />;
       case 3:
         return (
           <FinalScreenRegisterPet

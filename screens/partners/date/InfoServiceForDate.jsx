@@ -35,6 +35,8 @@ const InfoServiceForDate = ({ route }) => {
   const appStorage = new AppStorage();
   const [specialistId, setSpecialistId] = useState();
 
+  console.log("specialist: ", specialistId)
+
   const disabledSelectDate = useMemo(
     () => !(specialistId && selectedPet && selectedServices),
     [specialistId, selectedPet, selectedServices]
@@ -123,7 +125,7 @@ const InfoServiceForDate = ({ route }) => {
           payload.appointment.appointment_pet_services_attributes.push({
             pet_id: selectedPet.id,
             service_id: service.id,
-            user_id: specialistId,
+            user_id: specialistId.id,
             start_time: infoDate.time,
           });
         });
@@ -138,7 +140,7 @@ const InfoServiceForDate = ({ route }) => {
           })
         );
 
-        navigation.navigate("Resume", { payload: payload });
+        navigation.navigate("Resume", { payload: payload, phone: specialistId.phone });
       } catch (error) {
         Toast.show({
           type: "error",
@@ -157,7 +159,7 @@ const InfoServiceForDate = ({ route }) => {
     setLoadingCalendar(true)
     try {
       const response = await apiFetcher.getAvailabilityDaysByPartnerId(
-        specialistId
+        specialistId.id
       );
       setAvailabilityDays(response.available_days);
       setShowCalendar(true);
@@ -201,10 +203,10 @@ const InfoServiceForDate = ({ route }) => {
                   animationDuration={500}
                   resizeMode="cover"
                 />
-                <View marginT-10 center>
+                <View marginT-10 center marginH-20>
                   <Text>{specialist?.display_name}</Text>
-                  <Text>Descripción pendiente</Text>
-                  <Text>Pendiente Céd. Prof. 123456</Text>
+                  <Text>{specialist?.description}</Text>
+                  <Text>{specialist?.professional_license}</Text>
                 </View>
               </View>
               <View
@@ -301,7 +303,7 @@ const InfoServiceForDate = ({ route }) => {
                 setInfoDate={setInfoDate}
                 infoDate={infoDate}
                 availabilityDays={availabilityDays}
-                specialistId={specialistId}
+                specialistId={specialistId?.id}
                 selectedServices={selectedServices}
               />
             </View>

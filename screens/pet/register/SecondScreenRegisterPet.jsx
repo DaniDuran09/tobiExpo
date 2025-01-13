@@ -63,9 +63,9 @@ const SecondScreenRegisterPet = props => {
     navigation.goBack();
   };
 
-  useEffect(() => {
-    console.log('La info: ', petInfo);
-  }, [petInfo]);
+  // useEffect(() => {
+  //   console.log('La info: ', petInfo);
+  // }, [petInfo]);
 
   return (
     <View style={styles.container}>

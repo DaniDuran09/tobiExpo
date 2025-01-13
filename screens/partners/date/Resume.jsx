@@ -4,7 +4,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import calendar from "../../../assets/calendar-icon-date.png";
 import location from "../../../assets/location-icon.png";
-import phone from "../../../assets/phone-icon.png";
+import phoneImage from "../../../assets/phone-icon.png";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import Entypo from "react-native-vector-icons/Entypo";
@@ -24,7 +24,7 @@ import Loading from "../../../components/Loading";
 import Toast from "react-native-toast-message";
 
 const Resume = ({ route }) => {
-  const { payload } = route.params;
+  const { payload, phone } = route.params;
   const appointment = useSelector((state) => state?.appointment?.appointment);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
@@ -42,21 +42,21 @@ const Resume = ({ route }) => {
   const goToPay = async () => {
     setLoading(true);
     try {
-      const response = await apiFetcher.registerAppointments(payload)
-      console.log("response: ", response)
+      const response = await apiFetcher.registerAppointments(payload);
+      console.log("response: ", response);
       if (response.code == 200) {
-        setCheckoutUrl(response.data.payment.checkout_url)
-        openBottomSheet()
+        setCheckoutUrl(response.data.payment.checkout_url);
+        openBottomSheet();
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'No se pudo agendar la cita',
+        type: "error",
+        text1: "No se pudo agendar la cita",
         text2: `Intenta de nuevo más tarde`,
       });
-      console.log("Error: ", error)
+      console.log("Error: ", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -83,17 +83,14 @@ const Resume = ({ route }) => {
     );
   };
 
-  //console.log("appointment?.service_: ", appointment?.service)
-  const totalPrice = appointment?.service.reduce((sum, item) => {
-    /*const priceWithTax =
-      parseFloat(item.price) +
-      (parseFloat(item.price) * parseInt(item.tax_percent)) / 100;
-    return sum + priceWithTax + 10; // Añadir 10 a cada precio calculado*/
-    const priceToPay = parseFloat(item.price)
-    
-    return sum + priceToPay
+  const totalPrice =
+    appointment?.service.reduce((sum, item) => {
+      const priceToPay = parseFloat(item.price);
 
-  }, 0) + 10;
+      return sum + priceToPay;
+    }, 0);
+
+    console.log("appointment: ", appointment.service)
 
   return (
     <View flex backgroundColor={Colors.white}>
@@ -151,29 +148,15 @@ const Resume = ({ route }) => {
               <Text text70>{appointment?.pet?.pet_breed?.description}</Text>
             </View>
           </View>
-          {/* <Entypo
-              name={
-                expandedAppointment === item ? "chevron-up" : "chevron-down"
-              }
-              size={25}
-              color={Colors.gray}
-            /> */}
         </View>
-        {/* }
-        onPress={() =>
-          setExpandedAppointment(expandedAppointment === item ? null : item)
-        }
-      > */}
         <View style={styles.servicesContainer} margin-15>
           <View style={styles.section}>
             <Text text70BO>Servicios</Text>
             <View style={styles.rowSection}>
-              {/* <Image
-                source={calendar}
-                style={styles.image}
-                resizeMode="contain"
-              /> */}
               <View>
+
+
+
                 {appointment?.service.map(({ name }) => (
                   <View row gap-5 centerV>
                     <Text text100>{`\u25CF`}</Text>
@@ -211,63 +194,47 @@ const Resume = ({ route }) => {
                 style={{ width: 20, height: 20 }}
                 resizeMode="contain"
               />
-              <Text style={styles.description}>{appointment?.partenerLocation}</Text>
+              <Text style={styles.description}>
+                {appointment?.partenerLocation}
+              </Text>
             </View>
           </View>
           <View style={styles.section}>
             <Text text70BO>Teléfono</Text>
             <View style={styles.rowSection}>
-              <Image source={phone} style={styles.image} resizeMode="cover" />
-              <Text style={styles.description}>55 555 5555</Text>
+              <Image source={phoneImage} style={styles.image} resizeMode="cover" />
+              <Text style={styles.description}>{phone}</Text>
             </View>
           </View>
         </View>
-        {/* </ExpandableSection> */}
-        <TouchableOpacity
-        // onPress={() => {
-        //   resetParams();
-        //   navigation.navigate("InfoServiceForDate");
-        // }}
-        >
-          {/* <Text style={styles.title} marginL-5> */}
-
-          {/* </Text> */}
-        </TouchableOpacity>
+        <TouchableOpacity></TouchableOpacity>
         <View flex padding-15>
           <Text marginT-20 style={styles.title}>
             Resumen
           </Text>
           <View style={styles.servicesContainer}>
             <Text text70BO>Productos y servicios</Text>
-            <FlatList 
-            row spread marginT-10
-            data={appointment.service}
-            renderItem={({item}) => (
-            <View row spread marginT-10>
-            <Text>{item.name}</Text>
-            <Text>${item.price_total}</Text>
-          </View>
-            )} 
-            keyExtractor={item => item.id.toString()} 
+            <FlatList
+              row
+              spread
+              marginT-10
+              data={appointment.service}
+              renderItem={({ item }) => (
+                <View row spread marginT-10>
+                  <Text>{item.name}</Text>
+                  <Text>${item.price}</Text>
+                </View>
+              )}
+              keyExtractor={(item) => item.id.toString()}
             />
-            {/* <Text>{appointments[0]?.service?.name}</Text>*/}
-
-            {/* <View row spread marginT-10>
-              <Text>Impuesto IVA %</Text>
-              <Text>
-                $
-                {totalPay}
-              </Text>
-            </View> */}
-            <View row spread marginT-10>
-            </View>
+            <View row spread marginT-10></View>
             <View row spread marginT-10>
               <Text>Tarifa de servicio</Text>
               <Text>$10</Text>
             </View>
             <View row spread marginT-10>
               <Text text70BO>Total a pagar</Text>
-              <Text text70BO>${ totalPrice}</Text> 
+              <Text text70BO>${totalPrice + 10}</Text>
             </View>
           </View>
         </View>
@@ -291,7 +258,10 @@ const Resume = ({ route }) => {
         }}
       >
         <BottomSheetView style={styles.contentContainer}>
-          <PaymentScreen checkoutUrl={checkoutUrl} closeBottomSheet={closeBottomSheet} />
+          <PaymentScreen
+            checkoutUrl={checkoutUrl}
+            closeBottomSheet={closeBottomSheet}
+          />
         </BottomSheetView>
       </BottomSheet>
     </View>

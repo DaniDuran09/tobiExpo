@@ -6,9 +6,9 @@ import { Colors } from "../../styles/Colors";
 const CorrectWeight = () => {
   return (
     <View br20 padding-15 style={{ borderWidth: 1, borderColor: Colors.green }}>
-      <View row gap-10>
+      <View row gap-10 paddingH-15>
         <Icon name="thumb-up-outline" size={20} color={Colors.green} />
-        <View>
+        <View paddingH-10>
           <Text text70BO>¡Bien hecho!</Text>
           <Text text70>Tu mascota está dentro del rango de su peso ideal. </Text>
         </View>

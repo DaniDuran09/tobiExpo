@@ -20,11 +20,11 @@ import {
   Checkbox,
   DateTimePicker,
   Picker,
+  RadioButton,
   Text,
   View,
 } from "react-native-ui-lib";
 import momentTZ from "../../../utils/moment";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import ImageOption from "../../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 
@@ -152,16 +152,19 @@ const SelectVaccines = (props) => {
         setSaveLoading(false);
         break;
       } else {
+        console.log("vaccine: ", vaccine.application_day);
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: momentTZ(vaccine.application_day).format("DD/MM/YYYY"),
+          application_day: vaccine.application_day,
           dose: 0,
+          applied: true,
           brand: vaccine.brand,
-          applied_by: vaccine.partner
+          applied_by: vaccine.partner,
         };
+
+        console.log("data: ", data);
         try {
-          console.log("La data a mandar: ", data);
           await insertVaccine(data);
           Toast.show({
             type: "success",
@@ -169,7 +172,7 @@ const SelectVaccines = (props) => {
             text2: `Se guardaron las vacunas con éxito`,
           });
         } catch (error) {
-          console.error("Error inserting vaccine: ", error);
+          console.log("error: ", error);
           Toast.show({
             type: "error",
             text1: "Error al guardar las vacunas",
@@ -188,11 +191,46 @@ const SelectVaccines = (props) => {
   };
 
   const handleSelectPartner = (name, vaccine) => {
-    setVaccines(prevVaccines =>
-      prevVaccines.map(v => (v.id === vaccine.id ? { ...v, partner: name } : v))
+    setVaccines((prevVaccines) =>
+      prevVaccines.map((v) =>
+        v.id === vaccine.id ? { ...v, partner: name } : v
+      )
     );
     navigation.goBack();
-    navigation.goBack();
+  };
+
+  const setValidDate = (selectedDate, vaccine) => {
+    const today = momentTZ();
+    const oneYearAgo = today.clone().subtract(1, "year");
+
+    if (!momentTZ(selectedDate).isValid()) {
+      Toast.show({
+        type: "error",
+        text1: "Fecha inválida",
+        text2: `Introduce una fecha válida`,
+      });
+      return;
+    }
+
+    if (momentTZ(selectedDate).isBefore(oneYearAgo)) {
+      Toast.show({
+        type: "error",
+        text1: "Fecha inválida",
+        text2: `No puedes introduciar fechas de vacunas mayores a 1 año`,
+      });
+      return;
+    }
+
+    setVaccines(
+      vaccines.map((v) =>
+        v.id === vaccine.id
+          ? {
+              ...v,
+              application_day: momentTZ(selectedDate).format("DD/MM/YYYY"),
+            }
+          : v
+      )
+    );
   };
 
   return (
@@ -216,6 +254,20 @@ const SelectVaccines = (props) => {
                 {vaccines.map((vaccine) => (
                   <View key={vaccine.id} style={styles.vaccine}>
                     <View style={{ marginTop: 5 }}>
+                      {/* <RadioButton
+                        label={""}
+                        color={Colors.primaryColor}
+                        selected={vaccine.isChecked}
+                        onPress={(checked) => {
+                          setVaccines(
+                            vaccines.map((v) =>
+                              v.id === vaccine.id
+                                ? { ...v, isChecked: checked }
+                                : v
+                            )
+                          );
+                        }}
+                      /> */}
                       <Checkbox
                         color={Colors.primaryColor}
                         value={vaccine.isChecked}
@@ -237,6 +289,7 @@ const SelectVaccines = (props) => {
                           <Text key={index}>· {subVaccine}</Text>
                         ))}
                       <DateTimePicker
+                        display="spinner"
                         style={[
                           styles.dateButton,
                           !vaccine.isChecked && { opacity: 0.5 },
@@ -245,18 +298,9 @@ const SelectVaccines = (props) => {
                         placeholder={"Fecha de aplicación"}
                         mode={"date"}
                         onChange={(date) => {
-                          setVaccines(
-                            vaccines.map((v) =>
-                              v.id === vaccine.id
-                                ? {
-                                    ...v,
-                                    application_day:
-                                      date.toLocaleDateString("es-us"),
-                                  }
-                                : v
-                            )
-                          );
+                          setValidDate(date, vaccine);
                         }}
+                        value={vaccine.application_day && vaccine.application_day}
                       />
                       <Picker
                         editable={vaccine.isChecked}
@@ -282,9 +326,16 @@ const SelectVaccines = (props) => {
                           !vaccine.isChecked && { opacity: 0.5 },
                         ]}
                         disabled={!vaccine.isChecked}
-                        onPress={()=> navigation.navigate('SelectPartner', {action:handleSelectPartner, vaccine: vaccine })}
+                        onPress={() =>
+                          navigation.navigate("SelectPartner", {
+                            action: handleSelectPartner,
+                            vaccine: vaccine,
+                          })
+                        }
                       >
-                        <Text>{vaccine.partner ? vaccine.partner : "Aplicado por"}</Text>
+                        <Text>
+                          {vaccine.partner ? vaccine.partner : "Aplicado por"}
+                        </Text>
                       </TouchableOpacity>
                       {/* <View marginT-10>
                         <Text>Etiqueta</Text>
@@ -335,7 +386,17 @@ const SelectVaccines = (props) => {
             </View>
           </>
         ) : (
-          <EmptyVaccines />
+          <View>
+            <EmptyVaccines
+              text={"Aún no es necesario aplicar otra vacuna a tu mascota"}
+            />
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.textButton}>Regresar</Text>
+            </TouchableOpacity>
+          </View>
         )}
         <ImageOption
           visible={modalVisible}

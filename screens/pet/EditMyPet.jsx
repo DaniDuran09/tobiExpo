@@ -21,6 +21,7 @@ import ApiFetcher from "../../modules/ApiFetcher";
 import * as ImagePicker from "expo-image-picker";
 import ViewLoading from "../../components/ViewLoading";
 import Toast from "react-native-toast-message";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 const EditMyPet = ({ route }) => {
   const { id, refreshData } = route.params;
@@ -42,6 +43,10 @@ const EditMyPet = ({ route }) => {
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [imageSource, setImageSource] = useState(null);
+  const [permissionsRequested, setPermissionsRequested] = useState({
+    camera: false,
+    library: false,
+  });
 
   const apiFetcher = new ApiFetcher();
 
@@ -49,19 +54,57 @@ const EditMyPet = ({ route }) => {
     getPetInfo();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
+  const getPermissionsCamera = async () => {
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    console.log("STATUS --- ", status);
+    if (status !== "granted") {
+      if (!permissionsRequested.camera) {
+        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
+        await requestPermissionsCamera();
       }
-    })();
-  }, []);
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      takePhoto();
+    }
+  };
 
+  const requestLibraryPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      getPermissionsLibrary();
+    }
+  };
+
+  const getPermissionsLibrary = async () => {
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    console.log("status: ", status);
+    if (status !== "granted") {
+      if (!permissionsRequested.library) {
+        setPermissionsRequested((prev) => ({ ...prev, library: true }));
+        await requestLibraryPermissions();
+      }
+      closeModal()
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      selectImageFromLibrary();
+    }
+  };
+ 
   const getPetInfo = async () => {
     setLoadData(true);
     try {
@@ -70,7 +113,11 @@ const EditMyPet = ({ route }) => {
       else console.log("Algo salió mal");
     } catch (error) {
       console.log("Error: ", error);
-      Alert.alert("Ocurrió un error", "Intenta de nuevo más tarde");
+      Toast.show({
+        type: "error",
+        text1: "No se pudo cargar la foto",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
       navigation.goBack();
     } finally {
       setLoadData(false);
@@ -101,25 +148,41 @@ const EditMyPet = ({ route }) => {
     }
   };
 
+  const requestPermissionsCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      getPermissionsCamera();
+    }
+  };
+
   const takePhoto = async () => {
+    console.log("llego a takephoto");
     try {
+      console.log("entro al try");
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-
+      console.log("RESULT ", result);
       if (!result.canceled) {
-        setImageSource(result[0].uri);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "No se pudo tomar la foto",
-        text2: `Inténtalo de nuevo más tarde`,
-      });
-      console.log("Error: ", error);
+      // Toast.show({
+      //   type: "error",
+      //   text1: "No se pudo tomar la foto",
+      //   text2: `Inténtalo de nuevo más tarde`,
+      // });
+      console.error("Error: ", error);
     }
   };
 
@@ -127,14 +190,13 @@ const EditMyPet = ({ route }) => {
 
   const savePhoto = async () => {
     try {
-      console.log("imageSource: ", imageSource);
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
-
+      console.log("formdata: ", formData._parts);
       const response = await apiFetcher.updatePicturePet(id, formData);
       console.log("Response: ", response);
       if (response.code == 200) {
@@ -193,7 +255,16 @@ const EditMyPet = ({ route }) => {
               alignItems: "flex-end",
             }}
           >
-            <TouchableOpacity style={styles.readyButton} onPress={updatePet}>
+            <TouchableOpacity
+              style={[
+                styles.readyButton,
+                (petInfo.name == "" || petInfo.weight == 0) && {
+                  backgroundColor: "gray",
+                },
+              ]}
+              onPress={updatePet}
+              disabled={petInfo.name == ""}
+            >
               {loadData ? (
                 <ActivityIndicator size={"small"} color={Colors.white} />
               ) : (
@@ -204,7 +275,7 @@ const EditMyPet = ({ route }) => {
         </View>
         <View style={styles.imageContainer}>
           <View>
-            <Image
+            <AnimatedImage
               source={
                 imageSource
                   ? { uri: imageSource.uri }
@@ -212,6 +283,8 @@ const EditMyPet = ({ route }) => {
               }
               style={styles.image}
               resizeMode={"cover"}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
             />
           </View>
         </View>
@@ -235,9 +308,10 @@ const EditMyPet = ({ route }) => {
             />
             <Text style={styles.label}>Peso de tu mascota (Kg)</Text>
             <TextInput
+              keyboardType="numeric"
               placeholderTextColor="#000"
               style={styles.textInput}
-              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ''}
+              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ""}
               onChangeText={(value) =>
                 setPetInfo({ ...petInfo, weight: value })
               }
@@ -275,8 +349,8 @@ const EditMyPet = ({ route }) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
-        takePhoto={takePhoto}
+        selectImageFromLibrary={getPermissionsLibrary}
+        takePhoto={getPermissionsCamera}
       />
     </SafeAreaView>
   );
@@ -302,6 +376,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 5,
   },
   textInput: {
     height: 60,

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, RefreshControl, SafeAreaView } from "react-native";
+import { BackHandler, FlatList, Platform, RefreshControl, SafeAreaView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../styles/Colors";
@@ -69,31 +69,55 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchInfoAppointmentPet = async (id) => {
     const response = await apiFetcher.getAppointmentsByPet(id);
-
+  
     if (response.data.length === 0) return {};
-
-    const today = momentTZ().tz("America/Mexico_City");
-
-    const closestAppointment = response.data.reduce((closest, current) => {
-      const currentDate = momentTZ(current.date_service).tz(
-        "America/Mexico_City"
-      );
-      const closestDate = momentTZ(closest.date_service).tz(
-        "America/Mexico_City"
-      );
-
+  
+    const today = momentTZ().tz("America/Mexico_City").startOf("day");
+  
+    const futureAppointments = response.data.filter((appointment) => {
+      const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
+      return appointmentDate.isSameOrAfter(today);
+    });
+  
+    if (futureAppointments.length === 0) return {};
+  
+    const closestAppointment = futureAppointments.reduce((closest, current) => {
+      const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
+      const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
+  
       const currentDiff = Math.abs(currentDate.diff(today, "days"));
       const closestDiff = Math.abs(closestDate.diff(today, "days"));
-
+  
       return currentDiff < closestDiff ? current : closest;
     });
-
+  
     return closestAppointment;
   };
 
+  useEffect(() => {
+    const backAction = () => {
+      if (Platform.OS === 'android') {
+        console.log("ENTROOOO")
+        BackHandler.exitApp();
+        return true;
+      }
+      return false; 
+    };
+
+    if (Platform.OS === 'android') {
+      BackHandler.addEventListener('hardwareBackPress', backAction);
+    }
+    return () => {
+      if (Platform.OS === 'android') {
+        BackHandler.removeEventListener('hardwareBackPress', backAction);
+      }
+    };
+  }, []);
+  
+
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
-      <View row gap-15 paddingH-15 marginT-20>
+      <View row gap-15 paddingH-15 marginT-40>
         <Avatar.Image
           source={{
             uri: userData.picture,
@@ -109,13 +133,12 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View center>
-        <View marginT-30>
+      <View center marginT-30 marginB-90>
+        
           {data.length > 0 ? (
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={data}
-              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               refreshControl={
                 <RefreshControl
                   refreshing={loading}
@@ -133,7 +156,7 @@ const HomeScreen = ({ navigation }) => {
             <NoPetsHome />
           )}
         </View>
-      </View>
+      
     </SafeAreaView>
   );
 };

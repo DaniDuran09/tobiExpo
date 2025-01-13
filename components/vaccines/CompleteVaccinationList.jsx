@@ -1,69 +1,112 @@
 import React, { useEffect, useState } from "react";
-import { Image, Text, View } from "react-native-ui-lib";
+import { Image, Text, TouchableOpacity, View } from "react-native-ui-lib";
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { FlatList } from "react-native";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import momentTZ from "../../utils/moment";
+import VaccineCard from "../VaccineCard";
+import EmptyVaccines from "./EmptyVaccines";
 
 const CompleteVaccinationList = (props) => {
-  const { completedVaccines, petId } = props;
-  const [vaccinationList, setVaccinationList] = useState([]);
+  const {
+    completedVaccines,
+    petId,
+    registerVaccines,
+    registerDewormings,
+    vaccinesCompleted,
+    dewromingsCompleted,
+  } = props;
+  const [vaccinationList, setVaccinationList] = useState({
+    applied: [],
+    notApplied: [],
+  });
   const [dewormingList, setDewormingList] = useState([]);
 
   const apiFetcher = new ApiFetcher();
 
+  const emptyDeworming = {
+    item: {
+      name: "Desparacitación",
+      isCompleted: false,
+    },
+  };
+
   useEffect(() => {
-    if (completedVaccines && completedVaccines.length > 0 && petId) {
+    if (completedVaccines && petId) {
       getVaccinesToThisPet();
     }
   }, [completedVaccines, petId]);
 
   const getVaccinesToThisPet = async () => {
     try {
-      const response = await apiFetcher.getVaccines(
-        petId
-      );
-
-      setDewormingList(response.data.dewormers)
-      const allVaccines = response.data.vaccines;
-      const combinedVaccines = allVaccines.map((vaccine) => {
-        const completedVaccine = completedVaccines.find(
-          (completed) => completed.vaccine_id === vaccine.id
+      const vaccinesResponse = await apiFetcher.getVaccinesRecords(petId);
+      if (vaccinesResponse.data.vaccines_records.length > 0) {
+        setVaccinationList({
+          applied: vaccinesResponse.data.vaccines_records.map((vaccine) => ({
+            ...vaccine,
+            isCompleted: true,
+          })),
+          notApplied: vaccinesResponse.data.vaccines_expired.map((vaccine) => ({
+            ...vaccine,
+            isCompleted: false,
+          })),
+        });
+      }
+      // console.log("vaccinesResponse.data.dewormers_records.length: ", petId)
+      if (vaccinesResponse.data.dewormers_records.length > 0) {
+        setDewormingList(
+          vaccinesResponse.data.dewormers_records.map((dewomer) => ({
+            ...dewomer,
+            name: dewomer.deworming_type,
+            isCompleted: true,
+          }))
         );
-
-        return completedVaccine
-          ? { ...completedVaccine, isCompleted: true, name: vaccine.name }
-          : { ...vaccine, isCompleted: false };
-      });
-
-      setVaccinationList(combinedVaccines);
+      }
     } catch (error) {
       console.error("Error fetching vaccines: ", error);
     }
   };
+  // const renderItem = ({ item }) => {
+  //   const { isCompleted, name, next_dose } = item;
+  //   return (
+  //     <View padding-10 row gap-10 centerV>
+  //       <SimpleLineIcons
+  //         name={isCompleted ? "check" : "close"}
+  //         size={20}
+  //         style={{
+  //           color: item.isCompleted ? Colors.green : Colors.red,
+  //         }}
+  //       />
+  //       <View>
+  //         <Text text70>{name}</Text>
+  //         <Text text90L>
+  //           {item.isCompleted
+  //             ? `Vencimiento ${momentTZ(next_dose).format("DD.MM.YYYY")}`
+  //             : "Vencida"}
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   );
+  // };
 
-  const renderItem = ({ item }) => {
-    return (
-      <View padding-10 row gap-10 centerV>
-        <SimpleLineIcons
-          name={item.isCompleted ? "check" : "close"}
-          size={20}
-          color={Colors.gray}
-          style={
-            item.isCompleted ? { color: Colors.green } : { color: Colors.red }
-          }
-        />
-        <View>
-        <Text text70>{item.name}</Text>
-        <Text text90L>{item.isCompleted ? `Aplicada el ${momentTZ(item.application_day).format("DD/MM/YYYY")}` : "Vencida"}</Text>
-        </View>
-      </View>
-    );
-  };
   return (
     <View flex marginT-10 padding-10>
-      <View backgroundColor={Colors.lightBlue} br20 padding-15>
+      {/* {!vaccinesCompleted && ( */}
+      <View marginH-15 row spread>
+        <Text text70M color={Colors.primaryColor}>
+          Vacunas
+        </Text>
+        <TouchableOpacity onPress={registerVaccines}>
+          <Image
+            source={require("../../assets/edit-icon.png")}
+            style={{ height: 25, width: 25 }}
+            resizeMode={"contain"}
+          />
+        </TouchableOpacity>
+      </View>
+      {/* )} */}
+      {/* <View backgroundColor={Colors.lightBlue} br20 padding-15>
         <View row centerV spread>
           <View row centerV gap-10>
             <Image
@@ -73,17 +116,34 @@ const CompleteVaccinationList = (props) => {
             />
             <Text text80BO>Esquema de vacunación</Text>
           </View>
-          <Image
+          {/* <Image
             source={require("../../assets/edit-date.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
-          />
+          /> 
         </View>
         <View>
-          <FlatList data={vaccinationList} renderItem={renderItem} />
+          <FlatList
+            data={[...vaccinationList.applied, ...vaccinationList.notApplied]}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
       </View>
-      <View backgroundColor={Colors.lightBlue} br20 padding-15 marginT-20>
+      */}
+      <FlatList
+        data={[...vaccinationList.applied, ...vaccinationList.notApplied]}
+        renderItem={(vaccine) => <VaccineCard info={vaccine} />}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        scrollEnabled={false}
+        ListEmptyComponent={
+          <EmptyVaccines
+            text={"Registra las vacunas de tu mascota en la sección de SALUD"}
+          />
+        }
+      />
+      {/* <View backgroundColor={Colors.lightBlue} br20 padding-15 marginT-20>
         <View row centerV spread>
           <View row centerV gap-10>
             <Image
@@ -93,16 +153,44 @@ const CompleteVaccinationList = (props) => {
             />
             <Text text80BO>Desparacitaciones</Text>
           </View>
-          <Image
+          {/* <Image
             source={require("../../assets/edit-date.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
-          />
+          /> 
         </View>
         <View>
-          <FlatList data={dewormingList} renderItem={renderItem} />
+          <FlatList
+            data={dewormingList}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
         </View>
+      </View> */}
+      
+      <View marginH-15 row spread>
+        <Text text70M color={Colors.primaryColor}>
+          Desparacitaciones
+        </Text>
+        {!dewromingsCompleted && (
+        <TouchableOpacity onPress={registerDewormings}>
+          <Image
+            source={require("../../assets/edit-icon.png")}
+            style={{ height: 25, width: 25 }}
+            resizeMode={"contain"}
+          />
+        </TouchableOpacity>
+        )}
       </View>
+    
+      <FlatList
+        data={dewormingList}
+        renderItem={(deworming) => <VaccineCard info={deworming} />}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        scrollEnabled={false}
+        ListEmptyComponent={<VaccineCard info={emptyDeworming} />}
+      />
     </View>
   );
 };

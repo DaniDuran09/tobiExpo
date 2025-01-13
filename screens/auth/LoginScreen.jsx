@@ -138,8 +138,7 @@ const LoginScreen = ({ navigation }) => {
       )}
       <View
         style={{
-          backgroundColor: "#EF4136", //#E6F8DB
-          height: height / 1,
+          backgroundColor: "#EF4136",
           width: width,
         }}
       >
@@ -219,7 +218,9 @@ const LoginScreen = ({ navigation }) => {
             flexDirection: "row",
           }}
         >
-          <TouchableOpacity onPress={()=>navigation.navigate("ForgotPassword")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ForgotPassword")}
+          >
             <Text
               style={{
                 fontSize: 14,

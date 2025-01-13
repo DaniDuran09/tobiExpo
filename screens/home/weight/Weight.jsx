@@ -10,6 +10,7 @@ import { calculateIdealWeight } from "../../../utils/scripts";
 import CorrectWeight from "../../../components/pet/CorrectWeight";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Loading from "../../../components/Loading";
+import momentTZ from "../../../utils/moment";
 
 const Weight = (props) => {
   const { item } = props;
@@ -28,7 +29,11 @@ const Weight = (props) => {
   const rangeOne = pet?.ideal_weight?.from / 1000;
   const rangeTwo = pet?.ideal_weight?.to / 1000;
 
-  const realWeight = calculateIdealWeight(rangeOne, rangeTwo, parseInt(pet?.weight));
+  const realWeight = calculateIdealWeight(
+    rangeOne,
+    rangeTwo,
+    parseInt(pet?.weight)
+  );
 
   const getPet = async () => {
     setLoading(true);
@@ -49,7 +54,6 @@ const Weight = (props) => {
     }, [navigation])
   );
 
-
   useEffect(() => {
     setSuccess(realWeight?.ideal);
   }, [pet]);
@@ -57,12 +61,12 @@ const Weight = (props) => {
   return (
     <ScrollView>
       <View style={styles.container}>
-      {loading && (
-        <Loading
-          textColor={Colors.primaryColor}
-          backgroundColorProp={Colors.white}
-        />
-      )}
+        {loading && (
+          <Loading
+            textColor={Colors.primaryColor}
+            backgroundColorProp={Colors.white}
+          />
+        )}
         <View style={styles.realWeightContainer}>
           <View style={styles.statusContainer}>
             <Image
@@ -72,11 +76,19 @@ const Weight = (props) => {
             <Text style={styles.realText}>Real</Text>
           </View>
           <Text
-            style={[styles.kgText, realWeight?.ideal && { color: Colors.green }]}
+            style={[
+              styles.kgText,
+              realWeight?.ideal && { color: Colors.green },
+            ]}
           >
             {parseInt(pet.weight)} kg
           </Text>
-          <Text style={styles.lastUpdate}>Último registro: {pet.weight_updated_at ? pet.weight_updated_at : "Sin fecha"}</Text>
+          <Text style={styles.lastUpdate}>
+            Último registro:{" "}
+            {pet.weight_updated_at
+              ? momentTZ(pet.weight_updated_at).format("D MMM YY")
+              : "Sin fecha"}
+          </Text>
           <TouchableOpacity
             style={styles.updateButton}
             onPress={() =>

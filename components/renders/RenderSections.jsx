@@ -25,7 +25,8 @@ const RenderSections = ({ item }) => {
     momentTZ(serviceDate).utc().format("DD.MMM");
 
   const getServiceStatus = (item) => {
-    if (!(item.status === "actived" && item?.service_date))
+    // if (!(item.status === "actived" && item?.service_date))
+    if (!(item?.service_date))
       return { service: "---", remainingDays: { text: "---", color: "black" } };
     const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
       .tz("America/Mexico_City")
@@ -50,9 +51,9 @@ const RenderSections = ({ item }) => {
   );
 
   const { service, remainingDays } = getServiceStatus(item);
-  
+
   return (
-    <View>
+    <View marginB-25>
       <View row centerV gap-10 marginB-10>
         <AnimatedImage
           source={{ uri: item?.picture }}
@@ -109,12 +110,12 @@ const RenderSections = ({ item }) => {
                 <Text
                   color={"red"}
                   text80BO
-                  style={realWeight.ideal && { color: Colors.green }}
+                  style={realWeight?.ideal && { color: Colors.green }}
                 >{`${item.weight} Kg`}</Text>
 
-                {!realWeight.ideal && (
+                {!realWeight?.ideal && (
                   <Icon
-                    name={realWeight.down ? "triangle-down" : "triangle-up"}
+                    name={realWeight?.down ? "triangle-down" : "triangle-up"}
                     color="red"
                     size={25}
                   />
@@ -129,7 +130,7 @@ const RenderSections = ({ item }) => {
           <Text text80BL color="gray">
             NUTRICIÓN
           </Text>
-          <Text>PROXIMAMENTE...</Text>
+          <Text>PRÓXIMAMENTE...</Text>
         </View>
       </View>
       <View marginT-10>
@@ -137,7 +138,7 @@ const RenderSections = ({ item }) => {
           <Text text80BL color="gray">
             ACTIVIDAD
           </Text>
-          <Text>PROXIMAMENTE...</Text>
+          <Text>PRÓXIMAMENTE...</Text>
         </View>
       </View>
     </View>

@@ -1,18 +1,12 @@
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../../styles/Colors";
 import { FlatList } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import ViewLoading from "../../../components/ViewLoading";
-import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
+import NoPets from "../../../components/NoPets";
 
 const IdMyPet = () => {
   const [pets, setPets] = useState({});
@@ -96,6 +90,11 @@ const IdMyPet = () => {
               renderItem={({ item }) => renderPets(item)}
               keyExtractor={(item) => item.id.toString()}
               style={styles.flatList}
+              ListEmptyComponent={() => (
+                <View center height={300}>
+                  <NoPets />
+                </View>
+              )}
             />
           </View>
         </View>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Image, SafeAreaView, Dimensions } from "react-native";
+import { StyleSheet, Image, SafeAreaView, Dimensions, Platform, BackHandler } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Colors } from "../../styles/Colors";
 import Health from "./health/Health";
@@ -22,13 +22,15 @@ const HomeProfileDetails = ({ route }) => {
     { key: "three", title: "PESO" },
   ]);
 
+
+
   useEffect(() => {
     fetchPet();
   }, []);
 
   const renderScene = SceneMap({
     first: () => <Health pet={item} />,
-    second: Welfare,
+    second:  () => <Welfare pet={item} />,
     three: () => <Weight item={item} />,
   });
 
@@ -77,7 +79,7 @@ const HomeProfileDetails = ({ route }) => {
       <View padding-10>
         <Text text50BO>{item.name}</Text>
         <Text text80BO>{`${item.age} años | ${
-          item.gender === "M" ? "Macho" : "Hembra"
+          item?.pet_breed?.life_stages[0]?.gender === "male" ? "Macho" : "Hembra"
         } | ${item.pet_breed.name}`}</Text>
       </View>
       <TabView

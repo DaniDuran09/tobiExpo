@@ -13,24 +13,54 @@ import * as Camera from "expo-camera";
 import { useDispatch } from "react-redux";
 import { setPicturePet } from "../../../redux/slice/petSlice";
 import ImageOption from "../../../components/ImageOption";
+import Toast from "react-native-toast-message";
 
 const FinalScreenRegisterPet = (props) => {
   const { backgroundColor, imageSource, setImageSource } = props;
   const [modalVisible, setModalVisible] = useState(false);
+  const [permissionsRequested, setPermissionsRequested] = useState({
+    camera: false,
+    library: false,
+  });
+  
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permisos insuficientes",
-          "Se necesitan permisos para acceder a la biblioteca de imágenes."
-        );
-      }
+      
     })();
-  }, []);
+  }, []);*/
+  const getPermissionsLibrary = async () => {
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      if (!permissionsRequested.library) {
+        setPermissionsRequested((prev) => ({ ...prev, library: true }));
+        await requestLibraryPermissions();
+      }
+      closeModal()
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      selectImageFromLibrary();
+    }
+  };
+
+ const requestLibraryPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      getPermissionsLibrary();
+    }
+  };
 
   const closeModal = () => {
     setModalVisible(false);
@@ -47,7 +77,7 @@ const FinalScreenRegisterPet = (props) => {
       console.log("result: ", result);
       if (!result.canceled) {
         closeModal();
-        setImageSource({ uri: result.assets[0] });
+        setImageSource(result.assets[0]);
         dispatch(setPicturePet(result.assets[0]));
       }
     } catch (error) {
@@ -58,9 +88,38 @@ const FinalScreenRegisterPet = (props) => {
       console.log("Error: ", error);
     }
   };
+  const getPermissionsCamera = async () => {
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    if (status !== "granted") {
+      if (!permissionsRequested.camera) {
+        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
+        await requestPermissionsCamera();
+      }
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      takePhoto();
+    }
+  };
+  const requestPermissionsCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      getPermissionsCamera();
+    }
+  };
 
   const takePhoto = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Permisos insuficientes",
@@ -76,8 +135,9 @@ const FinalScreenRegisterPet = (props) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
-        setImageSource({ uri: result.uri });
+      if (!result.canceled) {
+        setImageSource(result.assets[0]);
+        dispatch(setPicturePet(result.assets[0]));
         closeModal();
       }
     } catch (error) {
@@ -99,7 +159,7 @@ const FinalScreenRegisterPet = (props) => {
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.imageContainer}>
               <Image
-                source={imageSource.uri}
+                source={{uri: imageSource.uri}}
                 style={styles.imageSelected}
                 resizeMode={"cover"}
               />
@@ -120,8 +180,8 @@ const FinalScreenRegisterPet = (props) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
-        takePhoto={takePhoto}
+        selectImageFromLibrary={getPermissionsLibrary}
+        takePhoto={getPermissionsCamera}
       />
     </View>
   );

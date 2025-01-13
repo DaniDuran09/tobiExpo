@@ -109,11 +109,11 @@ const SignInPetInfo2Screen = (props) => {
         email: user.email,
         birthday: formatDateToDDMMYYYY(user.birthday),
         password: user.password,
-        pet: [
+        pet:
           {
             name: pet.name,
             last_name: "",
-            age: calculatePetAge(pet.birthday),
+            // age: calculatePetAge(pet.birthday),
             birthday: formatDateToDDMMYYYY(pet.birthday),
             color: "",
             gender: pet.gender,
@@ -127,7 +127,6 @@ const SignInPetInfo2Screen = (props) => {
             activity_level_id: info.activity_level_id,
             sterilized: info.sterilized,
           },
-        ],
       };
 
       console.log("ASI SE VE LO VOY A MANDAR: ", data);

@@ -25,6 +25,7 @@ import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
+import { setUserInfo } from "../redux/slice/userSlice";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -43,14 +44,32 @@ const ProfileScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     petList();
+    getUserInfo()
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       petList();
+      getUserInfo()
       return () => {};
     }, [navigation])
   );
+
+  const getUserInfo = async () => {
+    try {
+      const user = await apiFetcher.getProfile();
+      setUserData(user.data);
+      dispatch(setUserInfo(user.data));
+      console.log("SÍ TRAJE LA INFORMACIÍON ")
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text2:`Error en el perfil`,
+        text1: `No pudimos traer la información del perfil.`,
+      });
+    }
+   
+  }
 
   // useEffect(() => {
   //   (async () => {
@@ -64,6 +83,30 @@ const ProfileScreen = ({ route, navigation }) => {
   //     }
   //   })();
   // }, []);
+const getLibraryPermission = async () => {
+  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+  console.log('STATUS LIBRARY',status)
+  if (status !== "granted") {
+    requestLibraryPermissions()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else selectImageFromLibrary()
+}
+const requestLibraryPermissions = async () => {
+  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
+  if (status !== "granted") {
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else getLibraryPermission()
+}
 
   const selectImageFromLibrary = async () => {
     try {
@@ -74,7 +117,7 @@ const ProfileScreen = ({ route, navigation }) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
@@ -88,6 +131,32 @@ const ProfileScreen = ({ route, navigation }) => {
     }
   };
 
+  const getCameraPermission = async () => {
+    const {status} = await ImagePicker.getCameraPermissionsAsync()
+    console.log('STATUS ',status)
+  if (status !== "granted") {
+    requestCameraPermissions()
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else takePhoto()
+  }
+  
+  const requestCameraPermissions = async () =>{
+    const {status} = await ImagePicker.requestCameraPermissionsAsync()
+  if (status !== "granted") {
+    Toast.show({
+      type: "error",
+      text2:`Permisos insuficientes.`,
+      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+    });
+  } 
+    else getCameraPermission()
+  }
+
   const takePhoto = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
@@ -96,7 +165,7 @@ const ProfileScreen = ({ route, navigation }) => {
         quality: 1,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         setImageSource({ uri: result.uri });
         closeModal();
       }
@@ -115,8 +184,9 @@ const ProfileScreen = ({ route, navigation }) => {
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
-      const user = await appStorage.getUser();
-      setUserData(user);
+      // const user = await appStorage.getUser();
+      // console.log("user: ", user)
+      // setUserData(user);
     } catch (e) {
       console.log("Error: ", e);
       Toast.show({
@@ -333,7 +403,7 @@ const ProfileScreen = ({ route, navigation }) => {
           )}
         </View>
       </View>
-      <BottomMenu />
+      <BottomMenu disabledOption={data.length <= 0}/>
       <DeleteModal
         visible={showDeleteModal}
         closeModal={closeDeleteModal}
@@ -342,8 +412,8 @@ const ProfileScreen = ({ route, navigation }) => {
       <ImageOption
         visible={modalVisible}
         closeModal={closeModal}
-        selectImageFromLibrary={selectImageFromLibrary}
-        takePhoto={takePhoto}
+        selectImageFromLibrary={getLibraryPermission}
+        takePhoto={getCameraPermission}
       />
     </View>
   );

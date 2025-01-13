@@ -1,8 +1,11 @@
 import React from "react";
 import MapView, { Marker } from "react-native-maps";
 
+
 const MapViewComponent = (props) => {
   const { latitude, longitude, title, description } = props;
+
+  console.log("longitude: ", latitude, longitude)
   return (
     <MapView
       style={{ height: "85%", width: "100%", marginBottom: 15 }}

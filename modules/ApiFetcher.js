@@ -34,8 +34,8 @@ class ApiFetcher {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
+      // console.log("headers: ", headers)
       const response = await axios.get(url, { headers, timeout: 15000 });
-    console.log("headers: ", headers)
 
       return this.handleErrors(response);
     } catch (error) {
@@ -112,6 +112,10 @@ class ApiFetcher {
     return await this._get("/profile");
   }
 
+  async getBlogs() {
+    return await this._get("/blogs");
+  }
+
   // pets
 
   async registerPet(data) {
@@ -135,7 +139,6 @@ class ApiFetcher {
   }
 
   async getPetById(id) {
-    console.log("id: ", id)
     return await this._get(`/pets/${id}`);
   }
 
@@ -154,6 +157,10 @@ class ApiFetcher {
 
   async saveVaccine(data) {
     return await this._post(`/pets/${data.pet_id}/vaccination_records`, data);
+  }
+
+  async saveDewormer(data) {
+    return await this._post(`/pets/${data.pet_id}/dewormer_records`, data);
   }
 
   // partners

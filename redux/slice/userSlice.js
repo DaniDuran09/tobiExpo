@@ -6,13 +6,13 @@ const initialState = {
     last_name: '',
     phone: '',
     email: '',
-    birtday: '',
+    birthday: '',
     password: '',
-    pet: [
+    pet:
       {
         name: '',
         last_name: '',
-        age: 4,
+        // age: 4,
         birthday: '',
         gender: '',
         color: 'black',
@@ -22,7 +22,6 @@ const initialState = {
         activity_level_id: 1,
         pet_breed_id: 0,
       },
-    ],
   },
 };
 

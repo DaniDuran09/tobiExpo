@@ -30,7 +30,6 @@ const PetDate = ({ navigation, route }) => {
     try {
       const response = await apiFetcher.getAppointmentsByPet(pet.id);
       if (response.data.length > 0) {
-        console.log("response: ", response.data)
         setAppointment(response.data);
         setExistAppointment(true);
       }

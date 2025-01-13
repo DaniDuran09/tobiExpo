@@ -50,9 +50,9 @@ const RegisterNewPet = (props) => {
     const updatedInfo = {
       ...petInfo,
       name: name,
-      birthday: date.toLocaleDateString("es-us"),
+      birthday: formatDateToDDMMYYYY(date),
       gender: gender,
-      age: calculatePetAge(date),
+      // age: calculatePetAge(date),
     };
     dispatch(setPetInfo(updatedInfo));
   }, [name, date, gender]);
@@ -170,18 +170,21 @@ const RegisterNewPet = (props) => {
         </View>
         <View style={styles.birthdayContainer}>
           <DateTimePicker
+          display="spinner"
             style={[
               styles.birthdayContainer,
               { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
             ]}
             title={"Select date"}
-            placeholder={
-            ""
-            }
             mode={"date"}
             onChange={(selectedDate) => {
               setDate(selectedDate);
             }}
+            placeholder={
+              !pet?.birthday
+                ? "Fecha de nacimiento"
+                : `${pet?.birthday?.toLocaleDateString("es-us")}`
+            }
           />
 
           {/*
@@ -192,9 +195,9 @@ const RegisterNewPet = (props) => {
           ]}
           title={"Select date"}
           placeholder={
-            user?.birtday === ""
+            user?.birthday === ""
               ? "Fecha de nacimiento"
-              : `${user?.birtday?.toLocaleDateString("es-us")}`
+              : `${user?.birthday?.toLocaleDateString("es-us")}`
           }
           mode={"date"}
           onChange={(selectedDate) => {

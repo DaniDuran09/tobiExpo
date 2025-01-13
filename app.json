@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "tobi",
+    "name": "Tobi",
     "slug": "tobi",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,26 +8,26 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "cover",
+      "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws"
+          "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
       "bundleIdentifier": "com.tobi"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAz4bZdSZlcLme2_rPEePJH4CDX7rzu4Ws"
+          "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
       "package": "com.tobi"

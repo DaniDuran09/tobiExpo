@@ -34,12 +34,16 @@ const ProfileEditUser = ({ route, navigation }) => {
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [imageSource, setImageSource] = useState(null);
+  const [permissionsRequested, setPermissionsRequested] = useState({
+    camera: false,
+    library: false,
+  });
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
 
-  useEffect(() => {
+  /*useEffect(() => {
     (async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -50,7 +54,38 @@ const ProfileEditUser = ({ route, navigation }) => {
         );
       }
     })();
-  }, []);
+  }, []);*/
+  const getPermissionsLibrary = async () => {
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      if (!permissionsRequested.library) {
+        setPermissionsRequested((prev) => ({ ...prev, library: true }));
+        await requestLibraryPermissions();
+      }
+      closeModal()
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      selectImageFromLibrary();
+    }
+  };
+
+  const requestLibraryPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+        text1: `Habilita los permisos desde la configuración.`,
+      });
+    } else {
+      getPermissionsLibrary();
+    }
+  };
 
   const selectImageFromLibrary = async () => {
     try {
@@ -62,8 +97,7 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        console.log("Resukt: ", result.assets);
-        setImageSource({ uri: result.assets[0]?.uri });
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -72,6 +106,36 @@ const ProfileEditUser = ({ route, navigation }) => {
         "Puedes continuar y después agregar una foto"
       );
       console.log("Error: ", error);
+    }
+  };
+  const getPermissionsCamera = async () => {
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    if (status !== "granted") {
+      if (!permissionsRequested.camera) {
+        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
+        await requestPermissionsCamera();
+      }
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      takePhoto();
+    }
+  };
+
+  const requestPermissionsCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      closeModal();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la cámara.`,
+      });
+    } else {
+      getPermissionsCamera();
     }
   };
 
@@ -84,7 +148,8 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        setImageSource({ uri: result.assets[0]?.uri });
+        console.log("result: ", result);
+        setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
@@ -107,7 +172,7 @@ const ProfileEditUser = ({ route, navigation }) => {
       const response = await apiFetcher.getProfile();
       if (response) setUserData(response.data);
     } catch (e) {
-      console.log("Error: ", e); 
+      console.log("Error: ", e);
       Toast.show({
         type: "error",
         text1: "Ha ocurrido un error",
@@ -123,12 +188,11 @@ const ProfileEditUser = ({ route, navigation }) => {
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
-        type: imageSource.type,
+        type: "image/jpeg",
         name: imageSource.fileName,
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
-      console.log("Response: ", response);
       if (response.code == 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
@@ -156,9 +220,7 @@ const ProfileEditUser = ({ route, navigation }) => {
         age: userData.age,
       };
 
-      console.log("que");
       const response = await apiFetcher.updateUser(newData);
-      console.log("La respuesta: ", response);
       if (response.code == 200) {
         dispatch(setUserInfo(response.data));
         Toast.show({
@@ -283,7 +345,9 @@ const ProfileEditUser = ({ route, navigation }) => {
                   {userData.picture ? (
                     <Image
                       source={
-                        imageSource ? imageSource : { uri: userData.picture }
+                        imageSource
+                          ? { uri: imageSource.uri }
+                          : { uri: userData.picture }
                       }
                       style={styles.image}
                       resizeMode={"cover"}
@@ -364,10 +428,7 @@ const ProfileEditUser = ({ route, navigation }) => {
               </View>
             </View>
           </KeyboardAvoidingView>
-          <View
-            center
-            paddingB-15
-          >
+          <View center paddingB-15>
             {/* <TouchableOpacity
                   style={styles.changeButton}
                   onPress={() => navigation.navigate('MyCards')}>
@@ -400,8 +461,8 @@ const ProfileEditUser = ({ route, navigation }) => {
         <ImageOption
           visible={modalVisible}
           closeModal={closeModal}
-          selectImageFromLibrary={selectImageFromLibrary}
-          takePhoto={takePhoto}
+          selectImageFromLibrary={getPermissionsLibrary}
+          takePhoto={getPermissionsCamera}
         />
       </SafeAreaView>
     </>

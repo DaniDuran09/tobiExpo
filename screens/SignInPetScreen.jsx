@@ -56,7 +56,7 @@ const SignInPetScreen = props => {
     console.log('first')
     const updatedInfo = {
       ...userInfo,
-      pet: [
+      pet:
         {
           name: data.namePet,
           last_name: '',
@@ -64,7 +64,6 @@ const SignInPetScreen = props => {
           //age: formatDateToDDMMYYYY(date),
           birthday: formatDateToDDMMYYYY(date)
         },
-      ],
     };
     dispatch(setUserInfo(updatedInfo));
   }, [data, gender,date]);
