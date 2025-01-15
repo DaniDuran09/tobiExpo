@@ -5,8 +5,8 @@ import { Colors } from "../../styles/Colors";
 
 const CorrectWeight = () => {
   return (
-    <View br20 padding-15 style={{ borderWidth: 1, borderColor: Colors.green }}>
-      <View row gap-10 paddingH-15>
+    <View br20 padding-15 style={{ borderWidth: 1, borderColor: Colors.green }} marginT-15>
+      <View row gap-10>
         <Icon name="thumb-up-outline" size={20} color={Colors.green} />
         <View paddingH-10>
           <Text text70BO>¡Bien hecho!</Text>
