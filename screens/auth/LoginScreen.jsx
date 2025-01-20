@@ -1,17 +1,13 @@
 import React from "react";
 import {
-  View,
-  Text,
   TouchableOpacity,
   TextInput,
-  Platform,
   StyleSheet,
   Image,
-  Alert,
   Dimensions,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  ScrollView,
+  Linking,
 } from "react-native";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +19,7 @@ import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
 import ApiFetcher from "../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
+import { Text, View } from "react-native-ui-lib";
 
 const LoginScreen = ({ navigation }) => {
   const [data, setData] = React.useState({
@@ -125,6 +122,10 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
+  const openLink = (url) => {
+    Linking.openURL(url);
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, flexDirection: "column" }}
@@ -139,11 +140,12 @@ const LoginScreen = ({ navigation }) => {
       <View
         style={{
           backgroundColor: "#EF4136",
-          width: width,
+          flex: 1,
         }}
       >
         {/* <Loader active={loading} /> */}
         <View
+          flex
           style={{
             height: "20%",
             width: "100%",
@@ -287,7 +289,7 @@ const LoginScreen = ({ navigation }) => {
               style={{ height: 45, width: 45 }}
               resizeMode={"contain"}
             /> */}
-          <View style={{ position: "absolute", bottom: "20%", left: "20%" }}>
+          {/* <View style={{ position: "absolute", bottom: "20%", justifyContent: "center", alignItems: "center"}}>
             <Text
               style={{
                 fontSize: 14,
@@ -308,6 +310,34 @@ const LoginScreen = ({ navigation }) => {
             >
               Aviso de usuario y la Política de Privacidad.
             </Text>
+            <Text>y</Text>
+          </View> */}
+        </View>
+        <View center>
+          <View absB marginB-50 center>
+            <Text color={Colors.secondaryColor}>
+              Al registrarse, aceptas el
+            </Text>
+
+            <View row>
+              <TouchableOpacity
+                onPress={() =>
+                  openLink("https://tobipets.mx/terminos-y-condiciones-app")
+                }
+              >
+                <Text color={Colors.secondaryColor}>Aviso de usuario </Text>
+              </TouchableOpacity>
+              <Text color={Colors.secondaryColor}>y la </Text>
+              <TouchableOpacity
+                onPress={() =>
+                  openLink("https://tobipets.mx/aviso-de-privacidad-app")
+                }
+              >
+                <Text color={Colors.secondaryColor}>
+                  Política de Privacidad
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
