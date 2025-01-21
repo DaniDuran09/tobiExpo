@@ -7,7 +7,7 @@ const Recomendation = ({
   image = "",
   title = "",
   info = "",
-  setVisible = false,
+  setVisible = (visible)=>{},
   oneOption = false,
 }) => {
   const navigation = useNavigation();

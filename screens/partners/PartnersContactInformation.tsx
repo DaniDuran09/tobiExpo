@@ -1,0 +1,46 @@
+import { Text, Image, View, TouchableOpacity } from "react-native-ui-lib";
+import MapViewComponent from "./MapViewComponent";
+import { Colors } from "../../styles/Colors";
+
+export default function PartnersContactInformation({ partner, handleDirections }:{partner:any,handleDirections:()=>void}) {
+  return (
+    <View
+      marginT-15
+      paddingB-20
+      style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.5 }}
+    >
+      <Text text50BO>Detalles</Text>
+      <TouchableOpacity onPress={handleDirections}>
+        <Text text70BO marginV-10 marginB-5 color={"#2269C5"}>Ver Dirección</Text>
+      </TouchableOpacity>
+      <View centerH style={{ maxHeight: 240 }}>
+        <MapViewComponent
+          latitude={partner.latitude}
+          longitude={partner.longitude}
+          title={partner.name}
+          description={partner.description}
+        />
+      </View>
+      <Text text70 marginT-5 color={Colors.gray}>
+        Información adicional
+      </Text>
+      <View marginT-20>
+        <View row marginB-15>
+          <Image
+            source={require("../../assets/phone-icon.png")}
+            resizeMode={"cover"}
+            width={30}
+            height={30}
+            marginR-15
+          />
+          <View>
+            <Text text60BO>Teléfono</Text>
+            <Text text70 marginT-5 color={Colors.gray}>
+              {partner.phone}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
