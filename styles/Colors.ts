@@ -1,4 +1,4 @@
-export const Colors: Record<string, string> = {
+export const Colors = {
     mediumWhite: "#F0F9FF",
     white: "#FFFFFF",
     lightGray: "#F8F8F8",
@@ -13,7 +13,7 @@ export const Colors: Record<string, string> = {
     pink: "rgba(239, 65, 54, 0.1)",
     green: "#07C160",
     danger: "#EF4136"
-}
+} as const
 
 export const gradientColors: Array<string> = ["#FF6A64", "#FE9D11"]
 export const gradientColorsModal: Array<string> = ["#000000", "#F5F5F5"]
