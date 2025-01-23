@@ -156,7 +156,7 @@ const SelectVaccines = (props) => {
         const data = {
           pet_id: petId,
           vaccine_id: vaccine.id,
-          application_day: vaccine.application_day,
+          application_day: momentTZ(vaccine.application_day).format("DD/MM/YYYY"),
           dose: 0,
           applied: true,
           brand: vaccine.brand,
@@ -226,7 +226,7 @@ const SelectVaccines = (props) => {
         v.id === vaccine.id
           ? {
               ...v,
-              application_day: momentTZ(selectedDate).format("DD/MM/YYYY"),
+              application_day: selectedDate,
             }
           : v
       )
@@ -300,7 +300,13 @@ const SelectVaccines = (props) => {
                         onChange={(date) => {
                           setValidDate(date, vaccine);
                         }}
-                        value={vaccine.application_day && vaccine.application_day}
+                        dateTimeFormatter={(value,mode)=>{
+                          if(mode === "date"){
+                            return  momentTZ(value).format("DD/MM/YYYY")
+                          }
+                          return undefined
+                        }}
+                        value={vaccine.application_day && new Date(vaccine.application_day)}
                       />
                       <Picker
                         editable={vaccine.isChecked}
