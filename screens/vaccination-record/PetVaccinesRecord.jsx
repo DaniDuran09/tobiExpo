@@ -176,7 +176,7 @@ const PetVaccinesRecord = ({ route }) => {
           onPress={() => setOption(2)}
         >
           <Text style={option === 2 ? styles.selected : styles.notSelected}>
-            Desparacitaciones
+            Desparasitaciones
           </Text>
         </TouchableOpacity>
       </View>

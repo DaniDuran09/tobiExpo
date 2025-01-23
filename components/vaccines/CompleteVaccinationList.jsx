@@ -27,7 +27,7 @@ const CompleteVaccinationList = (props) => {
 
   const emptyDeworming = {
     item: {
-      name: "Desparacitación",
+      name: "Desparasitación",
       isCompleted: false,
     },
   };
@@ -170,7 +170,7 @@ const CompleteVaccinationList = (props) => {
       
       <View marginH-15 row spread>
         <Text text70M color={Colors.primaryColor}>
-          Desparacitaciones
+          Desparasitaciones
         </Text>
         {!dewromingsCompleted && (
         <TouchableOpacity onPress={registerDewormings}>

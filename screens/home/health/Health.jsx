@@ -26,7 +26,7 @@ const Health = ({ pet }) => {
   });
 
   const scrollViewRef = useRef(null);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   const [challengeModalText, setChallengeModalText] = useState("");
   const [redirect, setRedirect] = useState(false);
@@ -49,10 +49,14 @@ const Health = ({ pet }) => {
           "¡Muy bien! El esquema de salud de tu mascota está completo."
         );
 
-        console.log("response.data.dewormers_expired: ", response.data.dewormers_expired)
+      console.log(
+        "response.data.dewormers_expired: ",
+        response.data.dewormers_expired
+      );
       const isVaccinated = response.data.vaccines_records.length > 0;
-      response.data.vaccines_expired.length == 0 && setVaccinesCompleted(true)
-      response.data.dewormers_expired.length == 0 && setDewromingsCompleted(true)
+      response.data.vaccines_expired.length == 0 && setVaccinesCompleted(true);
+      response.data.dewormers_expired.length == 0 &&
+        setDewromingsCompleted(true);
       setState((prev) => ({
         ...prev,
         isVaccinated,
@@ -100,6 +104,8 @@ const Health = ({ pet }) => {
       finishScreen: false,
       vaccineVisible: true,
       challengeVisible: false,
+      deworming: false,
+      dewormingVisible: false,
     }));
   };
 
@@ -137,8 +143,8 @@ const Health = ({ pet }) => {
       )}
       {isVaccinated || finishScreen ? (
         <CompleteVaccinationList
-        vaccinesCompleted={vaccinesCompleted}
-        dewromingsCompleted={dewromingsCompleted}
+          vaccinesCompleted={vaccinesCompleted}
+          dewromingsCompleted={dewromingsCompleted}
           completedVaccines={completedVaccines}
           petId={pet.id}
           registerVaccines={registerVaccines}
@@ -164,15 +170,14 @@ const Health = ({ pet }) => {
           ) : dewormingVisible ? (
             <SelectDeworming
               petId={pet.id}
-              action={() =>{
+              action={() => {
                 setState((prev) => ({
                   ...prev,
                   finishScreen: true,
                   challengeVisible: true,
-                }))
-                setRefresh(true)
-              }
-              }
+                }));
+                setRefresh(true);
+              }}
             />
           ) : (
             <InformationView
@@ -180,7 +185,7 @@ const Health = ({ pet }) => {
               text={
                 "La desparasitación es esencial para reducir los parásitos internos y externos de tu mascota. Completa el registro para darle seguimiento."
               }
-              type="desparacitación"
+              type="desparasitación"
               changeVisible={(visible) =>
                 setState((prev) => ({ ...prev, dewormingVisible: visible }))
               }

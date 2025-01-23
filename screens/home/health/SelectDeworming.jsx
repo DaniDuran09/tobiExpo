@@ -91,12 +91,12 @@ const SelectDeworming = ({ petId, action }) => {
   };
 
   const save = async () => {
-    if (frecuencyValue == "No lo he desparacitado") {
+    if (frecuencyValue == "No lo he desparacitado" || frecuencyValue == "") {
       action();
       Toast.show({
         type: "success",
         text1: "Información guardada",
-        text2: `Se guardó la desparacitación con éxito`,
+        text2: `Se guardó la desparasitación con éxito`,
       });
       return;
     } else if (!date || !frecuencyValue || !dewormingTypeValue) {
@@ -121,7 +121,6 @@ const SelectDeworming = ({ petId, action }) => {
             deworming_frequency: frecuencyValue,
             last_deworming: date,
           };
-          console.log("payload: ", payload);
           await apiFetcher.saveDewormer(payload);
         }
       });
@@ -129,8 +128,8 @@ const SelectDeworming = ({ petId, action }) => {
       action();
       Toast.show({
         type: "success",
-        text1: "Desparacitación guardada",
-        text2: `Se guardó la desparacitación con éxito`,
+        text1: "Desparasitación guardada",
+        text2: `Se guardó la desparasitación con éxito`,
       });
     } catch (error) {
       Toast.show({
