@@ -2,12 +2,13 @@ import { View } from "react-native-ui-lib";
 import Description from "./Description";
 import Title from "./Title";
 import Header from "./Header";
+import { Colors } from "../../styles/Colors";
 
 export default function HealthSlide() {
   return (
     <View
       style={{
-        backgroundColor: "#EF4136", //#E6F8DB
+        backgroundColor: Colors.danger, //#E6F8DB
       }}
     >
       <Header/>

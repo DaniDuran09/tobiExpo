@@ -6,8 +6,11 @@ import HealthSlide from "./onboarding/HealthSlide";
 import DigitalizeSlide from "./onboarding/DigitizeSlide";
 import CustomizeSlide from "./onboarding/CustomizeSlide";
 import { Carousel } from "react-native-ui-lib";
+import { StackScreenProps } from "@react-navigation/stack";
 
-const SplashScreen = ({ navigation }) => {
+type NavigationProps = StackScreenProps<any>
+
+const SplashScreen = ({ navigation }:NavigationProps) => {
   const [token, setToken] = useState(null);
   const appStorage = new AppStorage();
   const dispatch = useDispatch();
@@ -17,20 +20,14 @@ const SplashScreen = ({ navigation }) => {
   }, []);
 
   const fetchData = async () => {
-    console.log("Entro al fetchdata");
     try {
-      console.log("Hasta aqui todo bien");
       const response = await appStorage.getAppToken();
       const user = await appStorage.getUser();
-      console.log("Lo que intento traer: ", response, user);
       if (response && user) {
-        console.log("No entro aqui?");
         setToken(response);
         dispatch(setUserInfo(user));
         navigation.navigate("Home");
-      } else {
-        console.log("No entro aqui, no hago nada");
-      }
+      } 
     } catch (error) {
       console.log("Error en el splash: ", error);
     }
