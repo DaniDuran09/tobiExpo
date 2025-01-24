@@ -151,7 +151,7 @@ const CompleteVaccinationList = (props) => {
               style={{ height: 20, width: 20 }}
               resizeMode={"contain"}
             />
-            <Text text80BO>Desparacitaciones</Text>
+            <Text text80BO>Desparasitaciones</Text>
           </View>
           {/* <Image
             source={require("../../assets/edit-date.png")}

@@ -38,7 +38,7 @@ const SelectDeworming = ({ petId, action }) => {
     { id: 4, value: "Mensual", isChecked: false },
     {
       id: 5,
-      value: "No lo he desparacitado",
+      value: "No lo he desparasitado",
       isChecked: false,
     },
   ]);
@@ -91,7 +91,7 @@ const SelectDeworming = ({ petId, action }) => {
   };
 
   const save = async () => {
-    if (frecuencyValue == "No lo he desparacitado" || frecuencyValue == "") {
+    if (frecuencyValue == "No lo he desparasitado" || frecuencyValue == "") {
       action();
       Toast.show({
         type: "success",
@@ -161,7 +161,7 @@ const SelectDeworming = ({ petId, action }) => {
   };
 
   // useEffect(() => {
-  //   if (frecuencyValue === "No lo he desparacitado") {
+  //   if (frecuencyValue === "No lo he desparasitado") {
   //     setDewormingTypeValue("Ninguna");
   //     setDewormingType((prevDewormingType) =>
   //       prevDewormingType.map((d) =>
@@ -184,7 +184,7 @@ const SelectDeworming = ({ petId, action }) => {
   );
 
   const renderDewormingType = ({ item }) => {
-    const isFrequencyDisabled = frecuencyValue === "No lo he desparacitado";
+    const isFrequencyDisabled = frecuencyValue === "No lo he desparasitado";
 
     const handleDewormingSelection = (selectedItem, checked, id) => {
       if (selectedItem.id == 3) {
@@ -279,12 +279,12 @@ const SelectDeworming = ({ petId, action }) => {
       <Text
         text70M
         marginT-10
-        style={frecuencyValue == "No lo he desparacitado" && { opacity: 0.5 }}
+        style={frecuencyValue == "No lo he desparasitado" && { opacity: 0.5 }}
       >
         2. ¿Cuándo fue la última desparasitación de tu mascota?
       </Text>
       <DateTimePicker
-        editable={frecuencyValue != "No lo he desparacitado"}
+        editable={frecuencyValue != "No lo he desparasitado"}
         display="spinner"
         style={[
           {
@@ -304,7 +304,7 @@ const SelectDeworming = ({ petId, action }) => {
       <Text
         text70M
         marginT-10
-        style={frecuencyValue == "No lo he desparacitado" && { opacity: 0.5 }}
+        style={frecuencyValue == "No lo he desparasitado" && { opacity: 0.5 }}
       >
         3. ¿Qué tipo?
       </Text>
