@@ -7,10 +7,11 @@ import DigitalizeSlide from "./onboarding/DigitizeSlide";
 import CustomizeSlide from "./onboarding/CustomizeSlide";
 import { Carousel } from "react-native-ui-lib";
 import { StackScreenProps } from "@react-navigation/stack";
+import { Colors } from "../styles/Colors";
 
 type NavigationProps = StackScreenProps<any>
 
-const SplashScreen = ({ navigation }:NavigationProps) => {
+const SplashScreen = ({ navigation }: NavigationProps) => {
   const [token, setToken] = useState(null);
   const appStorage = new AppStorage();
   const dispatch = useDispatch();
@@ -27,17 +28,17 @@ const SplashScreen = ({ navigation }:NavigationProps) => {
         setToken(response);
         dispatch(setUserInfo(user));
         navigation.navigate("Home");
-      } 
+      }
     } catch (error) {
       console.log("Error en el splash: ", error);
     }
   };
 
   return (
-    <Carousel pageControlPosition={Carousel.pageControlPositions.OVER}>
-      <HealthSlide/>
-      <DigitalizeSlide/>
-      <CustomizeSlide/>
+    <Carousel containerStyle={{flex:1,backgroundColor:Colors.danger}} pageControlPosition={Carousel.pageControlPositions.OVER}>
+      <HealthSlide />
+      <DigitalizeSlide />
+      <CustomizeSlide />     
     </Carousel>
   );
 };

@@ -1,63 +1,35 @@
-import { TouchableWithoutFeedback } from "react-native";
-import { View, Text } from "react-native-ui-lib";
-import { useNavigation } from "@react-navigation/native";
 import Description from "./Description";
+import Layout from "./Layout";
 import Title from "./Title";
-import Header from "./Header";
+import { useNavigation } from "@react-navigation/native";
+import { Colors } from "../../styles/Colors";
+import { View,Text} from "react-native-ui-lib";
+import { TouchableWithoutFeedback } from "react-native";
 
 export default function CustomizeSlide() {
+  return (
+    <Layout footer={<Footer />}>
+      <Title text="Planes de salud personalizados" />
+      <Description text="Obten un plan de salud personalizado según las necesidades de cada mascota" />
+    </Layout>
+  )
+}
+
+const Footer = () => {
+
   const navigation = useNavigation<any>();
   return (
-    <View
-    backgroundColor="#EF4136"
-    >
-      <Header/>
-      <View
-        style={{
-          height: "70%",
-          width: "100%",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          paddingTop: "10%",
-        }}
-      >
-        <Title text="Planes de salud personalizados"/>
-        <Description text="Obten un plan de salud personalizado según las necesidades de cada mascota"/>      
-      </View>
-      <View
-        style={{
-          height: "10%",
-          width: "100%",
-          alignItems: "flex-end",
-          paddingHorizontal: 20,
-        }}
-      >
-        <TouchableWithoutFeedback
-          onPress={() => navigation.navigate("LoginScreen")}
-        >
-          <View
-            style={{
-              height: 50,
-              width: "30%",
-              backgroundColor: "#000",
-              borderRadius: 30,
-              justifyContent: "center",
-              bottom: "15%",
-            }}
-          >
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: 15,
-                color: "white",
-                fontWeight: "700",
-              }}
-            >
-              Registro
-            </Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
+    <View marginB-20 right style={{ marginTop: "auto" }}>
+      <TouchableWithoutFeedback onPress={() => { navigation.navigate("LoginScreen") }}>
+        <View backgroundColor={Colors.black} paddingV-15 paddingH-30 br100>
+          <Text 
+            center
+            text70BO
+            color={Colors.white}
+          >Registro</Text>
+        </View>
+      </TouchableWithoutFeedback>
     </View>
-  );
+
+  )
 }
