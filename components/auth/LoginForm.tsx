@@ -1,62 +1,40 @@
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { TextInput, StyleSheet, TouchableWithoutFeedback } from "react-native"
-import { View, Text, TouchableOpacity } from "react-native-ui-lib"
+import { TextInput, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import Entypo from "react-native-vector-icons/Entypo";
 import { Colors } from "../../styles/Colors";
 import React from "react";
 
-export default function LoginForm({ onSubmit }:{onSubmit:(values:{username:string,password:string})=>void}) {
-
-  const [input, setInput] = useState({
+export default function LoginForm({ onSubmit }: LoginFormProps) {
+  const [input, setInput] = useState<LoginPayload>({
     username: "",
     password: "",
   });
 
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState<boolean>(true);
 
-  const navigation = useNavigation<any>()
+  const navigation = useNavigation<any>();
 
   return (
     <>
       <View
-        height={"25%"}
         width={"100%"}
         centerH
-        style={{
-          justifyContent: "space-around",
-        }}
+        gap-50
+        marginT-50
       >
         <TextInput
           placeholder="Email"
-          placeholderTextColor="#000"
-          elevation={5}
           keyboardType="email-address"
-          style={[
-            styles.textInput,
-            {
-              color: "#000",
-            },
-          ]}
+          style={styles.textInput}
           autoCapitalize="none"
           onChangeText={(val) => setInput({ ...input, username: val })}
         />
-        <View
-          row
-          centerV
-          style={[
-            styles.textInput,
-            {
-              justifyContent: "space-between",
-              flexDirection: "row",
-            },
-          ]}
-        >
+        <View row centerV style={[styles.textInput]} spread>
           <TextInput
             placeholder="Contraseña"
             secureTextEntry={visible}
-            style={{ width: "80%", height: 60 }}
-            placeholderTextColor="#000"
             autoCapitalize="none"
             onChangeText={(val) => setInput({ ...input, password: val })}
           />
@@ -71,62 +49,39 @@ export default function LoginForm({ onSubmit }:{onSubmit:(values:{username:strin
         </View>
       </View>
 
-      <View
-        height={"10%"}
-        width={"100%"}
-        row
-        centerV
-        style={{
-          justifyContent: "space-around",
-        }}
-      >
+      <View row centerV spread paddingH-25 marginT-50>
         <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
-          <Text
-            text80R
-            center
-            color={"#E6F8DB"}
-            underline
-          >
+          <Text text80R center color={Colors.secondaryColor} underline>
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
         <Text
           text80R
           center
-          color={"#E6F8DB"}
+          color={Colors.secondaryColor}
           onPress={() => navigation.navigate("UserStepsRegister")}
         >
           Registrarse
         </Text>
       </View>
 
-      <View
-        height={"15%"}
-        width={"100%"}
-        center
-      >
+      <View center marginT-30>
         <TouchableWithoutFeedback onPress={() => onSubmit(input)}>
           <View
             height={60}
             width={"80%"}
-            backgroundColor="#FA6650"
+            backgroundColor={Colors.primaryColor}
             centerV
-            style={{
-              borderRadius: 32,
-            }}
+            br100
           >
-            <Text
-              center
-              text70BO
-              color="white"
-            >
+            <Text center text70BO color={Colors.white}>
               Entrar
             </Text>
           </View>
         </TouchableWithoutFeedback>
       </View>
     </>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -135,14 +90,12 @@ const styles = StyleSheet.create({
     width: "90%",
     borderRadius: 6,
     paddingLeft: 20,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    shadowColor: "#000000",
+    backgroundColor: Colors.white,
     shadowOpacity: 0.8,
     shadowRadius: 2,
     shadowOffset: {
       height: 1,
       width: 1,
     },
-  }
+  },
 });

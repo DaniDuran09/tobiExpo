@@ -4,7 +4,7 @@ import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
-import { Text, View,Image, TouchableOpacity } from "react-native-ui-lib";
+import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
 import { OpenDirectionMap } from "../../components/appointments/OpenDirection";
@@ -22,8 +22,8 @@ const PartnersGeneralInfo = ({ route }) => {
   const dispatch = useDispatch();
 
   const [item, setItem] = useState<any>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [showActionSheet, setShowActionSheet] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [showActionSheet, setShowActionSheet] = useState<boolean>(false);
 
   const services = item.services ?? [];
   const users = item.users ?? [];
@@ -32,7 +32,7 @@ const PartnersGeneralInfo = ({ route }) => {
     latitude: 0,
     longitude: 0,
     name: "",
-    id: ""
+    id: "",
   };
 
   const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
@@ -42,7 +42,7 @@ const PartnersGeneralInfo = ({ route }) => {
     getPartnerInfo();
   }, []);
 
-  const getPartnerInfo = async () => {
+  const getPartnerInfo = async (): Promise<void> => {
     setIsLoading(true);
     try {
       const partner = await apiFetcher.getPartnersById(id);
@@ -60,7 +60,7 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-  const shareInfo = async (url:string) => {
+  const shareInfo = async (url: string): Promise<void> => {
     try {
       const result = await Share.share({
         message: `Mira este lugar para nuestras mascotas: ${url}`,
@@ -84,7 +84,7 @@ const PartnersGeneralInfo = ({ route }) => {
     }
   };
 
-  const handleDirections = () => {
+  const handleDirections = (): void => {
     setShowActionSheet(true);
   };
 
@@ -98,8 +98,7 @@ const PartnersGeneralInfo = ({ route }) => {
       )}
       <ScrollView style={{ padding: 10 }}>
         <View row spread>
-          {
-            !isLoading &&
+          {!isLoading && (
             <Image
               source={{ uri: partner.picture }}
               height={90}
@@ -107,7 +106,7 @@ const PartnersGeneralInfo = ({ route }) => {
               style={{ borderRadius: 11 }}
               resizeMode="cover"
             />
-          }
+          )}
           <TouchableOpacity onPress={() => shareInfo(partner.latitude)}>
             <Image
               source={require("../../assets/share.png")}
@@ -150,10 +149,10 @@ const PartnersGeneralInfo = ({ route }) => {
             style={
               users.length != 0
                 ? {
-                  margin: 20,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }
+                    margin: 20,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }
                 : {}
             }
           >
@@ -187,7 +186,10 @@ const PartnersGeneralInfo = ({ route }) => {
             />
           </View>
         </View>
-        <PartnersContactInformation partner={partner} handleDirections={handleDirections}/>
+        <PartnersContactInformation
+          partner={partner}
+          handleDirections={handleDirections}
+        />
         <OpenDirectionMap
           latitude={item?.partner?.latitude}
           longitude={item?.partner?.longitude}

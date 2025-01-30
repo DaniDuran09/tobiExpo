@@ -8,24 +8,19 @@ import CorrectWeight from "../../../components/pet/CorrectWeight";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Loading from "../../../components/Loading";
 import momentTZ from "../../../utils/moment";
-import { View, Text, TouchableOpacity, } from "react-native-ui-lib";
+import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import { CardInfo } from "../../../components/pet/CardInfo";
 
-type Props = {
-  item:{id:string}
-}
-
-const Weight = (props:Props) => {
-  const { item } = props;
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+const Weight = ({ item }: WeightProps) => {
+  const [success, setSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [pet, setPet] = useState<any>({});
   const navigation = useNavigation<any>();
   const [challengeVisible, setChallengeVisible] = useState<boolean>();
 
   const apiFetcher = new ApiFetcher();
 
-  const closeModalChallenge = () => {
+  const closeModalChallenge = (): void => {
     setChallengeVisible(false);
   };
 
@@ -38,7 +33,7 @@ const Weight = (props:Props) => {
     parseInt(pet?.weight)
   );
 
-  const getPet = async () => {
+  const getPet = async (): Promise<void> => {
     setLoading(true);
     try {
       const response = await apiFetcher.getPetById(item.id);
@@ -79,7 +74,9 @@ const Weight = (props:Props) => {
         </Text>
         <Text marginT-15>
           Último registro:{" "}
-          {pet.weight_updated_at ? momentTZ(pet.weight_updated_at).format("D MMM YY") : "Sin fecha"}
+          {pet.weight_updated_at
+            ? momentTZ(pet.weight_updated_at).format("D MMM YY")
+            : "Sin fecha"}
         </Text>
 
         <TouchableOpacity

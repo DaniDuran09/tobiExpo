@@ -5,10 +5,9 @@ import Recomendation from "../../../components/Recomendation";
 import Dog from "../../../assets/images/dog-image.png";
 import Cat from "../../../assets/images/cat-image.png";
 
-
-const Welfare = (pet:any) => {
-  const [challengeVisible, setChallengeVisible] = useState(false);
-  const closeModalChallenge = () => setChallengeVisible(false);
+const Welfare = ({ pet }: WelfareProps) => {
+  const [challengeVisible, setChallengeVisible] = useState<boolean>(false);
+  const closeModalChallenge = (): void => setChallengeVisible(false);
   return (
     <View flex padding-10 marginT-10>
       <Text text65BO marginB-15>

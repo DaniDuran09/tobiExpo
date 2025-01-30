@@ -7,12 +7,10 @@ export function ServicesOptionsList({
   partnerLocation,
   users,
   partnerId,
-}:{
-  services:[],
-  partnerLocation:unknown,
-  users:[],
-  partnerId:string
-}) {
+}: ServiceOptionsListProps) {
+
+  console.log("users: ", users)
+
   if (services.length == 0) {
     return (
       <View marginT-10 center>
@@ -24,8 +22,8 @@ export function ServicesOptionsList({
   }
 
   return (
-    <View row marginT-10 gap-10 style={{ flexWrap: "wrap" }} >
-      {services.map((service:any, index) => (
+    <View row marginT-10 gap-10 style={{ flexWrap: "wrap" }}>
+      {services.map((service: Service, index) => (
         <ServiceOption
           key={index}
           picture={service.picture}
