@@ -8,8 +8,9 @@ import CustomizeSlide from "./onboarding/CustomizeSlide";
 import { Carousel } from "react-native-ui-lib";
 import { StackScreenProps } from "@react-navigation/stack";
 import { Colors } from "../styles/Colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type NavigationProps = StackScreenProps<any>
+type NavigationProps = StackScreenProps<any>;
 
 const SplashScreen = ({ navigation }: NavigationProps) => {
   const [token, setToken] = useState(null);
@@ -35,11 +36,16 @@ const SplashScreen = ({ navigation }: NavigationProps) => {
   };
 
   return (
-    <Carousel containerStyle={{flex:1,backgroundColor:Colors.danger}} pageControlPosition={Carousel.pageControlPositions.OVER}>
-      <HealthSlide />
-      <DigitalizeSlide />
-      <CustomizeSlide />     
-    </Carousel>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
+      <Carousel
+        containerStyle={{ flex: 1 }}
+        pageControlPosition={Carousel.pageControlPositions.OVER}
+      >
+        <HealthSlide />
+        <DigitalizeSlide />
+        <CustomizeSlide />
+      </Carousel>
+    </SafeAreaView>
   );
 };
 
