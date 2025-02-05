@@ -1,8 +1,9 @@
 import { Text, Image, View, TouchableOpacity } from "react-native-ui-lib";
 import MapViewComponent from "./MapViewComponent";
 import { Colors } from "../../styles/Colors";
+import { PartnersContactInformationProps } from "./interface/PartnersContactInformation";
 
-export default function PartnersContactInformation({ partner, handleDirections }:{partner:any,handleDirections:()=>void}) {
+export default function PartnersContactInformation({ partner, handleDirections }:PartnersContactInformationProps) {
   return (
     <View
       marginT-15

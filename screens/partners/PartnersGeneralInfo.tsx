@@ -2,7 +2,7 @@ import { ScrollView, Share, FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
@@ -14,26 +14,40 @@ import PartnersContactInformation from "./PartnersContactInformation";
 import Toast from "react-native-toast-message";
 import Loading from "../../components/Loading";
 
-const PartnersGeneralInfo = ({ route }) => {
-  const { id, type } = route.params;
+const PartnersGeneralInfo = () => {
+  const { params } = useRoute<any>()
+  const {id,type} = params
+  const navigation = useNavigation<any>();
 
   const apiFetcher = new ApiFetcher();
-  const navigation = useNavigation<any>();
+
   const dispatch = useDispatch();
 
-  const [item, setItem] = useState<any>({});
+  const [item, setItem] = useState<PartnerGeneralInfo>({
+    services: [],
+    users: [],
+    partner: {
+      picture: null,
+      latitude: "0",
+      longitude: "0",
+      name: "",
+      id: "",
+      partnerId:"",
+      description:"",
+      phone:""
+    },
+    address: {
+      state: "",
+      city: "",
+      street: ""
+    }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showActionSheet, setShowActionSheet] = useState<boolean>(false);
 
-  const services = item.services ?? [];
-  const users = item.users ?? [];
-  const partner = item.partner ?? {
-    picture: null,
-    latitude: 0,
-    longitude: 0,
-    name: "",
-    id: "",
-  };
+  const services = item.services
+  const users = item.users
+  const partner = item.partner
 
   const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
 
@@ -136,7 +150,7 @@ const PartnersGeneralInfo = ({ route }) => {
             services={services}
             partnerLocation={partnerLocation}
             users={users}
-            partnerId={partner.partnerId}
+            partnerId={partner.id}
           />
         </View>
         <View
@@ -149,10 +163,10 @@ const PartnersGeneralInfo = ({ route }) => {
             style={
               users.length != 0
                 ? {
-                    margin: 20,
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }
+                  margin: 20,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }
                 : {}
             }
           >
