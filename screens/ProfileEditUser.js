@@ -26,6 +26,7 @@ import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { clearPetInfo } from "../redux/slice/petSlice";
 import { View } from "react-native-ui-lib";
+import useImagePicker from "../hooks/useImagePicker";
 
 const ProfileEditUser = ({ route, navigation }) => {
   // const { refreshData } = route.params;
@@ -34,62 +35,17 @@ const ProfileEditUser = ({ route, navigation }) => {
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [imageSource, setImageSource] = useState(null);
-  const [permissionsRequested, setPermissionsRequested] = useState({
-    camera: false,
-    library: false,
-  });
+
+  const {pickImage,takePhoto:takePhotoHook} = useImagePicker()
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
 
-  /*useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
-      }
-    })();
-  }, []);*/
-  const getPermissionsLibrary = async () => {
-    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      if (!permissionsRequested.library) {
-        setPermissionsRequested((prev) => ({ ...prev, library: true }));
-        await requestLibraryPermissions();
-      }
-      closeModal()
-      Toast.show({
-        type: "error",
-        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-        text1: `Habilita los permisos desde la configuración.`,
-      });
-    } else {
-      selectImageFromLibrary();
-    }
-  };
-
-  const requestLibraryPermissions = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      closeModal();
-      Toast.show({
-        type: "error",
-        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-        text1: `Habilita los permisos desde la configuración.`,
-      });
-    } else {
-      getPermissionsLibrary();
-    }
-  };
 
   const selectImageFromLibrary = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await pickImage({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
@@ -101,62 +57,49 @@ const ProfileEditUser = ({ route, navigation }) => {
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al cargar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      if(error.name === "ImageLibraryPermissionsError"){
+        Alert.alert(
+          "Se necesitan permisos para acceder a la biblioteca de imágenes.",
+          "Habilita los permisos desde la configuración."
+        );   
+      }
+      else{
+        Alert.alert(
+          "Ha ocurrido un error al cargar la foto",
+          "Puedes continuar y después agregar una foto"
+        );
+      }      
       console.log("Error: ", error);
     }
   };
-  const getPermissionsCamera = async () => {
-    const { status } = await ImagePicker.getCameraPermissionsAsync();
-    if (status !== "granted") {
-      if (!permissionsRequested.camera) {
-        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
-        await requestPermissionsCamera();
-      }
-      Toast.show({
-        type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la cámara.`,
-      });
-    } else {
-      takePhoto();
-    }
-  };
 
-  const requestPermissionsCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      closeModal();
-      Toast.show({
-        type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la cámara.`,
-      });
-    } else {
-      getPermissionsCamera();
-    }
-  };
 
   const takePhoto = async () => {
     try {
-      const result = await ImagePicker.launchCameraAsync({
+      const result = await takePhotoHook({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
 
       if (!result.canceled) {
-        console.log("result: ", result);
         setImageSource(result.assets[0]);
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al tomar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      if(error.name === "CameraPermissionsError"){
+        Alert.alert(
+          "Se necesitan permisos para tomar fotos.",
+          "Habilita los permisos desde la configuración."
+        );   
+      }
+      else{
+        Alert.alert(
+          "Ha ocurrido un error al cargar la foto",
+          "Puedes continuar y después agregar una foto"
+        );
+      }      
       console.log("Error: ", error);
     }
   };
@@ -461,8 +404,8 @@ const ProfileEditUser = ({ route, navigation }) => {
         <ImageOption
           visible={modalVisible}
           closeModal={closeModal}
-          selectImageFromLibrary={getPermissionsLibrary}
-          takePhoto={getPermissionsCamera}
+          selectImageFromLibrary={selectImageFromLibrary}
+          takePhoto={takePhoto}
         />
       </SafeAreaView>
     </>
