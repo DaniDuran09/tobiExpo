@@ -1,19 +1,23 @@
-import { useState } from "react";
 import { Linking, Platform } from "react-native";
-import { ActionSheet, Text, View } from "react-native-ui-lib";
+import { ActionSheet, View } from "react-native-ui-lib";
 
-export const OpenDirectionMap = ({ latitude, longitude, setShowActionSheet, showActionSheet }) => {
+export const OpenDirectionMap = ({
+  latitude,
+  longitude,
+  setShowActionSheet,
+  showActionSheet,
+}: OpenDirectionMapProps) => {
 
-  const handleOptionPress = (index) => {
+  const handleOptionPress = (index: number): void => {
     setShowActionSheet(false);
     if (index === 0) {
-      openMap(latitude, longitude, "Google Maps");
+      openMap({latitude, longitude, app: 'Google Maps'});
     } else if (index === 1) {
-      openMap(latitude, longitude, "Apple Maps");
+      openMap({latitude, longitude, app: "Apple Maps"});
     }
   };
 
-  const openMap = (latitude, longitude, app) => {
+  const openMap = ({ latitude, longitude, app }: OpenMap): void => {
     const location = `${latitude},${longitude}`;
 
     switch (app) {
@@ -30,7 +34,7 @@ export const OpenDirectionMap = ({ latitude, longitude, setShowActionSheet, show
     }
   };
   return (
-    <View>
+    <View style={{ backgroundColor: "red" }}>
       <ActionSheet
         useNativeIOS={Platform.OS == "ios"}
         visible={showActionSheet}
@@ -41,10 +45,12 @@ export const OpenDirectionMap = ({ latitude, longitude, setShowActionSheet, show
         destructiveButtonIndex={0}
         options={[
           { label: "Google Maps", onPress: () => handleOptionPress(0) },
-          Platform.OS == "ios" && {
-            label: "Maps",
-            onPress: () => handleOptionPress(1),
-          },
+          Platform.OS == "ios"
+            ? {
+                label: "Maps",
+                onPress: () => handleOptionPress(1),
+              }
+            : {},
           { label: "Cancelar", onPress: () => setShowActionSheet(false) },
         ]}
       />
