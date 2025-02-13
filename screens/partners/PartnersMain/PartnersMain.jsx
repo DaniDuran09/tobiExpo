@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Colors } from '../../styles/Colors';
+import { Colors } from '../../../styles/Colors';
 
 const ServiceOption = ({ imageSource, title, subtitle, onPress }) => (
   <View style={styles.containerImage}>
@@ -34,13 +34,13 @@ const PartnersMain = () => {
         </View>
         <View style={styles.optionsContainer}>
           <ServiceOption
-            imageSource={require('../../assets/vetBackground.png')}
+            imageSource={require('../../../assets/vetBackground.png')}
             title="Veterinarios"
             subtitle="Certificados"
             onPress={() => goToSelectedScreen(2)}
           />
           <ServiceOption
-            imageSource={require('../../assets/groomingBackground.png')}
+            imageSource={require('../../../assets/groomingBackground.png')}
             title="Grooming"
             subtitle="Spa, baños y estética"
             onPress={() => goToSelectedScreen(3)}
