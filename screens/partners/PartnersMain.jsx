@@ -9,7 +9,11 @@ const ServiceOption = ({ imageSource, title, subtitle, onPress }) => (
       <Image source={imageSource} style={styles.image} resizeMode="contain" />
       <View style={styles.cover}>
         <Text style={styles.mainText}>{title}</Text>
-        {subtitle && <Text style={styles.secondaryText}>{subtitle}</Text>}
+        {subtitle && (
+          <View style={styles.limit}>
+            <Text style={styles.secondaryText}>{subtitle}</Text>
+          </View>
+        )}
         <View style={styles.viewMore}>
           <Text style={styles.textViewMore}>Ver más</Text>
         </View>
@@ -76,7 +80,10 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 375,
-    height: 250,
+    height: 250,  
+  },
+  limit: {
+    width: 100,
   },
   cover: {
     position: 'absolute',
