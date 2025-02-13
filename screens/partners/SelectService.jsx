@@ -1,60 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   FlatList,
-  Image,
   StyleSheet,
   Alert,
 } from "react-native";
 import { Colors } from "../../styles/Colors";
 import AppStorage from "../../modules/AppStorage";
-import { getPartens } from "../../services";
-import { useNavigation } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
-import { AnimatedImage, LoaderScreen, SkeletonView } from "react-native-ui-lib";
+import { useNavigation } from "@react-navigation/native";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 const SelectService = ({ route }) => {
   const { type } = route.params;
   const [listPartners, setListPartners] = useState([]);
-  const [serviceType, setServiceType] = useState(2);
+  const [serviceType, setServiceType] = useState(type || 2);
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    setServiceType(type);
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const token = await appStorage.getAppToken();
+      await appStorage.getAppToken(); // Se obtiene el token, pero no se usa
       const partners = await apiFetcher.getPartners();
-      if (partners.code == 200 || partners.code == 201)
+      if ([200, 201].includes(partners.code)) {
         setListPartners(partners.data);
+      }
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error fetching partners:", error);
       Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
     }
-  };
+  }, []);
 
-  const goToMoreInfo = (item, type) => {
-    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type });
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const goToMoreInfo = (item) => {
+    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: serviceType });
   };
 
   const renderPartners = ({ item }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => goToMoreInfo(item, serviceType)}
-    >
+    <TouchableOpacity style={styles.item} onPress={() => goToMoreInfo(item)}>
       <View style={styles.leftSection}>
         <Text style={styles.itemTitle}>{item.name}</Text>
         <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
       </View>
-      <View style={styles.RightSection}>
+      <View style={styles.rightSection}>
         <AnimatedImage
           source={{ uri: item?.picture }}
           style={styles.imageItem}
@@ -66,46 +61,30 @@ const SelectService = ({ route }) => {
     </TouchableOpacity>
   );
 
-  const filteredPartners =
-    serviceType === 2
-      ? listPartners.filter((partner) => partner.type_partner.id === 2)
-      : listPartners.filter((partner) => partner.type_partner.id !== 2);
+  const filteredPartners = listPartners.filter(
+    (partner) => (serviceType === 2 ? partner.type_partner.id === 2 : partner.type_partner.id !== 2)
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.selectContainer}>
-        <TouchableOpacity
-          style={serviceType === 2 ? styles.optionSelected : {}}
-          onPress={() => setServiceType(2)}
-        >
-          <Text
-            style={serviceType === 2 ? styles.selected : styles.notSelected}
+        {[{ id: 2, label: "Veterinarias" }, { id: 3, label: "Grooming" }].map(({ id, label }) => (
+          <TouchableOpacity
+            key={id}
+            style={serviceType === id ? styles.optionSelected : null}
+            onPress={() => setServiceType(id)}
           >
-            Veterinarias
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={serviceType != 2 ? styles.optionSelected : {}}
-          onPress={() => setServiceType(3)}
-        >
-          <Text style={serviceType != 2 ? styles.selected : styles.notSelected}>
-            Grooming
-          </Text>
-        </TouchableOpacity>
+            <Text style={serviceType === id ? styles.selected : styles.notSelected}>{label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.textOptionsForYou}>
-          Encontramos estas opciones para ti
-        </Text>
-      </View>
-      <View style={styles.partnersContainer}>
-        <FlatList
-              data={filteredPartners}
-              renderItem={renderPartners}
-              keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
-              style={styles.flatList}
-            />
-      </View>
+      <Text style={styles.textOptionsForYou}>Encontramos estas opciones para ti</Text>
+      <FlatList
+        data={filteredPartners}
+        renderItem={renderPartners}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.flatList}
+      />
     </View>
   );
 };
@@ -118,11 +97,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   selectContainer: {
-    justifyContent: "center",
     flexDirection: "row",
+    justifyContent: "center",
     gap: 40,
     padding: 15,
-    paddingBottom: 0,
   },
   selected: {
     color: Colors.primaryColor,
@@ -141,20 +119,12 @@ const styles = StyleSheet.create({
   textOptionsForYou: {
     fontSize: 18,
     color: Colors.gray,
-  },
-  textContainer: {
     marginTop: 20,
     padding: 15,
-    paddingBottom: 0,
-  },
-  partnersContainer: {
-    marginTop: 30,
-    paddingBottom: 120,
   },
   item: {
     height: 130,
-    paddingLeft: 15,
-    paddingTop: 15,
+    padding: 15,
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: Colors.white,
@@ -178,7 +148,7 @@ const styles = StyleSheet.create({
     width: 90,
     borderRadius: 11,
   },
-  RightSection: {
+  rightSection: {
     paddingRight: 15,
   },
   itemDescription: {
