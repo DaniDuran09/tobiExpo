@@ -7,24 +7,25 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { Colors } from "../../styles/Colors";
-import AppStorage from "../../modules/AppStorage";
-import ApiFetcher from "../../modules/ApiFetcher";
+import { Colors } from "../../../styles/Colors";
+import AppStorage from "../../../modules/AppStorage";
+import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation } from "@react-navigation/native";
 import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
+import { SelectServiceProps, Partner, NavigationType } from "./types";
 
-const SelectService = ({ route }) => {
+const SelectService = ({ route }: SelectServiceProps) => {
   const { type } = route.params;
-  const [listPartners, setListPartners] = useState([]);
-  const [serviceType, setServiceType] = useState(type || 2);
-
+  const [listPartners, setListPartners] = useState<Partner[]>([]);
+  const [serviceType, setServiceType] = useState<number>(type || 2);
+  
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationType>();
 
   const fetchData = useCallback(async () => {
     try {
-      await appStorage.getAppToken(); // Se obtiene el token, pero no se usa
+      await appStorage.getAppToken(); 
       const partners = await apiFetcher.getPartners();
       if ([200, 201].includes(partners.code)) {
         setListPartners(partners.data);
@@ -39,11 +40,11 @@ const SelectService = ({ route }) => {
     fetchData();
   }, [fetchData]);
 
-  const goToMoreInfo = (item) => {
+  const goToMoreInfo = (item: Partner) => {
     navigation.navigate("PartnersGeneralInfo", { id: item.id, type: serviceType });
   };
 
-  const renderPartners = ({ item }) => (
+  const renderPartners = ({ item }: { item: Partner }) => (
     <TouchableOpacity style={styles.item} onPress={() => goToMoreInfo(item)}>
       <View style={styles.leftSection}>
         <Text style={styles.itemTitle}>{item.name}</Text>
@@ -51,7 +52,7 @@ const SelectService = ({ route }) => {
       </View>
       <View style={styles.rightSection}>
         <AnimatedImage
-          source={{ uri: item?.picture }}
+          source={{ uri: item.picture }}
           style={styles.imageItem}
           loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
           animationDuration={500}
@@ -61,8 +62,8 @@ const SelectService = ({ route }) => {
     </TouchableOpacity>
   );
 
-  const filteredPartners = listPartners.filter(
-    (partner) => (serviceType === 2 ? partner.type_partner.id === 2 : partner.type_partner.id !== 2)
+  const filteredPartners = listPartners.filter((partner) =>
+    serviceType === 2 ? partner.type_partner.id === 2 : partner.type_partner.id !== 2
   );
 
   return (
@@ -155,5 +156,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 5,
     color: Colors.gray,
+  },
+  flatList: {
+    flex: 1, 
+    width: "100%",
   },
 });

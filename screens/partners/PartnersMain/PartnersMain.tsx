@@ -1,30 +1,43 @@
 import React from 'react';
-import { Image, SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { 
+  Image, 
+  SafeAreaView, 
+  StyleSheet, 
+  Text, 
+  View, 
+  TouchableOpacity 
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../../styles/Colors';
+import { ServiceOptionProps, NavigationType } from './types';
 
-const ServiceOption = ({ imageSource, title, subtitle, onPress }) => (
-  <View style={styles.containerImage}>
-    <TouchableOpacity onPress={onPress}>
-      <Image source={imageSource} style={styles.image} resizeMode="contain" />
-      <View style={styles.cover}>
-        <Text style={styles.mainText}>{title}</Text>
-        {subtitle && (
-          <View style={styles.limit}>
-            <Text style={styles.secondaryText}>{subtitle}</Text>
+const ServiceOption = (props: ServiceOptionProps) => {
+  return (
+    <View style={styles.containerImage}>
+      <TouchableOpacity onPress={props.onPress}>
+        <Image source={props.imageSource} style={styles.image} resizeMode="contain" />
+        <View style={styles.cover}>
+          <Text style={styles.mainText}>{props.title}</Text>
+          {props.subtitle && (
+            <View style={styles.limit}>
+              <Text style={styles.secondaryText}>{props.subtitle}</Text>
+            </View>
+          )}
+          <View style={styles.viewMore}>
+            <Text style={styles.textViewMore}>Ver más</Text>
           </View>
-        )}
-        <View style={styles.viewMore}>
-          <Text style={styles.textViewMore}>Ver más</Text>
         </View>
-      </View>
-    </TouchableOpacity>
-  </View>
-);
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const PartnersMain = () => {
-  const navigation = useNavigation();
-  const goToSelectedScreen = (type) => navigation.navigate('SelectService', { type });
+  const navigation = useNavigation<NavigationType>();
+
+  const goToSelectedScreen = (type: number) => {
+    navigation.navigate('SelectService', { type });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,6 +65,7 @@ const PartnersMain = () => {
 };
 
 export default PartnersMain;
+
 
 const styles = StyleSheet.create({
   container: {

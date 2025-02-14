@@ -1,5 +1,5 @@
 import {createStackNavigator} from '@react-navigation/stack';
-import SelectService from '../screens/partners/SelectService';
+import SelectService from '../screens/partners/SelectService/SelectService';
 import PartnersGeneralInfo from '../screens/partners/PartnersGeneralInfo';
 import PartnersMain from '../screens/partners/PartnersMain/PartnersMain';
 import InfoServiceForDate from '../screens/partners/date/InfoServiceForDate';
