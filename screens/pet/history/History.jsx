@@ -59,12 +59,12 @@ const History = ({ navigation }) => {
           <Text style={styles.info}>
             {item?.appointment_pet_services[0]?.service?.name}
           </Text>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.priceContainer}
             onPress={() => navigation.navigate("RateService")}
           >
             <Text style={styles.infoPrice}>Valorar cita</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
