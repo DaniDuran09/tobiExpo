@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dimensions, KeyboardAvoidingView, Linking } from "react-native";
+import { KeyboardAvoidingView, Linking } from "react-native";
 
 import { useDispatch } from "react-redux";
 
@@ -7,7 +7,6 @@ import AppStorage from "../../modules/AppStorage";
 import { setUserInfo } from "../../redux/slice/userSlice";
 import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
-import ApiFetcher from "../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import { View, Image, Text, TouchableOpacity } from "react-native-ui-lib";
 import LoginForm from "../../components/auth/LoginForm";
@@ -19,7 +18,6 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const appStorage = new AppStorage();
-  const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();
   const [login] = useLoginMutation()
