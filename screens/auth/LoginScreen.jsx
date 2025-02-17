@@ -23,6 +23,7 @@ import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
 import ApiFetcher from "../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
+import { useLoginMutation } from "../../api/auth";
 
 const LoginScreen = ({ navigation }) => {
   const [data, setData] = React.useState({
@@ -43,6 +44,8 @@ const LoginScreen = ({ navigation }) => {
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
+
+  const [login] = useLoginMutation()
 
   const textInputChange = (val) => {
     if (val.trim().length >= 4) {
@@ -102,12 +105,12 @@ const LoginScreen = ({ navigation }) => {
   const loginHandle = async ({ username, password }) => {
     setLoading(true);
     try {
-      let data = {
+      let credentials = {
         username: username,
         password: password,
       };
-      const response = await apiFetcher.login(data);
-      console.log("Response: ", response);
+      const {data:response} = await login(credentials);
+      console.log("Response: ", response.data);
       await appStorage.saveUser(response.data);
       dispatch(setUserInfo(response.data));
       await appStorage.saveAppToken(response.data.token);

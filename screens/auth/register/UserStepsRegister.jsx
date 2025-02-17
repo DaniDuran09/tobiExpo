@@ -15,6 +15,7 @@ import { clearUser, setUserInfo } from "../../../redux/slice/userSlice";
 import AppStorage from "../../../modules/AppStorage";
 import Toast from "react-native-toast-message";
 import { clearPetInfo } from "../../../redux/slice/petSlice";
+import { useRegisterMutation } from "../../../api/auth";
 
 const UserStepsRegister = () => {
   const navigation = useNavigation();
@@ -43,6 +44,8 @@ const UserStepsRegister = () => {
 
   const apiFetcher = new ApiFetcher();
   const appStorage = new AppStorage();
+
+  const [registerUser] = useRegisterMutation()
 
   useEffect(() => {
     dispatch(clearUser());
@@ -125,13 +128,13 @@ const UserStepsRegister = () => {
     try {
       const { userInfo: nestedUserInfo, ...newUserInfo } = userInfo;
       
-      const response = await apiFetcher.registerUser(userInfo);
+      const {data:response,error} = await registerUser(userInfo);
       
-      if (response.code != 200 && response.code != 201) {
+      if (error) {       
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: `${response.errors}`,
+          text2: `${error.data.errors}`,
         });
         navigation.reset({
           index: 0,
