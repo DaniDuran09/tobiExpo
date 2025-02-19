@@ -1,102 +1,103 @@
-import {Image, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {Colors} from '../../../styles/Colors';
-import {TouchableOpacity, TouchableWithoutFeedback} from 'react-native-gesture-handler';
-import {useNavigation} from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { 
+  Image, 
+  SafeAreaView, 
+  StyleSheet, 
+  Text, 
+  View, 
+  TouchableOpacity 
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Colors } from '../../../styles/Colors';
+import { ServiceOptionProps, NavigationType } from './types';
+
+const ServiceOption = (props: ServiceOptionProps) => {
+  return (
+    <View style={styles.containerImage}>
+      <TouchableOpacity onPress={props.onPress}>
+        <Image source={props.imageSource} style={styles.image} resizeMode="contain" />
+        <View style={styles.cover}>
+          <Text style={styles.mainText}>{props.title}</Text>
+          {props.subtitle && (
+            <View style={styles.limit}>
+              <Text style={styles.secondaryText}>{props.subtitle}</Text>
+            </View>
+          )}
+          <View style={styles.viewMore}>
+            <Text style={styles.textViewMore}>Ver más</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const PartnersMain = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationType>();
 
-  const goToSelectedScreen = type => {
-    navigation.navigate('SelectService', {type: type});
+  const goToSelectedScreen = (type: number) => {
+    navigation.navigate('SelectService', { type });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.containerAll}>
         <View style={styles.headerContainer}>
-          <Text style={styles.textOptionsForYou}>
-            Aquí encontrarás tus servicios favoritos
-          </Text>
+          <Text style={styles.textOptionsForYou}>Aquí encontrarás tus servicios favoritos</Text>
         </View>
         <View style={styles.optionsContainer}>
-          <View style={styles.containerImage}>
-            <TouchableOpacity onPress={() => goToSelectedScreen(2)}>
-              <Image
-                source={require('../../assets/vetBackground.png')}
-                style={{width: 375, height: 250}}
-                resizeMode="contain"
-              />
-              <View style={styles.cover}>
-                <Text style={styles.mainText}>Veterinarios</Text>
-                <Text style={styles.secondaryText}>Certificados</Text>
-                <View style={styles.viewMore}>
-                  <Text style={styles.textViewMore}>Ver más</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.containerImage}>
-            <TouchableOpacity onPress={() => goToSelectedScreen(3)}>
-              <Image
-                source={require('../../assets/groomingBackground.png')}
-                style={{width: 375, height: 250}}
-                resizeMode="contain"
-              />
-              <View style={styles.cover}>
-                <Text style={styles.mainText}>Grooming</Text>
-                <View style={styles.limit}>
-                  <Text style={styles.secondaryText}>
-                    Spa, baños y estética
-                  </Text>
-                  <View style={styles.viewMore}>
-                    <Text style={styles.textViewMore}>Ver más</Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-            {/* <LinearGradient colors={['red', 'orange']} style={styles.gradient}>
-              
-              <TouchableWithoutFeedback
-                style={styles.moreServices}
-                onPress={() => navigation.navigate('NewService')}>
-                <Text style={styles.text}>
-                  ¿Necesitas otro producto o servicio?
-                </Text>
-              </TouchableWithoutFeedback>
-            </LinearGradient> */}
-          </View>
+          <ServiceOption
+            imageSource={require('../../../assets/vetBackground.png')}
+            title="Veterinarios"
+            subtitle="Certificados"
+            onPress={() => goToSelectedScreen(2)}
+          />
+          <ServiceOption
+            imageSource={require('../../../assets/groomingBackground.png')}
+            title="Grooming"
+            subtitle="Spa, baños y estética"
+            onPress={() => goToSelectedScreen(3)}
+          />
         </View>
       </View>
     </SafeAreaView>
   );
 };
+
 export default PartnersMain;
+
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.white,
     flex: 1,
+    backgroundColor: Colors.white,
   },
   containerAll: {
     padding: 15,
   },
-  containerImage: {
-    width: '100%',
+  headerContainer: {
+    marginTop: 10,
     alignItems: 'center',
   },
   textOptionsForYou: {
     fontSize: 18,
     color: Colors.gray,
   },
-  headerContainer: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
   optionsContainer: {
     marginTop: 30,
     alignItems: 'center',
+  },
+  containerImage: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  image: {
+    width: 375,
+    height: 250,  
+  },
+  limit: {
+    width: 100,
   },
   cover: {
     position: 'absolute',
@@ -112,9 +113,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 10,
   },
-  limit: {
-    width: 100,
-  },
   viewMore: {
     marginTop: 10,
     padding: 5,
@@ -127,25 +125,5 @@ const styles = StyleSheet.create({
   },
   textViewMore: {
     color: Colors.white,
-  },
-  gradient: {
-    marginTop: '20%',
-    width: '99%',
-    height: '15%',
-    padding: 1,
-    borderRadius: 7,
-  },
-  moreServices: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'white',
-    borderRadius: 7,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    color: '#FF6F61',
-    fontSize: 18,
-    fontWeight: '600',
   },
 });
