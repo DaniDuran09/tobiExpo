@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dimensions, KeyboardAvoidingView, Linking } from "react-native";
+import { KeyboardAvoidingView, Linking } from "react-native";
 
 import { useDispatch } from "react-redux";
 
@@ -7,32 +7,30 @@ import AppStorage from "../../modules/AppStorage";
 import { setUserInfo } from "../../redux/slice/userSlice";
 import { Colors } from "../../styles/Colors";
 import Loading from "../../components/Loading";
-import ApiFetcher from "../../modules/ApiFetcher";
 import Toast from "react-native-toast-message";
 import { View, Image, Text, TouchableOpacity } from "react-native-ui-lib";
 import LoginForm from "../../components/auth/LoginForm";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLoginMutation } from "../../api/auth/auth";
 
 const LoginScreen = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-
   const appStorage = new AppStorage();
-  const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();
+  const [login, { isLoading }] = useLoginMutation();
 
   const loginHandle = async ({ username, password }: LoginPayload) => {
-    setLoading(true);
     try {
       const data = {
         username: username,
         password: password,
       };
-      const response = await apiFetcher.login(data);
-      await appStorage.saveUser(response.data);
-      dispatch(setUserInfo(response.data));
-      await appStorage.saveAppToken(response.data.token);
+      const { data: response } = await login(data);
+      await appStorage.saveUser(response?.data);
+      await appStorage.saveAppToken(response?.data.token);
+
+      dispatch(setUserInfo(response?.data));
 
       navigation.replace("Home");
     } catch (error) {
@@ -42,8 +40,6 @@ const LoginScreen = () => {
         text1: "Usuario y/o contraseña incorrectas",
         text2: `Verifique sus credenciales.`,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -57,7 +53,7 @@ const LoginScreen = () => {
         style={{ flex: 1, flexDirection: "column" }}
         behavior={"height"}
       >
-        {loading && (
+        {isLoading && (
           <Loading
             textColor={Colors.white}
             backgroundColorProp={Colors.danger}
