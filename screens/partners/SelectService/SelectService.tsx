@@ -12,7 +12,6 @@ import AppStorage from "../../../modules/AppStorage";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation } from "@react-navigation/native";
 import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
-import { SelectServiceProps, Partner, NavigationType } from "./types";
 
 const SelectService = ({ route }: SelectServiceProps) => {
   const { type } = route.params;
