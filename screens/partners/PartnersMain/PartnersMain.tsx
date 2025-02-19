@@ -1,6 +1,6 @@
 import {Image, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {Colors} from '../../styles/Colors';
+import {Colors} from '../../../styles/Colors';
 import {TouchableOpacity, TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
