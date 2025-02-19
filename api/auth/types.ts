@@ -1,27 +1,27 @@
-export type LoginRequest = {
+ interface LoginRequest {
     username: string;
     password: string;
 };
 
-export type LoginResponse = {
+ interface LoginResponse {
     data: User
 };
 
-export type RegisterUserRequest = {
+ interface RegisterUserRequest {
     birthday: string
     email: string
     last_name: string
     name: string
     password: string
-    phone:string
-    pet:Pet
+    phone: string
+    pet: Pet
 }
 
-export type RegisterUserResponse = {
-    data:User
+ interface RegisterUserResponse {
+    data: User
 }
 
-type Level = {
+interface Level {
     id: number;
     name: string;
     description: string;
@@ -33,7 +33,7 @@ type Level = {
     created_at: string;
     updated_at: string;
 }
-type ClientLevel = {
+interface ClientLevel {
     id: number;
     level_id: number;
     client_id: number;
@@ -45,18 +45,18 @@ type ClientLevel = {
     level: Level
 }
 
-type Pet = {
+interface Pet {
     activity_level_id: number
     birthday: string
     gender: string
     name: string
     pet_breed_id: number
     sterilized: boolean
-    typePet: number
+    interfacePet: number
     weight: string
 }
 
-export type User = {
+ interface User {
     last_sign_in_at: string
     sign_in_count: number;
     display_name: string;

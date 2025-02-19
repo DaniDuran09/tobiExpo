@@ -12,27 +12,25 @@ import { View, Image, Text, TouchableOpacity } from "react-native-ui-lib";
 import LoginForm from "../../components/auth/LoginForm";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLoginMutation } from "../../api/auth";
+import { useLoginMutation } from "../../api/auth/auth";
 
 const LoginScreen = () => {
-  const [loading, setLoading] = useState<boolean>(false);
-
   const appStorage = new AppStorage();
   const dispatch = useDispatch();
   const navigation = useNavigation<any>();
-  const [login] = useLoginMutation()
+  const [login, { isLoading }] = useLoginMutation();
 
   const loginHandle = async ({ username, password }: LoginPayload) => {
-    setLoading(true);
     try {
       const data = {
         username: username,
         password: password,
       };
-      const {data:response} = await login(data);
+      const { data: response } = await login(data);
       await appStorage.saveUser(response?.data);
-      dispatch(setUserInfo(response?.data));
       await appStorage.saveAppToken(response?.data.token);
+
+      dispatch(setUserInfo(response?.data));
 
       navigation.replace("Home");
     } catch (error) {
@@ -42,8 +40,6 @@ const LoginScreen = () => {
         text1: "Usuario y/o contraseña incorrectas",
         text2: `Verifique sus credenciales.`,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -57,7 +53,7 @@ const LoginScreen = () => {
         style={{ flex: 1, flexDirection: "column" }}
         behavior={"height"}
       >
-        {loading && (
+        {isLoading && (
           <Loading
             textColor={Colors.white}
             backgroundColorProp={Colors.danger}
