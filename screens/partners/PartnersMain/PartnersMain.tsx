@@ -1,36 +1,14 @@
 import React from 'react';
 import { 
-  Image, 
   SafeAreaView, 
   StyleSheet, 
   Text, 
-  View, 
-  TouchableOpacity 
+  View 
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../../styles/Colors';
-import { ServiceOptionProps, NavigationType } from './types';
-
-const ServiceOption = (props: ServiceOptionProps) => {
-  return (
-    <View style={styles.containerImage}>
-      <TouchableOpacity onPress={props.onPress}>
-        <Image source={props.imageSource} style={styles.image} resizeMode="contain" />
-        <View style={styles.cover}>
-          <Text style={styles.mainText}>{props.title}</Text>
-          {props.subtitle && (
-            <View style={styles.limit}>
-              <Text style={styles.secondaryText}>{props.subtitle}</Text>
-            </View>
-          )}
-          <View style={styles.viewMore}>
-            <Text style={styles.textViewMore}>Ver más</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    </View>
-  );
-};
+import ServiceList from '../../../components/partners/ServiceList';
+import { NavigationType } from './types'; // Asegúrate de importar el tipo correctamente
 
 const PartnersMain = () => {
   const navigation = useNavigation<NavigationType>();
@@ -46,13 +24,13 @@ const PartnersMain = () => {
           <Text style={styles.textOptionsForYou}>Aquí encontrarás tus servicios favoritos</Text>
         </View>
         <View style={styles.optionsContainer}>
-          <ServiceOption
+          <ServiceList
             imageSource={require('../../../assets/vetBackground.png')}
             title="Veterinarios"
             subtitle="Certificados"
             onPress={() => goToSelectedScreen(2)}
           />
-          <ServiceOption
+          <ServiceList
             imageSource={require('../../../assets/groomingBackground.png')}
             title="Grooming"
             subtitle="Spa, baños y estética"
@@ -63,9 +41,6 @@ const PartnersMain = () => {
     </SafeAreaView>
   );
 };
-
-export default PartnersMain;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -87,43 +62,6 @@ const styles = StyleSheet.create({
     marginTop: 30,
     alignItems: 'center',
   },
-  containerImage: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  image: {
-    width: 375,
-    height: 250,  
-  },
-  limit: {
-    width: 100,
-  },
-  cover: {
-    position: 'absolute',
-    left: 40,
-    top: 80,
-  },
-  mainText: {
-    fontSize: 24,
-    fontWeight: '900',
-  },
-  secondaryText: {
-    fontSize: 14,
-    fontWeight: '400',
-    marginTop: 10,
-  },
-  viewMore: {
-    marginTop: 10,
-    padding: 5,
-    width: 80,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: Colors.primaryColor,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  textViewMore: {
-    color: Colors.white,
-  },
 });
+
+export default PartnersMain;
