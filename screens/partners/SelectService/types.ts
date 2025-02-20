@@ -1,13 +1,10 @@
- interface TypePartner {
-  id: number;
-  name: string;
-}
-
  interface Partner {
   id: number;
   name: string;
-  type_partner: TypePartner;
-  picture: string;
+  type_partner: {
+    id: number;
+    name: string;
+  };
 }
 
  interface SelectServiceProps {
@@ -19,5 +16,5 @@
 }
 
  type NavigationType = {
-  navigate: (screen: string, params?: any) => void;
+  navigate: (screen: string, params?: object) => void;
 };
