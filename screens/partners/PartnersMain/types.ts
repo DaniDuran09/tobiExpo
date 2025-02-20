@@ -1,3 +1,3 @@
-export type NavigationType = {
+type NavigationType = {
   navigate: (screen: string, params?: any) => void;
 };

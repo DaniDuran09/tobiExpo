@@ -15,6 +15,6 @@
   };
 }
 
- type NavigationType = {
+ type NavigationService = {
   navigate: (screen: string, params?: object) => void;
 };

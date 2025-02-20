@@ -6,7 +6,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../../styles/Colors';
 import ServiceList from '../../../components/partners/ServiceList';
-import { NavigationType } from './types';
 import { Text } from 'react-native-ui-lib';
 
 const PartnersMain = () => {
