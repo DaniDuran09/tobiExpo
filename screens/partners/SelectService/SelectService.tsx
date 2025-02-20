@@ -1,18 +1,14 @@
-// SelectService/SelectService.tsx
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  View,
   FlatList,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-  Text,
 } from "react-native";
-import { Colors } from "../../../styles/Colors";
+import { View, Text, TouchableOpacity, Toast } from "react-native-ui-lib";
 import AppStorage from "../../../modules/AppStorage";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation } from "@react-navigation/native";
 import RenderPartners from "../../../components/renders/RenderPartners";
+import { Colors } from "../../../styles/Colors";
+
 const SelectService = ({ route }: SelectServiceProps) => {
   const { type } = route.params;
   const [listPartners, setListPartners] = useState<Partner[]>([]);
@@ -31,7 +27,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
       }
     } catch (error) {
       console.error("Error fetching partners:", error);
-      Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
+      Toast.show("Ha ocurrido un error. Inténtelo de nuevo más tarde.");
     }
   }, []);
 
@@ -48,64 +44,42 @@ const SelectService = ({ route }: SelectServiceProps) => {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.selectContainer}>
+    <View flex style={{ backgroundColor: Colors.white }}>
+      <View row center padding-15>
         {[{ id: 2, label: "Veterinarias" }, { id: 3, label: "Grooming" }].map(({ id, label }) => (
           <TouchableOpacity
             key={id}
-            style={serviceType === id ? styles.optionSelected : null}
             onPress={() => setServiceType(id)}
+            style={{
+              borderBottomColor: serviceType === id ? Colors.primaryColor : 'transparent',
+              borderBottomWidth: 2,
+              paddingVertical: 10,
+              marginHorizontal: 20,
+            }}
           >
-            <Text style={serviceType === id ? styles.selected : styles.notSelected}>{label}</Text>
+            <Text 
+              style={{
+                color: serviceType === id ? Colors.primaryColor : Colors.gray,
+                fontWeight: serviceType === id ? '600' : '500',
+                fontSize: 16,
+              }}
+            >
+              {label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.textOptionsForYou}>Encontramos estas opciones para ti</Text>
+      <Text style={{ fontSize: 18, color: Colors.gray, marginTop: 20, padding: 15 }}>
+        Encontramos estas opciones para ti
+      </Text>
       <FlatList
         data={filteredPartners}
         renderItem={({ item }) => <RenderPartners item={item} goToMoreInfo={goToMoreInfo} />}
         keyExtractor={(item) => item.id.toString()}
-        style={styles.flatList}
+        style={{ flex: 1, width: "100%" }}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  selectContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 40,
-    padding: 15,
-  },
-  selected: {
-    color: Colors.primaryColor,
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  notSelected: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: Colors.gray,
-  },
-  optionSelected: {
-    borderBottomColor: Colors.primaryColor,
-    borderBottomWidth: 2,
-  },
-  textOptionsForYou: {
-    fontSize: 18,
-    color: Colors.gray,
-    marginTop: 20,
-    padding: 15,
-  },
-  flatList: {
-    flex: 1,
-    width: "100%",
-  },
-});
 
 export default SelectService;
