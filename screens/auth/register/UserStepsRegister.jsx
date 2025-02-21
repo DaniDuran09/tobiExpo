@@ -15,7 +15,8 @@ import { clearUser, setUserInfo } from "../../../redux/slice/userSlice";
 import AppStorage from "../../../modules/AppStorage";
 import Toast from "react-native-toast-message";
 import { clearPetInfo } from "../../../redux/slice/petSlice";
-import { useRegisterMutation } from "../../../api/auth/auth";
+import { useRegisterMutation } from "../../../api/tobiApi/auth";
+import { useLazyGetProfileQuery, useUpdatePictureProfileMutation } from "../../../api/tobiApi/user";
 
 const UserStepsRegister = () => {
   const navigation = useNavigation();
@@ -46,6 +47,8 @@ const UserStepsRegister = () => {
   const appStorage = new AppStorage();
 
   const [registerUser] = useRegisterMutation();
+  const [updatePictureProfile] = useUpdatePictureProfileMutation()
+  const [getProfile] = useLazyGetProfileQuery()
 
   useEffect(() => {
     dispatch(clearUser());
@@ -165,10 +168,10 @@ const UserStepsRegister = () => {
         name: imageSource.fileName,
       });
 
-      const response = await apiFetcher.updatePictureProfile(formData);
-      if (response.code == 200) {
-        const user = await apiFetcher.getProfile();
-        await appStorage.saveUser(user.data);
+      const { error } = await updatePictureProfile(formData);
+      if (!error) {
+        const { data: response } = await getProfile();
+        await appStorage.saveUser(response.data);
       } else
         Alert.alert(
           "Ocurrió un error al guardar la foto",

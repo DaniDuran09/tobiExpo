@@ -1,9 +1,6 @@
-import { URL } from "@env"
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { tobiApi } from "./tobiApi"
 
-export const tobiApi = createApi({
-    reducerPath: "api",
-    baseQuery: fetchBaseQuery({ baseUrl: URL }),
+export const auth = tobiApi.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation<LoginResponse, LoginRequest>({
             query: (credentials) => ({
@@ -22,4 +19,4 @@ export const tobiApi = createApi({
     })
 })
 
-export const { useLoginMutation, useRegisterMutation } = tobiApi
+export const { useLoginMutation, useRegisterMutation } = auth
