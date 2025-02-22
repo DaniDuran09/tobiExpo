@@ -15,8 +15,27 @@ export const auth = tobiApi.injectEndpoints({
                 method: "POST",
                 body: data
             })
+        }),
+        sendPin: builder.mutation<SendPinResponse, SendPinRequest>({
+            query: (data) => ({
+                url: "/forgot/password",
+                method: "POST",
+                body: data
+            })
+        }),
+        updatePassword: builder.mutation<UpdatePasswordResponse, UpdatePassordRequest>({
+            query: (data) => ({
+                url: "/forgot/password",
+                method: "PUT",
+                body: data
+            })
         })
     })
 })
 
-export const { useLoginMutation, useRegisterMutation } = auth
+export const {
+    useLoginMutation,
+    useRegisterMutation,
+    useSendPinMutation,
+    useUpdatePasswordMutation
+} = auth

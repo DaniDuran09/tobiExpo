@@ -20,3 +20,21 @@ interface RegisterUserRequest {
 interface RegisterUserResponse {
     data: User
 }
+
+interface SendPinRequest {
+    email: string
+}
+
+interface SendPinResponse {
+    data: string
+}
+
+interface UpdatePassordRequest {
+    pin: string,
+    password: string,
+    password_confirmation: string,
+}
+
+interface UpdatePasswordResponse {
+    data: string
+}
