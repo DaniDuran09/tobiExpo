@@ -6,27 +6,23 @@ import { Colors } from '../../styles/Colors';
 const RenderPartners = ({ item, goToMoreInfo }: { item: Partner; goToMoreInfo: (item: Partner) => void }) => (
   <TouchableOpacity onPress={() => goToMoreInfo(item)}>
     <View
-      height={130}
+      height={120}
       padding-15
-      backgroundColor={Colors.white}
+      bg-white
       row
       centerV
       spread
+      marginB-10
+      br10
       style={{
-        marginBottom: 10,
-        shadowColor: Colors.gray,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.5,
-        shadowRadius: 2,
         elevation: 5,
-        borderRadius: 8, 
       }}
     >
       <View width="50%">
-        <Text style={{ fontSize: 22, fontWeight: '600' }}>{item.name}</Text>
-        <Text style={{ fontSize: 15, marginTop: 5, color: Colors.gray }}>{item.type_partner.name}</Text>
+        <Text text60BO>{item.name}</Text>
+        <Text text80 marginT-5 color={Colors.gray}>{item.type_partner.name}</Text>
       </View>
-      <View paddingR-15>
+      <View paddingR-10>
         <AnimatedImage
           source={{ uri: item.picture || '' }} 
           height={90}

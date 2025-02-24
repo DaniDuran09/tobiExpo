@@ -12,25 +12,26 @@ const PartnersMain = () => {
   };
 
   return (
-      <View padding-15 style={{ flex: 1, alignItems: 'center',backgroundColor: Colors.white  }}>
-        <View style={{ marginTop: 10 }}>
-          <Text text70 color={Colors.gray}>Aquí encontrarás tus servicios favoritos</Text>
-        </View>
-        <View style={{ alignItems: 'center', marginTop: 10 }}>
-          <ServiceList
-            imageSource={require('../../../assets/vetBackground.png')}
-            title="Veterinarios"
-            subtitle="Certificados"
-            onPress={() => goToSelectedScreen(2)}
-          />
-          <ServiceList
-            imageSource={require('../../../assets/groomingBackground.png')}
-            title="Grooming"
-            subtitle="Spa, baños y estética"
-            onPress={() => goToSelectedScreen(3)}
-          />
-        </View>
+    <View  padding-s4 bg-white center>
+      <Text text70 color={Colors.gray} marginT-s2>
+        Aquí encontrarás tus servicios favoritos
+      </Text>
+
+      <View center marginT-s1>
+        <ServiceList
+          imageSource={require('../../../assets/vetBackground.png')}
+          title="Veterinarios"
+          subtitle="Certificados"
+          onPress={() => goToSelectedScreen(2)}
+        />
+        <ServiceList
+          imageSource={require('../../../assets/groomingBackground.png')}
+          title="Grooming"
+          subtitle="Spa, baños y estética"
+          onPress={() => goToSelectedScreen(3)}
+        />
       </View>
+    </View>
   );
 };
 

@@ -45,23 +45,22 @@ const SelectService = ({ route }: SelectServiceProps) => {
 
   return (
     <View flex style={{ backgroundColor: Colors.white }}>
-      <View row center padding-15>
+      <View row center padding-10>
         {[{ id: 2, label: "Veterinarias" }, { id: 3, label: "Grooming" }].map(({ id, label }) => (
           <TouchableOpacity
             key={id}
             onPress={() => setServiceType(id)}
+            marginH-20
+            paddingT-10
             style={{
               borderBottomColor: serviceType === id ? Colors.primaryColor : 'transparent',
               borderBottomWidth: 2,
-              paddingVertical: 10,
-              marginHorizontal: 20,
             }}
           >
             <Text 
+              text70BO
               style={{
                 color: serviceType === id ? Colors.primaryColor : Colors.gray,
-                fontWeight: serviceType === id ? '600' : '500',
-                fontSize: 16,
               }}
             >
               {label}
@@ -69,14 +68,15 @@ const SelectService = ({ route }: SelectServiceProps) => {
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={{ fontSize: 18, color: Colors.gray, marginTop: 20, padding: 15 }}>
+      <View paddingB-10 paddingL-10>
+      <Text text70 color={Colors.gray} marginT-20 >
         Encontramos estas opciones para ti
       </Text>
+      </View>
       <FlatList
         data={filteredPartners}
         renderItem={({ item }) => <RenderPartners item={item} goToMoreInfo={goToMoreInfo} />}
         keyExtractor={(item) => item.id.toString()}
-        style={{ flex: 1, width: "100%" }}
       />
     </View>
   );
