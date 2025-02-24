@@ -15,6 +15,7 @@ import { clearUser, setUserInfo } from "../../../redux/slice/userSlice";
 import AppStorage from "../../../modules/AppStorage";
 import Toast from "react-native-toast-message";
 import { clearPetInfo } from "../../../redux/slice/petSlice";
+import { useRegisterMutation } from "../../../api/auth/auth";
 
 const UserStepsRegister = () => {
   const navigation = useNavigation();
@@ -44,6 +45,8 @@ const UserStepsRegister = () => {
   const apiFetcher = new ApiFetcher();
   const appStorage = new AppStorage();
 
+  const [registerUser] = useRegisterMutation();
+
   useEffect(() => {
     dispatch(clearUser());
     dispatch(clearPetInfo());
@@ -55,7 +58,6 @@ const UserStepsRegister = () => {
   };
 
   const validFirsScreen = () => {
-
     if (
       user.name === "" ||
       user.last_name === "" ||
@@ -70,22 +72,21 @@ const UserStepsRegister = () => {
         text2: `Debes llenar todos los campos`,
       });
       return false;
-    }else if(user.password.length<6){
+    } else if (user.password.length < 6) {
       Toast.show({
         type: "error",
         text1: "Contraseña inválida",
         text2: `La contraseña no debe ser menor a 6 caracteres`,
       });
       return false;
-    } else if(user.phone.length<10){
+    } else if (user.phone.length < 10) {
       Toast.show({
         type: "error",
         text1: "Número de teléfono invalido",
         text2: `El número de teléfono no debe ser menor a 10 dígitos`,
       });
       return false;
-    }
-    else if (!validateEmail(user.email)) {
+    } else if (!validateEmail(user.email)) {
       Toast.show({
         type: "error",
         text1: "Correo inválido",
@@ -124,14 +125,14 @@ const UserStepsRegister = () => {
   const doRegister = async () => {
     try {
       const { userInfo: nestedUserInfo, ...newUserInfo } = userInfo;
-      
-      const response = await apiFetcher.registerUser(userInfo);
-      
-      if (response.code != 200 && response.code != 201) {
+
+      const { data: response, error } = await registerUser(userInfo);
+
+      if (error) {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: `${response.errors}`,
+          text2: `${error.data.errors}`,
         });
         navigation.reset({
           index: 0,
@@ -146,7 +147,7 @@ const UserStepsRegister = () => {
         text1: "Ocurrió un error al hacer el registro",
         text2: `Intente de nuevo más tarde`,
       });
-      
+
       navigation.reset({
         index: 0,
         routes: [{ name: "LoginScreen" }],
@@ -188,7 +189,7 @@ const UserStepsRegister = () => {
     let valid;
     switch (step) {
       case 0:
-         valid = validFirsScreen();
+        valid = validFirsScreen();
         break;
       case 1:
         valid = validSecondScreen();
@@ -215,7 +216,7 @@ const UserStepsRegister = () => {
       case 1:
         return <SignInPetScreen user={user} data={data} setData={setData} />;
       case 2:
-        return <SignInPetInfoScreen pet={data} setData={setData}  user={user} />;
+        return <SignInPetInfoScreen pet={data} setData={setData} user={user} />;
       case 3:
         return (
           <FinalScreenRegisterPet
