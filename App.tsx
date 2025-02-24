@@ -9,11 +9,15 @@ import Toast from "react-native-toast-message";
 import { toastConfig } from "./utils/toastConfig";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { NotificationsProvider } from "./context/NotificationsContext";
+import AppPushNotifications from "./settings/AppPushNotifications";
 
 export default function App(): React.JSX.Element {
   const [publishableKey, setPublishableKey] = useState("");
 
   const colorScheme = useColorScheme();
+
+  const apppPushNotifications = new AppPushNotifications();
 
   const fetchPublishableKey = async () => {
     // const key = await fetchKey(); // fetch key from your server here
@@ -23,6 +27,7 @@ export default function App(): React.JSX.Element {
   };
 
   useEffect(() => {
+    apppPushNotifications.registerForPushNotificationsAsync();
     fetchPublishableKey();
   }, []);
 
@@ -32,16 +37,18 @@ export default function App(): React.JSX.Element {
       merchantIdentifier="com.tobi" // required for Apple Pay
       // urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
     >
-      <StatusBar
-        barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
-        backgroundColor={colorScheme === "dark" ? "#000" : "#fff"}
-      />
-      <Provider store={store}>
-        <NavigationContainer>
-          <RootStackScreen />
-          <Toast position="top" config={toastConfig} visibilityTime={4000} />
-        </NavigationContainer>
-      </Provider>
+      <NotificationsProvider>
+        <StatusBar
+          barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
+          backgroundColor={colorScheme === "dark" ? "#000" : "#fff"}
+        />
+        <Provider store={store}>
+          <NavigationContainer>
+            <RootStackScreen />
+            <Toast position="top" config={toastConfig} visibilityTime={4000} />
+          </NavigationContainer>
+        </Provider>
+      </NotificationsProvider>
     </StripeProvider>
   );
 }
