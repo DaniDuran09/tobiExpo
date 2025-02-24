@@ -1,4 +1,4 @@
-const ServicesData = [
+const servicesData = [
     {
         imageSource: require("../../assets/vetBackground.png"),
         title: "Veterinarios",
@@ -14,4 +14,4 @@ const ServicesData = [
 
 ];
 
-export default ServicesData;
+export default servicesData;

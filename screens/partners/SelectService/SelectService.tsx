@@ -21,10 +21,9 @@ const SelectService = ({ route }: SelectServiceProps) => {
     try {
       await appStorage.getAppToken();
       const partners = await apiFetcher.getPartners();
-      if ([200, 201].includes(partners.code)) {
-        setListPartners(partners.data);
-      }
+      setListPartners(partners.data);
     } catch (error) {
+      console.log("error: ", error);
       Toast.show({
         type: "error",
         text1: "Ha ocurrido un error",
@@ -49,7 +48,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
   );
 
   return (
-    <View flex style={{ backgroundColor: Colors.white }}>
+    <View flex bg-white>
       <View row center padding-10>
         {[
           { id: 2, label: "Veterinarias" },
@@ -68,9 +67,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
           >
             <Text
               text70BO
-              style={{
-                color: serviceType === id ? Colors.primaryColor : Colors.gray,
-              }}
+              color={serviceType === id ? Colors.primaryColor : Colors.gray}
             >
               {label}
             </Text>

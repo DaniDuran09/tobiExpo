@@ -1,9 +1,14 @@
 import React from "react";
+
+import { FlatList } from "react-native";
+import { Text, View } from "react-native-ui-lib";
+
 import { useNavigation } from "@react-navigation/native";
+
 import { Colors } from "../../../styles/Colors";
 import ServiceList from "../../../components/partners/ServiceList";
-import { Text, View } from "react-native-ui-lib";
-import ServicesData from "../../../components/partners/ServicesData";
+import servicesData from "../../../utils/data/servicesData";
+
 const PartnersMain = () => {
   const navigation = useNavigation<NavigationType>();
 
@@ -12,21 +17,26 @@ const PartnersMain = () => {
   };
 
   return (
-    <View padding-s4 bg-white center>
-      <Text text70 color={Colors.gray} marginT-s2>
-        Aquí encontrarás tus servicios favoritos
-      </Text>
-
+    <View flex padding-s4 bg-white>
       <View center marginT-s1>
-        {ServicesData.map(({ type, imageSource, title, subtitle }) => (
-          <ServiceList
-            key={type}
-            imageSource={imageSource}
-            title={title}
-            subtitle={subtitle}
-            onPress={() => goToSelectedScreen(type)}
-          />
-        ))}
+        <FlatList
+          contentContainerStyle={{ flexGrow: 1 }}
+          data={servicesData}
+          ListHeaderComponent={() => (
+            <Text text70 color={Colors.gray} marginT-s2 center>
+              Aquí encontrarás tus servicios favoritos
+            </Text>
+          )}
+          renderItem={({ item }) => (
+            <ServiceList
+              key={item.type}
+              imageSource={item.imageSource}
+              title={item.title}
+              subtitle={item.subtitle}
+              onPress={() => goToSelectedScreen(item.type)}
+            />
+          )}
+        />
       </View>
     </View>
   );

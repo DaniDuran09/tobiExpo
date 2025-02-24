@@ -1,9 +1,9 @@
 import React from "react";
 import { Image, View, Text, TouchableOpacity } from "react-native-ui-lib";
-import { ServiceListProps } from "./types";
 import { Colors } from "../../../styles/Colors";
 
-const ServiceList = ({title, onPress, imageSource, subtitle}: ServiceListProps) => {
+const ServiceList = (item: ServiceListProps) => {
+  const { title, onPress, imageSource, subtitle } = item;
   return (
     <View width={"100%"} center marginB-5>
       <TouchableOpacity onPress={onPress}>

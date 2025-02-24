@@ -10,12 +10,11 @@ const RenderPartners = ({
   item: Partner;
   goToMoreInfo: (item: Partner) => void;
 }) => {
-  const { name, type_partner, picture } = item; 
+  const { name, type_partner, picture } = item;
 
   return (
     <TouchableOpacity onPress={() => goToMoreInfo(item)}>
       <View
-        height={120}
         padding-15
         bg-white
         row
@@ -24,16 +23,20 @@ const RenderPartners = ({
         marginB-10
         br10
         style={{
+          shadowColor: Colors.gray,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 2,
           elevation: 5,
         }}
       >
         <View width="50%">
           <Text text60BO>{name}</Text>
           <Text text80 marginT-5 color={Colors.gray}>
-            {type_partner.name} 
+            {type_partner.name}
           </Text>
         </View>
-        <View paddingR-10>
+        <View>
           <AnimatedImage
             source={{ uri: picture || "" }}
             height={90}
