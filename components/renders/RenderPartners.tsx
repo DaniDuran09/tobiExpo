@@ -1,9 +1,15 @@
-import React from 'react';
-import { TouchableOpacity, View, Text } from 'react-native-ui-lib';
-import { AnimatedImage, LoaderScreen } from 'react-native-ui-lib';
-import { Colors } from '../../styles/Colors';
+import React from "react";
+import { TouchableOpacity, View, Text } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
+import { Colors } from "../../styles/Colors";
 
-const RenderPartners = ({ item, goToMoreInfo }: { item: Partner; goToMoreInfo: (item: Partner) => void }) => (
+const RenderPartners = ({
+  item,
+  goToMoreInfo,
+}: {
+  item: Partner;
+  goToMoreInfo: (item: Partner) => void;
+}) => (
   <TouchableOpacity onPress={() => goToMoreInfo(item)}>
     <View
       height={120}
@@ -20,11 +26,13 @@ const RenderPartners = ({ item, goToMoreInfo }: { item: Partner; goToMoreInfo: (
     >
       <View width="50%">
         <Text text60BO>{item.name}</Text>
-        <Text text80 marginT-5 color={Colors.gray}>{item.type_partner.name}</Text>
+        <Text text80 marginT-5 color={Colors.gray}>
+          {item.type_partner.name}
+        </Text>
       </View>
       <View paddingR-10>
         <AnimatedImage
-          source={{ uri: item.picture || '' }} 
+          source={{ uri: item.picture || "" }}
           height={90}
           width={90}
           borderRadius={11}
