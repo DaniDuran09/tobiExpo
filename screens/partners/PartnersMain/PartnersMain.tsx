@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../../../styles/Colors";
 import ServiceList from "../../../components/partners/ServiceList";
 import { Text, View } from "react-native-ui-lib";
-
+import ServicesData from "../../../components/partners/ServicesData";
 const PartnersMain = () => {
   const navigation = useNavigation<NavigationType>();
 
@@ -18,18 +18,15 @@ const PartnersMain = () => {
       </Text>
 
       <View center marginT-s1>
-        <ServiceList
-          imageSource={require("../../../assets/vetBackground.png")}
-          title="Veterinarios"
-          subtitle="Certificados"
-          onPress={() => goToSelectedScreen(2)}
-        />
-        <ServiceList
-          imageSource={require("../../../assets/groomingBackground.png")}
-          title="Grooming"
-          subtitle="Spa, baños y estética"
-          onPress={() => goToSelectedScreen(3)}
-        />
+        {ServicesData.map(({ type, imageSource, title, subtitle }) => (
+          <ServiceList
+            key={type}
+            imageSource={imageSource}
+            title={title}
+            subtitle={subtitle}
+            onPress={() => goToSelectedScreen(type)}
+          />
+        ))}
       </View>
     </View>
   );

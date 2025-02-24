@@ -37,17 +37,15 @@ const SelectService = ({ route }: SelectServiceProps) => {
     fetchData();
   }, [fetchData]);
 
-  const goToMoreInfo = (item: Partner) => {
+  const goToMoreInfo = ({ id }: Partner) => {
     navigation.navigate("PartnersGeneralInfo", {
-      id: item.id,
+      id: id,
       type: serviceType,
     });
   };
 
-  const filteredPartners = listPartners.filter((partner) =>
-    serviceType === 2
-      ? partner.type_partner.id === 2
-      : partner.type_partner.id !== 2
+  const filteredPartners = listPartners.filter(({ type_partner }) =>
+    serviceType === 2 ? type_partner.id === 2 : type_partner.id !== 2
   );
 
   return (

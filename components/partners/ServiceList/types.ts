@@ -6,5 +6,5 @@ export interface ServiceListProps {
 }
 
 export type NavigationType = {
-  navigate: (screen: string, params?: { type: number }) => void; // Asegúrate de que el tipo de params coincida con lo que se espera
+  navigate: (screen: string, params?: { type: number }) => void; 
 };

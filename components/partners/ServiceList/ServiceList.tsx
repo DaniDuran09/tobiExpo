@@ -2,22 +2,22 @@ import React from "react";
 import { Image, View, Text, TouchableOpacity } from "react-native-ui-lib";
 import { ServiceListProps } from "./types";
 
-const ServiceList = (props: ServiceListProps) => {
+const ServiceList = ({title, onPress, imageSource, subtitle}: ServiceListProps) => {
   return (
     <View width={"100%"} center marginB-5>
-      <TouchableOpacity onPress={props.onPress}>
+      <TouchableOpacity onPress={onPress}>
         <Image
-          source={props.imageSource}
+          source={imageSource}
           width={375}
           height={250}
           resizeMode="contain"
         />
         <View absF style={{ top: 80, left: 40 }}>
-          <Text text50BO>{props.title}</Text>
-          {props.subtitle && (
+          <Text text50BO>{title}</Text>
+          {subtitle && (
             <View width={100}>
               <Text text14 marginT-10>
-                {props.subtitle}
+                {subtitle}
               </Text>
             </View>
           )}
