@@ -1,6 +1,7 @@
 import React from "react";
 import { Image, View, Text, TouchableOpacity } from "react-native-ui-lib";
 import { ServiceListProps } from "./types";
+import { Colors } from "../../../styles/Colors";
 
 const ServiceList = ({title, onPress, imageSource, subtitle}: ServiceListProps) => {
   return (
@@ -26,7 +27,7 @@ const ServiceList = ({title, onPress, imageSource, subtitle}: ServiceListProps) 
             padding-5
             width={80}
             height={40}
-            bg-primaryColor
+            backgroundColor={Colors.primaryColor}
             center
             br20
           >
