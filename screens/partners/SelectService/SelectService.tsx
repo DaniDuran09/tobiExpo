@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { FlatList } from "react-native";
 import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
-import AppStorage from "../../../modules/AppStorage";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation } from "@react-navigation/native";
 import RenderPartners from "../../../components/renders/RenderPartners";
@@ -13,13 +12,11 @@ const SelectService = ({ route }: SelectServiceProps) => {
   const [listPartners, setListPartners] = useState<Partner[]>([]);
   const [serviceType, setServiceType] = useState<number>(type || 2);
 
-  const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     try {
-      await appStorage.getAppToken();
       const partners = await apiFetcher.getPartners();
       setListPartners(partners.data);
     } catch (error) {
@@ -30,11 +27,11 @@ const SelectService = ({ route }: SelectServiceProps) => {
         text2: "Inténtelo de nuevo más tarde",
       });
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   const goToMoreInfo = ({ id }: Partner) => {
     navigation.navigate("PartnersGeneralInfo", {
