@@ -15,7 +15,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
-  const navigation = useNavigation<NavigationType>();
+  const navigation = useNavigation<NavigationService>();
 
   const fetchData = useCallback(async () => {
     try {

@@ -1,5 +1,5 @@
 interface Partner {
-    id: number;
+    id: string;
     name: string;
     type_partner: {
         id: number;

@@ -6,11 +6,11 @@ import { Text, View } from "react-native-ui-lib";
 import { useNavigation } from "@react-navigation/native";
 
 import { Colors } from "../../../styles/Colors";
-import ServiceList from "../../../components/partners/ServiceList";
+import ServiceList from "../../../components/partners/ServiceList/ServiceList";
 import servicesData from "../../../utils/data/servicesData";
 
 const PartnersMain = () => {
-  const navigation = useNavigation<NavigationType>();
+  const navigation = useNavigation<NavigationService>();
 
   const goToSelectedScreen = (type: number) => {
     navigation.navigate("SelectService", { type });
