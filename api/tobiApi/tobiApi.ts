@@ -21,5 +21,6 @@ export const tobiApi = createApi({
             return headers
         }
     }),
+    tagTypes:["Profile"],
     endpoints: () => ({})
 })

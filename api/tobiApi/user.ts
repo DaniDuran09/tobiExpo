@@ -17,10 +17,12 @@ const userApi = tobiApi.injectEndpoints({
                 url: "/profile/update/information",
                 method: "PUT",
                 body: data
-            })
+            }),
+            invalidatesTags:["Profile"]
         }),
         getProfile: builder.query<GetProfileResponse, undefined>({
-            query: () => "/profile"
+            query: () => "/profile",
+            providesTags:["Profile"]
         }),
         getBlogs: builder.query<GetBlogsResponse, void>({
             query: () => "/blogs"
