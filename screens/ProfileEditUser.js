@@ -374,6 +374,7 @@ const ProfileEditUser = ({ route, navigation }) => {
                 <Text style={styles.label}>Correo</Text>
 
                 <TextInput
+                  editable={false}
                   placeholder="Correo electronico"
                   elevation={5}
                   value={userDataForm.email ?? userProfileResponse?.data?.email}
@@ -391,6 +392,7 @@ const ProfileEditUser = ({ route, navigation }) => {
                 />
                 <Text style={styles.label}>Teléfono</Text>
                 <TextInput
+                  editable={false}
                   keyboardType="numeric"
                   placeholder="Telefono"
                   elevation={5}
