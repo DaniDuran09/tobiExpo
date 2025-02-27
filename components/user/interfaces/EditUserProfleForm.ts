@@ -1,11 +1,10 @@
-interface EditUserProfileForm{
-    initialData:UserProfile | undefined
-    values:UserProfile
-    onChange:(field:keyof UserProfile,value:string)=>void
+interface EditUserProfileForm {
+    values: UserProfile
+    onChange: (field: keyof UserProfile, value: string) => void
 }
 
-interface UserProfile{
-    name:string
-    email:string
-    phone:string
+interface UserProfile {
+    name: string|undefined
+    email: string|undefined
+    phone: string|undefined
 }

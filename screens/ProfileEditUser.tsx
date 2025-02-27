@@ -22,13 +22,20 @@ import { clearPetInfo } from "../redux/slice/petSlice";
 import { View, Text, TouchableOpacity, Image } from "react-native-ui-lib";
 import { useGetProfileQuery, useUpdatePictureProfileMutation, useUpdateUserMutation } from "../api/tobiApi/user";
 import EditUserProfileForm from "../components/user/EditUserProfileForm";
+import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-const ProfileEditUser = ({ route, navigation }) => {
-  const [userDataForm, setUserDataForm] = useState({});
+const ProfileEditUser = ({ route, navigation }: BottomTabScreenProps<any, any>) => {
+
+  const [userDataForm, setUserDataForm] = useState({
+    name: undefined,
+    email: undefined,
+    phone: undefined
+  });
+
   const [loading, setLoading] = useState(false);
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [imageSource, setImageSource] = useState(null);
+  const [imageSource, setImageSource] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [permissionsRequested, setPermissionsRequested] = useState({
     camera: false,
     library: false,
@@ -43,7 +50,7 @@ const ProfileEditUser = ({ route, navigation }) => {
     error: errorFetchingProfile,
     refetch: refetchProfile,
     isLoading: isLoadingFetchingProfile
-  } = useGetProfileQuery()
+  } = useGetProfileQuery(undefined)
 
   if (errorFetchingProfile) {
     Toast.show({
@@ -98,11 +105,12 @@ const ProfileEditUser = ({ route, navigation }) => {
         setImageSource(result.assets[0]);
         closeModal();
       }
-    } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al cargar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+    } catch (error) {     
+      Toast.show({
+        type: "error",
+        text2: `Ha ocurrido un error al cargar la foto`,
+        text1: `Puedes continuar y después agregar una foto`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -150,11 +158,12 @@ const ProfileEditUser = ({ route, navigation }) => {
         setImageSource(result.assets[0]);
         closeModal();
       }
-    } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al tomar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+    } catch (error) {      
+      Toast.show({
+        type: "error",
+        text2: `Ha ocurrido un error al tomar la foto`,
+        text1: `Puedes continuar y después agregar una foto`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -165,20 +174,24 @@ const ProfileEditUser = ({ route, navigation }) => {
     try {
       const formData = new FormData();
       formData.append("picture", {
-        uri: imageSource.uri,
+        uri: imageSource?.uri,
         type: "image/jpeg",
-        name: imageSource.fileName,
+        name: imageSource?.fileName,
       });
 
       const { error } = await updatePictureProfile(formData);
       if (!error) {
         const { data: user } = await refetchProfile()
-        await appStorage.saveUser(user.data);
-      } else
-        Alert.alert(
-          "Ocurrió un error al guardar la foto",
-          "Intente de neuvo más tarde"
-        );
+        if (user) {
+          await appStorage.saveUser(user.data);
+        }
+      } else        
+        Toast.show({
+          type: "error",
+          text2: `Ocurrió un error al guardar la foto`,
+          text1: `Intente de nuevo más tarde`,
+        });
+        
     } catch (error) {
       console.log("Ocurrió un error: ", error);
     }
@@ -189,16 +202,7 @@ const ProfileEditUser = ({ route, navigation }) => {
     try {
       imageSource && savePhoto();
 
-      const newData = {
-        name: userDataForm.name,
-        last_name: userDataForm.last_name,
-        email: userDataForm.email,
-        phone: userDataForm.phone,
-        birthday: userDataForm.birthday,
-        age: userDataForm.age,
-      };
-
-      const { data: response, error } = await updateUser(newData);
+      const { data: response, error } = await updateUser(userDataForm);
       if (!error) {
         dispatch(setUserInfo(response.data));
         Toast.show({
@@ -231,8 +235,12 @@ const ProfileEditUser = ({ route, navigation }) => {
         routes: [{ name: "LoginScreen" }],
       });
     } catch (error) {
-      console.log(error);
-      Alert.alert("Error al cerrar sesión", "Inténtelo de nuevo más tarde");
+      console.log(error);     
+      Toast.show({
+        type: "error",
+        text1: "Error al cerrar sesión",
+        text2: `Inténtelo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }
@@ -253,7 +261,7 @@ const ProfileEditUser = ({ route, navigation }) => {
             <View
               style={{
                 backgroundColor: Colors.white,
-                marginTop: Platform.OS == "android" && "5%",
+                marginTop: Platform.OS == "android" ? "5%" : undefined,
               }}
             >
               <View
@@ -312,7 +320,7 @@ const ProfileEditUser = ({ route, navigation }) => {
                         ? { uri: imageSource.uri }
                         : { uri: userProfileResponse.data.picture }
                     }
-                    style={{borderRadius: 60,overflow: "hidden"}}
+                    style={{ borderRadius: 60, overflow: "hidden" }}
                     resizeMode={"cover"}
                   />
                 ) : (
@@ -352,14 +360,14 @@ const ProfileEditUser = ({ route, navigation }) => {
               row
               spread
               marginB-10
-              style={{width: "90%"}}
+              style={{ width: "90%" }}
               onPress={() => navigation.navigate("ChangePassword")}
             >
               <Text color={Colors.primaryColor}>Cambiar contraseña</Text>
               <Image
                 source={require("../assets/arrowRigth.png")}
                 width={15}
-                height={15}                
+                height={15}
                 resizeMode={"contain"}
               />
             </TouchableOpacity>
@@ -367,7 +375,7 @@ const ProfileEditUser = ({ route, navigation }) => {
               row
               spread
               marginV-10
-              style={{width: "90%"}}
+              style={{ width: "90%" }}
               onPress={logout}
             >
               <Text color={Colors.primaryColor}>Cerrar sesión</Text>
