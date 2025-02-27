@@ -1,14 +1,9 @@
 import React, { useState } from "react";
 import {
-  Text,
-  TextInput,
-  StyleSheet,
-  Image,
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
   Platform,
 } from "react-native";
@@ -24,11 +19,11 @@ import WithoutPhoto from "../components/WithoutPhoto";
 import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { clearPetInfo } from "../redux/slice/petSlice";
-import { View } from "react-native-ui-lib";
+import { View, Text, TouchableOpacity, Image } from "react-native-ui-lib";
 import { useGetProfileQuery, useUpdatePictureProfileMutation, useUpdateUserMutation } from "../api/tobiApi/user";
+import EditUserProfileForm from "../components/user/EditUserProfileForm";
 
 const ProfileEditUser = ({ route, navigation }) => {
-  // const { refreshData } = route.params;
   const [userDataForm, setUserDataForm] = useState({});
   const [loading, setLoading] = useState(false);
   const [loadData, setLoadData] = useState(false);
@@ -248,7 +243,7 @@ const ProfileEditUser = ({ route, navigation }) => {
       {(isLoadingFetchingProfile || loading) && (
         <Loading textColor={Colors.white} backgroundColorProp={Colors.white} />
       )}
-      <SafeAreaView style={{ backgroundColor: "#fff", flex: 1 }}>
+      <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <KeyboardAvoidingView
             style={{ flex: 1, flexDirection: "column" }}
@@ -257,189 +252,125 @@ const ProfileEditUser = ({ route, navigation }) => {
           >
             <View
               style={{
-                backgroundColor: "#fff",
+                backgroundColor: Colors.white,
                 marginTop: Platform.OS == "android" && "5%",
               }}
             >
               <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 10,
-                }}
+                row
+                center
+                height={50}
+                marginT-10
               >
-                <View style={{ width: "33%" }} />
                 <Text
-                  style={{
-                    textAlign: "center",
-                    width: "34%",
-                    fontWeight: "500",
-                    fontSize: 17,
-                    color: "#000",
-                  }}
+                  center
+                  text65M
+                  color={Colors.black}
+
                 >
                   Edición de perfil
                 </Text>
-                <View
-                  style={{
-                    width: "33%",
-                    justifyContent: "center",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: "#EF4136",
-                      borderRadius: 32,
-                      justifyContent: "center",
-                      height: 50,
-                      width: 80,
-                      marginRight: 10,
-                      alignItems: "center",
-                    }}
-                    onPress={onSubmit}
-                  >
-                    {loadData ? (
-                      <ActivityIndicator size={"small"} color={Colors.white} />
-                    ) : (
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          color: "white",
-                          fontWeight: "700",
-                        }}
-                      >
-                        Listo
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View
-                style={{
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 25,
-                }}
-              >
-                <View>
-                  {userProfileResponse?.data?.picture ? (
-                    <Image
-                      source={
-                        imageSource
-                          ? { uri: imageSource.uri }
-                          : { uri: userProfileResponse.data.picture }
-                      }
-                      style={styles.image}
-                      resizeMode={"cover"}
-                    />
-                  ) : (
-                    <>
-                      <WithoutPhoto />
-                    </>
-                  )}
-                </View>
-              </View>
-              <View style={styles.containerEditPhoto}>
                 <TouchableOpacity
-                  onPress={() => {
-                    setModalVisible(true);
+                  backgroundColor={Colors.danger}
+                  center
+                  marginR-10
+                  style={{
+                    borderRadius: 32,
+                    height: "100%",
+                    width: 80,
+                    position: "absolute",
+                    right: 0
                   }}
+                  onPress={onSubmit}
                 >
-                  <Text style={[styles.label, { marginTop: 10 }]}>
-                    Editar foto
-                  </Text>
+                  {loadData ? (
+                    <ActivityIndicator size={"small"} color={Colors.white} />
+                  ) : (
+                    <Text
+                      text70BO
+                      color={Colors.white}
+                    >
+                      Listo
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
-              <View style={{ width: "100%", marginLeft: "5%" }}>
-                <Text style={styles.label}>Nombre</Text>
-                <TextInput
-                  placeholder="Nombre"
-                  placeholderTextColor="#000"
-                  elevation={5}
-                  value={userDataForm.name ?? userProfileResponse?.data?.name}
-                  style={[
-                    styles.textInput,
-                    {
-                      color: "#000",
-                    },
-                  ]}
-                  autoCapitalize="none"
-                  onChangeText={(val) =>
-                    setUserDataForm({ ...userDataForm, name: val })
-                  }
-                />
-                <Text style={styles.label}>Correo</Text>
 
-                <TextInput
-                  editable={false}
-                  placeholder="Correo electronico"
-                  elevation={5}
-                  value={userDataForm.email ?? userProfileResponse?.data?.email}
-                  placeholderTextColor="#000"
-                  style={[
-                    styles.textInput,
-                    {
-                      color: "#000",
-                    },
-                  ]}
-                  autoCapitalize="none"
-                  onChangeText={(val) =>
-                    setUserDataForm({ ...userDataForm, email: val })
-                  }
-                />
-                <Text style={styles.label}>Teléfono</Text>
-                <TextInput
-                  editable={false}
-                  keyboardType="numeric"
-                  placeholder="Telefono"
-                  elevation={5}
-                  value={userDataForm.phone ?? userProfileResponse?.data?.phone}
-                  placeholderTextColor="#000"
-                  maxLength={10}
-                  style={[
-                    styles.textInput,
-                    {
-                      color: "#000",
-                    },
-                  ]}
-                  autoCapitalize="none"
-                  onChangeText={(val) =>
-                    setUserDataForm({ ...userDataForm, phone: val })
-                  }
-                />
+              <View
+                row
+                center
+                paddingH-25
+              >
+
+                {userProfileResponse?.data?.picture ? (
+                  <Image
+                    width={120}
+                    height={120}
+                    marginT-15
+                    source={
+                      imageSource
+                        ? { uri: imageSource.uri }
+                        : { uri: userProfileResponse.data.picture }
+                    }
+                    style={{borderRadius: 60,overflow: "hidden"}}
+                    resizeMode={"cover"}
+                  />
+                ) : (
+                  <WithoutPhoto />
+                )}
+
               </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(true);
+                }}
+                centerH
+              >
+                <Text marginT-10 marginB-5 text80M color={Colors.black}>
+                  Editar foto
+                </Text>
+              </TouchableOpacity>
+
+              <EditUserProfileForm
+                values={{
+                  name: userDataForm.name ?? userProfileResponse?.data?.name,
+                  email: userDataForm.email ?? userProfileResponse?.data?.email,
+                  phone: userDataForm.phone ?? userProfileResponse?.data?.phone
+                }}
+                onChange={(field, value) => {
+                  setUserDataForm({
+                    ...userDataForm,
+                    [field]: value
+                  })
+                }}
+              />
             </View>
           </KeyboardAvoidingView>
           <View center paddingB-15>
-            {/* <TouchableOpacity
-                  style={styles.changeButton}
-                  onPress={() => navigation.navigate('MyCards')}>
-                  <Text style={styles.changePassword}>Mis tarjetas</Text>
-                  <Image
-                    source={require('../assets/arrowRigth.png')}
-                    style={{height: 15, width: 15}}
-                    resizeMode={'contain'}
-                  />
-                </TouchableOpacity> */}
             <TouchableOpacity
-              style={styles.changeButton}
+              row
+              spread
+              marginB-10
+              style={{width: "90%"}}
               onPress={() => navigation.navigate("ChangePassword")}
             >
-              <Text style={styles.changePassword}>Cambiar contraseña</Text>
+              <Text color={Colors.primaryColor}>Cambiar contraseña</Text>
               <Image
                 source={require("../assets/arrowRigth.png")}
-                style={{ height: 15, width: 15 }}
+                width={15}
+                height={15}                
                 resizeMode={"contain"}
               />
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.changeButton, { marginTop: 10 }]}
+              row
+              spread
+              marginV-10
+              style={{width: "90%"}}
               onPress={logout}
             >
-              <Text style={styles.changePassword}>Cerrar sesión</Text>
+              <Text color={Colors.primaryColor}>Cerrar sesión</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -455,100 +386,3 @@ const ProfileEditUser = ({ route, navigation }) => {
 };
 
 export default ProfileEditUser;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#009387",
-  },
-  header: {
-    flex: 1,
-    justifyContent: "flex-end",
-    paddingHorizontal: 20,
-    paddingBottom: 50,
-  },
-  footer: {
-    flex: 3,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-  text_header: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  text_footer: {
-    color: "#05375a",
-    fontSize: 18,
-  },
-  image: {
-    height: 120,
-    width: 120,
-    zIndex: 0,
-    borderRadius: 60,
-    overflow: "hidden",
-    marginTop: 15,
-  },
-  action: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f2f2f2",
-    paddingBottom: 5,
-  },
-  actionError: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#FF0000",
-    paddingBottom: 5,
-  },
-  textInput: {
-    height: 60,
-    width: "90%",
-    paddingLeft: 20,
-    justifyContent: "center",
-    backgroundColor: "#D6EFFF",
-    borderRadius: 4,
-  },
-  errorMsg: {
-    color: "#FF0000",
-    fontSize: 14,
-  },
-  button: {
-    alignItems: "center",
-    marginTop: 50,
-  },
-  signIn: {
-    width: "100%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  textSign: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  label: {
-    marginBottom: 5,
-    marginTop: 20,
-    fontWeight: "400",
-    fontSize: 13,
-  },
-  changeButton: {
-    flexDirection: "row",
-    width: "90%",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  changePassword: {
-    color: Colors.primaryColor,
-  },
-  containerEditPhoto: {
-    alignItems: "center",
-  },
-});
