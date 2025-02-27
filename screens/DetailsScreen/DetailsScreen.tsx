@@ -7,7 +7,6 @@ import {
   Image,
   RefreshControl,
   TouchableOpacity,
-  Dimensions,
   SafeAreaView,
 } from 'react-native';
 import { Colors } from '../../styles/Colors';
@@ -16,16 +15,8 @@ import Loading from '../../components/Loading';
 import Toast from 'react-native-toast-message';
 import ScreenInternetError from '../../components/ScreenInternetError';
 
-const { width } = Dimensions.get('window');
 
-interface BlogItem {
-  name: string;
-  description: string;
-  url: string;
-  picture: string;
-}
-
-const DetailsScreen = ({ navigation }: { navigation: any }) => {
+const DetailsScreen: React.FC<DetailsScreenProps> = ({ navigation }) => {
   const [data, setData] = useState<BlogItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
