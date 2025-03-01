@@ -1,7 +1,6 @@
-import { TouchableOpacity, Image, View, StyleSheet } from "react-native";
+import { TouchableOpacity, Image, View } from "react-native-ui-lib";
 import { Text } from "react-native-ui-lib";
-import { RootStackParamList } from "../user/BottonMenu/types"; 
-
+import { RootStackParamList } from "../user/BottonMenu/types";
 
 interface ActivityItemProps {
   item: any;
@@ -14,42 +13,34 @@ const renderActivityItem = ({
   disabledOption,
   screenNavigate,
 }: ActivityItemProps) => (
-  <TouchableOpacity
-    disabled={disabledOption}
-    onPress={() => screenNavigate(item.screen)}
-    style={[styles.section, disabledOption && { opacity: 0.5 }]}
-  >
-    <Image
-      source={item.imageSource}
-      style={styles.image}
-      resizeMode={"contain"}
-    />
-    <Text text70BO black style={styles.text}>
-      {item.title}
-    </Text>
-    <Image
-      source={require("../../assets/arrowRigth.png")}
-      style={styles.arrowImage}
-      resizeMode={"contain"}
-    />
-  </TouchableOpacity>
+  <View paddingV-10>
+    <TouchableOpacity
+      disabled={disabledOption}
+      onPress={() => screenNavigate(item.screen)}
+      style={{ flexDirection: "row", alignItems: "center", width: "100%" }}
+    >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Image
+          height={20}
+          width={20}
+          marginR-10
+          source={item.imageSource}
+          resizeMode={"contain"}
+        />
+        <Text text70BO black >
+          {item.title}
+        </Text>
+      </View>
+      
+      <Image
+        height={15}
+        width={15}
+        source={require("../../assets/arrowRigth.png")}
+        resizeMode={"contain"}
+        style={{ marginLeft: 'auto' }}
+      />
+    </TouchableOpacity>
+  </View>
 );
-
-const styles = StyleSheet.create({
-  section: {
-    height: 60,
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  image: { height: 20, width: 20, marginRight: 10 },
-  text: {
-    flex: 1,
-    fontWeight: "bold",
-  },
-  arrowImage: { height: 15, width: 15 },
-});
 
 export default renderActivityItem;
