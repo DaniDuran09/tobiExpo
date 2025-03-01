@@ -1,8 +1,11 @@
-import { StyleSheet, TouchableOpacity, View, Image, FlatList } from "react-native";
+import { TouchableOpacity, Image, View, FlatList, StyleSheet } from "react-native";
 import React from "react";
-import { useNavigation } from "@react-navigation/native";
 import { Text } from "react-native-ui-lib";
+import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import activitiesData from "../../../utils/data/activitiesData"; // Importa las actividades
+import renderActivityItem from "../../../components/renders/RenderActivityItem";
+import { RootStackParamList } from "./types"; // Importamos el componente
 
 interface BottomMenuProps {
   disabledOption?: boolean;
@@ -21,61 +24,20 @@ const BottomMenu = ({ disabledOption = false }: BottomMenuProps) => {
     navigation.navigate(screenName);
   };
 
-  const items = [
-    {
-      label: "Id. digital de mi mascota",
-      screen: "IdMyPet",
-      icon: require("../../../assets/qr.png"),
-    },
-    {
-      label: "Mis citas",
-      screen: "Appointments",
-      icon: require("../../../assets/calendar.png"),
-    },
-    {
-      label: "Historial",
-      screen: "History",
-      icon: require("../../../assets/bag.png"),
-    },
-    {
-      label: "Cartilla de salud digitalizada",
-      screen: "SelectPetVaccines",
-      icon: require("../../../assets/images/cartilla-icon.png"),
-    },
-  ];
-
-  const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      disabled={disabledOption}
-      onPress={() => screenNavigate(item.screen)}
-      style={[styles.section, disabledOption && { opacity: 0.5 }]}
-    >
-      <Image source={item.icon} style={styles.image} resizeMode={"contain"} />
-      <Text text70BO black style={styles.text}>
-        {item.label}
-      </Text>
-      <Image
-        source={require("../../../assets/arrowRigth.png")}
-        style={styles.arrowImage}
-        resizeMode={"contain"}
-      />
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={addNewPet}>
         <Text marginT-5>+ Mascotas</Text>
       </TouchableOpacity>
       <View style={styles.header}>
-        <Text text70BO black marginT-5 marginB-5>
+        <Text text70BO black marginT-5>
           MI ACTIVIDAD
         </Text>
       </View>
 
       <FlatList
-        data={items}
-        renderItem={renderItem}
+        data={activitiesData}  // Usamos activitiesData importado
+        renderItem={({ item }) => renderActivityItem({ item, disabledOption, screenNavigate })}
         keyExtractor={(item, index) => index.toString()}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
@@ -100,22 +62,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   section: {
-    height: 45, // Ajustado el tamaño de la sección
+    height: 60,
     width: "100%",
-    flexDirection: "row", // Alineación en fila
-    justifyContent: "space-between", // Distribuye los elementos
-    alignItems: "center", // Centrado vertical
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center", // Aquí debe ser "center" y no "string"
     paddingVertical: 10,
   },
-  image: { height: 20, width: 20, marginRight: 15 }, // Espaciado entre ícono y texto
+  image: { height: 20, width: 20, marginRight: 10 },
   text: {
-    flex: 1, // El texto ocupará el espacio restante
+    flex: 1,
     fontWeight: "bold",
   },
   arrowImage: { height: 15, width: 15 },
   separator: {
     height: 1,
-    backgroundColor: "grey", // Separador entre los ítems
+    backgroundColor: "grey",
     marginVertical: 10,
   },
 });
