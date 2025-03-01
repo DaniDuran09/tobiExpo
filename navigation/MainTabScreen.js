@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 
 import HomeScreen from '../screens/home/HomeScreen';
-import DetailsScreen from '../screens/partners/DetailsScreen/ParentUniversity';
+import DetailsScreen from '../screens/partners/ParentUniversity/ParentUniversity';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProfileDetails from '../screens/ProfileDetails';
 import ProfileEdit from '../screens/ProfileEdit';
