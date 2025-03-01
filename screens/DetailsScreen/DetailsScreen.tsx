@@ -38,7 +38,7 @@ const DetailsScreen = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <View backgroundColor={Colors.white} center>
+    <View bg-white center>
       {loading ? (
         <Loading textColor={Colors.black} backgroundColorProp={Colors.white} />
       ) : error ? (
