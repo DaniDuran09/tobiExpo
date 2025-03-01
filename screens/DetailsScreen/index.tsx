@@ -1,3 +1,3 @@
-import DetailsScreen from './DetailsScreen';
+import DetailsScreen from "./DetailsScreen";
 
 export default DetailsScreen;

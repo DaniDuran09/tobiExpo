@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FlatList, RefreshControl } from "react-native";
-import { View } from "react-native-ui-lib"; 
+import { View } from "react-native-ui-lib";
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
 import Loading from "../../components/Loading";

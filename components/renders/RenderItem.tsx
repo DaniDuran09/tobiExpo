@@ -1,7 +1,6 @@
 import { TouchableOpacity } from "react-native";
 import { View, Text, Image } from "react-native-ui-lib";
 
-
 interface RenderItemProps {
   name: string;
   description: string;
@@ -10,7 +9,13 @@ interface RenderItemProps {
   navigation: any;
 }
 
-const RenderItem = ({ name, description, picture, url, navigation }: RenderItemProps) => (
+const RenderItem = ({
+  name,
+  description,
+  picture,
+  url,
+  navigation,
+}: RenderItemProps) => (
   <TouchableOpacity onPress={() => navigation.navigate("WebView", { url })}>
     <View bg-white marginB-10 paddingL-10 paddingR-10 center width="100%">
       <View width="100%" row>
