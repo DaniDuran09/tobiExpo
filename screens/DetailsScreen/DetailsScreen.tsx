@@ -38,7 +38,7 @@ const DetailsScreen = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <View  backgroundColor={Colors.white} center>
+    <View backgroundColor={Colors.white} center>
       {loading ? (
         <Loading textColor={Colors.black} backgroundColorProp={Colors.white} />
       ) : error ? (
@@ -47,9 +47,18 @@ const DetailsScreen = ({ navigation }: { navigation: any }) => {
         <FlatList
           data={data}
           keyExtractor={(index) => `blog-${index}`}
-          renderItem={({ item }) => (
-            <RenderItem item={item} navigation={navigation} />
-          )}
+          renderItem={({ item }) => {
+            const { name, description, picture, url } = item;
+            return (
+              <RenderItem
+                name={name}
+                description={description}
+                picture={picture}
+                url={url}
+                navigation={navigation}
+              />
+            );
+          }}
           refreshControl={
             <RefreshControl refreshing={loading} onRefresh={fetchBlogs} />
           }

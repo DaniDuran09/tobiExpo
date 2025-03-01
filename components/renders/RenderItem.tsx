@@ -1,42 +1,38 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlogItem } from '../../screens/DetailsScreen/types'
+import { TouchableOpacity } from "react-native";
+import { View, Text, Image } from "react-native-ui-lib";
+
 
 interface RenderItemProps {
-  item: BlogItem;
-  navigation: any; 
+  name: string;
+  description: string;
+  picture: string;
+  url: string;
+  navigation: any;
 }
 
-const RenderItem = ({ item, navigation }: RenderItemProps) => (
-  <TouchableOpacity onPress={() => navigation.navigate('WebView', { url: item.url })}>
-    <View style={[styles.elevation, { width: '100%', alignItems: 'center' }]}>
-      <View style={{ width: '100%', flexDirection: 'row' }}>
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <Image source={{ uri: item.picture }} style={{ height: 60, width: 60, borderRadius: 100 }} resizeMode="cover" />
+const RenderItem = ({ name, description, picture, url, navigation }: RenderItemProps) => (
+  <TouchableOpacity onPress={() => navigation.navigate("WebView", { url })}>
+    <View bg-white marginB-10 paddingL-10 paddingR-10 center width="100%">
+      <View width="100%" row>
+        <View center>
+          <Image
+            source={{ uri: picture }}
+            height={60}
+            width={60}
+            borderRadius={100}
+          />
         </View>
-        <View style={{ width: '95%', marginVertical: 20 }}>
-          <View style={{ width: '80%', paddingTop: 10, marginLeft: 15 }}>
-            <Text style={{ fontSize: 16, color: '#000', fontWeight: 'bold', paddingBottom: 5 }}>{item.name}</Text>
-            <Text style={{ fontSize: 12, color: '#000' }}>{item.description}</Text>
+        <View width="95%" marginV-20>
+          <View width="80%" paddingT-10 marginL-15>
+            <View paddingB-5>
+              <Text text70BL>{name}</Text>
+            </View>
+            <Text text90T>{description}</Text>
           </View>
         </View>
       </View>
     </View>
   </TouchableOpacity>
 );
-
-const styles = StyleSheet.create({
-  elevation: {
-    backgroundColor: '#fff',
-    shadowColor: '#000000',
-    marginBottom: 10,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    elevation: 5,
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-});
 
 export default RenderItem;
