@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FlatList, RefreshControl } from "react-native";
 import { View } from "react-native-ui-lib"; 
 import { Colors } from "../../styles/Colors";
