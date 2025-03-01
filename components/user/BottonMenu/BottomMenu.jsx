@@ -31,7 +31,7 @@ const BottomMenu = ({ disabledOption = false }) => {
       >
         <View style={styles.sectionContainer}>
           <Image
-            source={require("../assets/qr.png")}
+            source={require("../../../assets/qr.png")}
             style={styles.image}
             resizeMode={"contain"}
           />
@@ -62,7 +62,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/arrowRigth.png")}
+            source={require("../../../assets/arrowRigth.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
           />
@@ -82,7 +82,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/calendar.png")}
+            source={require("../../../assets/calendar.png")}
             style={{ height: 20, width: 20 }}
             resizeMode={"contain"}
           />
@@ -113,7 +113,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/arrowRigth.png")}
+            source={require("../../../assets/arrowRigth.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
           />
@@ -133,7 +133,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/bag.png")}
+            source={require("../../../assets/bag.png")}
             style={{ height: 20, width: 20 }}
             resizeMode={"contain"}
           />
@@ -164,7 +164,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/arrowRigth.png")}
+            source={require("../../../assets/arrowRigth.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
           />
@@ -185,7 +185,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/images/cartilla-icon.png")}
+            source={require("../../../assets/images/cartilla-icon.png")}
             style={{ height: 20, width: 20 }}
             resizeMode={"contain"}
           />
@@ -212,7 +212,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Image
-            source={require("../assets/arrowRigth.png")}
+            source={require("../../../assets/arrowRigth.png")}
             style={{ height: 15, width: 15 }}
             resizeMode={"contain"}
           />

@@ -12,7 +12,7 @@ import {
   Platform,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import BottomMenu from "../components/BottomMenu";
+import BottomMenu from "../components/user/BottonMenu/BottomMenu";
 import AppStorage from "../modules/AppStorage";
 import WithoutPhoto from "../components/WithoutPhoto";
 import Loading from "../components/Loading";
