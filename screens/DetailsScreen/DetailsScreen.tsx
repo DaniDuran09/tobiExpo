@@ -1,13 +1,13 @@
-// DetailsScreen.tsx
-
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, RefreshControl, SafeAreaView, StyleSheet } from 'react-native';
-import ApiFetcher from '../../modules/ApiFetcher';
-import Loading from '../../components/Loading';
-import RenderItem from '../../components/renders/RenderItem';
-import Toast from 'react-native-toast-message';
-import ScreenInternetError from '../../components/ScreenInternetError';
-import { BlogItem } from './types'; // Importar el tipo BlogItem desde 'types.ts'
+import React, { useState, useEffect } from "react";
+import { FlatList, RefreshControl } from "react-native";
+import { View } from "react-native-ui-lib"; 
+import { Colors } from "../../styles/Colors";
+import ApiFetcher from "../../modules/ApiFetcher";
+import Loading from "../../components/Loading";
+import RenderItem from "../../components/renders/RenderItem";
+import Toast from "react-native-toast-message";
+import ScreenInternetError from "../../components/ScreenInternetError";
+import { BlogItem } from "./types";
 
 const DetailsScreen = ({ navigation }: { navigation: any }) => {
   const [data, setData] = useState<BlogItem[]>([]);
@@ -27,9 +27,10 @@ const DetailsScreen = ({ navigation }: { navigation: any }) => {
     } catch (err) {
       setError(true);
       Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'No hemos podido obtener la información. Por favor, intenta nuevamente.',
+        type: "error",
+        text1: "Error",
+        text2:
+          "No hemos podido obtener la información. Por favor, intenta nuevamente.",
       });
     } finally {
       setLoading(false);
@@ -37,29 +38,25 @@ const DetailsScreen = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View  backgroundColor={Colors.white} center>
       {loading ? (
-        <Loading textColor="#000" backgroundColorProp="#fff" />
+        <Loading textColor={Colors.black} backgroundColorProp={Colors.white} />
       ) : error ? (
         <ScreenInternetError action={fetchBlogs} />
       ) : (
         <FlatList
           data={data}
-          keyExtractor={(item, index) => `blog-${index}`}
-          renderItem={({ item }) => <RenderItem item={item} navigation={navigation} />}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchBlogs} />}
+          keyExtractor={(index) => `blog-${index}`}
+          renderItem={({ item }) => (
+            <RenderItem item={item} navigation={navigation} />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={fetchBlogs} />
+          }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});
 
 export default DetailsScreen;
