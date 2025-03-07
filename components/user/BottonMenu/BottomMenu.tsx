@@ -1,45 +1,48 @@
-import {FlatList } from "react-native";
+import { FlatList } from "react-native";
 import React from "react";
 import { Button, Text, View } from "react-native-ui-lib";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import activitiesData from "../../../utils/data/activitiesData";
-import renderActivityItem from "../../../components/renders/RenderActivityItem";
-import { RootStackParamList } from "./types";
+import RenderActivityItem from "../../../components/renders/RenderActivityItem";
 
-interface BottomMenuProps {
+type BottomMenuNavigationProp = StackNavigationProp<any, "RegisterNewPet">;
+
+const BottomMenu = ({
+  disabledOption = false,
+}: {
   disabledOption?: boolean;
-}
-
-type BottomMenuNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "RegisterNewPet"
->;
-
-const BottomMenu = ({ disabledOption = false }: BottomMenuProps) => {
+}) => {
   const navigation = useNavigation<BottomMenuNavigationProp>();
 
   const addNewPet = () => {
-    navigation.navigate("RegisterNewPet");
+    navigation.navigate("RegisterNewPet", {});
   };
 
-  const screenNavigate = (screenName: keyof RootStackParamList) => {
-    navigation.navigate(screenName);
+  const screenNavigate = (screenName: string) => {
+    navigation.navigate(screenName, {});
   };
 
   return (
-    <View flex bg-white paddingH-10 left width='100%'>
+    <View flex bg-white paddingH-10 left width="100%">
       <Button label="+ Mascotas" onPress={addNewPet} link black />
-      <View  marginT-2>
+      <View marginT-2>
         <Text text70BO black>
           MI ACTIVIDAD
         </Text>
       </View>
       <FlatList
         data={activitiesData}
-        renderItem={({ item }) =>
-          renderActivityItem({ item, disabledOption, screenNavigate })
-        }
+        renderItem={({ item }) => (
+          <View>
+            {RenderActivityItem({
+              item,
+              disabledOption,
+              screenNavigate,
+            })}
+            <View height={1} width="100%" bg-grey10 marginV-2 />
+          </View>
+        )}
         keyExtractor={(item, index) => index.toString()}
       />
     </View>

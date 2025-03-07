@@ -1,14 +1,13 @@
 import { TouchableOpacity, Image, View } from "react-native-ui-lib";
 import { Text } from "react-native-ui-lib";
-import { RootStackParamList } from "../user/BottonMenu/types";
 
 interface ActivityItemProps {
   item: any;
   disabledOption?: boolean;
-  screenNavigate: (screenName: keyof RootStackParamList) => void;
+  screenNavigate: (screenName: string) => void;
 }
 
-const renderActivityItem = ({
+const RenderActivityItem = ({
   item,
   disabledOption,
   screenNavigate,
@@ -31,7 +30,6 @@ const renderActivityItem = ({
           {item.title}
         </Text>
       </View>
-      
       <Image
         height={15}
         width={15}
@@ -43,4 +41,4 @@ const renderActivityItem = ({
   </View>
 );
 
-export default renderActivityItem;
+export default RenderActivityItem;
