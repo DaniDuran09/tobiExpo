@@ -32,6 +32,7 @@ const BottomMenu = ({
         </Text>
       </View>
       <FlatList
+      scrollEnabled={false}
         data={activitiesData}
         renderItem={({ item }) => {
           const { imageSource, title, screen } = item;
@@ -44,7 +45,7 @@ const BottomMenu = ({
                 disabledOption={disabledOption}
                 screenNavigate={screenNavigate}
               />
-              <View height={1} width="100%" bg-grey10 marginV-2 />
+              <View height={1} width="100%" bg-grey10/>
             </View>
           );
         }}

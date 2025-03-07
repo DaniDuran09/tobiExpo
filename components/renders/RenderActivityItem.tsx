@@ -16,13 +16,14 @@ const RenderActivityItem = ({
   disabledOption,
   screenNavigate,
 }: ActivityItemProps) => (
-  <View paddingV-10>
+  <View paddingV-8>
     <TouchableOpacity
       disabled={disabledOption}
       onPress={() => screenNavigate(screen)}
-      style={{ flexDirection: "row", alignItems: "center", width: "100%" }}
+      row
+      centerV
     >
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <View row centerV width={'100%'}>
         <Image
           height={20}
           width={20}
