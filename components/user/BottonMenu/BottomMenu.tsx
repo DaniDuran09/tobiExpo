@@ -33,16 +33,21 @@ const BottomMenu = ({
       </View>
       <FlatList
         data={activitiesData}
-        renderItem={({ item }) => (
-          <View>
-            {RenderActivityItem({
-              item,
-              disabledOption,
-              screenNavigate,
-            })}
-            <View height={1} width="100%" bg-grey10 marginV-2 />
-          </View>
-        )}
+        renderItem={({ item }) => {
+          const { imageSource, title, screen } = item;
+          return (
+            <View>
+              <RenderActivityItem
+                imageSource={imageSource}
+                title={title}
+                screen={screen}
+                disabledOption={disabledOption}
+                screenNavigate={screenNavigate}
+              />
+              <View height={1} width="100%" bg-grey10 marginV-2 />
+            </View>
+          );
+        }}
         keyExtractor={(item, index) => index.toString()}
       />
     </View>

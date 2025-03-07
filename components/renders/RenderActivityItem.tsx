@@ -2,20 +2,24 @@ import { TouchableOpacity, Image, View } from "react-native-ui-lib";
 import { Text } from "react-native-ui-lib";
 
 interface ActivityItemProps {
-  item: any;
+  imageSource: any;
+  title: string;
+  screen: string;
   disabledOption?: boolean;
   screenNavigate: (screenName: string) => void;
 }
 
 const RenderActivityItem = ({
-  item,
+  imageSource,
+  title,
+  screen,
   disabledOption,
   screenNavigate,
 }: ActivityItemProps) => (
   <View paddingV-10>
     <TouchableOpacity
       disabled={disabledOption}
-      onPress={() => screenNavigate(item.screen)}
+      onPress={() => screenNavigate(screen)}
       style={{ flexDirection: "row", alignItems: "center", width: "100%" }}
     >
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -23,13 +27,14 @@ const RenderActivityItem = ({
           height={20}
           width={20}
           marginR-10
-          source={item.imageSource}
+          source={imageSource}
           resizeMode={"contain"}
         />
-        <Text text70BO black >
-          {item.title}
+        <Text text70BO black>
+          {title}
         </Text>
       </View>
+
       <Image
         height={15}
         width={15}
