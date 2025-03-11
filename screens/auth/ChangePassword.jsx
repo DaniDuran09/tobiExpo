@@ -12,9 +12,9 @@ import SendMail from "../../components/user/SendMail";
 import { Text, View } from "react-native-ui-lib";
 import Entypo from "react-native-vector-icons/Entypo";
 import Toast from "react-native-toast-message";
-import ApiFetcher from "../../modules/ApiFetcher";
 import AppStorage from "../../modules/AppStorage";
 import { useNavigation } from "@react-navigation/native";
+import { useSendPinMutation, useUpdatePasswordMutation } from "../../api/tobiApi/auth";
 
 const ChangePassword = ({ route }) => {
   const { show = true, email = "" } = route?.params || {};
@@ -23,22 +23,23 @@ const ChangePassword = ({ route }) => {
   const [showRepeatPassword, setShowRepeatPassword] = useState(true);
   const [repeatNewPassword, setRepeatNewPassword] = useState("");
   const [pin, setPin] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [showMessage, setShowMessage] = useState(show);
 
   const [timer, setTimer] = useState(0);
 
-  const apiFetcher = new ApiFetcher();
   const appStorage = new AppStorage();
   const navigation = useNavigation();
+
+  const [sendPin] = useSendPinMutation()
+  const [updatePassword, { isLoading: isLoadingUpdatePassword }] = useUpdatePasswordMutation()
 
   useEffect(() => {
     setIsValid(
       pin.length == 6 &&
-        newPassword != "" &&
-        repeatNewPassword != "" &&
-        newPassword == repeatNewPassword
+      newPassword != "" &&
+      repeatNewPassword != "" &&
+      newPassword == repeatNewPassword
     );
   }, [newPassword, repeatNewPassword, pin]);
 
@@ -62,65 +63,66 @@ const ChangePassword = ({ route }) => {
   };
 
   const changePassword = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        pin: pin,
-        password: newPassword,
-        password_confirmation: repeatNewPassword,
-      };
-      await apiFetcher.updatePassword(payload);
-      Toast.show({
-        type: "success",
-        text1: "Nueva contraseña registrada",
-        text2: `Recuerda tu nueva contraseña para el próximo inicio de sesión`,
-      });
-      if (!show)
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "LoginScreen" }],
-        });
-      else navigation.goBack();
-    } catch (error) {
-      console.log("Error al cambiar la contraseña: ", error);
+
+    const payload = {
+      pin: pin,
+      password: newPassword,
+      password_confirmation: repeatNewPassword,
+    };
+
+    const { error } = await updatePassword(payload)
+
+    if (error) {
       Toast.show({
         type: "error",
         text1: "Ocurrió un error",
         text2: `Vuelve a intentarlo más tarde`,
       });
-    } finally {
-      setLoading(false);
+      return
     }
+
+    Toast.show({
+      type: "success",
+      text1: "Nueva contraseña registrada",
+      text2: `Recuerda tu nueva contraseña para el próximo inicio de sesión`,
+    });
+    if (!show)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "LoginScreen" }],
+      });
+    else navigation.goBack();
   };
 
   const send = async () => {
-    try {
-      let emailToSend;
-      if (email) emailToSend = email;
-      else {
-        const user = await appStorage.getUser();
-        emailToSend = user.email;
-      }
 
-      const data = {
-        email: emailToSend,
-      };
+    let emailToSend;
+    if (email) emailToSend = email;
+    else {
+      const user = await appStorage.getUser();
+      emailToSend = user.email;
+    }
 
-      await apiFetcher.sendPin(data);
-      Toast.show({
-        type: "success",
-        text1: "PIN enviado al correo",
-        text2: `Revisa tu bandeja de entrada`,
-      });
-      if (!email) setShowMessage(false);
-    } catch (error) {
-      console.log("error: ", error);
+    const data = {
+      email: emailToSend,
+    };
+
+    const { error } = await sendPin(data);
+
+    if (error) {
       Toast.show({
         type: "error",
-        text1: "Error al enviar el corre",
+        text1: "Error al enviar el correo",
         text2: `Inténtalo de nuevo más tarde`,
       });
+      return
     }
+    Toast.show({
+      type: "success",
+      text1: "PIN enviado al correo",
+      text2: `Revisa tu bandeja de entrada`,
+    });
+    if (!email) setShowMessage(false);
   };
 
   return (
@@ -223,7 +225,7 @@ const ChangePassword = ({ route }) => {
                 ]}
                 onPress={changePassword}
               >
-                {loading ? (
+                {isLoadingUpdatePassword ? (
                   <ActivityIndicator size={"small"} color={Colors.white} />
                 ) : (
                   <Text text70BO color={Colors.white}>

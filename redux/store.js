@@ -3,7 +3,7 @@ import userReducer from "./slice/userSlice";
 import petReducer from "./slice/petSlice";
 import appointmentReducer from "./slice/appointmentSlice";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { tobiApi } from "../api/auth/auth";
+import { tobiApi } from "../api/tobiApi/tobiApi";
 
 export const store = configureStore({
   reducer: {
