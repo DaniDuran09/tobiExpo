@@ -38,8 +38,17 @@ const SplashScreen = ({ navigation }: NavigationProps) => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
       <Carousel
+        autoplay
         containerStyle={{ flex: 1 }}
+        
         pageControlPosition={Carousel.pageControlPositions.OVER}
+        pageControlProps={{
+          size: 14,
+          color: Colors.white,
+          inactiveColor: "#EFA18D",
+          spacing: 8,
+          enlargeActive: true  
+        }}
       >
         <HealthSlide />
         <DigitalizeSlide />

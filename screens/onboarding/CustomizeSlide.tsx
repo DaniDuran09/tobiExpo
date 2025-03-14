@@ -9,8 +9,8 @@ import { TouchableWithoutFeedback } from "react-native";
 export default function CustomizeSlide() {
   return (
     <Layout footer={<Footer />}>
-      <Title text="Planes de salud personalizados" />
-      <Description text="Obten un plan de salud personalizado según las necesidades de cada mascota" />
+      <Title text="Di adiós a las llamadas pidiendo registros de vacunación." />
+      <Description text="Accede y comparte los registros de salud de tu mascota fácilmente, cuando lo necesites." />
     </Layout>
   )
 }
@@ -19,9 +19,9 @@ const Footer = () => {
 
   const navigation = useNavigation<any>();
   return (
-    <View marginB-20 right style={{ marginTop: "auto" }}>
+    <View padding-20 absB absR>
       <TouchableWithoutFeedback onPress={() => { navigation.navigate("LoginScreen") }}>
-        <View backgroundColor={Colors.black} paddingV-15 paddingH-30 br100>
+        <View backgroundColor={Colors.black} paddingV-15 paddingH-40 br100>
           <Text 
             center
             text70BO

@@ -7,7 +7,7 @@ export default function Title({ text }: { text: string }) {
     <View style={{minHeight:120}}>
       <Text
         text40BO
-        color={Colors.secondaryColor}
+        color={Colors.white}
         style={{      
           fontFamily: Platform.OS === "android" ? "Poppins" : undefined,
         }}

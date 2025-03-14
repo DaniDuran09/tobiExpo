@@ -6,7 +6,7 @@ export default function Description({text}:{text: string}) {
   return (
     <View>
       <Text
-        color={Colors.secondaryColor}
+        color={Colors.white}
         text50R
         style={{                      
           fontFamily: Platform.OS === "android" ? "Poppins" : undefined,
