@@ -19,7 +19,7 @@ const Footer = () => {
 
   const navigation = useNavigation<any>();
   return (
-    <View padding-20 absB absR>
+    <View paddingR-50 absB absR>
       <TouchableWithoutFeedback onPress={() => { navigation.navigate("LoginScreen") }}>
         <View backgroundColor={Colors.black} paddingV-15 paddingH-40 br100>
           <Text 

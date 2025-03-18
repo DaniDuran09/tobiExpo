@@ -1,99 +1,86 @@
-import React, { useEffect, useState } from "react";
-import AppStorage from "../modules/AppStorage";
+import React, { useEffect, useRef, useCallback } from "react";
+import { Dimensions } from "react-native";
+import { View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setUserInfo } from "../redux/slice/userSlice";
-import HealthSlide from "./onboarding/HealthSlide";
-import DigitalizeSlide from "./onboarding/DigitizeSlide";
-import CustomizeSlide from "./onboarding/CustomizeSlide";
-import { View } from "react-native";
+import AppStorage from "../modules/AppStorage";
+import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
+import { StackScreenProps } from "@react-navigation/stack";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Extrapolation,
   interpolate,
   useSharedValue,
 } from "react-native-reanimated";
-import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
-import { StackScreenProps } from "@react-navigation/stack";
+import HealthSlide from "./onboarding/HealthSlide";
+import DigitalizeSlide from "./onboarding/DigitizeSlide";
+import CustomizeSlide from "./onboarding/CustomizeSlide";
 import { Colors } from "../styles/Colors";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 type NavigationProps = StackScreenProps<any>;
 
+const { width, height } = Dimensions.get("window");
+
+const SLIDES = [<HealthSlide />, <DigitalizeSlide />, <CustomizeSlide />];
+
 const SplashScreen = ({ navigation }: NavigationProps) => {
-  const [token, setToken] = useState(null);
-  const appStorage = new AppStorage();
   const dispatch = useDispatch();
-  const progress = useSharedValue(0); // Valor compartido para el progreso de la paginación
+  const progress = useSharedValue(0);
+  const carouselRef = useRef<ICarouselInstance>(null);
+  const appStorage = new AppStorage();
+
+  const fetchData = useCallback(async () => {
+    try {
+      const token = await appStorage.getAppToken();
+      const user = await appStorage.getUser();
+      if (token && user) {
+        dispatch(setUserInfo(user));
+        navigation.replace("Home");
+      }
+    } catch (error) {
+      console.error("Error en el Splash:", error);
+    }
+  }, [dispatch, navigation]);
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await appStorage.getAppToken();
-      const user = await appStorage.getUser();
-      if (response && user) {
-        setToken(response);
-        dispatch(setUserInfo(user));
-        navigation.navigate("Home");
-      }
-    } catch (error) {
-      console.log("Error en el splash: ", error);
-    }
-  };
-
-  const baseOptions = {
-    vertical: false,
-    width: 430, // Puedes ajustar el ancho del carrusel
-    height: 500 , // Puedes ajustar la altura del carrusel
-  };
-
-  const ref = React.useRef<ICarouselInstance>(null);
-
-  const onPressPagination = (index: number) => {
-    ref.current?.scrollTo({
-      count: index - progress.value,
-      animated: true,
-    });
-  };
+  }, [fetchData]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
-      <View style={{ flex: 1 }}>
+      <View flex>
         <Carousel
-          ref={ref}
-          {...baseOptions}
+          ref={carouselRef}
+          width={width}
+          height={height * 0.85}
           loop
           onProgressChange={progress}
-          style={{ width: '100%', height:'90%' }}
-          data={[<HealthSlide />, <DigitalizeSlide />, <CustomizeSlide />]}
-          renderItem={({ item }) => item} // Aquí renderizas las diapositivas
+          style={{ width: "100%", height: "100%" }}
+          data={SLIDES}
+          renderItem={({ item }) => item}
         />
 
-        {/* Paginación personalizada */}
         <Pagination.Custom
           progress={progress}
-          data={[{ color: "#B0604D" }, { color: "#899F9C" }, { color: "#B3C680" }]} // Ejemplo de datos para los puntos
-          size={20}
+          data={[{}, {}, {}]}
+          size={15}
           dotStyle={{
-            borderRadius: 16,
-            backgroundColor: "#262626",
+            borderRadius: 14,
+            backgroundColor: "#F0AF96",
           }}
           activeDotStyle={{
             borderRadius: 8,
-            width: 40,
-            height: 30,
-            overflow: "hidden",
+            width: 80,
+            height: 15,
             backgroundColor: "#f1f1f1",
           }}
           containerStyle={{
-            gap: 5,
-            alignItems: "center",
-            marginBottom: 20,
-            height: 10,
+            gap: 6,
+            padding: 20,
+            position: "absolute",
+            bottom: height * 0.04,
+            alignSelf: "center",
           }}
-          horizontal
-          onPress={onPressPagination}
           customReanimatedStyle={(progress, index, length) => {
             let val = Math.abs(progress - index);
             if (index === 0 && progress > length - 1) {
@@ -102,12 +89,7 @@ const SplashScreen = ({ navigation }: NavigationProps) => {
             return {
               transform: [
                 {
-                  translateY: interpolate(
-                    val,
-                    [0, 1],
-                    [0, 0],
-                    Extrapolation.CLAMP
-                  ),
+                  translateY: interpolate(val, [0, 1], [0, 0], Extrapolation.CLAMP),
                 },
               ],
             };
