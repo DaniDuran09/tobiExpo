@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { Dimensions } from "react-native";
 import { View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
+import { StackScreenProps } from "@react-navigation/stack";
 import { setUserInfo } from "../redux/slice/userSlice";
 import AppStorage from "../modules/AppStorage";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
-import { StackScreenProps } from "@react-navigation/stack";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "../styles/Colors";
 import {
   Extrapolation,
   interpolate,
@@ -15,36 +16,41 @@ import {
 import HealthSlide from "./onboarding/HealthSlide";
 import DigitalizeSlide from "./onboarding/DigitizeSlide";
 import CustomizeSlide from "./onboarding/CustomizeSlide";
-import { Colors } from "../styles/Colors";
-
-type NavigationProps = StackScreenProps<any>;
 
 const { width, height } = Dimensions.get("window");
 
-const SLIDES = [<HealthSlide />, <DigitalizeSlide />, <CustomizeSlide />];
+type SplashScreenProps = StackScreenProps<any>;
 
-const SplashScreen = ({ navigation }: NavigationProps) => {
+const SplashScreen = ({ navigation }: SplashScreenProps) => {
+  const [token, setToken] = useState<string | null>(null);
   const dispatch = useDispatch();
   const progress = useSharedValue(0);
   const carouselRef = useRef<ICarouselInstance>(null);
-  const appStorage = new AppStorage();
-
-  const fetchData = useCallback(async () => {
-    try {
-      const token = await appStorage.getAppToken();
-      const user = await appStorage.getUser();
-      if (token && user) {
-        dispatch(setUserInfo(user));
-        navigation.replace("Home");
-      }
-    } catch (error) {
-      console.error("Error en el Splash:", error);
-    }
-  }, [dispatch, navigation]);
+  const appStorage = useRef(new AppStorage()).current;
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await appStorage.getAppToken();
+        const user = await appStorage.getUser();
+        if (response && user) {
+          setToken(response);
+          dispatch(setUserInfo(user));
+          navigation.navigate("Home");
+        }
+      } catch (error) {
+        console.error("Error en el splash: ", error);
+      }
+    };
     fetchData();
-  }, [fetchData]);
+  }, [navigation, dispatch, appStorage]);
+
+  const onPressPagination = useCallback((index: number) => {
+    carouselRef.current?.scrollTo({
+      count: index - progress.value,
+      animated: true,
+    });
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
@@ -54,20 +60,17 @@ const SplashScreen = ({ navigation }: NavigationProps) => {
           width={width}
           height={height * 0.85}
           loop
+          vertical={false}
           onProgressChange={progress}
           style={{ width: "100%", height: "100%" }}
-          data={SLIDES}
+          data={[<HealthSlide />, <DigitalizeSlide />, <CustomizeSlide />]}
           renderItem={({ item }) => item}
         />
-
         <Pagination.Custom
           progress={progress}
-          data={[{}, {}, {}]}
+          data={[{ color: "#B0604D" }, { color: "#899F9C" }, { color: "#B3C680" }]}
           size={15}
-          dotStyle={{
-            borderRadius: 14,
-            backgroundColor: "#F0AF96",
-          }}
+          dotStyle={{ borderRadius: 14, backgroundColor: "#F0AF96" }}
           activeDotStyle={{
             borderRadius: 8,
             width: 80,
@@ -81,6 +84,7 @@ const SplashScreen = ({ navigation }: NavigationProps) => {
             bottom: height * 0.04,
             alignSelf: "center",
           }}
+          onPress={onPressPagination}
           customReanimatedStyle={(progress, index, length) => {
             let val = Math.abs(progress - index);
             if (index === 0 && progress > length - 1) {
