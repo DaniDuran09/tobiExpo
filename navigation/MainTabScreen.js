@@ -12,7 +12,7 @@ import {
   Alert,
 } from 'react-native';
 
-import HomeScreen from '../screens/home/HomeScreen';
+import HomeScreen from '../screens/home/HomeScreen/HomeScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ProfileDetails from '../screens/ProfileDetails';
