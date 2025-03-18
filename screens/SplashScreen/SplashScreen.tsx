@@ -3,11 +3,11 @@ import { Dimensions } from "react-native";
 import { View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { StackScreenProps } from "@react-navigation/stack";
-import { setUserInfo } from "../redux/slice/userSlice";
-import AppStorage from "../modules/AppStorage";
+import { setUserInfo } from "../../redux/slice/userSlice";
+import AppStorage from "../../modules/AppStorage";
 import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors } from "../styles/Colors";
+import { Colors } from "../../styles/Colors";
 import {
   Extrapolation,
   interpolate,

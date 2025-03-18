@@ -2,7 +2,7 @@ import Description from "./Description";
 import Layout from "./Layout";
 import Title from "./Title";
 import { useNavigation } from "@react-navigation/native";
-import { Colors } from "../../styles/Colors";
+import { Colors } from "../../../styles/Colors";
 import { View,Text} from "react-native-ui-lib";
 import { TouchableWithoutFeedback } from "react-native";
 

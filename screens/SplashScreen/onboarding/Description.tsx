@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import { View, Text } from "react-native-ui-lib";
-import { Colors } from "../../styles/Colors";
+import { Colors } from "../../../styles/Colors";
 
 export default function Description({text}:{text: string}) {
   return (
