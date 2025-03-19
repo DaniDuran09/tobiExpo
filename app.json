@@ -34,6 +34,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "54d03539-f3b9-409a-8b33-18ce275e8698"
+      }
+    },
+    "owner": "andy2025"
   }
 }
