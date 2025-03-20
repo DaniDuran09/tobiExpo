@@ -80,9 +80,9 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
           containerStyle={{
             position: "absolute",
             bottom: height * 0.05,
-            left: 20, 
+            left: 20,
             alignItems: "flex-start",
-            gap:10,
+            gap: 10,
             padding: 20,
           }}
           onPress={onPressPagination}
