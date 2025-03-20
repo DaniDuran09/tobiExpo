@@ -21,7 +21,7 @@ const Footer = () => {
   return (
     <View paddingV-50 paddingR-20 absB absR>
       <TouchableWithoutFeedback onPress={() => { navigation.navigate("LoginScreen") }}>
-        <View backgroundColor={Colors.black} paddingV-20 paddingH-30 br100>
+        <View backgroundColor={Colors.black} paddingV-15 paddingH-25 br100>
           <Text 
             center
             text70BO

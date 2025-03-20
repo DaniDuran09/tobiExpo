@@ -65,23 +65,23 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
         <Pagination.Custom
           progress={progress}
           data={[
-            { color: "#B0604D" },
-            { color: "#899F9C" },
-            { color: "#B3C680" },
+            { color: Colors.danger },
+            { color: Colors.danger },
+            { color: Colors.danger },
           ]}
           size={15}
-          dotStyle={{ borderRadius: 14, backgroundColor: "#F0AF96" }}
+          dotStyle={{ borderRadius: 14, backgroundColor: Colors.mediumGray }}
           activeDotStyle={{
             borderRadius: 8,
             width: 80,
             height: 15,
-            backgroundColor: "#f1f1f1",
+            backgroundColor: Colors.white,
           }}
           containerStyle={{
             position: "absolute",
-            bottom: height * 0.05, // Fijar la distancia al fondo
+            bottom: height * 0.05,
             left: 20, 
-            alignItems: "flex-start", // Alineación a la izquierda
+            alignItems: "flex-start",
             gap:10,
             padding: 20,
           }}
