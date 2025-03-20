@@ -27,7 +27,7 @@ const RenderSections = ({ item }) => {
   const getServiceStatus = (item) => {
     // if (!(item.status === "actived" && item?.service_date))
     if (!(item?.service_date))
-      return { service: "---", remainingDays: { text: "---", color: "black" } };
+      return { service: "---", remainingDays: { text: "---", color: "green" } };
     const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
       .tz("America/Mexico_City")
       .startOf("day");
@@ -71,14 +71,16 @@ const RenderSections = ({ item }) => {
           tabIndex={0}
           children={
             <>
-              <Text text80BL>SALUD</Text>
+              <Text text70BL>SALUD</Text>
               <Text text90M>Próxima visita</Text>
               <Text text80BL>{service}</Text>
               <Text text90MM>Faltan</Text>
               <Text color={remainingDays.color} text80BO>
                 {remainingDays.text}
               </Text>
-              <Text>+ info</Text>
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
+              </View>
             </>
           }
         />
@@ -88,10 +90,12 @@ const RenderSections = ({ item }) => {
           tabIndex={1}
           children={
             <>
-              <Text text80BL>BIENESTAR</Text>
+              <Text text70BL>BIENESTAR</Text>
               <Text text90M>Recomendación</Text>
               <Text text80BL>---</Text>
-              <Text>+ info</Text>
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
+              </View>
             </>
           }
         />
@@ -102,9 +106,20 @@ const RenderSections = ({ item }) => {
           tabIndex={2}
           children={
             <>
-              <Text text80BL>PESO</Text>
-              <Text text90M>Rango ideal</Text>
-              <Text text80BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
+              <Text text70BL>PESO</Text>
+
+              <View row  >
+                <View centerH>
+                  <Text text90M>De</Text>
+                  <Text text80BO>{`${rangeOne} Kg`}</Text>
+                </View>
+                <View width={20} />
+                <View centerH>
+                  <Text text90M>A</Text>
+                  <Text text80BO>{`${rangeTwo} Kg`}</Text>
+                </View>
+              </View>
+
               <Text text90M>Real</Text>
               <View row spread centerV>
                 <Text
@@ -112,19 +127,22 @@ const RenderSections = ({ item }) => {
                   text80BO
                   style={realWeight?.ideal && { color: Colors.green }}
                 >{`${item.weight} Kg`}</Text>
-
-                {!realWeight?.ideal && (
+              </View>
+              {!realWeight?.ideal && (
                   <Icon
                     name={realWeight?.down ? "triangle-down" : "triangle-up"}
                     color="red"
                     size={25}
                   />
                 )}
+
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
               </View>
-              <Text>+ info</Text>
             </>
           }
         />
+
 
         <View style={[styles.elevation, { height: 165 }]}>
           <Text text80BL color="gray">

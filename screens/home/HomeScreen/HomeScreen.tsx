@@ -123,8 +123,8 @@ const HomeScreen = ({ navigation }: any) => {
           size={60}
         />
         <View>
-          <Text text50 color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
-          <Text text50 color={Colors.primaryColor}>
+          <Text text50BL color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
+          <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>
         </View>
