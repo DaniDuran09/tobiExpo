@@ -73,8 +73,8 @@ const LoginScreen = () => {
             <LoginForm onSubmit={loginHandle} />
           </View>
           <View centerH>
-            <View absB center paddingB-10>
-              <Text color={Colors.secondaryColor}>
+            <View absB center >
+              <Text color={Colors.white}>
                 Al registrarse, aceptas el
               </Text>
               <View row>
@@ -83,15 +83,15 @@ const LoginScreen = () => {
                     openLink("https://tobipets.mx/terminos-y-condiciones-app")
                   }
                 >
-                  <Text color={Colors.secondaryColor} underline>Aviso de usuario </Text>
+                  <Text color={Colors.white} underline>Aviso de usuario </Text>
                 </TouchableOpacity>
-                <Text color={Colors.secondaryColor}>y la </Text>
+                <Text color={Colors.white}>y la </Text>
                 <TouchableOpacity
                   onPress={() =>
                     openLink("https://tobipets.mx/aviso-de-privacidad-app")
                   }
                 >
-                  <Text color={Colors.secondaryColor} underline>
+                  <Text color={Colors.white} underline>
                     Política de Privacidad
                   </Text>
                 </TouchableOpacity>

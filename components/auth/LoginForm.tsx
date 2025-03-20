@@ -66,7 +66,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
       <View row centerV spread paddingH-25 marginT-50>
         <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
-          <Text text80R center color={Colors.secondaryColor} underline>
+          <Text text80R center color={Colors.white} underline>
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
