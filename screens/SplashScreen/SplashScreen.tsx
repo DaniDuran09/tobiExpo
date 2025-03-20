@@ -5,14 +5,13 @@ import { useDispatch } from "react-redux";
 import { StackScreenProps } from "@react-navigation/stack";
 import { setUserInfo } from "../../redux/slice/userSlice";
 import AppStorage from "../../modules/AppStorage";
-import Carousel, { ICarouselInstance, Pagination } from "react-native-reanimated-carousel";
+import Carousel, {
+  ICarouselInstance,
+  Pagination,
+} from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors } from "../../styles/Colors";
-import {
-  Extrapolation,
-  interpolate,
-  useSharedValue,
-} from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import HealthSlide from "./onboarding/HealthSlide";
 import DigitalizeSlide from "./onboarding/DigitizeSlide";
 import CustomizeSlide from "./onboarding/CustomizeSlide";
@@ -54,21 +53,22 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
-      <View flex>
+      <View style={{ flex: 1 }}>
         <Carousel
           ref={carouselRef}
           width={width}
-          height={height * 0.85}
-          loop
-          vertical={false}
+          height={height}
           onProgressChange={progress}
-          style={{ width: "100%", height: "100%" }}
           data={[<HealthSlide />, <DigitalizeSlide />, <CustomizeSlide />]}
           renderItem={({ item }) => item}
         />
         <Pagination.Custom
           progress={progress}
-          data={[{ color: "#B0604D" }, { color: "#899F9C" }, { color: "#B3C680" }]}
+          data={[
+            { color: "#B0604D" },
+            { color: "#899F9C" },
+            { color: "#B3C680" },
+          ]}
           size={15}
           dotStyle={{ borderRadius: 14, backgroundColor: "#F0AF96" }}
           activeDotStyle={{
@@ -78,26 +78,14 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
             backgroundColor: "#f1f1f1",
           }}
           containerStyle={{
-            gap: 6,
-            padding: 20,
             position: "absolute",
-            bottom: height * 0.04,
-            alignSelf: "center",
+            bottom: height * 0.05, // Fijar la distancia al fondo
+            left: 20, 
+            alignItems: "flex-start", // Alineación a la izquierda
+            gap:10,
+            padding: 20,
           }}
           onPress={onPressPagination}
-          customReanimatedStyle={(progress, index, length) => {
-            let val = Math.abs(progress - index);
-            if (index === 0 && progress > length - 1) {
-              val = Math.abs(progress - length);
-            }
-            return {
-              transform: [
-                {
-                  translateY: interpolate(val, [0, 1], [0, 0], Extrapolation.CLAMP),
-                },
-              ],
-            };
-          }}
         />
       </View>
     </SafeAreaView>
