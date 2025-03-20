@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { StackScreenProps } from "@react-navigation/stack";
 import { setUserInfo } from "../../redux/slice/userSlice";
 import AppStorage from "../../modules/AppStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Para almacenar datos
 import Carousel, {
   ICarouselInstance,
   Pagination,
@@ -28,20 +29,26 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
   const appStorage = useRef(new AppStorage()).current;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const checkOnboarding = async () => {
       try {
+        const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
+        if (hasSeenOnboarding) {
+          navigation.replace("LoginScreen");
+          return;
+        }
+
         const response = await appStorage.getAppToken();
         const user = await appStorage.getUser();
         if (response && user) {
           setToken(response);
           dispatch(setUserInfo(user));
-          navigation.navigate("Home");
+          navigation.replace("Home");
         }
       } catch (error) {
         console.error("Error en el splash: ", error);
       }
     };
-    fetchData();
+    checkOnboarding();
   }, [navigation, dispatch, appStorage]);
 
   const onPressPagination = useCallback((index: number) => {
