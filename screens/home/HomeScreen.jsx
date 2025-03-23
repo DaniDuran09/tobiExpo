@@ -7,10 +7,14 @@ import ApiFetcher from "../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
 import NoPetsHome from "../../components/NoPetsHome";
 import { setUserInfo } from "../../redux/slice/userSlice";
-import { LoaderScreen, Text, View } from "react-native-ui-lib";
+import { LoaderScreen, Text, View, TouchableOpacity } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../utils/moment";
 import RenderSections from "../../components/renders/RenderSections";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"
+import { useNotificationsContext } from "../../context/NotificationContext";
+import { FadeIn, FadeOut, ZoomIn, ZoomOut } from "react-native-reanimated";
+import { NotificationIcon } from "../../components/notifications";
 
 const HomeScreen = ({ navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -23,6 +27,8 @@ const HomeScreen = ({ navigation }) => {
 
   const apiFetcher = new ApiFetcher();
 
+  const { notifications, markNotificationAsRead } = useNotificationsContext()
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -30,7 +36,7 @@ const HomeScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-      return () => {};
+      return () => { };
     }, [navigation])
   );
 
@@ -48,7 +54,7 @@ const HomeScreen = ({ navigation }) => {
             ...pet,
             service_date: response?.appointment_pet_services
               ? response?.appointment_pet_services[0]?.appointment_time
-                  ?.start_time
+                ?.start_time
               : null,
             status: response.appointment_status,
           };
@@ -69,28 +75,28 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchInfoAppointmentPet = async (id) => {
     const response = await apiFetcher.getAppointmentsByPet(id);
-  
+
     if (response.data.length === 0) return {};
-  
+
     const today = momentTZ().tz("America/Mexico_City").startOf("day");
-  
+
     const futureAppointments = response.data.filter((appointment) => {
       const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
       return appointmentDate.isSameOrAfter(today);
     });
-  
+
     if (futureAppointments.length === 0) return {};
-  
+
     const closestAppointment = futureAppointments.reduce((closest, current) => {
       const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
       const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
-  
+
       const currentDiff = Math.abs(currentDate.diff(today, "days"));
       const closestDiff = Math.abs(closestDate.diff(today, "days"));
-  
+
       return currentDiff < closestDiff ? current : closest;
     });
-  
+
     return closestAppointment;
   };
 
@@ -101,7 +107,7 @@ const HomeScreen = ({ navigation }) => {
         BackHandler.exitApp();
         return true;
       }
-      return false; 
+      return false;
     };
 
     if (Platform.OS === 'android') {
@@ -113,11 +119,11 @@ const HomeScreen = ({ navigation }) => {
       }
     };
   }, []);
-  
+
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
-      <View row gap-15 paddingH-15 marginT-40>
+      <View row gap-15 paddingH-15 marginT-40 centerV>
         <Avatar.Image
           source={{
             uri: userData.picture,
@@ -132,31 +138,36 @@ const HomeScreen = ({ navigation }) => {
             Buenos días
           </Text>
         </View>
+        <TouchableOpacity style={{ marginLeft: "auto" }} onPress={() => {
+          navigation.navigate("Notifications")
+        }}>
+          <NotificationIcon badget={notifications.some(n => !n.readed)} />
+        </TouchableOpacity>
       </View>
       <View center marginT-30 marginB-90>
-        
-          {data.length > 0 ? (
-            <FlatList
-              keyExtractor={(item, index) => `item-${index}`}
-              data={data}
-              refreshControl={
-                <RefreshControl
-                  refreshing={loading}
-                  onRefresh={() => fetchData()}
-                  tintColor={Colors.primaryColor}
-                  title="Loading..."
-                  titleColor="black"
-                  colors={["black", "black", "black"]}
-                  progressBackgroundColor="white"
-                />
-              }
-              renderItem={({ item }) => <RenderSections item={item} />}
-            />
-          ) : (
-            <NoPetsHome />
-          )}
-        </View>
-      
+
+        {data.length > 0 ? (
+          <FlatList
+            keyExtractor={(item, index) => `item-${index}`}
+            data={data}
+            refreshControl={
+              <RefreshControl
+                refreshing={loading}
+                onRefresh={() => fetchData()}
+                tintColor={Colors.primaryColor}
+                title="Loading..."
+                titleColor="black"
+                colors={["black", "black", "black"]}
+                progressBackgroundColor="white"
+              />
+            }
+            renderItem={({ item }) => <RenderSections item={item} />}
+          />
+        ) : (
+          <NoPetsHome />
+        )}
+      </View>
+
     </SafeAreaView>
   );
 };

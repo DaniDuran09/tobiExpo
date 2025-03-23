@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createStackNavigator} from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -10,6 +10,7 @@ import {
   Text,
   Share,
   Alert,
+  View,
 } from 'react-native';
 
 import HomeScreen from '../screens/home/HomeScreen';
@@ -43,13 +44,14 @@ import History from '../screens/pet/history/History';
 import RateService from '../screens/pet/history/RateService';
 import ResumeDate from '../screens/pet/dates/ResumeDate';
 import ChangeDate from '../screens/pet/dates/ChangeDate';
-import {Colors} from '../styles/Colors';
+import { Colors } from '../styles/Colors';
 import StepsRegister from '../screens/pet/register/StepsRegister';
 import Success from '../components/Success';
 import SelectPetVaccines from '../screens/vaccination-record/SelectPetVaccines';
 import PetVaccinesRecord from '../screens/vaccination-record/PetVaccinesRecord';
 import SelectPartner from '../screens/home/health/SelectPartner';
 import ListPartners from '../screens/partners/ListPartners';
+import { NotificationsScreen } from '../screens/Notifications';
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -83,7 +85,7 @@ const activeColor = 'red';
 const MainTabScreen = () => (
   <Tab.Navigator
     initialRouteName="Home"
-    screenOptions={({route}) => ({
+    screenOptions={({ route }) => ({
       tabBarActiveTintColor: activeColor,
       tabBarInactiveTintColor: 'gray',
     })}>
@@ -94,10 +96,10 @@ const MainTabScreen = () => (
         headerShown: false,
         tabBarLabel: '',
         tabBarColor: '#fff',
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Image
             source={require('../assets/home.png')}
-            style={{height: 25, width: 25, tintColor: color, marginTop: 15}}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
         ),
@@ -110,10 +112,10 @@ const MainTabScreen = () => (
         headerShown: false,
         tabBarLabel: '',
         tabBarColor: '#fff',
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Image
             source={require('../assets/pet.png')}
-            style={{height: 25, width: 25, tintColor: color, marginTop: 15}}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
         ),
@@ -126,10 +128,10 @@ const MainTabScreen = () => (
         headerShown: false,
         tabBarLabel: '',
         tabBarColor: '#fff',
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Image
             source={require('../assets/social.png')}
-            style={{height: 25, width: 25, tintColor: color, marginTop: 15}}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
         ),
@@ -142,10 +144,10 @@ const MainTabScreen = () => (
         headerShown: false,
         tabBarLabel: '',
         tabBarColor: '#fff',
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Image
             source={require('../assets/shop.png')}
-            style={{height: 25, width: 25, tintColor: color, marginTop: 15}}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
         ),
@@ -167,7 +169,7 @@ const MainTabScreen = () => (
 
 export default MainTabScreen;
 
-const HomeStackScreen = ({navigation}) => (
+const HomeStackScreen = ({ navigation }) => (
   <HomeStack.Navigator
     screenOptions={{
       headerStyle: {
@@ -206,11 +208,11 @@ const HomeStackScreen = ({navigation}) => (
       }}
     />
     <HomeStack.Screen
-       name="EditPet"
-       component={EditMyPet}
-       options={{
-         headerShown: false,
-       }}
+      name="EditPet"
+      component={EditMyPet}
+      options={{
+        headerShown: false,
+      }}
     />
     <HomeStack.Screen
       name="SelectPartner"
@@ -230,10 +232,17 @@ const HomeStackScreen = ({navigation}) => (
         headerTintColor: 'black',
       }}
     />
+    <HomeStack.Screen
+      name="Notifications"
+      component={NotificationsScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
   </HomeStack.Navigator>
 );
 
-const HealthStackScreens = ({navigation}) => (
+const HealthStackScreens = ({ navigation }) => (
   <HealthStack.Navigator
     screenOptions={{
       headerStyle: {
@@ -249,7 +258,7 @@ const HealthStackScreens = ({navigation}) => (
       name="SelectPartner"
       component={SelectPartner}
       options={{
-        
+
         title: 'Selecciona al Partner',
       }}
     />
@@ -266,7 +275,7 @@ const HealthStackScreens = ({navigation}) => (
   </HealthStack.Navigator>
 );
 
-const DetailsStackScreen = ({navigation}) => (
+const DetailsStackScreen = ({ navigation }) => (
   <DetailsStack.Navigator
     screenOptions={{
       headerStyle: {
@@ -289,14 +298,14 @@ const DetailsStackScreen = ({navigation}) => (
     <DetailsStack.Screen
       name="WebView"
       component={ViewWeb}
-      options={({route}) => ({
+      options={({ route }) => ({
         title: 'Pet Parent University',
         headerLeft: null,
         headerRight: () => (
           <TouchableOpacity onPress={() => shareInfo(route.params.url)}>
             <Image
               source={require('../assets/share.png')}
-              style={{height: 25, width: 25, marginRight: 15}}
+              style={{ height: 25, width: 25, marginRight: 15 }}
             />
             {/* <MaterialCommunityIcons
               name="download"
@@ -310,7 +319,7 @@ const DetailsStackScreen = ({navigation}) => (
   </DetailsStack.Navigator>
 );
 
-const ProfileStackScreen = ({navigation}) => (
+const ProfileStackScreen = ({ navigation }) => (
   <ProfileStack.Navigator
     screenOptions={{
       headerShown: false,
@@ -322,13 +331,13 @@ const ProfileStackScreen = ({navigation}) => (
         headerShown: true,
         headerLeft: null,
         title: '',
-        headerRight: ({route}) => (
+        headerRight: ({ route }) => (
           <TouchableOpacity
             // onPress={() => navigation.navigate("ProfileEditUser", {refreshData: route.params})}
             onPress={() => navigation.navigate('ProfileEditUser')}>
             <Image
               source={require('../assets/menu-icon.png')}
-              style={{height: 30, width: 30, marginRight: 10}}
+              style={{ height: 30, width: 30, marginRight: 10 }}
               resizeMode={'contain'}
             />
           </TouchableOpacity>
@@ -338,13 +347,13 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="ChangePassword"
       component={ChangePassword}
-      options={({navigation}) => ({
+      options={({ navigation }) => ({
         headerShown: true,
         title: 'Cambiar contraseña',
         headerLeft: () => null,
         headerRight: () => (
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={{fontSize: 25, marginRight: 15}}>x</Text>
+            <Text style={{ fontSize: 25, marginRight: 15 }}>x</Text>
             {/* <MaterialCommunityIcons
               name="exit"
               size={24}
@@ -357,7 +366,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="MyCards"
       component={MyCards}
-      options={({navigation}) => ({
+      options={({ navigation }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Métodos de pago',
@@ -367,7 +376,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="AddNewCard"
       component={AddNewCard}
-      options={({navigation}) => ({
+      options={({ navigation }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Agregar nueva tarjeta',
@@ -417,7 +426,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="SearchItem"
       component={SearchItem}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         headerTintColor: Colors.black,
@@ -434,7 +443,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="RegisterNewPet"
       component={StepsRegister}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Registro nueva mascota',
@@ -444,14 +453,14 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="Success"
       component={Success}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: false,
       })}
     />
     <ProfileStack.Screen
       name="SecondScreenRegisterPet"
       component={SecondScreenRegisterPet}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         animationEnabled: false,
         headerBackTitleVisible: false,
@@ -462,7 +471,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="ThirdScreenRegisterPet"
       component={ThirdScreenRegisterPet}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         animationEnabled: false,
         headerBackTitleVisible: false,
@@ -473,7 +482,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="FinalScreenRegisterPet"
       component={FinalScreenRegisterPet}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         animationEnabled: false,
         headerBackTitleVisible: false,
@@ -484,7 +493,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="IdMyPet"
       component={IdMyPet}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Id. digital de mi mascota',
@@ -495,7 +504,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="IdInfoPet"
       component={IdInfoPet}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Id. digital de mi mascota',
@@ -505,7 +514,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="Appointments"
       component={Dates}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Tus próximas citas',
@@ -515,7 +524,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="SelectPetVaccines"
       component={SelectPetVaccines}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Cartillas',
@@ -525,7 +534,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="PetVaccinesRecord"
       component={PetVaccinesRecord}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Cartilla',
@@ -535,7 +544,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="PetAppointment"
       component={PetDate}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Tus próximas citas',
@@ -545,7 +554,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="ResumeAppointment"
       component={ResumeDate}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Resumen de cita',
@@ -555,7 +564,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="ChangeDate"
       component={ChangeDate}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Editar de cita',
@@ -565,7 +574,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="History"
       component={History}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Historial',
@@ -575,7 +584,7 @@ const ProfileStackScreen = ({navigation}) => (
     <ProfileStack.Screen
       name="RateService"
       component={RateService}
-      options={({route}) => ({
+      options={({ route }) => ({
         headerShown: true,
         headerBackTitleVisible: false,
         title: 'Historial',

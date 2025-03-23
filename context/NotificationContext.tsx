@@ -5,9 +5,11 @@ import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Context = createContext({
-    notifications: []
+    notifications: [],
+    markNotificationAsRead: (notificationId: string) => { }
 } as {
-    notifications: Notifications.Notification[]
+    notifications: (Notifications.Notification & { readed: boolean })[]
+    markNotificationAsRead: (notificationId: string) => void
 })
 
 Notifications.setNotificationHandler({
@@ -47,18 +49,24 @@ const registerForPushNotifications = async () => {
     }
 }
 
-export default function NotificationContext({ children }: { children: ReactNode }){
-    const [notifications, setNotifications] = useState<Notifications.Notification[]>([])
+export default function NotificationContext({ children }: { children: ReactNode }) {
+    const [notifications, setNotifications] = useState<(Notifications.Notification & { readed: boolean })[]>([])
     const notificationListener = useRef<Notifications.Subscription>();
 
-    useEffect(()=>{
-        const loadStoredNotifications = async()=>{
+    const markNotificationAsRead = async (notificationId: string) => {
+        const tempNotifications = notifications.map(n => n.request.identifier === notificationId ? { ...n, readed: true } : n)
+        setNotifications(tempNotifications)
+        await AsyncStorage.setItem("notifications", JSON.stringify(tempNotifications))
+    }
+
+    useEffect(() => {
+        const loadStoredNotifications = async () => {
             let notificationsString = await AsyncStorage.getItem("notifications")
-            let notificationsParsed= notificationsString?JSON.parse(notificationsString):[]
+            let notificationsParsed = notificationsString ? JSON.parse(notificationsString) : []
             setNotifications(notificationsParsed)
         }
         loadStoredNotifications()
-    },[])
+    }, [])
 
 
     useEffect(() => {
@@ -66,13 +74,13 @@ export default function NotificationContext({ children }: { children: ReactNode 
             .then(token => console.log("ExpoToken", token))
             .catch((error: any) => console.log("Error", error));
 
-        notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {                                   
+        notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {
             let notificationsString = await AsyncStorage.getItem("notifications")
-            let notificationsStored= notificationsString?JSON.parse(notificationsString):[]
+            let notificationsStored = notificationsString ? JSON.parse(notificationsString) : []
 
-            const notifications = [...notificationsStored,notification]
-            await AsyncStorage.setItem("notifications",JSON.stringify(notifications))
-            setNotifications(notifications)           
+            const notifications = [...notificationsStored, { ...notification, readed: false }]
+            await AsyncStorage.setItem("notifications", JSON.stringify(notifications))
+            setNotifications(notifications)
         });
 
         return () => {
@@ -81,13 +89,13 @@ export default function NotificationContext({ children }: { children: ReactNode 
     }, [])
 
     return (
-        <Context.Provider value={{ notifications: notifications }}>
+        <Context.Provider value={{ notifications: notifications, markNotificationAsRead: markNotificationAsRead }}>
             {children}
         </Context.Provider>
     )
 }
 
-export const useNotificationsContext = ()=>{
+export const useNotificationsContext = () => {
     const context = useContext(Context)
     return context
 }
