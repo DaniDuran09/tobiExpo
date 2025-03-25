@@ -13,6 +13,7 @@ const Section = ({ children, item, tabIndex }) => {
         width: "45%",
         padding: 2,
         borderRadius: 10,
+
       }}
     >
       <TouchableOpacity

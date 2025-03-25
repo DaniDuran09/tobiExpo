@@ -103,7 +103,7 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
           <Text color={remainingDays.color} text80BO>
             {remainingDays.text}
           </Text>
-          <View style={{ alignSelf: "flex-end" }}>
+          <View style={{ alignSelf: "flex-end" }} marginR-15>
             <Text>+ info</Text>
           </View>
         </Section>
@@ -111,7 +111,7 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
           <Text text60BL>DESPARASITACIÓN</Text>
           <Text text90M>Recomendación</Text>
           <Text text80BL>---</Text>
-          <View style={{ alignSelf: "flex-end" }}>
+          <View style={{ alignSelf: "flex-end" }} marginR-15>
             <Text>+ info</Text>
           </View>
         </Section>
@@ -147,7 +147,7 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
               )}
             </View>
           </View>
-          <View style={{ alignSelf: "flex-end" }}>
+          <View style={{ alignSelf: "flex-end" }} marginR-15>
             <Text>+ info</Text>
           </View>
         </Section>

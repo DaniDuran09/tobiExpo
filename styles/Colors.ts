@@ -15,5 +15,5 @@ export const Colors = {
     danger: "#EF4136"
 } as const
 
-export const gradientColors: Array<string> = ["#FF6A64", "#FE9D11"]
+export const gradientColors: Array<string> = ["#FFFFFF", "#FFFFFF"]
 export const gradientColorsModal: Array<string> = ["#000000", "#F5F5F5"]
