@@ -96,7 +96,7 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
       </View>
       <View row spread>
         <Section item={item} tabIndex={0}>
-          <Text text70BL>VACUNAS</Text>
+          <Text text60BL>VACUNAS</Text>
           <Text text90M>Próximos vencimientos</Text>
           <Text text80BL>{service}</Text>
           <Text text90MM>Faltan</Text>
@@ -108,7 +108,7 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
           </View>
         </Section>
         <Section item={item} tabIndex={1}>
-          <Text text70BL>BIENESTAR</Text>
+          <Text text60BL>DESPARASITACIÓN</Text>
           <Text text90M>Recomendación</Text>
           <Text text80BL>---</Text>
           <View style={{ alignSelf: "flex-end" }}>
@@ -118,8 +118,8 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
       </View>
       <View row spread marginT-10>
         <Section item={item} tabIndex={2}>
-          <Text text70BL>PESO</Text>
-          <View row>
+          <Text text60BL>PESO</Text>
+          <View row paddingV-5>
             <View>
               <Text text90M>Rango ideal</Text>
               <Text text70BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
@@ -133,13 +133,13 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
               </Text>
               {!realWeight?.ideal && (
                 <>
-                <View  row centerV>
+                <View  row centerV >
                   <Icon
                     name={realWeight?.down ? "triangle-down" : "triangle-up"}
                     color="red"
                     size={25}
                   />
-                  <Text text90B color="red">
+                  <Text text90L color="red">
                     {`+ ${deviationPercentage.toFixed(2)}%`}
                   </Text>
                   </View>
@@ -151,20 +151,6 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
             <Text>+ info</Text>
           </View>
         </Section>
-        <View style={[styles.elevation, { height: 165 }]}>
-          <Text text80BL color="gray">
-            NUTRICIÓN
-          </Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
-      </View>
-      <View marginT-10>
-        <View style={[styles.elevation, { height: 165 }]}>
-          <Text text80BL color="gray">
-            ACTIVIDAD
-          </Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
       </View>
     </View>
   );
