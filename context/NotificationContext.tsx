@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react"
 import * as Notifications from "expo-notifications"
 import Constants from "expo-constants"
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Context = createContext({
@@ -21,6 +21,17 @@ Notifications.setNotificationHandler({
 });
 
 const registerForPushNotifications = async () => {
+  
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+        });
+    }
+     
+
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
