@@ -66,7 +66,11 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
 
   const { service, remainingDays } = getServiceStatus(item);
 
-  const calculateDeviationPercentage = (weight: number, rangeFrom: number, rangeTo: number) => {
+  const calculateDeviationPercentage = (
+    weight: number,
+    rangeFrom: number,
+    rangeTo: number
+  ) => {
     if (weight < rangeFrom) {
       return ((rangeFrom - weight) / rangeFrom) * 100;
     } else if (weight > rangeTo) {
@@ -117,50 +121,57 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
         </Section>
       </View>
       <View row spread marginT-10>
-      <Section item={item} tabIndex={2}>
-  <Text text60BL>PESO</Text>
-  <View row paddingV-5>
-    <View marginR-20>
-      <Text text90M>De</Text>
-      <Text text70BO>{`${rangeOne} Kg`}</Text>
-    </View>
-    <View>
-      <Text text90M>A</Text>
-      <Text text70BO>{`${rangeTwo} Kg`}</Text>
-    </View>
-  </View>
-  <Text text90M>Real</Text>
-  <View row>
-    <View>
-      <Text color={realWeight?.ideal ? Colors.green : "red"} text70BO>
-        {`${item.weight} Kg`}
-      </Text>
-      {!realWeight?.ideal && (
-        <>
-          <View row centerV>
-            <Icon
-              name={realWeight?.down ? "triangle-down" : "triangle-up"}
-              color="red"
-              size={25}
-            />
-            <Text text90L color="red">
-              {`+ ${deviationPercentage.toFixed(2)}%`}
-            </Text>
+        <Section item={item} tabIndex={2}>
+          <Text text60BL>PESO</Text>
+          <View row paddingV-5>
+            <View marginR-20>
+              <Text text90M>De</Text>
+              <Text text70BO>{`${rangeOne} Kg`}</Text>
+            </View>
+            <View>
+              <Text text90M>A</Text>
+              <Text text70BO>{`${rangeTwo} Kg`}</Text>
+            </View>
           </View>
-        </>
-      )}
-    </View>
-  </View>
-  <View style={{ alignSelf: "flex-end" }} marginR-15>
-    <Text>+ info</Text>
-  </View>
-</Section>
-
+          <Text text90M>Real</Text>
+          <View row>
+            <View>
+              <Text color={realWeight?.ideal ? Colors.green : "red"} text70BO>
+                {`${item.weight} Kg`}
+              </Text>
+              {!realWeight?.ideal && (
+                <>
+                  <View row centerV>
+                    <Icon
+                      name={realWeight?.down ? "triangle-down" : "triangle-up"}
+                      color="red"
+                      size={25}
+                    />
+                    <Text text90L color="red">
+                      {`+ ${deviationPercentage.toFixed(2)}%`}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+          <View style={{ alignSelf: "flex-end" }} marginR-15>
+            <Text>+ info</Text>
+          </View>
+        </Section>
+        <Section item={item} tabIndex={3}>
+          <Text text60BL color={Colors.disabled}>NUTRICIÓN</Text>
+          <Text text60BO color={Colors.disabled}>Próximamente...</Text>
+        </Section>
+      </View>
+      <View row spread marginT-10>
+        <Section item={item} tabIndex={4}>
+          <Text text60BL color={Colors.disabled}>ACTIVIDAD</Text>
+          <Text text60BO color={Colors.disabled}>Próximamente...</Text>
+        </Section>
       </View>
     </View>
   );
 };
 
 export default RenderSections;
-
-
