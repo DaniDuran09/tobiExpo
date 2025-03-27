@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import React from "react";
 import momentTZ from "../../utils/moment";
 import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
-import Section from "../pet/Section";
+import Section from "../pet/Section/Section";
 import { Colors } from "../../styles/Colors";
 import { calculateIdealWeight } from "../../utils/scripts";
 import Icon from "react-native-vector-icons/Entypo";
@@ -96,8 +96,8 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
       </View>
       <View row spread>
         <Section item={item} tabIndex={0}>
-          <Text text60BL>VACUNAS</Text>
-          <Text text90M>Próximos vencimientos</Text>
+          <Text text60BL>SALUD</Text>
+          <Text text90M>Próxima visita</Text>
           <Text text80BL>{service}</Text>
           <Text text90MM>Faltan</Text>
           <Text color={remainingDays.color} text80BO>
@@ -108,49 +108,54 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
           </View>
         </Section>
         <Section item={item} tabIndex={1}>
-          <Text text60BL>DESPARASITACIÓN</Text>
+          <Text text60BL>BIENESTAR</Text>
           <Text text90M>Recomendación</Text>
-          <Text text80BL>---</Text>
+          <Text text90BL>---</Text>
           <View style={{ alignSelf: "flex-end" }} marginR-15>
             <Text>+ info</Text>
           </View>
         </Section>
       </View>
       <View row spread marginT-10>
-        <Section item={item} tabIndex={2}>
-          <Text text60BL>PESO</Text>
-          <View row paddingV-5>
-            <View>
-              <Text text90M>Rango ideal</Text>
-              <Text text70BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
-            </View>
+      <Section item={item} tabIndex={2}>
+  <Text text60BL>PESO</Text>
+  <View row paddingV-5>
+    <View marginR-20>
+      <Text text90M>De</Text>
+      <Text text70BO>{`${rangeOne} Kg`}</Text>
+    </View>
+    <View>
+      <Text text90M>A</Text>
+      <Text text70BO>{`${rangeTwo} Kg`}</Text>
+    </View>
+  </View>
+  <Text text90M>Real</Text>
+  <View row>
+    <View>
+      <Text color={realWeight?.ideal ? Colors.green : "red"} text70BO>
+        {`${item.weight} Kg`}
+      </Text>
+      {!realWeight?.ideal && (
+        <>
+          <View row centerV>
+            <Icon
+              name={realWeight?.down ? "triangle-down" : "triangle-up"}
+              color="red"
+              size={25}
+            />
+            <Text text90L color="red">
+              {`+ ${deviationPercentage.toFixed(2)}%`}
+            </Text>
           </View>
-          <Text text90M>Real</Text>
-          <View row>
-            <View>
-              <Text color={realWeight?.ideal ? Colors.green : "red"} text70BO>
-                {`${item.weight} Kg`}
-              </Text>
-              {!realWeight?.ideal && (
-                <>
-                <View  row centerV >
-                  <Icon
-                    name={realWeight?.down ? "triangle-down" : "triangle-up"}
-                    color="red"
-                    size={25}
-                  />
-                  <Text text90L color="red">
-                    {`+ ${deviationPercentage.toFixed(2)}%`}
-                  </Text>
-                  </View>
-                </>
-              )}
-            </View>
-          </View>
-          <View style={{ alignSelf: "flex-end" }} marginR-15>
-            <Text>+ info</Text>
-          </View>
-        </Section>
+        </>
+      )}
+    </View>
+  </View>
+  <View style={{ alignSelf: "flex-end" }} marginR-15>
+    <Text>+ info</Text>
+  </View>
+</Section>
+
       </View>
     </View>
   );
@@ -158,12 +163,4 @@ const RenderSections: React.FC<RenderSectionsProps> = ({ item }) => {
 
 export default RenderSections;
 
-const styles = StyleSheet.create({
-  elevation: {
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    width: "45%",
-    justifyContent: "space-around",
-    paddingHorizontal: 10,
-  },
-});
+
