@@ -1,0 +1,42 @@
+import Description from "./Description";
+import Layout from "./Layout";
+import Title from "./Title";
+import { useNavigation } from "@react-navigation/native";
+import { Colors } from "../../../styles/Colors";
+import { View, Text } from "react-native-ui-lib";
+import { TouchableWithoutFeedback } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
+
+export default function CustomizeSlide() {
+  return (
+    <Layout footer={<Footer />} >
+      <Title text="Di adiós a las llamadas pidiendo registros de vacunación." />
+      <Description text="Accede y comparte los registros de salud de tu mascota fácilmente, cuando lo necesites." />
+    </Layout>
+  );
+}
+
+const Footer = () => {
+  const navigation = useNavigation<any>();
+
+  const handleRegisterPress = async () => {
+    try {
+      await AsyncStorage.setItem("hasSeenOnboarding", "true"); 
+      navigation.replace("LoginScreen"); 
+    } catch (error) {
+      console.error("Error al guardar el estado del onboarding:", error);
+    }
+  };
+
+  return (
+    <View paddingV-50 paddingR-20 absB absR>
+      <TouchableWithoutFeedback onPress={handleRegisterPress}>
+        <View backgroundColor={Colors.black} paddingV-15 paddingH-25 br100>
+          <Text center text70BO color={Colors.white}>
+            Registro
+          </Text>
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  );
+};
