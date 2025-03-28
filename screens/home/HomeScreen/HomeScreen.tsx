@@ -2,28 +2,25 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BackHandler, FlatList, Platform, RefreshControl, SafeAreaView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
-import { Colors } from "../../styles/Colors";
-import ApiFetcher from "../../modules/ApiFetcher";
+import { Colors } from "../../../styles/Colors";
+import ApiFetcher from "../../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
-import NoPetsHome from "../../components/NoPetsHome";
-import { setUserInfo } from "../../redux/slice/userSlice";
-import { LoaderScreen, Text, View, TouchableOpacity } from "react-native-ui-lib";
+import { Text, View, TouchableOpacity } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
-import momentTZ from "../../utils/moment";
-import RenderSections from "../../components/renders/RenderSections";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"
-import { useNotificationsContext } from "../../context/NotificationContext";
-import { FadeIn, FadeOut, ZoomIn, ZoomOut } from "react-native-reanimated";
-import { NotificationIcon } from "../../components/notifications";
+import { useNotificationsContext } from "../../../context/NotificationContext";
+import momentTZ from "../../../utils/moment";
+import { setUserInfo } from "../../../redux/slice/userSlice";
+import { NotificationIcon } from "../../../components/notifications";
+import RenderSections from "../../../components/renders/RenderSections";
+import NoPetsHome from "../../../components/NoPetsHome";
 
-const HomeScreen = ({ navigation }) => {
-  const user = useSelector((state) => state.user.userInfo);
-
+const HomeScreen = ({ navigation }: any) => {
+  const user = useSelector((state: any) => state.user.userInfo);
   const dispatch = useDispatch();
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState({});
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [userData, setUserData] = useState<any>({});
 
   const apiFetcher = new ApiFetcher();
 
@@ -48,7 +45,7 @@ const HomeScreen = ({ navigation }) => {
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
       const petsWithAppointments = await Promise.all(
-        list.data.map(async (pet) => {
+        list.data.map(async (pet: any) => {
           const response = await fetchInfoAppointmentPet(pet.id);
           return {
             ...pet,
@@ -73,21 +70,21 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const fetchInfoAppointmentPet = async (id) => {
+  const fetchInfoAppointmentPet = async (id: string) => {
     const response = await apiFetcher.getAppointmentsByPet(id);
 
     if (response.data.length === 0) return {};
 
     const today = momentTZ().tz("America/Mexico_City").startOf("day");
 
-    const futureAppointments = response.data.filter((appointment) => {
+    const futureAppointments = response.data.filter((appointment: any) => {
       const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
       return appointmentDate.isSameOrAfter(today);
     });
 
     if (futureAppointments.length === 0) return {};
 
-    const closestAppointment = futureAppointments.reduce((closest, current) => {
+    const closestAppointment = futureAppointments.reduce((closest: any, current: any) => {
       const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
       const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
 
@@ -103,7 +100,7 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const backAction = () => {
       if (Platform.OS === 'android') {
-        console.log("ENTROOOO")
+        console.log("ENTROOOO");
         BackHandler.exitApp();
         return true;
       }
@@ -120,7 +117,6 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
-
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
       <View row gap-15 paddingH-15 marginT-40 centerV>
@@ -129,12 +125,10 @@ const HomeScreen = ({ navigation }) => {
             uri: userData.picture,
           }}
           size={60}
-          loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-          animationDuration={500}
         />
         <View>
-          <Text text50 color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
-          <Text text50 color={Colors.primaryColor}>
+          <Text text50BL color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
+          <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>
         </View>
@@ -145,7 +139,6 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View center marginT-30 marginB-90>
-
         {data.length > 0 ? (
           <FlatList
             keyExtractor={(item, index) => `item-${index}`}
@@ -167,7 +160,6 @@ const HomeScreen = ({ navigation }) => {
           <NoPetsHome />
         )}
       </View>
-
     </SafeAreaView>
   );
 };

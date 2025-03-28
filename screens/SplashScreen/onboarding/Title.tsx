@@ -1,14 +1,14 @@
 import { Platform } from "react-native";
 import { View, Text } from "react-native-ui-lib";
-import { Colors } from "../../styles/Colors";
+import { Colors } from "../../../styles/Colors";
 
-export default function Description({text}:{text: string}) {
+export default function Title({ text }: { text: string }) {
   return (
-    <View>
+    <View style={{minHeight:120}}>
       <Text
-        color={Colors.secondaryColor}
-        text50R
-        style={{                      
+        text40BO
+        color={Colors.white}
+        style={{      
           fontFamily: Platform.OS === "android" ? "Poppins" : undefined,
         }}
       >

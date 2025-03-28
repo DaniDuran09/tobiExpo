@@ -18,20 +18,35 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
   return (
     <>
-      <View
-        width={"100%"}
-        centerH
-        gap-50
-        marginT-50
-      >
-        <TextInput
-          placeholder="Email"
-          keyboardType="email-address"
+      <View width={"100%"} centerH gap-50 marginT-50>
+        <View
+          row
+          centerV
+          height={60}
+          width={"90%"}
+          br10
+          bg-white
           style={styles.textInput}
-          autoCapitalize="none"
-          onChangeText={(val) => setInput({ ...input, username: val })}
-        />
-        <View row centerV style={[styles.textInput]} spread>
+          paddingL-20
+          spread
+        >
+          <TextInput
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            onChangeText={(val) => setInput({ ...input, username: val })}
+          />
+        </View>
+        <View
+          row
+          centerV
+          height={60}
+          width={"90%"}
+          br10
+          bg-white
+          paddingL-20
+          spread
+        >
           <TextInput
             placeholder="Contraseña"
             secureTextEntry={visible}
@@ -51,18 +66,10 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
       <View row centerV spread paddingH-25 marginT-50>
         <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
-          <Text text80R center color={Colors.secondaryColor} underline>
+          <Text text80R center color={Colors.white} underline>
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
-        <Text
-          text80R
-          center
-          color={Colors.secondaryColor}
-          onPress={() => navigation.navigate("UserStepsRegister")}
-        >
-          Registrarse
-        </Text>
       </View>
 
       <View center marginT-30>
@@ -86,11 +93,6 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 
 const styles = StyleSheet.create({
   textInput: {
-    height: 60,
-    width: "90%",
-    borderRadius: 6,
-    paddingLeft: 20,
-    backgroundColor: Colors.white,
     shadowOpacity: 0.8,
     shadowRadius: 2,
     shadowOffset: {
