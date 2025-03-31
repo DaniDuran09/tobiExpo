@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  View,
-  TouchableOpacity,
   Dimensions,
   StyleSheet,
   Alert,
-  Image,
   RefreshControl,
-  TouchableWithoutFeedback,
   FlatList,
   Platform,
 } from "react-native";
@@ -23,9 +19,18 @@ import NoPets from "../components/NoPets";
 import { useFocusEffect } from "@react-navigation/native";
 import ImageOption from "../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
-import { AnimatedImage, LoaderScreen, Text } from "react-native-ui-lib";
+import {
+  AnimatedImage,
+  LoaderScreen,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import { setUserInfo } from "../redux/slice/userSlice";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Octicons from "react-native-vector-icons/Octicons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProfileScreen = ({ route, navigation }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -44,13 +49,13 @@ const ProfileScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     petList();
-    getUserInfo()
+    getUserInfo();
   }, []);
 
   useFocusEffect(
     useCallback(() => {
       petList();
-      getUserInfo()
+      getUserInfo();
       return () => {};
     }, [navigation])
   );
@@ -60,16 +65,15 @@ const ProfileScreen = ({ route, navigation }) => {
       const user = await apiFetcher.getProfile();
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
-      console.log("SÍ TRAJE LA INFORMACIÍON ")
+      console.log("SÍ TRAJE LA INFORMACIÍON ");
     } catch (error) {
       Toast.show({
         type: "error",
-        text2:`Error en el perfil`,
+        text2: `Error en el perfil`,
         text1: `No pudimos traer la información del perfil.`,
       });
     }
-   
-  }
+  };
 
   // useEffect(() => {
   //   (async () => {
@@ -83,30 +87,28 @@ const ProfileScreen = ({ route, navigation }) => {
   //     }
   //   })();
   // }, []);
-const getLibraryPermission = async () => {
-  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
-  console.log('STATUS LIBRARY',status)
-  if (status !== "granted") {
-    requestLibraryPermissions()
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else selectImageFromLibrary()
-}
-const requestLibraryPermissions = async () => {
-  const {status} = await ImagePicker.getMediaLibraryPermissionsAsync()
-  if (status !== "granted") {
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else getLibraryPermission()
-}
+  const getLibraryPermission = async () => {
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    console.log("STATUS LIBRARY", status);
+    if (status !== "granted") {
+      requestLibraryPermissions();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else selectImageFromLibrary();
+  };
+  const requestLibraryPermissions = async () => {
+    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else getLibraryPermission();
+  };
 
   const selectImageFromLibrary = async () => {
     try {
@@ -132,30 +134,28 @@ const requestLibraryPermissions = async () => {
   };
 
   const getCameraPermission = async () => {
-    const {status} = await ImagePicker.getCameraPermissionsAsync()
-    console.log('STATUS ',status)
-  if (status !== "granted") {
-    requestCameraPermissions()
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else takePhoto()
-  }
-  
-  const requestCameraPermissions = async () =>{
-    const {status} = await ImagePicker.requestCameraPermissionsAsync()
-  if (status !== "granted") {
-    Toast.show({
-      type: "error",
-      text2:`Permisos insuficientes.`,
-      text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-    });
-  } 
-    else getCameraPermission()
-  }
+    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    console.log("STATUS ", status);
+    if (status !== "granted") {
+      requestCameraPermissions();
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else takePhoto();
+  };
+
+  const requestCameraPermissions = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Toast.show({
+        type: "error",
+        text2: `Permisos insuficientes.`,
+        text1: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
+      });
+    } else getCameraPermission();
+  };
 
   const takePhoto = async () => {
     try {
@@ -225,58 +225,35 @@ const requestLibraryPermissions = async () => {
   };
   const renderItem = (item) => {
     return (
-      <TouchableWithoutFeedback
+      <TouchableOpacity
         onPress={() =>
           navigation.navigate("HomeProfileDetails", { item, tabIndex: 0 })
         }
+        bg-white
+        style={{
+          shadowColor: Colors.gray,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 2,
+        }}
       >
-        <View
-          style={{
-            height: 80,
-            width: "100%",
-            backgroundColor: "yellow",
-            flexDirection: "row",
-            backgroundColor: "white",
-            borderBottomWidth: 0.5,
-          }}
-        >
-          <View
-            style={{
-              height: "100%",
-              width: "20%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
+        <View row height={80} centerV paddingH-10 spread>
+          <View row gap-20>
             <AnimatedImage
               source={{ uri: item.picture }}
               style={{ width: 50, height: 50, borderRadius: 32 }}
               loader={<LoaderScreen color={Colors.primaryColor} size={15} />}
               animationDuration={500}
             />
-            {/* <Avatar.Image
-              source={{
-                uri: item.picture,
-              }}
-              size={50}
-              style={{ backgroundColor: "lightgrey" }}
-            /> */}
+
+            <View>
+              <Text text60M>{item.name}</Text>
+              <Text text80>{item.pet_breed.name}</Text>
+            </View>
           </View>
-          <View
-            style={{
-              height: "100%",
-              width: "50%",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 18, color: "black", fontWeight: "bold" }}>
-              {item.name}
-            </Text>
-            <Text style={{ fontSize: 16, color: "black", fontWeight: "400" }}>
-              {item.pet_breed.name}
-            </Text>
-          </View>
-          <TouchableWithoutFeedback
+          <Icon name="chevron-right" size={25} color={Colors.primaryColor} />
+
+          {/* <TouchableWithoutFeedback
             onPress={() =>
               navigation.navigate("EditPet", {
                 id: item.id,
@@ -313,86 +290,74 @@ const requestLibraryPermissions = async () => {
                 resizeMode={"contain"}
               />
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback> */}
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     );
   };
 
   return (
-    <View
-      style={{
-        backgroundColor: "#fff", //#E6F8DB
-        alignItems: "center",
-        flex: 1,
-      }}
-    >
-      {loading && (
-        <Loading
-          textColor={Colors.primaryColor}
-          backgroundColorProp={Colors.white}
-        />
-      )}
-      <View style={{ height: "20%", width: "100%", alignItems: "center" }}>
-        {userData.picture ? (
-          <AnimatedImage
-            source={{ uri: userData.picture }}
-            style={styles.image}
-            resizeMode={"cover"}
-            loader={<LoaderScreen color={Colors.primaryColor} size={15} />}
-            animationDuration={500}
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <View flex bg-white>
+        {loading && (
+          <Loading
+            textColor={Colors.primaryColor}
+            backgroundColorProp={Colors.white}
           />
-        ) : (
-          <>
-            <WithoutPhoto />
-            <>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: "black",
-                  fontWeight: "300",
-                  marginTop: 5,
-                }}
-              >
-                Agregar foto de perfil
-              </Text>
-            </>
-          </>
         )}
-      </View>
-      <View
-        style={{
-          height: "10%",
-          width: "100%",
-          paddingHorizontal: 15,
-          justifyContent: "space-between",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
         <View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Image
-              source={require("../assets/back-icon.png")}
-              style={{ height: 18, width: 18 }}
-              resizeMode={"contain"}
-            />
-            <Text text50BL marginL-10>{`${user?.name}`}</Text>
+          <View absR marginR-30>
+            <TouchableOpacity>
+              <Octicons name="gear" size={25} color={Colors.primaryColor} />
+            </TouchableOpacity>
           </View>
-          <Text text70 marginL-30>
-            Mis mascotas
-          </Text>
+          {userData.picture ? (
+            <View width={"100%"} center>
+              <AnimatedImage
+                source={{ uri: userData.picture }}
+                style={styles.image}
+                resizeMode={"cover"}
+                loader={<LoaderScreen color={Colors.primaryColor} size={15} />}
+                animationDuration={500}
+              />
+            </View>
+          ) : (
+            <>
+              <WithoutPhoto />
+              <>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: "black",
+                    fontWeight: "300",
+                    marginTop: 5,
+                  }}
+                >
+                  Agregar foto de perfil
+                </Text>
+              </>
+            </>
+          )}
         </View>
-      </View>
-      <View style={{ height: "38%", width: "100%" }}>
-        <View style={{ width: "100%", height: "100%" }}>
+        <View paddingH-10>
+          <View gap-10>
+            <Text text50BL>{`${user?.name}`}</Text>
+            <Text text70>Mis mascotas</Text>
+          </View>
+        </View>
+
+        <View height={"50%"}>
           {data.length > 0 ? (
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={data}
               ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               refreshControl={
-                <RefreshControl refreshing={loading} onRefresh={petList} />
+                <RefreshControl
+                  refreshing={loading}
+                  onRefresh={petList}
+                  tintColor={Colors.primaryColor}
+                />
               }
               renderItem={({ item }) => renderItem(item)}
             />
@@ -402,20 +367,22 @@ const requestLibraryPermissions = async () => {
             </View>
           )}
         </View>
+
+        <BottomMenu />
+
+        <DeleteModal
+          visible={showDeleteModal}
+          closeModal={closeDeleteModal}
+          deletePet={() => deletePet(idItemSelected)}
+        />
+        <ImageOption
+          visible={modalVisible}
+          closeModal={closeModal}
+          selectImageFromLibrary={getLibraryPermission}
+          takePhoto={getCameraPermission}
+        />
       </View>
-      <BottomMenu disabledOption={data.length <= 0}/>
-      <DeleteModal
-        visible={showDeleteModal}
-        closeModal={closeDeleteModal}
-        deletePet={() => deletePet(idItemSelected)}
-      />
-      <ImageOption
-        visible={modalVisible}
-        closeModal={closeModal}
-        selectImageFromLibrary={getLibraryPermission}
-        takePhoto={getCameraPermission}
-      />
-    </View>
+    </SafeAreaView>
   );
 };
 

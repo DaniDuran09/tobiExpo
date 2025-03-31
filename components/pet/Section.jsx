@@ -6,15 +6,7 @@ import LinearGradient from "react-native-linear-gradient";
 const Section = ({ children, item, tabIndex }) => {
   const navigation = useNavigation();
   return (
-    <LinearGradient
-      colors={gradientColors}
-      style={{
-        height: 165,
-        width: "45%",
-        padding: 2,
-        borderRadius: 10,
-      }}
-    >
+    <View width={"45%"} height={165}>
       <TouchableOpacity
         onPress={() =>
           navigation.navigate("HomeProfileDetails", {
@@ -33,7 +25,7 @@ const Section = ({ children, item, tabIndex }) => {
           {children}
         </View>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 };
 

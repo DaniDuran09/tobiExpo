@@ -5,9 +5,6 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { Colors } from "../../styles/Colors";
 import AnimatedLottieView from "lottie-react-native";
 import { useNavigation } from "@react-navigation/native";
-import ApiFetcher from "../../modules/ApiFetcher";
-import AppStorage from "../../modules/AppStorage";
-import Toast from "react-native-toast-message";
 import Loading from "../Loading";
 
 const SendMail = (props) => {
