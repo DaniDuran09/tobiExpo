@@ -5,12 +5,14 @@ import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
-import NoPetsHome from "../../../components/NoPetsHome";
-import { setUserInfo } from "../../../redux/slice/userSlice";
-import { Text, View } from "react-native-ui-lib";
+import { Text, View, TouchableOpacity } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
+import { useNotificationsContext } from "../../../context/NotificationContext";
 import momentTZ from "../../../utils/moment";
+import { setUserInfo } from "../../../redux/slice/userSlice";
+import { NotificationIcon } from "../../../components/notifications";
 import RenderSections from "../../../components/renders/RenderSections";
+import NoPetsHome from "../../../components/NoPetsHome";
 
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -22,6 +24,8 @@ const HomeScreen = ({ navigation }: any) => {
 
   const apiFetcher = new ApiFetcher();
 
+  const { notifications, markNotificationAsRead } = useNotificationsContext()
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -29,7 +33,7 @@ const HomeScreen = ({ navigation }: any) => {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-      return () => {};
+      return () => { };
     }, [navigation])
   );
 
@@ -47,7 +51,7 @@ const HomeScreen = ({ navigation }: any) => {
             ...pet,
             service_date: response?.appointment_pet_services
               ? response?.appointment_pet_services[0]?.appointment_time
-                  ?.start_time
+                ?.start_time
               : null,
             status: response.appointment_status,
           };
@@ -99,7 +103,7 @@ const HomeScreen = ({ navigation }: any) => {
         BackHandler.exitApp();
         return true;
       }
-      return false; 
+      return false;
     };
 
     if (Platform.OS === 'android') {
@@ -114,7 +118,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
-      <View row gap-15 paddingH-15 marginT-40>
+      <View row gap-15 paddingH-15 marginT-40 centerV>
         <Avatar.Image
           source={{
             uri: userData.picture,
@@ -127,6 +131,11 @@ const HomeScreen = ({ navigation }: any) => {
             Buenos días
           </Text>
         </View>
+        <TouchableOpacity style={{ marginLeft: "auto" }} onPress={() => {
+          navigation.navigate("Notifications")
+        }}>
+          <NotificationIcon badget={notifications.some(n => !n.readed)} />
+        </TouchableOpacity>
       </View>
       <View center marginT-30 marginB-90>
         {data.length > 0 ? (

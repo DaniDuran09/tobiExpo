@@ -9,6 +9,7 @@ import Toast from "react-native-toast-message";
 import { toastConfig } from "./utils/toastConfig";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import NotificationContext from "./context/NotificationContext";
 
 export default function App(): React.JSX.Element {
   const [publishableKey, setPublishableKey] = useState("");
@@ -38,7 +39,9 @@ export default function App(): React.JSX.Element {
       />
       <Provider store={store}>
         <NavigationContainer>
-          <RootStackScreen />
+          <NotificationContext>
+            <RootStackScreen />
+          </NotificationContext>          
           <Toast position="top" config={toastConfig} visibilityTime={4000} />
         </NavigationContainer>
       </Provider>

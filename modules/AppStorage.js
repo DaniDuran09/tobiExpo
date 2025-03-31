@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const STORAGE_KEYS = {
   USER: "USER",
   APP_TOKEN: "APP_TOKEN",
+  NOTIFICATIONS:"NOTIFICATIONS"
 };
 
 class AppStorage {
@@ -56,6 +57,14 @@ class AppStorage {
 
   clearStorage(){
     return AsyncStorage.clear();
+  }
+
+  saveNotifications(notifications){
+    return this._saveJSONItem(STORAGE_KEYS.USER, user);
+  }
+
+  getNotifications(){
+    return this._getJSONItem(STORAGE_KEYS.APP_TOKEN);
   }
 }
 
