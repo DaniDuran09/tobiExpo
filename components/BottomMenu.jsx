@@ -1,10 +1,12 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Text } from "react-native-ui-lib";
+import { Colors, Text, View } from "react-native-ui-lib";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Feather from "react-native-vector-icons/Feather";
 
-const BottomMenu = ({ disabledOption = false }) => {
+const BottomMenu = () => {
   const navigation = useNavigation();
   const addNewPet = () => {
     navigation.navigate("RegisterNewPet");
@@ -15,16 +17,53 @@ const BottomMenu = ({ disabledOption = false }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View paddingH-10 paddingV-10 absB>
       <TouchableOpacity onPress={addNewPet}>
         <Text marginT-5>+ Mascotas</Text>
       </TouchableOpacity>
-      <View style={styles.header}>
+      <View marginB-10>
         <Text text70BO black marginT-5>
           MI ACTIVIDAD
         </Text>
       </View>
-      <TouchableOpacity
+      <TouchableOpacity>
+        <View
+          row
+          spread
+          centerV
+          paddingV-15
+          width={"100%"}
+          style={{ borderBottomWidth: 0.2 }}
+        >
+          <View row gap-10 centerV marginL-10>
+            <Icon name="bell-outline" size={25} color={Colors.red} />
+            <Text text70>Notificaciones</Text>
+          </View>
+          <View row gap-10 centerV>
+            <Text>0</Text>
+            <Icon name="chevron-right" size={25} color={Colors.red} />
+          </View>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <View
+          row
+          spread
+          centerV
+          paddingV-15
+          width={"100%"}
+          style={{ borderBottomWidth: 0.2 }}
+        >
+          <View row gap-10 centerV marginL-10>
+            <Feather name="user" size={25} color={Colors.red} />
+            <Text text70>Mi cuenta</Text>
+          </View>
+          <View row gap-10 centerV>
+            <Icon name="chevron-right" size={25} color={Colors.red} />
+          </View>
+        </View>
+      </TouchableOpacity>
+      {/* <TouchableOpacity
         disabled={disabledOption}
         onPress={() => screenNavigate("IdMyPet")}
         style={[styles.section, disabledOption && {opacity: 0.5}]}
@@ -47,7 +86,7 @@ const BottomMenu = ({ disabledOption = false }) => {
           }}
         >
           <Text text70BO black>
-            Id. digital de mi mascota
+            Notificaciones
           </Text>
         </View>
         <View
@@ -217,43 +256,9 @@ const BottomMenu = ({ disabledOption = false }) => {
             resizeMode={"contain"}
           />
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
 
 export default BottomMenu;
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    height: "33%",
-    width: "100%",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    paddingHorizontal: 10,
-  },
-  header: {
-    flexDirection: "row",
-    width: "100%",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 16,
-    color: "black",
-    fontWeight: "700",
-    paddingTop: 15,
-  },
-  section: {
-    height: "18%",
-    width: "100%",
-    flexDirection: "row",
-  },
-  sectionContainer: {
-    height: "100%",
-    width: "10%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  image: { height: 20, width: 20 },
-});

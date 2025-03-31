@@ -100,7 +100,6 @@ const HomeScreen = ({ navigation }: any) => {
   useEffect(() => {
     const backAction = () => {
       if (Platform.OS === 'android') {
-        console.log("ENTROOOO");
         BackHandler.exitApp();
         return true;
       }
@@ -141,6 +140,7 @@ const HomeScreen = ({ navigation }: any) => {
       <View center marginT-30 marginB-90>
         {data.length > 0 ? (
           <FlatList
+          showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => `item-${index}`}
             data={data}
             refreshControl={

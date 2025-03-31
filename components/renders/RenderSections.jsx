@@ -26,7 +26,7 @@ const RenderSections = ({ item }) => {
 
   const getServiceStatus = (item) => {
     // if (!(item.status === "actived" && item?.service_date))
-    if (!(item?.service_date))
+    if (!item?.service_date)
       return { service: "---", remainingDays: { text: "---", color: "green" } };
     const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
       .tz("America/Mexico_City")
@@ -71,13 +71,13 @@ const RenderSections = ({ item }) => {
           tabIndex={0}
           children={
             <>
-              <Text text70BL>SALUD</Text>
-              <Text text90M>Próxima visita</Text>
-              <Text text80BL>{service}</Text>
+              <Text text70BL>Vacunas</Text>
+              <Text text90M>Próximos vencimientos</Text>
+              {/* <Text text80BL>{service}</Text> */}
               <Text text90MM>Faltan</Text>
-              <Text color={remainingDays.color} text80BO>
+              {/* <Text color={remainingDays.color} text80BO>
                 {remainingDays.text}
-              </Text>
+              </Text> */}
               <View alignSelf="flex-end">
                 <Text>+ info</Text>
               </View>
@@ -90,9 +90,9 @@ const RenderSections = ({ item }) => {
           tabIndex={1}
           children={
             <>
-              <Text text70BL>BIENESTAR</Text>
-              <Text text90M>Recomendación</Text>
-              <Text text80BL>---</Text>
+              <Text text70BL>Desparacitación</Text>
+              <Text text90M>Próximos vencimientos</Text>
+              <Text text90MM>Faltan</Text>
               <View alignSelf="flex-end">
                 <Text>+ info</Text>
               </View>
@@ -108,7 +108,7 @@ const RenderSections = ({ item }) => {
             <>
               <Text text70BL>PESO</Text>
 
-              <View row  >
+              {/* <View row>
                 <View centerH>
                   <Text text90M>De</Text>
                   <Text text80BO>{`${rangeOne} Kg`}</Text>
@@ -118,9 +118,14 @@ const RenderSections = ({ item }) => {
                   <Text text90M>A</Text>
                   <Text text80BO>{`${rangeTwo} Kg`}</Text>
                 </View>
+              </View> */}
+              <View marginV-5>
+                <Text text90M>Rango ideal</Text>
+                <Text text80BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
               </View>
 
               <Text text90M>Real</Text>
+
               <View row spread centerV>
                 <Text
                   color={"red"}
@@ -129,12 +134,12 @@ const RenderSections = ({ item }) => {
                 >{`${item.weight} Kg`}</Text>
               </View>
               {!realWeight?.ideal && (
-                  <Icon
-                    name={realWeight?.down ? "triangle-down" : "triangle-up"}
-                    color="red"
-                    size={25}
-                  />
-                )}
+                <Icon
+                  name={realWeight?.down ? "triangle-down" : "triangle-up"}
+                  color="red"
+                  size={25}
+                />
+              )}
 
               <View alignSelf="flex-end">
                 <Text>+ info</Text>
@@ -142,22 +147,6 @@ const RenderSections = ({ item }) => {
             </>
           }
         />
-
-
-        <View style={[styles.elevation, { height: 165 }]}>
-          <Text text80BL color="gray">
-            NUTRICIÓN
-          </Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
-      </View>
-      <View marginT-10>
-        <View style={[styles.elevation, { height: 165 }]}>
-          <Text text80BL color="gray">
-            ACTIVIDAD
-          </Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
       </View>
     </View>
   );
