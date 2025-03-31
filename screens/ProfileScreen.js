@@ -307,7 +307,7 @@ const ProfileScreen = ({ route, navigation }) => {
         )}
         <View>
           <View absR marginR-30>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUser")}>
               <Octicons name="gear" size={25} color={Colors.primaryColor} />
             </TouchableOpacity>
           </View>

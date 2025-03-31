@@ -70,6 +70,11 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("UserStepsRegister")}>
+          <Text text80R center color={Colors.white} underline>
+          Registrarse
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View center marginT-30>

@@ -328,20 +328,20 @@ const ProfileStackScreen = ({ navigation }) => (
       name="Profile"
       component={ProfileScreen}
       options={{
-        headerShown: true,
-        headerLeft: null,
-        title: '',
-        headerRight: ({ route }) => (
-          <TouchableOpacity
-            // onPress={() => navigation.navigate("ProfileEditUser", {refreshData: route.params})}
-            onPress={() => navigation.navigate('ProfileEditUser')}>
-            <Image
-              source={require('../assets/menu-icon.png')}
-              style={{ height: 30, width: 30, marginRight: 10 }}
-              resizeMode={'contain'}
-            />
-          </TouchableOpacity>
-        ),
+        headerShown: false,
+        // headerLeft: null,
+        // title: '',
+        // headerRight: ({ route }) => (
+        //   <TouchableOpacity
+        //     // onPress={() => navigation.navigate("ProfileEditUser", {refreshData: route.params})}
+        //     onPress={() => navigation.navigate('ProfileEditUser')}>
+        //     <Image
+        //       source={require('../assets/menu-icon.png')}
+        //       style={{ height: 30, width: 30, marginRight: 10 }}
+        //       resizeMode={'contain'}
+        //     />
+        //   </TouchableOpacity>
+        // ),
       }}
     />
     <ProfileStack.Screen
