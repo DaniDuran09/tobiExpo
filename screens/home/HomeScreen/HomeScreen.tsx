@@ -5,12 +5,10 @@ import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
-import { Text, View, TouchableOpacity } from "react-native-ui-lib";
+import { Text, View } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
-import { useNotificationsContext } from "../../../context/NotificationContext";
 import momentTZ from "../../../utils/moment";
 import { setUserInfo } from "../../../redux/slice/userSlice";
-import { NotificationIcon } from "../../../components/notifications";
 import RenderSections from "../../../components/renders/RenderSections";
 import NoPetsHome from "../../../components/NoPetsHome";
 
@@ -23,8 +21,6 @@ const HomeScreen = ({ navigation }: any) => {
   const [userData, setUserData] = useState<any>({});
 
   const apiFetcher = new ApiFetcher();
-
-  const { notifications, markNotificationAsRead } = useNotificationsContext()
 
   useEffect(() => {
     fetchData();
@@ -130,12 +126,7 @@ const HomeScreen = ({ navigation }: any) => {
           <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>
-        </View>
-        <TouchableOpacity style={{ marginLeft: "auto" }} onPress={() => {
-          navigation.navigate("Notifications")
-        }}>
-          <NotificationIcon badget={notifications.some(n => !n.readed)} />
-        </TouchableOpacity>
+        </View>      
       </View>
       <View center marginT-30 marginB-90>
         {data.length > 0 ? (

@@ -231,14 +231,7 @@ const HomeStackScreen = ({ navigation }) => (
         title: 'Seleccionar al especialista',
         headerTintColor: 'black',
       }}
-    />
-    <HomeStack.Screen
-      name="Notifications"
-      component={NotificationsScreen}
-      options={{
-        headerShown: false,
-      }}
-    />
+    />    
   </HomeStack.Navigator>
 );
 
