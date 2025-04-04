@@ -17,7 +17,7 @@ const BottomMenu = () => {
   };
 
   return (
-    <View paddingH-10 paddingV-10 absB>
+    <View paddingH-10 absB>
       <TouchableOpacity onPress={addNewPet}>
         <Text marginT-5>+ Mascotas</Text>
       </TouchableOpacity>
@@ -26,7 +26,7 @@ const BottomMenu = () => {
           MI ACTIVIDAD
         </Text>
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate("NotificationsTab")}>
         <View
           row
           spread
@@ -45,7 +45,7 @@ const BottomMenu = () => {
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUser")}>
         <View
           row
           spread

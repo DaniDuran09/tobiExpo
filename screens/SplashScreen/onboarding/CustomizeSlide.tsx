@@ -29,7 +29,7 @@ const Footer = () => {
   };
 
   return (
-    <View paddingV-50 paddingR-20 absB absR>
+    <View paddingV-50 paddingR-20>
       <TouchableWithoutFeedback onPress={handleRegisterPress}>
         <View backgroundColor={Colors.black} paddingV-15 paddingH-25 br100>
           <Text center text70BO color={Colors.white}>

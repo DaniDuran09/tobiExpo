@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "732074280794",
+    "project_id": "tobi-97c0b",
+    "storage_bucket": "tobi-97c0b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732074280794:android:950d98b5139ef7c184d563",
+        "android_client_info": {
+          "package_name": "com.tobi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFtVHY0GPp_D4iQeVLgj3ovmYyxFGDCLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

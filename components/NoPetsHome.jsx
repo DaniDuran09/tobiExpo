@@ -4,50 +4,102 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Colors, gradientColors } from "../styles/Colors";
 import NoPets from "./NoPets";
 import { Text, View } from "react-native-ui-lib";
+import Section from "./pet/Section";
 
 const NoPetsHome = () => {
   return (
-    <View flex centerH>
+    <View flex center>
       <NoPets />
       <Text style={styles.secondaryText}>
         Agregue y actualice los detalles de su mascota
       </Text>
-      <View style={styles.blockContainer}>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>SALUD</Text>
-          <Text style={styles.blockText}>Próxima visita</Text>
-          <Text style={styles.blockText}>---</Text>
-          <Text style={styles.blockText}>Faltan</Text>
-          <Text style={styles.blockText}>---</Text>
-          <Text style={{ fontSize: 14, color: "black", fontWeight: "300" }}>
-            + info
-          </Text>
-        </View>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>BIENESTAR</Text>
-          <Text style={styles.blockText}>Recomendación</Text>
-          <Text style={styles.blockText}>---</Text>
-        </View>
+      <View
+        row
+        width={"100%"}
+        spread
+        paddingH-15
+        style={{
+          shadowColor: "#000000",
+          shadowOpacity: 0.8,
+          shadowRadius: 2,
+          shadowOffset: {
+            height: 1,
+            width: 1,
+          },
+        }}
+      >
+        <Section
+          disabled={true}
+          tabIndex={0}
+          children={
+            <>
+              <Text text70BL>Vacunas</Text>
+              <Text text90M>Próximos vencimientos</Text>
+              {/* <Text text80BL>{service}</Text> */}
+              <Text text90MM>Faltan</Text>
+              {/* <Text color={remainingDays.color} text80BO>
+                {remainingDays.text}
+              </Text> */}
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
+              </View>
+            </>
+          }
+        />
+
+        <Section
+          disabled={true}
+          tabIndex={1}
+          children={
+            <>
+              <Text text70BL>Desparacitación</Text>
+              <Text text90M>Próximos vencimientos</Text>
+              <Text text90MM>Faltan</Text>
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
+              </View>
+            </>
+          }
+        />
       </View>
-      <View style={styles.blockContainer}>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>PESO</Text>
-          <Text style={styles.blockText}>De a</Text>
-          <Text style={styles.blockText}>---</Text>
-          <Text style={styles.blockText}>Real</Text>
-          <Text style={styles.blockText}>---</Text>
-        </View>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>NUTRICIÓN</Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
-      </View>
-      <View style={styles.blockContainer}>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>ACTIVIDAD</Text>
-          <Text>PRÓXIMAMENTE...</Text>
-        </View>
-        <View style={{ height: "100%", width: "45%" }}></View>
+      <View
+        row
+        spread
+        marginT-10
+        paddingH-5
+        style={{
+          shadowColor: "#000000",
+          shadowOpacity: 0.8,
+          shadowRadius: 2,
+          shadowOffset: {
+            height: 1,
+            width: 1,
+          },
+        }}
+      >
+        <Section
+          disabled={true}
+          children={
+            <>
+              <Text text70BL>PESO</Text>
+              <View marginV-5>
+                <Text text90M>Rango ideal</Text>
+                <Text text80BO>{`--- Kg - --- Kg`}</Text>
+              </View>
+              <Text text90M>Real</Text>
+              <View row spread centerV>
+                <Text color={"red"} text80BO>
+                  {" "}
+                  --- Kg
+                </Text>
+              </View>
+              <View alignSelf="flex-end">
+                <Text>+ info</Text>
+              </View>
+            </>
+          }
+        />
+        <View width={"50%"} />
       </View>
     </View>
   );
@@ -77,8 +129,10 @@ const styles = StyleSheet.create({
   blockContainer: {
     marginTop: "5%",
     flexDirection: "row",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
     gap: 20,
-    width: "90%",
+    width: "100%",
     height: 200,
     opacity: 0.5,
   },

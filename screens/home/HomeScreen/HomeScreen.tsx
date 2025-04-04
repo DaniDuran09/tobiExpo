@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { BackHandler, FlatList, Platform, RefreshControl, SafeAreaView } from "react-native";
+import {
+  BackHandler,
+  FlatList,
+  Platform,
+  RefreshControl,
+  SafeAreaView,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
@@ -24,7 +30,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   const apiFetcher = new ApiFetcher();
 
-  const { notifications, markNotificationAsRead } = useNotificationsContext()
+  const { notifications, markNotificationAsRead } = useNotificationsContext();
 
   useEffect(() => {
     fetchData();
@@ -33,7 +39,7 @@ const HomeScreen = ({ navigation }: any) => {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-      return () => { };
+      return () => {};
     }, [navigation])
   );
 
@@ -51,7 +57,7 @@ const HomeScreen = ({ navigation }: any) => {
             ...pet,
             service_date: response?.appointment_pet_services
               ? response?.appointment_pet_services[0]?.appointment_time
-                ?.start_time
+                  ?.start_time
               : null,
             status: response.appointment_status,
           };
@@ -78,40 +84,48 @@ const HomeScreen = ({ navigation }: any) => {
     const today = momentTZ().tz("America/Mexico_City").startOf("day");
 
     const futureAppointments = response.data.filter((appointment: any) => {
-      const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
+      const appointmentDate = momentTZ(appointment.date_service)
+        .tz("America/Mexico_City")
+        .startOf("day");
       return appointmentDate.isSameOrAfter(today);
     });
 
     if (futureAppointments.length === 0) return {};
 
-    const closestAppointment = futureAppointments.reduce((closest: any, current: any) => {
-      const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
-      const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
+    const closestAppointment = futureAppointments.reduce(
+      (closest: any, current: any) => {
+        const currentDate = momentTZ(current.date_service).tz(
+          "America/Mexico_City"
+        );
+        const closestDate = momentTZ(closest.date_service).tz(
+          "America/Mexico_City"
+        );
 
-      const currentDiff = Math.abs(currentDate.diff(today, "days"));
-      const closestDiff = Math.abs(closestDate.diff(today, "days"));
+        const currentDiff = Math.abs(currentDate.diff(today, "days"));
+        const closestDiff = Math.abs(closestDate.diff(today, "days"));
 
-      return currentDiff < closestDiff ? current : closest;
-    });
+        return currentDiff < closestDiff ? current : closest;
+      }
+    );
 
     return closestAppointment;
   };
 
   useEffect(() => {
     const backAction = () => {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === "android") {
         BackHandler.exitApp();
         return true;
       }
       return false;
     };
 
-    if (Platform.OS === 'android') {
-      BackHandler.addEventListener('hardwareBackPress', backAction);
+    if (Platform.OS === "android") {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
     }
     return () => {
-      if (Platform.OS === 'android') {
-        BackHandler.removeEventListener('hardwareBackPress', backAction);
+      if (Platform.OS === "android") {
+        BackHandler.removeEventListener("hardwareBackPress", backAction);
       }
     };
   }, []);
@@ -126,39 +140,49 @@ const HomeScreen = ({ navigation }: any) => {
           size={60}
         />
         <View>
-          <Text text50BL color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
+          <Text
+            text50BL
+            color={Colors.primaryColor}
+          >{`Hola ${user.name}`}</Text>
           <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>
         </View>
-        <TouchableOpacity style={{ marginLeft: "auto" }} onPress={() => {
-          navigation.navigate("Notifications")
-        }}>
-          <NotificationIcon badget={notifications.some(n => !n.readed)} />
+        <TouchableOpacity
+          style={{ marginLeft: "auto" }}
+          onPress={() => {
+            navigation.navigate("NotificationsTab");
+          }}
+        >
+          <NotificationIcon badget={notifications.some((n) => !n.readed)} />
         </TouchableOpacity>
       </View>
-      <View center marginT-30 marginB-90>
-        {data.length > 0 ? (
-          <FlatList
+      <View centerH marginT-30>
+        <FlatList
           showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => `item-${index}`}
-            data={data}
-            refreshControl={
-              <RefreshControl
-                refreshing={loading}
-                onRefresh={() => fetchData()}
-                tintColor={Colors.primaryColor}
-                title="Loading..."
-                titleColor="black"
-                colors={["black", "black", "black"]}
-                progressBackgroundColor="white"
-              />
-            }
-            renderItem={({ item }) => <RenderSections item={item} />}
-          />
-        ) : (
-          <NoPetsHome />
-        )}
+          keyExtractor={(item, index) => `item-${index}`}
+          data={data}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => fetchData()}
+              tintColor={Colors.primaryColor}
+              title="Loading..."
+              titleColor="black"
+              colors={["black", "black", "black"]}
+              progressBackgroundColor="white"
+            />
+          }
+          renderItem={({ item }) => <RenderSections item={item} />}
+          ListFooterComponent={() => (
+            <View margin-15 marginB-90>
+              <TouchableOpacity onPress={() => navigation.navigate("RegisterNewPet")}>
+                <Text>+ Mascotas</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          ListEmptyComponent={() => <NoPetsHome />}
+        />
       </View>
     </SafeAreaView>
   );

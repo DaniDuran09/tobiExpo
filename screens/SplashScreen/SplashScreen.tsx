@@ -86,7 +86,7 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
           }}
           containerStyle={{
             position: "absolute",
-            bottom: height * 0.05,
+            bottom: 0,
             left: 20,
             alignItems: "flex-start",
             gap: 10,
