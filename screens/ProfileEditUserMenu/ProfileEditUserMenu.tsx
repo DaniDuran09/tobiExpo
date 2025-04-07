@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
-  Image,
   KeyboardAvoidingView,
   TouchableOpacity,
   SafeAreaView,
   Platform,
 } from "react-native";
-import { Text, View } from "react-native-ui-lib";
+import { Text, View, Image } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import AppStorage from "../../modules/AppStorage";
@@ -19,10 +18,11 @@ import WithoutPhoto from "../../components/WithoutPhoto";
 import { clearPetInfo } from "../../redux/slice/petSlice";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
+import { StackNavigationProp } from "@react-navigation/stack";
 
 const ProfileEditUserMenu: React.FC = () => {
-  const navigation = useNavigation();
+  type NavigationProps = StackNavigationProp<RootStackParamList>;
+  const navigation = useNavigation<NavigationProps>();
   const [userData, setUserData] = useState<UserData>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [imageSource, setImageSource] = useState<{ uri: string } | null>(null);
@@ -58,7 +58,7 @@ const ProfileEditUserMenu: React.FC = () => {
       dispatch(clearPetInfo());
       navigation.reset({
         index: 0,
-        routes: [{ name: "LoginScreen" }],
+        routes: [{ name: "LoginScreen", params: {} }],
       });
     } catch (error) {
       console.log(error);
@@ -106,7 +106,14 @@ const ProfileEditUserMenu: React.FC = () => {
                         ? { uri: imageSource.uri }
                         : { uri: userData.picture }
                     }
-                    style={styles.image}
+                    style={{
+                      height: 120,
+                      width: 120,
+                      zIndex: 0,
+                      borderRadius: 60,
+                      overflow: "hidden",
+                      marginTop: 15,
+                    }}
                     resizeMode={"cover"}
                   />
                 ) : (
@@ -117,7 +124,7 @@ const ProfileEditUserMenu: React.FC = () => {
 
             <View paddingT-20 style={{ width: "100%", marginLeft: "5%" }}>
               <TouchableOpacity
-                onPress={() => navigation.navigate("ProfileEditUser")}
+                onPress={() => navigation.navigate("ProfileEditUser", {})}
               >
                 <View
                   row
@@ -143,7 +150,7 @@ const ProfileEditUserMenu: React.FC = () => {
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate("ChangePassword")}
+                onPress={() => navigation.navigate("ChangePassword", {})}
               >
                 <View
                   row
@@ -182,9 +189,7 @@ const ProfileEditUserMenu: React.FC = () => {
             }}
             onPress={logout}
           >
-            <Text color={Colors.primaryColor}>
-              Cerrar sesión
-            </Text>
+            <Text color={Colors.primaryColor}>Cerrar sesión</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -193,14 +198,3 @@ const ProfileEditUserMenu: React.FC = () => {
 };
 
 export default ProfileEditUserMenu;
-
-const styles = StyleSheet.create({
-  image: {
-    height: 120,
-    width: 120,
-    zIndex: 0,
-    borderRadius: 60,
-    overflow: "hidden",
-    marginTop: 15,
-  },
-});
