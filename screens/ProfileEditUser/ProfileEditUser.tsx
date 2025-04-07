@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
   TextInput,
-  StyleSheet,
-  Image,
-  Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
   Platform,
 } from "react-native";
-
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
-
 import AppStorage from "../../modules/AppStorage";
 import { Colors } from "../../styles/Colors";
 import { clearUser, setUserInfo } from "../../redux/slice/userSlice";
@@ -23,37 +17,23 @@ import Loading from "../../components/Loading";
 import WithoutPhoto from "../../components/WithoutPhoto";
 import ImageOption from "../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
-import { clearPetInfo } from "../../redux/slice/petSlice";
-import { View, Text } from "react-native-ui-lib";
+import { View, Text, Image } from "react-native-ui-lib";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-type RootStackParamList = {
-  ProfileEditUser: undefined;
-  ChangePassword: undefined;
+type ProfileEditUserProps = {
+  route: any;
+  navigation: StackNavigationProp<any, any>;
 };
 
-type ProfileEditUserScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "ProfileEditUser"
->;
-
-interface ProfileEditUserProps {
-  route: any;
-  navigation: ProfileEditUserScreenNavigationProp;
-}
-
-interface UserData {
+type UserData = {
   name: string;
   email: string;
   phone: string;
   cp: string;
   picture?: string;
-}
+};
 
-const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
-  route,
-  navigation,
-}) => {
+const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
   const [userData, setUserData] = useState<UserData>({
     name: "",
     email: "",
@@ -122,10 +102,11 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al cargar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      Toast.show({
+        type: "error",
+        text2: `Error`,
+        text1: `Error al cargar la foto`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -174,10 +155,11 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
         closeModal();
       }
     } catch (error) {
-      Alert.alert(
-        "Ha ocurrido un error al tomar la foto",
-        "Puedes continuar y después agregar una foto"
-      );
+      Toast.show({
+        type: "error",
+        text2: `Error al tomar la foto`,
+        text1: `Puedes continuar sin cargar la foto`,
+      });
       console.log("Error: ", error);
     }
   };
@@ -218,10 +200,11 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
       } else {
-        Alert.alert(
-          "Ocurrió un error al guardar la foto",
-          "Intente de nuevo más tarde"
-        );
+        Toast.show({
+          type: "error",
+          text2: `Error`,
+          text1: `Error al cargar la foto`,
+        });
       }
     } catch (error) {
       console.log("Ocurrió un error: ", error);
@@ -434,7 +417,9 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
                   }}
                   onPress={onSubmit}
                 >
-                  <Text color={Colors.white} text80 >Actualizar</Text>
+                  <Text color={Colors.white} text80>
+                    Actualizar
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
