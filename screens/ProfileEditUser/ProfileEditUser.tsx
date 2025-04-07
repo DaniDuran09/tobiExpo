@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Text,
   TextInput,
   StyleSheet,
   Image,
@@ -25,16 +24,50 @@ import WithoutPhoto from "../../components/WithoutPhoto";
 import ImageOption from "../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import { clearPetInfo } from "../../redux/slice/petSlice";
-import { View } from "react-native-ui-lib";
+import { View, Text } from "react-native-ui-lib";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-const ProfileEditUser = ({ route, navigation }) => {
-  // const { refreshData } = route.params;
-  const [userData, setUserData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [loadData, setLoadData] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [imageSource, setImageSource] = useState(null);
-  const [permissionsRequested, setPermissionsRequested] = useState({
+type RootStackParamList = {
+  ProfileEditUser: undefined;
+  ChangePassword: undefined;
+};
+
+type ProfileEditUserScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "ProfileEditUser"
+>;
+
+interface ProfileEditUserProps {
+  route: any;
+  navigation: ProfileEditUserScreenNavigationProp;
+}
+
+interface UserData {
+  name: string;
+  email: string;
+  phone: string;
+  cp: string;
+  picture?: string;
+}
+
+const ProfileEditUser: React.FC<ProfileEditUserProps> = ({
+  route,
+  navigation,
+}) => {
+  const [userData, setUserData] = useState<UserData>({
+    name: "",
+    email: "",
+    phone: "",
+    cp: "",
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+  const [loadData, setLoadData] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [imageSource, setImageSource] = useState<any>(null);
+  const [permissionsRequested, setPermissionsRequested] = useState<{
+    camera: boolean;
+    library: boolean;
+  }>({
     camera: false,
     library: false,
   });
@@ -43,18 +76,6 @@ const ProfileEditUser = ({ route, navigation }) => {
   const apiFetcher = new ApiFetcher();
   const dispatch = useDispatch();
 
-  /*useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert(
-          "Permiso necesario",
-          "Se requieren permisos para acceder a la galería"
-        );
-      }
-    })();
-  }, []);*/
   const getPermissionsLibrary = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -108,6 +129,7 @@ const ProfileEditUser = ({ route, navigation }) => {
       console.log("Error: ", error);
     }
   };
+
   const getPermissionsCamera = async () => {
     const { status } = await ImagePicker.getCameraPermissionsAsync();
     if (status !== "granted") {
@@ -148,7 +170,6 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       if (!result.canceled) {
-        console.log("result: ", result);
         setImageSource(result.assets[0]);
         closeModal();
       }
@@ -163,7 +184,7 @@ const ProfileEditUser = ({ route, navigation }) => {
 
   const closeModal = () => setModalVisible(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -193,14 +214,15 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
-      if (response.code == 200) {
+      if (response.code === 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
-      } else
+      } else {
         Alert.alert(
           "Ocurrió un error al guardar la foto",
-          "Intente de neuvo más tarde"
+          "Intente de nuevo más tarde"
         );
+      }
     } catch (error) {
       console.log("Ocurrió un error: ", error);
     }
@@ -213,20 +235,18 @@ const ProfileEditUser = ({ route, navigation }) => {
 
       const newData = {
         name: userData.name,
-        last_name: userData.last_name,
         email: userData.email,
         phone: userData.phone,
-        birthday: userData.birthday,
-        age: userData.age,
+        cp: userData.cp,
       };
 
       const response = await apiFetcher.updateUser(newData);
-      if (response.code == 200) {
+      if (response.code === 200) {
         dispatch(setUserInfo(response.data));
         Toast.show({
           type: "success",
           text1: "Guardado",
-          text2: `Se actualizó tú información`,
+          text2: `Se actualizó tu información`,
         });
         navigation.goBack();
       }
@@ -239,24 +259,6 @@ const ProfileEditUser = ({ route, navigation }) => {
       });
     } finally {
       setLoadData(false);
-    }
-  };
-
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await appStorage.clearStorage();
-      dispatch(clearUser());
-      dispatch(clearPetInfo());
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "LoginScreen" }],
-      });
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Error al cerrar sesión", "Inténtelo de nuevo más tarde");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -275,63 +277,9 @@ const ProfileEditUser = ({ route, navigation }) => {
             <View
               style={{
                 backgroundColor: "#fff",
-                marginTop: Platform.OS == "android" && "5%",
+                marginTop: Platform.OS === "android" ? "5%" : 0,
               }}
             >
-              {/* <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 10,
-                }}
-              >
-                <View style={{ width: "33%" }} />
-                <Text
-                  style={{
-                    textAlign: "center",
-                    width: "34%",
-                    fontWeight: "500",
-                    fontSize: 17,
-                    color: "#000",
-                  }}
-                >
-                  Edición de perfil
-                </Text>
-                <View
-                  style={{
-                    width: "33%",
-                    justifyContent: "center",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: "#EF4136",
-                      borderRadius: 32,
-                      justifyContent: "center",
-                      height: 50,
-                      width: 80,
-                      marginRight: 10,
-                      alignItems: "center",
-                    }}
-                    onPress={onSubmit}
-                  >
-                    {loadData ? (
-                      <ActivityIndicator size={"small"} color={Colors.white} />
-                    ) : (
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          color: "white",
-                          fontWeight: "700",
-                        }}
-                      >
-                        Listo
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View> */}
               <View
                 style={{
                   width: "100%",
@@ -349,38 +297,50 @@ const ProfileEditUser = ({ route, navigation }) => {
                           ? { uri: imageSource.uri }
                           : { uri: userData.picture }
                       }
-                      style={styles.image}
+                      style={{
+                        height: 120,
+                        width: 120,
+                        zIndex: 0,
+                        borderRadius: 60,
+                        overflow: "hidden",
+                        marginTop: 15,
+                      }}
                       resizeMode={"cover"}
                     />
                   ) : (
-                    <>
-                      <WithoutPhoto />
-                    </>
+                    <WithoutPhoto />
                   )}
                 </View>
               </View>
-              <View style={styles.containerEditPhoto}>
+              <View center>
                 <TouchableOpacity
                   onPress={() => {
                     setModalVisible(true);
                   }}
                 >
-                  <Text style={[styles.label, { marginTop: 10 }]}>
+                  <Text marginB-5 marginT-20 text80>
                     Editar foto
                   </Text>
                 </TouchableOpacity>
               </View>
               <View style={{ width: "100%", marginLeft: "5%" }}>
-                <Text style={styles.label}>Nombre</Text>
+                <Text marginB-5 marginT-20 text80>
+                  Nombre
+                </Text>
                 <TextInput
                   placeholder="Nombre"
                   placeholderTextColor="#000"
                   elevation={5}
                   value={userData.name}
                   style={[
-                    styles.textInput,
                     {
                       color: "#000",
+                      height: 60,
+                      width: "90%",
+                      paddingLeft: 20,
+                      justifyContent: "center",
+                      backgroundColor: "#D6EFFF",
+                      borderRadius: 4,
                     },
                   ]}
                   autoCapitalize="none"
@@ -388,7 +348,9 @@ const ProfileEditUser = ({ route, navigation }) => {
                     setUserData({ ...userData, name: val })
                   }
                 />
-                <Text style={styles.label}>Correo</Text>
+                <Text marginB-5 marginT-10 text80>
+                  Correo
+                </Text>
 
                 <TextInput
                   placeholder="Correo electronico"
@@ -396,9 +358,14 @@ const ProfileEditUser = ({ route, navigation }) => {
                   value={userData.email}
                   placeholderTextColor="#000"
                   style={[
-                    styles.textInput,
                     {
                       color: "#000",
+                      height: 60,
+                      width: "90%",
+                      paddingLeft: 20,
+                      justifyContent: "center",
+                      backgroundColor: "#D6EFFF",
+                      borderRadius: 4,
                     },
                   ]}
                   autoCapitalize="none"
@@ -406,7 +373,9 @@ const ProfileEditUser = ({ route, navigation }) => {
                     setUserData({ ...userData, email: val })
                   }
                 />
-                <Text style={styles.label}>Teléfono</Text>
+                <Text marginB-5 marginT-10 text80>
+                  Teléfono
+                </Text>
                 <TextInput
                   keyboardType="numeric"
                   placeholder="Telefono"
@@ -415,9 +384,14 @@ const ProfileEditUser = ({ route, navigation }) => {
                   placeholderTextColor="#000"
                   maxLength={10}
                   style={[
-                    styles.textInput,
                     {
                       color: "#000",
+                      height: 60,
+                      width: "90%",
+                      paddingLeft: 20,
+                      justifyContent: "center",
+                      backgroundColor: "#D6EFFF",
+                      borderRadius: 4,
                     },
                   ]}
                   autoCapitalize="none"
@@ -425,38 +399,47 @@ const ProfileEditUser = ({ route, navigation }) => {
                     setUserData({ ...userData, phone: val })
                   }
                 />
+                <Text marginB-5 marginT-10 text80>
+                  Código postal
+                </Text>
+                <TextInput
+                  keyboardType="numeric"
+                  placeholder="Código postal"
+                  elevation={5}
+                  value={userData.cp}
+                  placeholderTextColor="#000"
+                  maxLength={10}
+                  style={[
+                    {
+                      color: "#000",
+                      height: 60,
+                      width: "90%",
+                      paddingLeft: 20,
+                      justifyContent: "center",
+                      backgroundColor: "#D6EFFF",
+                      borderRadius: 4,
+                    },
+                  ]}
+                  autoCapitalize="none"
+                  onChangeText={(val) => setUserData({ ...userData, cp: val })}
+                />
+              </View>
+              <View row right marginT-20 paddingR-20>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: Colors.primaryColor,
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 5,
+                  }}
+                  onPress={onSubmit}
+                >
+                  <Text color={Colors.white} text80 >Actualizar</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </KeyboardAvoidingView>
-          <View center paddingB-15>
-            {/* <TouchableOpacity
-                  style={styles.changeButton}
-                  onPress={() => navigation.navigate('MyCards')}>
-                  <Text style={styles.changePassword}>Mis tarjetas</Text>
-                  <Image
-                    source={require('../assets/arrowRigth.png')}
-                    style={{height: 15, width: 15}}
-                    resizeMode={'contain'}
-                  />
-                </TouchableOpacity> */}
-            <TouchableOpacity
-              style={styles.changeButton}
-              onPress={() => navigation.navigate("ChangePassword")}
-            >
-              <Text style={styles.changePassword}>Cambiar contraseña</Text>
-              <Image
-                source={require("../../assets/arrowRigth.png")}
-                style={{ height: 15, width: 15 }}
-                resizeMode={"contain"}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.changeButton, { marginTop: 10 }]}
-              onPress={logout}
-            >
-              <Text style={styles.changePassword}>Cerrar sesión</Text>
-            </TouchableOpacity>
-          </View>
+          <View center paddingB-15></View>
         </ScrollView>
         <ImageOption
           visible={modalVisible}
@@ -470,100 +453,3 @@ const ProfileEditUser = ({ route, navigation }) => {
 };
 
 export default ProfileEditUser;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#009387",
-  },
-  header: {
-    flex: 1,
-    justifyContent: "flex-end",
-    paddingHorizontal: 20,
-    paddingBottom: 50,
-  },
-  footer: {
-    flex: 3,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-  text_header: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 30,
-  },
-  text_footer: {
-    color: "#05375a",
-    fontSize: 18,
-  },
-  image: {
-    height: 120,
-    width: 120,
-    zIndex: 0,
-    borderRadius: 60,
-    overflow: "hidden",
-    marginTop: 15,
-  },
-  action: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f2f2f2",
-    paddingBottom: 5,
-  },
-  actionError: {
-    flexDirection: "row",
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#FF0000",
-    paddingBottom: 5,
-  },
-  textInput: {
-    height: 60,
-    width: "90%",
-    paddingLeft: 20,
-    justifyContent: "center",
-    backgroundColor: "#D6EFFF",
-    borderRadius: 4,
-  },
-  errorMsg: {
-    color: "#FF0000",
-    fontSize: 14,
-  },
-  button: {
-    alignItems: "center",
-    marginTop: 50,
-  },
-  signIn: {
-    width: "100%",
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  textSign: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  label: {
-    marginBottom: 5,
-    marginTop: 20,
-    fontWeight: "400",
-    fontSize: 13,
-  },
-  changeButton: {
-    flexDirection: "row",
-    width: "90%",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  changePassword: {
-    color: Colors.primaryColor,
-  },
-  containerEditPhoto: {
-    alignItems: "center",
-  },
-});
