@@ -19,7 +19,8 @@ import ProfileScreen from "../screens/ProfileScreen";
 import ProfileDetails from "../screens/ProfileDetails";
 import ProfileEdit from "../screens/ProfileEdit";
 import EditPet from "../screens/EditPet";
-import ProfileEditUser from "../screens/ProfileEditUser";
+import ProfileEditUser from "../screens/ProfileEditUser/ProfileEditUser";
+import ProfileEditUserMenu from "../screens/ProfileEditUserMenu/ProfileEditUserMenu"
 import ProfileEditPet from "../screens/ProfileEditPet";
 import ProfileEditPetInfo from "../screens/ProfileEditPetInfo";
 import ProfileEditPetInfo2 from "../screens/ProfileEditPetInfo2";
@@ -439,7 +440,19 @@ const ProfileStackScreen = ({ navigation }) => (
       options={{
         headerShown: true,
         headerBackTitleVisible: false,
+        title: "Editar perfil",
+        headerTitleAlign:"center",
+        headerTintColor: "black",
+      }}
+    />
+    <ProfileStack.Screen
+      name="ProfileEditUserMenu"
+      component={ProfileEditUserMenu}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
         title: "Mi cuenta",
+        headerTitleAlign: "center",
         headerTintColor: "black",
       }}
     />

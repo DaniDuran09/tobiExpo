@@ -45,7 +45,7 @@ const BottomMenu = () => {
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUser")}>
+      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUserMenu")}>
         <View
           row
           spread

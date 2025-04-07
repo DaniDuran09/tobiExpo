@@ -16,15 +16,15 @@ import {
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 
-import AppStorage from "../modules/AppStorage";
-import { Colors } from "../styles/Colors";
-import { clearUser, setUserInfo } from "../redux/slice/userSlice";
-import ApiFetcher from "../modules/ApiFetcher";
-import Loading from "../components/Loading";
-import WithoutPhoto from "../components/WithoutPhoto";
-import ImageOption from "../components/ImageOption";
+import AppStorage from "../../modules/AppStorage";
+import { Colors } from "../../styles/Colors";
+import { clearUser, setUserInfo } from "../../redux/slice/userSlice";
+import ApiFetcher from "../../modules/ApiFetcher";
+import Loading from "../../components/Loading";
+import WithoutPhoto from "../../components/WithoutPhoto";
+import ImageOption from "../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
-import { clearPetInfo } from "../redux/slice/petSlice";
+import { clearPetInfo } from "../../redux/slice/petSlice";
 import { View } from "react-native-ui-lib";
 
 const ProfileEditUser = ({ route, navigation }) => {
@@ -445,7 +445,7 @@ const ProfileEditUser = ({ route, navigation }) => {
             >
               <Text style={styles.changePassword}>Cambiar contraseña</Text>
               <Image
-                source={require("../assets/arrowRigth.png")}
+                source={require("../../assets/arrowRigth.png")}
                 style={{ height: 15, width: 15 }}
                 resizeMode={"contain"}
               />
