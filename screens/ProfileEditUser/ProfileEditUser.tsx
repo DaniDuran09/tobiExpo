@@ -3,7 +3,6 @@ import {
   TextInput,
   KeyboardAvoidingView,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
   Platform,
 } from "react-native";
@@ -17,7 +16,7 @@ import Loading from "../../components/Loading";
 import WithoutPhoto from "../../components/WithoutPhoto";
 import ImageOption from "../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
-import { View, Text, Image } from "react-native-ui-lib";
+import { View, Text, Image, TouchableOpacity } from "react-native-ui-lib";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 type ProfileEditUserProps = {
@@ -257,13 +256,11 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
             behavior={"height"}
             enabled
           >
-            <View backgroundColor={Colors.white}
-              style={{
-                marginTop: Platform.OS === "android" ? "5%" : 0,
-              }}
+            <View
+              backgroundColor={Colors.white}
+              marginT-15={Platform.OS === "android" ? "5%" : 0}
             >
-              <View width={'100%'} center row paddingH-25
-              >
+              <View width={"100%"} center row paddingH-25>
                 <View>
                   {userData.picture ? (
                     <Image
@@ -298,7 +295,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View width={'100%'} marginL-20>
+              <View width={"100%"} marginL-20>
                 <Text marginB-5 marginT-20 text80>
                   Nombre
                 </Text>
@@ -401,10 +398,10 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
               </View>
               <View row right marginT-20 paddingR-20>
                 <TouchableOpacity
+                  backgroundColor={Colors.primaryColor}
+                  paddingV-10
+                  paddingH-20
                   style={{
-                    backgroundColor: Colors.primaryColor,
-                    paddingVertical: 10,
-                    paddingHorizontal: 20,
                     borderRadius: 5,
                   }}
                   onPress={onSubmit}

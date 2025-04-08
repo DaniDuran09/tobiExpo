@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-  SafeAreaView,
-  Platform,
-} from "react-native";
-import { Text, View, Image } from "react-native-ui-lib";
+import { KeyboardAvoidingView, SafeAreaView, Platform } from "react-native";
+import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
 import AppStorage from "../../modules/AppStorage";
 import { Colors } from "../../styles/Colors";
-import { clearUser, setUserInfo } from "../../redux/slice/userSlice";
+import { clearUser } from "../../redux/slice/userSlice";
 import ApiFetcher from "../../modules/ApiFetcher";
 import Loading from "../../components/Loading";
 import WithoutPhoto from "../../components/WithoutPhoto";
@@ -84,10 +78,8 @@ const ProfileEditUserMenu: React.FC = () => {
           enabled
         >
           <View
-            style={{
-              backgroundColor: "#fff",
-              marginTop: Platform.OS === "android" ? "5%" : undefined,
-            }}
+            backgroundColor={Colors.white}
+            marginT-15={Platform.OS === "android" ? "5%" : 0}
           >
             <View width={"100%"} center row paddingH-25>
               <View>
@@ -114,7 +106,7 @@ const ProfileEditUserMenu: React.FC = () => {
               </View>
             </View>
 
-            <View paddingT-20 width={'100%'} marginL-20 >
+            <View paddingT-20 width={"100%"} marginL-20>
               <TouchableOpacity
                 onPress={() => navigation.navigate("ProfileEditUser", {})}
               >
@@ -172,12 +164,10 @@ const ProfileEditUserMenu: React.FC = () => {
         </KeyboardAvoidingView>
         <View center paddingB-15>
           <TouchableOpacity
+            row
+            marginV-10
             style={{
-              marginTop: 10,
-              flexDirection: "row",
               width: "90%",
-              justifyContent: "space-between",
-              marginBottom: 10,
             }}
             onPress={logout}
           >
