@@ -257,20 +257,12 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
             behavior={"height"}
             enabled
           >
-            <View
+            <View backgroundColor={Colors.white}
               style={{
-                backgroundColor: "#fff",
                 marginTop: Platform.OS === "android" ? "5%" : 0,
               }}
             >
-              <View
-                style={{
-                  width: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 25,
-                }}
+              <View width={'100%'} center row paddingH-25
               >
                 <View>
                   {userData.picture ? (
@@ -306,7 +298,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View style={{ width: "100%", marginLeft: "5%" }}>
+              <View width={'100%'} marginL-20>
                 <Text marginB-5 marginT-20 text80>
                   Nombre
                 </Text>

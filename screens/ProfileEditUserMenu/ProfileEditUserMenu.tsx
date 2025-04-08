@@ -89,15 +89,7 @@ const ProfileEditUserMenu: React.FC = () => {
               marginTop: Platform.OS === "android" ? "5%" : undefined,
             }}
           >
-            <View
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "row",
-                paddingHorizontal: 25,
-              }}
-            >
+            <View width={"100%"} center row paddingH-25>
               <View>
                 {userData.picture ? (
                   <Image
@@ -122,7 +114,7 @@ const ProfileEditUserMenu: React.FC = () => {
               </View>
             </View>
 
-            <View paddingT-20 style={{ width: "100%", marginLeft: "5%" }}>
+            <View paddingT-20 width={'100%'} marginL-20 >
               <TouchableOpacity
                 onPress={() => navigation.navigate("ProfileEditUser", {})}
               >
