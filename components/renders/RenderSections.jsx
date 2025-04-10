@@ -70,13 +70,10 @@ const RenderSections = ({ item }) => {
         spread
         paddingH-5
         style={{
-          shadowColor: "#000000",
-          shadowOpacity: 0.8,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
           shadowRadius: 2,
-          shadowOffset: {
-            height: 1,
-            width: 1,
-          },
+          elevation: 2,
         }}
       >
         <Section
@@ -119,13 +116,10 @@ const RenderSections = ({ item }) => {
         marginT-10
         paddingH-5
         style={{
-          shadowColor: "#000000",
-          shadowOpacity: 0.8,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
           shadowRadius: 2,
-          shadowOffset: {
-            height: 1,
-            width: 1,
-          },
+          elevation: 2,
         }}
       >
         <Section

@@ -31,15 +31,16 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
   useEffect(() => {
     const checkOnboarding = async () => {
       try {
-        const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
-        if (hasSeenOnboarding) {
-          navigation.replace("LoginScreen");
-          return;
-        }
-
+        const hasSeenOnboarding = await AsyncStorage.getItem(
+          "hasSeenOnboarding"
+        );
         const response = await appStorage.getAppToken();
         const user = await appStorage.getUser();
-        if (response && user) {
+        if (hasSeenOnboarding && !(response && user)) {
+          hasSeenOnboarding;
+          navigation.replace("LoginScreen");
+          return;
+        } else if (response && user) {
           setToken(response);
           dispatch(setUserInfo(user));
           navigation.replace("Home");
