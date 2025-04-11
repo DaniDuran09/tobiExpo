@@ -51,7 +51,8 @@ import SelectPetVaccines from '../screens/vaccination-record/SelectPetVaccines';
 import PetVaccinesRecord from '../screens/vaccination-record/PetVaccinesRecord';
 import SelectPartner from '../screens/home/health/SelectPartner';
 import ListPartners from '../screens/partners/ListPartners';
-import { NotificationsScreen } from '../screens/Notifications';
+import { NotificationIcon } from '../components/notifications';
+import NotificationsStack from './NotificationsStack';
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -121,8 +122,10 @@ const MainTabScreen = () => (
         ),
       }}
     />
-    <Tab.Screen
-      name="Notifications"
+    {
+      /*
+      <Tab.Screen
+      name="Notifications2"
       component={DetailsStackScreen}
       options={{
         headerShown: false,
@@ -134,6 +137,21 @@ const MainTabScreen = () => (
             style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
+        ),
+      }}
+    />
+    */
+    }
+
+    <Tab.Screen
+      name="Notifications"
+      component={NotificationsStack}
+      options={{
+        headerShown: false,
+        tabBarLabel: '',
+        tabBarColor: '#fff',
+        tabBarIcon: ({ color }) => (
+          <NotificationIcon color={color} size={28} style={{ marginTop: 15 }} />
         ),
       }}
     />
@@ -231,7 +249,7 @@ const HomeStackScreen = ({ navigation }) => (
         title: 'Seleccionar al especialista',
         headerTintColor: 'black',
       }}
-    />    
+    />
   </HomeStack.Navigator>
 );
 

@@ -1,16 +1,21 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { BackHandler, FlatList, Platform, RefreshControl, SafeAreaView } from "react-native";
+import { BackHandler, FlatList, Platform, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
-import { Text, View } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../../utils/moment";
 import { setUserInfo } from "../../../redux/slice/userSlice";
 import RenderSections from "../../../components/renders/RenderSections";
 import NoPetsHome from "../../../components/NoPetsHome";
+import { NotificationPermissionDialog } from "../../../components/notifications";
+import { View, Text } from "react-native-ui-lib";
+import useNotificationsPermissions from "../../../hooks/useNotificationsPermission";
+import { useNotificationsContext } from "../../../context/NotificationContext";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -22,9 +27,18 @@ const HomeScreen = ({ navigation }: any) => {
 
   const apiFetcher = new ApiFetcher();
 
+  const { notificationPermissionResponse } = useNotificationsPermissions()
+  const { registerForPushNotifications } = useNotificationsContext()
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (notificationPermissionResponse?.granted) {
+      registerForPushNotifications()
+    }
+  }, [notificationPermissionResponse])
 
   useFocusEffect(
     useCallback(() => {
@@ -114,6 +128,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
+      <NotificationPermissionDialog />
       <View row gap-15 paddingH-15 centerV>
         <Avatar.Image
           source={{
@@ -126,12 +141,12 @@ const HomeScreen = ({ navigation }: any) => {
           <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>
-        </View>      
+        </View>
       </View>
       <View center marginT-30 marginB-90>
         {data.length > 0 ? (
           <FlatList
-          showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => `item-${index}`}
             data={data}
             refreshControl={
