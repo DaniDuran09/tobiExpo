@@ -62,7 +62,7 @@ const ProfileEditUser = ({ route, navigation }) => {
         setPermissionsRequested((prev) => ({ ...prev, library: true }));
         await requestLibraryPermissions();
       }
-      closeModal()
+      closeModal();
       Toast.show({
         type: "error",
         text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
@@ -278,7 +278,7 @@ const ProfileEditUser = ({ route, navigation }) => {
                 marginTop: Platform.OS == "android" && "5%",
               }}
             >
-              <View
+              {/* <View
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
@@ -331,7 +331,7 @@ const ProfileEditUser = ({ route, navigation }) => {
                     )}
                   </TouchableOpacity>
                 </View>
-              </View>
+              </View> */}
               <View
                 style={{
                   width: "100%",

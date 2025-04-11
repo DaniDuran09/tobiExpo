@@ -10,7 +10,9 @@ export default function Layout({ children, footer }: { children: ReactNode, foot
                 <Header />
                 {children}
             </View>
+            <View absB absR marginB-50 marginR-20>
             {footer}
+            </View>
         </View>
     )
 }

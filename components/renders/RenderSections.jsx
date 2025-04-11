@@ -65,7 +65,17 @@ const RenderSections = ({ item }) => {
           {item.name}
         </Text>
       </View>
-      <View row spread>
+      <View
+        row
+        spread
+        paddingH-5
+        style={{
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 2,
+          elevation: 2,
+        }}
+      >
         <Section
           item={item}
           tabIndex={0}
@@ -100,7 +110,18 @@ const RenderSections = ({ item }) => {
           }
         />
       </View>
-      <View row spread marginT-10>
+      <View
+        row
+        spread
+        marginT-10
+        paddingH-5
+        style={{
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 2,
+          elevation: 2,
+        }}
+      >
         <Section
           item={item}
           tabIndex={2}

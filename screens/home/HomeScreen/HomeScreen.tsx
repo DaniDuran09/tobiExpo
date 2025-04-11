@@ -43,7 +43,7 @@ const HomeScreen = ({ navigation }: any) => {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-      return () => { };
+      return () => {};
     }, [navigation])
   );
 
@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }: any) => {
             ...pet,
             service_date: response?.appointment_pet_services
               ? response?.appointment_pet_services[0]?.appointment_time
-                ?.start_time
+                  ?.start_time
               : null,
             status: response.appointment_status,
           };
@@ -88,40 +88,48 @@ const HomeScreen = ({ navigation }: any) => {
     const today = momentTZ().tz("America/Mexico_City").startOf("day");
 
     const futureAppointments = response.data.filter((appointment: any) => {
-      const appointmentDate = momentTZ(appointment.date_service).tz("America/Mexico_City").startOf("day");
+      const appointmentDate = momentTZ(appointment.date_service)
+        .tz("America/Mexico_City")
+        .startOf("day");
       return appointmentDate.isSameOrAfter(today);
     });
 
     if (futureAppointments.length === 0) return {};
 
-    const closestAppointment = futureAppointments.reduce((closest: any, current: any) => {
-      const currentDate = momentTZ(current.date_service).tz("America/Mexico_City");
-      const closestDate = momentTZ(closest.date_service).tz("America/Mexico_City");
+    const closestAppointment = futureAppointments.reduce(
+      (closest: any, current: any) => {
+        const currentDate = momentTZ(current.date_service).tz(
+          "America/Mexico_City"
+        );
+        const closestDate = momentTZ(closest.date_service).tz(
+          "America/Mexico_City"
+        );
 
-      const currentDiff = Math.abs(currentDate.diff(today, "days"));
-      const closestDiff = Math.abs(closestDate.diff(today, "days"));
+        const currentDiff = Math.abs(currentDate.diff(today, "days"));
+        const closestDiff = Math.abs(closestDate.diff(today, "days"));
 
-      return currentDiff < closestDiff ? current : closest;
-    });
+        return currentDiff < closestDiff ? current : closest;
+      }
+    );
 
     return closestAppointment;
   };
 
   useEffect(() => {
     const backAction = () => {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === "android") {
         BackHandler.exitApp();
         return true;
       }
       return false;
     };
 
-    if (Platform.OS === 'android') {
-      BackHandler.addEventListener('hardwareBackPress', backAction);
+    if (Platform.OS === "android") {
+      BackHandler.addEventListener("hardwareBackPress", backAction);
     }
     return () => {
-      if (Platform.OS === 'android') {
-        BackHandler.removeEventListener('hardwareBackPress', backAction);
+      if (Platform.OS === "android") {
+        BackHandler.removeEventListener("hardwareBackPress", backAction);
       }
     };
   }, []);
@@ -137,7 +145,10 @@ const HomeScreen = ({ navigation }: any) => {
           size={60}
         />
         <View>
-          <Text text50BL color={Colors.primaryColor}>{`Hola ${user.name}`}</Text>
+          <Text
+            text50BL
+            color={Colors.primaryColor}
+          >{`Hola ${user.name}`}</Text>
           <Text text50L color={Colors.primaryColor}>
             Buenos días
           </Text>

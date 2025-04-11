@@ -62,10 +62,9 @@ const ProfileScreen = ({ route, navigation }) => {
 
   const getUserInfo = async () => {
     try {
-      const user = await apiFetcher.getProfile();
-      setUserData(user.data);
-      dispatch(setUserInfo(user.data));
-      console.log("SÍ TRAJE LA INFORMACIÍON ");
+      const { data } = await apiFetcher.getProfile();
+      setUserData(data);
+      dispatch(setUserInfo(data));
     } catch (error) {
       Toast.show({
         type: "error",
@@ -306,11 +305,9 @@ const ProfileScreen = ({ route, navigation }) => {
           />
         )}
         <View>
-          <View absR marginR-30>
-            <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUser")}>
-              <Octicons name="gear" size={25} color={Colors.primaryColor} />
-            </TouchableOpacity>
-          </View>
+          {/* <View absR marginR-30> */}
+          
+          {/* </View> */}
           {userData.picture ? (
             <View width={"100%"} center>
               <AnimatedImage

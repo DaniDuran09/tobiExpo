@@ -31,15 +31,16 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
   useEffect(() => {
     const checkOnboarding = async () => {
       try {
-        const hasSeenOnboarding = await AsyncStorage.getItem("hasSeenOnboarding");
-        if (hasSeenOnboarding) {
-          navigation.replace("LoginScreen");
-          return;
-        }
-
+        const hasSeenOnboarding = await AsyncStorage.getItem(
+          "hasSeenOnboarding"
+        );
         const response = await appStorage.getAppToken();
         const user = await appStorage.getUser();
-        if (response && user) {
+        if (hasSeenOnboarding && !(response && user)) {
+          hasSeenOnboarding;
+          navigation.replace("LoginScreen");
+          return;
+        } else if (response && user) {
           setToken(response);
           dispatch(setUserInfo(user));
           navigation.replace("Home");
@@ -86,7 +87,7 @@ const SplashScreen = ({ navigation }: SplashScreenProps) => {
           }}
           containerStyle={{
             position: "absolute",
-            bottom: height * 0.05,
+            bottom: 0,
             left: 20,
             alignItems: "flex-start",
             gap: 10,
