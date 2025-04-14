@@ -1,53 +1,40 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text } from "react-native-ui-lib";
 import { useNotificationsContext } from "../../context/NotificationContext";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Colors } from "../../styles/Colors";
-import { SectionList } from "react-native";
+import { FlatList } from "react-native";
 import RenderNotification from "../../components/renders/RenderNotification";
-import { NotificationIcon } from "../../components/notifications";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { useNavigation } from "@react-navigation/native";
 
 export default function NotificationsScreen() {
+  const navigation = useNavigation<any>()
   const { notifications, markNotificationAsRead } = useNotificationsContext();
-
-  const notificationsReaded = notifications.filter((n) => n.readed);
-  const newNotifications = notifications.filter((n) => !n.readed);
-
-  const sections = [
-    {
-      title: "Nuevas",
-      data: newNotifications,
-    },
-    {
-      title: "Visto",
-      data: notificationsReaded,
-    },
-  ];
+  const notificationsSorted = [...notifications].sort((a, b) => b.date - a.date)
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
-      <View row centerV spread paddingT-20 paddingH-20>
+      <View row centerV spread paddingT-20 paddingH-20 marginB-20>
         <Text text50BO>Notificaciones</Text>
-        <NotificationIcon badget={notifications.some((n) => !n.readed)} />
       </View>
-      <SectionList
-        sections={sections}
-        renderSectionHeader={({ section: { title, data } }) => (
-          <Text text70BO margin-20>
-            {title} ({data.length})
-          </Text>
-        )}
-        ItemSeparatorComponent={() => <View height={5} />}
-        renderItem={({ item, section }) => (
+      <FlatList
+        data={notificationsSorted}
+        renderItem={({ item }) => (
           <RenderNotification
             content={item.request.content.body}
             date={item.date}
-            title={section.title}
             onPress={() => {
-              markNotificationAsRead(item.request.identifier);
+              markNotificationAsRead(item.request.identifier)
+              navigation.push("NotificationDetail", {
+                id: item.request.identifier,
+                title: item.request.content.title,
+                body: item.request.content.body
+              })
             }}
+            readed={item.readed}
           />
         )}
+        keyExtractor={item => item.request.identifier}
       />
     </SafeAreaView>
   );

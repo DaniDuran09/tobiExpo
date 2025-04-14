@@ -1,24 +1,21 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  BackHandler,
-  FlatList,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-} from "react-native";
+import { BackHandler, FlatList, Platform, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useFocusEffect } from "@react-navigation/native";
-import { Text, View, TouchableOpacity } from "react-native-ui-lib";
 import Toast from "react-native-toast-message";
-import { useNotificationsContext } from "../../../context/NotificationContext";
 import momentTZ from "../../../utils/moment";
 import { setUserInfo } from "../../../redux/slice/userSlice";
-import { NotificationIcon } from "../../../components/notifications";
 import RenderSections from "../../../components/renders/RenderSections";
 import NoPetsHome from "../../../components/NoPetsHome";
+import { NotificationPermissionDialog } from "../../../components/notifications";
+import { View, Text } from "react-native-ui-lib";
+import useNotificationsPermissions from "../../../hooks/useNotificationsPermission";
+import { useNotificationsContext } from "../../../context/NotificationContext";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -30,11 +27,18 @@ const HomeScreen = ({ navigation }: any) => {
 
   const apiFetcher = new ApiFetcher();
 
-  const { notifications, markNotificationAsRead } = useNotificationsContext();
+  const { notificationPermissionResponse } = useNotificationsPermissions()
+  const { registerForPushNotifications } = useNotificationsContext()
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (notificationPermissionResponse?.granted) {
+      registerForPushNotifications()
+    }
+  }, [notificationPermissionResponse])
 
   useFocusEffect(
     useCallback(() => {
@@ -132,6 +136,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
+      <NotificationPermissionDialog />
       <View row gap-15 paddingH-15 centerV>
         <Avatar.Image
           source={{
@@ -148,41 +153,29 @@ const HomeScreen = ({ navigation }: any) => {
             Buenos días
           </Text>
         </View>
-        <TouchableOpacity
-          style={{ marginLeft: "auto" }}
-          onPress={() => {
-            navigation.navigate("NotificationsTab");
-          }}
-        >
-          <NotificationIcon badget={notifications.some((n) => !n.readed)} />
-        </TouchableOpacity>
       </View>
-      <View centerH marginT-30>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => `item-${index}`}
-          data={data}
-          refreshControl={
-            <RefreshControl
-              refreshing={loading}
-              onRefresh={() => fetchData()}
-              tintColor={Colors.primaryColor}
-              title="Loading..."
-              titleColor="black"
-              colors={["black", "black", "black"]}
-              progressBackgroundColor="white"
-            />
-          }
-          renderItem={({ item }) => <RenderSections item={item} />}
-          ListFooterComponent={() => (
-            <View margin-15 marginB-90>
-              <TouchableOpacity onPress={() => navigation.navigate("RegisterNewPet")}>
-                <Text>+ Mascotas</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          ListEmptyComponent={() => <NoPetsHome />}
-        />
+      <View center marginT-30 marginB-90>
+        {data.length > 0 ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            keyExtractor={(item, index) => `item-${index}`}
+            data={data}
+            refreshControl={
+              <RefreshControl
+                refreshing={loading}
+                onRefresh={() => fetchData()}
+                tintColor={Colors.primaryColor}
+                title="Loading..."
+                titleColor="black"
+                colors={["black", "black", "black"]}
+                progressBackgroundColor="white"
+              />
+            }
+            renderItem={({ item }) => <RenderSections item={item} />}
+          />
+        ) : (
+          <NoPetsHome />
+        )}
       </View>
     </SafeAreaView>
   );
