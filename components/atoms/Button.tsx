@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform } from "react-native";
 import { Button as ButtonUI, Colors, View } from "react-native-ui-lib";
+import { Colors as ColorsUI } from "../../styles/Colors";
 
 import { ButtonProps } from "./types";
 
@@ -77,10 +78,10 @@ function Button(props: ButtonProps) {
       },
     },
     outline: {
-      text: Colors.grey40,
+      text: ColorsUI.primaryColor,
       button: {
         backgroundColor: "transparent",
-        borderColor: Colors.grey40,
+        borderColor: ColorsUI.primaryColor,
         borderWidth: 1,
       },
     },

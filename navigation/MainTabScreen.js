@@ -13,44 +13,47 @@ import {
   View,
 } from "react-native";
 
-import HomeScreen from '../screens/home/HomeScreen/HomeScreen';
-import DetailsScreen from '../screens/DetailsScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import ProfileDetails from '../screens/ProfileDetails';
-import ProfileEdit from '../screens/ProfileEdit';
-import EditPet from '../screens/EditPet';
-import ProfileEditUser from '../screens/ProfileEditUser';
-import ProfileEditPet from '../screens/ProfileEditPet';
-import ProfileEditPetInfo from '../screens/ProfileEditPetInfo';
-import ProfileEditPetInfo2 from '../screens/ProfileEditPetInfo2';
-import HomeProfileDetails from '../screens/home/HomeProfileDetails';
-import PartnersDetails from '../screens/PartnersDetails';
-import ScreenMaps from '../screens/ScreenMaps';
-import ViewWeb from '../screens/WebView';
-import ChangePassword from '../screens/auth/ChangePassword';
-import EditMyPet from '../screens/pet/EditMyPet';
-import SearchItem from '../components/SearchItem';
-import PartnersStack from './PartnersStack';
-import SecondScreenRegisterPet from '../screens/pet/register/SecondScreenRegisterPet';
-import ThirdScreenRegisterPet from '../screens/pet/register/ThirdScreenRegisterPet';
-import FinalScreenRegisterPet from '../screens/pet/register/FinalScreenRegisterPet';
-import IdMyPet from '../screens/pet/idPet/IdMyPet';
-import IdInfoPet from '../screens/pet/idPet/IdInfoPet';
-import MyCards from '../screens/cards/MyCards';
-import AddNewCard from '../screens/cards/AddNewCard';
-import Dates from '../screens/pet/dates/Dates';
-import PetDate from '../screens/pet/dates/PetDate';
-import History from '../screens/pet/history/History';
-import RateService from '../screens/pet/history/RateService';
-import ResumeDate from '../screens/pet/dates/ResumeDate';
-import ChangeDate from '../screens/pet/dates/ChangeDate';
-import { Colors } from '../styles/Colors';
-import StepsRegister from '../screens/pet/register/StepsRegister';
-import Success from '../components/Success';
-import SelectPetVaccines from '../screens/vaccination-record/SelectPetVaccines';
-import PetVaccinesRecord from '../screens/vaccination-record/PetVaccinesRecord';
-import SelectPartner from '../screens/home/health/SelectPartner';
-import ListPartners from '../screens/partners/ListPartners';
+import HomeScreen from "../screens/home/HomeScreen/HomeScreen";
+import DetailsScreen from "../screens/DetailsScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import ProfileDetails from "../screens/ProfileDetails";
+import ProfileEdit from "../screens/ProfileEdit";
+import EditPet from "../screens/EditPet";
+import ProfileEditUser from "../screens/ProfileEditUser/ProfileEditUser";
+import ProfileEditUserMenu from "../screens/ProfileEditUserMenu/ProfileEditUserMenu"
+import ProfileEditPet from "../screens/ProfileEditPet";
+import ProfileEditPetInfo from "../screens/ProfileEditPetInfo";
+import ProfileEditPetInfo2 from "../screens/ProfileEditPetInfo2";
+import HomeProfileDetails from "../screens/home/HomeProfileDetails";
+import PartnersDetails from "../screens/PartnersDetails";
+import ScreenMaps from "../screens/ScreenMaps";
+import ViewWeb from "../screens/WebView";
+import ChangePassword from "../screens/auth/ChangePassword";
+import EditMyPet from "../screens/pet/EditMyPet";
+import SearchItem from "../components/SearchItem";
+import PartnersStack from "./PartnersStack";
+import SecondScreenRegisterPet from "../screens/pet/register/SecondScreenRegisterPet";
+import ThirdScreenRegisterPet from "../screens/pet/register/ThirdScreenRegisterPet";
+import FinalScreenRegisterPet from "../screens/pet/register/FinalScreenRegisterPet";
+import IdMyPet from "../screens/pet/idPet/IdMyPet";
+import IdInfoPet from "../screens/pet/idPet/IdInfoPet";
+import MyCards from "../screens/cards/MyCards";
+import AddNewCard from "../screens/cards/AddNewCard";
+import Dates from "../screens/pet/dates/Dates";
+import PetDate from "../screens/pet/dates/PetDate";
+import History from "../screens/pet/history/History";
+import RateService from "../screens/pet/history/RateService";
+import ResumeDate from "../screens/pet/dates/ResumeDate";
+import ChangeDate from "../screens/pet/dates/ChangeDate";
+import { Colors } from "../styles/Colors";
+import StepsRegister from "../screens/pet/register/StepsRegister";
+import Success from "../components/Success";
+import SelectPetVaccines from "../screens/vaccination-record/SelectPetVaccines";
+import PetVaccinesRecord from "../screens/vaccination-record/PetVaccinesRecord";
+import SelectPartner from "../screens/home/health/SelectPartner";
+import ListPartners from "../screens/partners/ListPartners";
+import { NotificationsScreen } from "../screens/Notifications";
+import PetHealth from "../screens/pet/PetHealth/PetHealth";
 import { NotificationIcon } from '../components/notifications';
 import NotificationsStack from './NotificationsStack';
 
@@ -449,7 +452,19 @@ const ProfileStackScreen = ({ navigation }) => (
       options={{
         headerShown: true,
         headerBackTitleVisible: false,
+        title: "Editar perfil",
+        headerTitleAlign:"center",
+        headerTintColor: "black",
+      }}
+    />
+    <ProfileStack.Screen
+      name="ProfileEditUserMenu"
+      component={ProfileEditUserMenu}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
         title: "Mi cuenta",
+        headerTitleAlign: "center",
         headerTintColor: "black",
       }}
     />
