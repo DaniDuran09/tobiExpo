@@ -53,6 +53,7 @@ import SelectPartner from "../screens/home/health/SelectPartner";
 import ListPartners from "../screens/partners/ListPartners";
 import { NotificationsScreen } from "../screens/Notifications";
 import PetHealth from "../screens/pet/PetHealth/PetHealth";
+import PetInfo from "../screens/pet/PetInfo/PetInfo";
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -220,6 +221,19 @@ const HomeStackScreen = ({ navigation }) => (
     <HomeStack.Screen
       name="HomeProfileDetails"
       component={PetHealth}
+      options={({ route }) => {
+        console.log("route: ", route);
+        return ({
+          headerShown: true,
+          headerBackTitleVisible: false,
+          title: "Salud",
+          headerTintColor: "black",
+        })
+      }}
+    />
+    <HomeStack.Screen
+      name="PetInfo"
+      component={PetInfo}
       options={({ route }) => {
         console.log("route: ", route);
         return ({

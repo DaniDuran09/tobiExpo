@@ -106,9 +106,7 @@ const PetProfile = () => {
         <View marginL-10 centerV>
           <Text text40BL>{petInfo.name}</Text>
           <Text text80L color={Colors.gray} marginT-5>
-            {`${selectedPet?.age} años | ${petGender} | ${
-              petInfo.sterilized ? "Esterilizado" : "No esterilizado"
-            }`}
+            {`${selectedPet?.age} años | ${petGender} | ${selectedPet.pet_breed.description}`}
           </Text>
         </View>
       </View>
@@ -213,7 +211,9 @@ const PetProfile = () => {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => navigation.navigate("NotificationsTab")}
+          onPress={() =>
+            navigation.navigate("PetInfo", { pet: selectedPet })
+          }
         >
           <View
             row
