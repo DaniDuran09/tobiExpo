@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { View, Text } from "react-native-ui-lib";
+import { View, Text, AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
 import HealthTabController from "../../../components/pet/Health/HealthTabController/HealthTabController";
 import ListSelectPet from "../../../components/pet/Health/ListSelectPet/ListSelectPet";
@@ -9,13 +9,14 @@ import VaccinesPage from "../../../components/pet/Health/VaccinesPage";
 
 import { useGetPetsQuery } from "../../../services/api/pets.api";
 import { useGetProfileQuery } from "../../../services/api/user.api";
-import { useGetVaccinationRecordsQuery } from "../../../services/api/health.api";
+import {
+  useGetVaccinationRecordsQuery,
+  useGetVaccinesQuery,
+} from "../../../services/api/health.api";
 
 import { Colors } from "../../../styles/Colors";
 
-import { Avatar } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
-
 
 const PetHealth = () => {
   const route = useRoute();
@@ -37,6 +38,11 @@ const PetHealth = () => {
     isLoading: isLoadingVaccines,
   } = useGetVaccinationRecordsQuery(selectedPet.id || idSelectedPet);
   const vaccines = vaccinesResponse?.data || [];
+
+  const { data: vaccineBrandsResponse, isLoading: isLoadingVaccineBrands } =
+    useGetVaccinesQuery(selectedPet.id || idSelectedPet);
+  const vaccineBrands = vaccineBrandsResponse?.data.vaccine_brands || [];
+  const dewormersBrands = vaccineBrandsResponse?.data.dewormer_brands || [];
 
   useEffect(() => {
     refetchVaccines();
@@ -76,11 +82,13 @@ const PetHealth = () => {
       ) : (
         <>
           <View row gap-10>
-            <Avatar.Image
-              source={{
-                uri: user?.picture,
-              }}
-              size={50}
+            <AnimatedImage
+              source={{ uri: user?.picture || "" }}
+              height={50}
+              width={50}
+              borderRadius={50}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
             />
             <View centerV>
               <Text
@@ -102,6 +110,11 @@ const PetHealth = () => {
               initialIndex={0}
               firstPage={
                 <VaccinesPage
+                  refreshData={refetchVaccines}
+                  isLoading={
+                    isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands
+                  }
+                  vaccineBrands={vaccineBrands}
                   selectedPet={selectedPet}
                   allVaccines={allVaccines}
                 />
