@@ -59,39 +59,39 @@ const PetProfile = () => {
       selectImageFromLibrary();
     }
   };
-    const closeDeleteModal = () => {
-      setShowDeletModal(false);
-      setIdItemSelected(0);
-    };
-  
-    const deletePet = async (id) => {
-      try {
-        const status = await apiFetcher.deletePet(id);
-        console.log("IMPRIME EL STATUS", status);
-  
-        if (status.code === 200) {
-          closeDeleteModal();
-          Toast.show({
-            type: "success",
-            text1: "Eliminada",
-            text2: "Mascota eliminada correctamente",
-          });
-          navigation.goBack();
-        }
-      } catch (error) {
+  const closeDeleteModal = () => {
+    setShowDeletModal(false);
+    setIdItemSelected(0);
+  };
+
+  const deletePet = async (id) => {
+    try {
+      const status = await apiFetcher.deletePet(id);
+      console.log("IMPRIME EL STATUS", status);
+
+      if (status.code === 200) {
+        closeDeleteModal();
         Toast.show({
-          type: "error",
-          text2: `Error`,
-          text1: `Error al eliminar la mascota`,
+          type: "success",
+          text1: "Eliminada",
+          text2: "Mascota eliminada correctamente",
         });
-        console.error(error);
+        navigation.goBack();
       }
-    };
-  
-    const selectDeleteItem = (id) => {
-      setIdItemSelected(id);
-      setShowDeletModal(true);
-    };
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text2: `Error`,
+        text1: `Error al eliminar la mascota`,
+      });
+      console.error(error);
+    }
+  };
+
+  const selectDeleteItem = (id) => {
+    setIdItemSelected(id);
+    setShowDeletModal(true);
+  };
 
   const requestLibraryPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -405,16 +405,16 @@ const PetProfile = () => {
                 color={Colors.gray}
               />
               <TouchableOpacity onPress={() => selectDeleteItem(item.id)}>
-              <Text color={Colors.gray} marginL-5>
-                Eliminar mascota
-              </Text>
+                <Text color={Colors.gray} marginL-5>
+                  Eliminar mascota
+                </Text>
               </TouchableOpacity>
             </View>
 
             <Button
               backgroundColor={Colors.primaryColor}
               label="Actualizar"
-              style={{ borderRadius: 10, padding: 15 }}
+              style={{ borderRadius: 10, padding: 10 }}
               onPress={updatePet}
             />
           </View>
@@ -448,9 +448,7 @@ const PetProfile = () => {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("ProfileEditUser")}
-          >
+          <TouchableOpacity>
             <View
               row
               spread
