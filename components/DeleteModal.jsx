@@ -28,25 +28,26 @@ const DeleteModal = props => {
               style={styles.dangerIcon}
             />
             <Text style={styles.titleModal}>
-              ¿Estás seguro de eliminar el perfil de tu mascota?
+            ¿Estás seguro de eliminar el perfil de tu mascota?
             </Text>
             <Text style={styles.moreInfo}>
-              Esta acción borrará toda la información y ya no podrás
-              recuperarla.
+            Esta acción borrará toda la 
+            información de forma irreversible.
             </Text>
             <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+                style={[styles.button, {backgroundColor: Colors.danger}]}
+                onPress={deletePet}>
+                <Text style={[styles.textButton, {color: Colors.white}]}>
+                  Si, eliminar
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={closeModal}>
                 <Text style={[styles.textButton, {color: Colors.danger}]}>
                   Cancelar
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, {backgroundColor: Colors.danger}]}
-                onPress={deletePet}>
-                <Text style={[styles.textButton, {color: Colors.white}]}>
-                  Eliminar
-                </Text>
-              </TouchableOpacity>
+              
             </View>
           </View>
         </View>
