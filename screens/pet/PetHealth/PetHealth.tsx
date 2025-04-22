@@ -153,7 +153,6 @@ const PetProfile = () => {
           }}
           autoCapitalize="none"
         />
-
         <View
           marginT-20
           height={60}
@@ -212,7 +211,7 @@ const PetProfile = () => {
         </View>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("PetInfo", { pet: selectedPet })
+            navigation.navigate("IdInfoPet", { pet: selectedPet })
           }
         >
           <View

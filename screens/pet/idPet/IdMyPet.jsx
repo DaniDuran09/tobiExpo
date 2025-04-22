@@ -11,6 +11,14 @@ import NoPets from "../../../components/NoPets";
 const IdMyPet = () => {
   const [pets, setPets] = useState({});
   const [loading, setLoading] = useState(true);
+  const rawGender = pet?.pet_breed?.life_stages?.[0]?.gender;
+  const petGender =
+    rawGender === "male"
+      ? "Macho"
+      : rawGender === "female"
+      ? "Hembra"
+      : "Sin especificar";
+
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
@@ -54,11 +62,7 @@ const IdMyPet = () => {
             loader={<LoaderScreen color={Colors.primaryColor} size={20} />}
             animationDuration={500}
           />
-          {/* <Image
-            source={{ uri: item.picture }}
-            style={styles.imageItem}
-            resizeMode="cover"
-          /> */}
+
           <View style={styles.containerPetInfo}>
             <Text style={styles.itemTitle}>{item.name}</Text>
             <Text style={styles.itemDescription}>
