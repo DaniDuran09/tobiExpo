@@ -225,15 +225,14 @@ const ProfileScreen = ({ route, navigation }) => {
   const renderItem = (item) => {
     return (
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("HomeProfileDetails", { item, tabIndex: 0 })
-        }
+        onPress={() => navigation.navigate("PetProfile", { item })}
         bg-white
         style={{
           shadowColor: Colors.gray,
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
           shadowRadius: 2,
+          elevation: 5,
         }}
       >
         <View row height={80} centerV paddingH-10 spread>
@@ -306,7 +305,7 @@ const ProfileScreen = ({ route, navigation }) => {
         )}
         <View>
           {/* <View absR marginR-30> */}
-          
+
           {/* </View> */}
           {userData.picture ? (
             <View width={"100%"} center>
@@ -348,7 +347,6 @@ const ProfileScreen = ({ route, navigation }) => {
             <FlatList
               keyExtractor={(item, index) => `item-${index}`}
               data={data}
-              ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               refreshControl={
                 <RefreshControl
                   refreshing={loading}
@@ -357,10 +355,19 @@ const ProfileScreen = ({ route, navigation }) => {
                 />
               }
               renderItem={({ item }) => renderItem(item)}
+              contentContainerStyle={{ gap: 10, marginBottom: 10 }}
             />
           ) : (
             <View style={styles.noPetsContainer}>
-              <NoPets />
+              <TouchableOpacity
+                backgroundColor={Colors.primaryColor}
+                paddingH-70
+                paddingV-10
+                br20
+                onPress={()=>navigation.navigate("RegisterNewPet")}
+              >
+                <Text text80M color={Colors.white}>¡Registra a tu mascota!</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -440,6 +447,7 @@ const styles = StyleSheet.create({
   noPetsContainer: {
     marginTop: "5%",
     alignItems: "center",
+    justifyContent: "center",
     height: "40%",
     shadowColor: "#000000",
     shadowOpacity: 0.8,

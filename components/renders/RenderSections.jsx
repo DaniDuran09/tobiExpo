@@ -73,7 +73,7 @@ const RenderSections = ({ item }) => {
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.2,
           shadowRadius: 2,
-          elevation: 2,
+          elevation: 5,
         }}
       >
         <Section
@@ -81,7 +81,7 @@ const RenderSections = ({ item }) => {
           tabIndex={0}
           children={
             <>
-              <Text text70BL>Vacunas</Text>
+              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>Vacunas</Text>
               <Text text90M>Próximos vencimientos</Text>
               {/* <Text text80BL>{service}</Text> */}
               <Text text90MM>Faltan</Text>
@@ -100,7 +100,7 @@ const RenderSections = ({ item }) => {
           tabIndex={1}
           children={
             <>
-              <Text text70BL>Desparacitación</Text>
+              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>Desparacitación</Text>
               <Text text90M>Próximos vencimientos</Text>
               <Text text90MM>Faltan</Text>
               <View alignSelf="flex-end">
@@ -125,9 +125,10 @@ const RenderSections = ({ item }) => {
         <Section
           item={item}
           tabIndex={2}
+          screen="Weight"
           children={
             <>
-              <Text text70BL>PESO</Text>
+              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>PESO</Text>
 
               {/* <View row>
                 <View centerH>
@@ -140,7 +141,7 @@ const RenderSections = ({ item }) => {
                   <Text text80BO>{`${rangeTwo} Kg`}</Text>
                 </View>
               </View> */}
-              <View marginV-5>
+              <View>
                 <Text text90M>Rango ideal</Text>
                 <Text text80BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
               </View>

@@ -16,7 +16,6 @@ import useNotificationsPermissions from "../../../hooks/useNotificationsPermissi
 import { useNotificationsContext } from "../../../context/NotificationContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
   const dispatch = useDispatch();
@@ -27,8 +26,8 @@ const HomeScreen = ({ navigation }: any) => {
 
   const apiFetcher = new ApiFetcher();
 
-  const { notificationPermissionResponse } = useNotificationsPermissions()
-  const { registerForPushNotifications } = useNotificationsContext()
+  const { notificationPermissionResponse } = useNotificationsPermissions();
+  const { registerForPushNotifications } = useNotificationsContext();
 
   useEffect(() => {
     fetchData();
@@ -36,9 +35,9 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     if (notificationPermissionResponse?.granted) {
-      registerForPushNotifications()
+      registerForPushNotifications();
     }
-  }, [notificationPermissionResponse])
+  }, [notificationPermissionResponse]);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,28 +153,24 @@ const HomeScreen = ({ navigation }: any) => {
           </Text>
         </View>
       </View>
-      <View center marginT-30 marginB-90>
-        {data.length > 0 ? (
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => `item-${index}`}
-            data={data}
-            refreshControl={
-              <RefreshControl
-                refreshing={loading}
-                onRefresh={() => fetchData()}
-                tintColor={Colors.primaryColor}
-                title="Loading..."
-                titleColor="black"
-                colors={["black", "black", "black"]}
-                progressBackgroundColor="white"
-              />
-            }
-            renderItem={({ item }) => <RenderSections item={item} />}
-          />
-        ) : (
-          <NoPetsHome />
-        )}
+      <View center marginT-30 marginB-10>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) => `item-${index}`}
+          data={data}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={() => fetchData()}
+              tintColor={Colors.primaryColor}
+              title="Loading..."
+              titleColor={Colors.primaryColor}
+            />
+          }
+          renderItem={({ item }) => <RenderSections item={item} />}
+          contentContainerStyle={{ flexGrow: 1 }}
+          ListEmptyComponent={<NoPetsHome />}
+        />
       </View>
     </SafeAreaView>
   );

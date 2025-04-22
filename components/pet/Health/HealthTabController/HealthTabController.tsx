@@ -22,10 +22,10 @@ const HealthTabController: React.FC<HealthTabControllerProps> = ({
         />
         <View flex>
           <TabController.TabPage index={0}>
-            <View>{firstPage}</View>
+            <View flex>{firstPage}</View>
           </TabController.TabPage>
           <TabController.TabPage index={1} lazy>
-            <View>{secondPage}</View>
+            <View flex>{secondPage}</View>
           </TabController.TabPage>
         </View>
       </TabController>

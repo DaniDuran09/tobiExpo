@@ -17,10 +17,11 @@ import {
 import { Colors } from "../../../styles/Colors";
 
 import { useRoute } from "@react-navigation/native";
+import DerwomersPage from "../../../components/pet/Health/DerwomersPage";
 
 const PetHealth = () => {
   const route = useRoute();
-  const { idSelectedPet } = route.params as { idSelectedPet: number };
+  const { idSelectedPet, tabIndex } = route.params as { idSelectedPet: number, tabIndex: number };
 
   const [selectedPet, setSelectedPet] = useState<Pet>({} as Pet);
   const [allVaccines, setAllVaccines] = useState<any[]>([]);
@@ -107,7 +108,7 @@ const PetHealth = () => {
           />
           <View marginT-10>
             <HealthTabController
-              initialIndex={0}
+              initialIndex={tabIndex}
               firstPage={
                 <VaccinesPage
                   refreshData={refetchVaccines}
@@ -119,7 +120,14 @@ const PetHealth = () => {
                   allVaccines={allVaccines}
                 />
               }
-              secondPage={<Text>Desparacitaciones</Text>}
+              secondPage={<DerwomersPage
+                refreshData={refetchVaccines}
+                isLoading={
+                  isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands
+                }
+                derwomersBrands={dewormersBrands}
+                selectedPet={selectedPet}
+                allDerwomers={allDewormers} />}
             />
           </View>
         </>

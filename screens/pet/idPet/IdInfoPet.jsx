@@ -1,16 +1,9 @@
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, ScrollView, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "../../../styles/Colors";
 import WithoutPhoto from "../../../components/WithoutPhoto";
-import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
 
 const IdInfoPet = ({ route }) => {
   const user = useSelector((state) => state.user.userInfo);
@@ -18,10 +11,18 @@ const IdInfoPet = ({ route }) => {
 
   const [option, setOption] = useState(1);
 
+  const rawGender = pet?.pet_breed?.life_stages?.[0]?.gender;
+  const petGender =
+    rawGender === "male"
+      ? "Macho"
+      : rawGender === "female"
+      ? "Hembra"
+      : "Sin especificar";
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.containerInfo}>
-        <View style={styles.headerContainer}>
+        <View padding-10 row gap-10>
           {pet?.picture ? (
             <AnimatedImage
               source={{ uri: pet.picture }}
@@ -32,22 +33,20 @@ const IdInfoPet = ({ route }) => {
           ) : (
             <WithoutPhoto />
           )}
-          <Text style={styles.textInfo}>
+          
+            <View centerV>
+              <Text text40BL>{pet.name}</Text>
+              <Text text80L color={Colors.gray} marginT-5>
+                {`${pet?.age} años | ${petGender} | ${pet.pet_breed.description}`}
+              </Text>
+            </View>
+          
+          {/* <Text style={styles.textInfo}>
             {pet?.picture ? "Editar foto de perfil" : "Agregar foto de perfil"}
-          </Text>
-        </View>
-        <View style={styles.selectContainer}>
-          <TouchableOpacity
-            style={option === 1 ? styles.optionSelected : {}}
-            onPress={() => setOption(1)}
-          >
-            <Text style={option === 1 ? styles.selected : styles.notSelected}>
-              INFORMACIÓN
-            </Text>
-          </TouchableOpacity>
+          </Text> */}
         </View>
         <View style={styles.userInfo}>
-          <Text style={styles.title}>Dueño</Text>
+          <Text text70BO>PET PARENT</Text>
           <View style={styles.info}>
             <View style={styles.rowInformation}>
               <View style={styles.containerImage}>
@@ -100,7 +99,7 @@ const IdInfoPet = ({ route }) => {
           </View>
         </View>
         <View style={styles.userInfo}>
-          <Text style={styles.title}>Mascota</Text>
+          <Text text70BO>Mascota</Text>
           <View style={styles.info}>
             <View style={styles.rowInformation}>
               <View style={styles.containerImage}>
@@ -220,12 +219,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 0,
     backgroundColor: Colors.white,
-    shadowColor: Colors.gray,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
     marginBottom: 10,
-    elevation: 5,
   },
   title: {
     fontSize: 18,
