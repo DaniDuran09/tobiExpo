@@ -5,15 +5,14 @@ import { useNavigation } from "@react-navigation/native";
 import { Colors, Text, View } from "react-native-ui-lib";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Feather from "react-native-vector-icons/Feather";
+import { useNotificationsContext } from "../context/NotificationContext";
 
 const BottomMenu = () => {
   const navigation = useNavigation();
+  const { notifications } = useNotificationsContext()
+  const unreadNotifications = notifications.filter(n => !n.readed)
   const addNewPet = () => {
     navigation.navigate("RegisterNewPet");
-  };
-
-  const screenNavigate = (screenName) => {
-    navigation.navigate(screenName);
   };
 
   return (
@@ -26,7 +25,9 @@ const BottomMenu = () => {
           MI ACTIVIDAD
         </Text>
       </View>
-      <TouchableOpacity onPress={()=>navigation.navigate("NotificationsTab")}>
+      <TouchableOpacity onPress={() => {
+        navigation.navigate("Notifications", { screen: "NotificationsHome" })
+      }}>
         <View
           row
           spread
@@ -40,12 +41,12 @@ const BottomMenu = () => {
             <Text text70>Notificaciones</Text>
           </View>
           <View row gap-10 centerV>
-            <Text>0</Text>
+            <Text text70BO>{unreadNotifications.length}</Text>
             <Icon name="chevron-right" size={25} color={Colors.red} />
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUser")}>
+      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUserMenu")}>
         <View
           row
           spread

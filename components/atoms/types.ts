@@ -19,3 +19,8 @@ export type ButtonProps = ButtonPropsType & {
   [key: string]: any;
   loading?: boolean;
 };
+ export interface UploadImageProps {
+  visible: boolean;
+  onRequestClose: () => void;
+  onUpload: () => void;
+ }

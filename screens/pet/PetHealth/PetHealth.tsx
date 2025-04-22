@@ -35,7 +35,6 @@ const PetProfile = () => {
   const [imageSource, setImageSource] = useState(null);
   const [showDeleteModal, setShowDeletModal] = useState(false);
   const [idItemSelected, setIdItemSelected] = useState(0);
-
   const [permissionsRequested, setPermissionsRequested] = useState({
     camera: false,
     library: false,
@@ -183,6 +182,11 @@ const PetProfile = () => {
   };
 
   const closeModal = () => setModalVisible(false);
+
+  const { data: vaccineBrandsResponse, isLoading: isLoadingVaccineBrands } =
+    useGetVaccinesQuery(selectedPet.id || idSelectedPet);
+  const vaccineBrands = vaccineBrandsResponse?.data.vaccine_brands || [];
+  const dewormersBrands = vaccineBrandsResponse?.data.dewormer_brands || [];
 
   useEffect(() => {
     getPetInfo();
@@ -345,7 +349,6 @@ const PetProfile = () => {
             }}
             autoCapitalize="none"
           />
-
           <Text marginB-5 marginT-20 text80>
             Peso de tu mascota
           </Text>

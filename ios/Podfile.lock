@@ -1549,6 +1549,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSVG (15.11.2):
+    - React-Core
   - RNVectorIcons (10.1.0):
     - DoubleConversion
     - glog
@@ -1704,6 +1706,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - "stripe-react-native (from `../node_modules/@stripe/stripe-react-native`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -1897,6 +1900,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   stripe-react-native:
@@ -1993,6 +1998,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 05632f356357a1682b0c1ef1e06acecfa43b0d54
   RNReanimated: 76f916b85bb322b7075f1f9022e4bc0c3f59b7c6
   RNScreens: 16ad8ab2ffcb02b7e5d1e047eda9a4c0ecc94c78
+  RNSVG: 2df577ee9762d1b6deef820173b59b064c2570fe
   RNVectorIcons: c96187ecb8207acdfb70c81906f44643f0805a31
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Stripe: e6f816be5a573f7ef45b82d9d843130154fd0269

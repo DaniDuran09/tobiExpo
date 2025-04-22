@@ -19,7 +19,8 @@ import ProfileScreen from "../screens/ProfileScreen";
 import ProfileDetails from "../screens/ProfileDetails";
 import ProfileEdit from "../screens/ProfileEdit";
 import EditPet from "../screens/EditPet";
-import ProfileEditUser from "../screens/ProfileEditUser";
+import ProfileEditUser from "../screens/ProfileEditUser/ProfileEditUser";
+import ProfileEditUserMenu from "../screens/ProfileEditUserMenu/ProfileEditUserMenu"
 import ProfileEditPet from "../screens/ProfileEditPet";
 import ProfileEditPetInfo from "../screens/ProfileEditPetInfo";
 import ProfileEditPetInfo2 from "../screens/ProfileEditPetInfo2";
@@ -53,6 +54,8 @@ import SelectPartner from "../screens/home/health/SelectPartner";
 import ListPartners from "../screens/partners/ListPartners";
 import { NotificationsScreen } from "../screens/Notifications";
 import PetHealth from "../screens/pet/PetHealth/PetHealth";
+import { NotificationIcon } from '../components/notifications';
+import NotificationsStack from './NotificationsStack';
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -123,8 +126,10 @@ const MainTabScreen = () => (
         ),
       }}
     />
-    <Tab.Screen
-      name="PetParent"
+    {
+      /*
+      <Tab.Screen
+      name="Notifications2"
       component={DetailsStackScreen}
       options={{
         headerShown: false,
@@ -136,6 +141,21 @@ const MainTabScreen = () => (
             style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
             resizeMode="contain"
           />
+        ),
+      }}
+    />
+    */
+    }
+
+    <Tab.Screen
+      name="Notifications"
+      component={NotificationsStack}
+      options={{
+        headerShown: false,
+        tabBarLabel: '',
+        tabBarColor: '#fff',
+        tabBarIcon: ({ color }) => (
+          <NotificationIcon color={color} size={28} style={{ marginTop: 15 }} />
         ),
       }}
     />
@@ -263,13 +283,6 @@ const HomeStackScreen = ({ navigation }) => (
         headerBackTitleVisible: false,
         title: "Seleccionar al especialista",
         headerTintColor: "black",
-      }}
-    />
-    <HomeStack.Screen
-      name="Notifications"
-      component={NotificationsScreen}
-      options={{
-        headerShown: false,
       }}
     />
   </HomeStack.Navigator>
@@ -439,7 +452,19 @@ const ProfileStackScreen = ({ navigation }) => (
       options={{
         headerShown: true,
         headerBackTitleVisible: false,
+        title: "Editar perfil",
+        headerTitleAlign:"center",
+        headerTintColor: "black",
+      }}
+    />
+    <ProfileStack.Screen
+      name="ProfileEditUserMenu"
+      component={ProfileEditUserMenu}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
         title: "Mi cuenta",
+        headerTitleAlign: "center",
         headerTintColor: "black",
       }}
     />
