@@ -13,8 +13,9 @@ export const Colors = {
     pink: "rgba(239, 65, 54, 0.1)",
     green: "#07C160",
     danger: "#EF4136",
-    mediumGray:"#4d4d4c",
+    mediumGray:"#F0AF96",
     blueLight:"#3169D6",
+    translucent:"rgba(0, 0, 0, 0.8)"
 } as const
 
 export const gradientColors: Array<string> = ["#FF6A64", "#FE9D11"]

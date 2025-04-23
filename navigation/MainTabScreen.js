@@ -36,7 +36,7 @@ import SecondScreenRegisterPet from "../screens/pet/register/SecondScreenRegiste
 import ThirdScreenRegisterPet from "../screens/pet/register/ThirdScreenRegisterPet";
 import FinalScreenRegisterPet from "../screens/pet/register/FinalScreenRegisterPet";
 import IdMyPet from "../screens/pet/idPet/IdMyPet";
-import IdInfoPet from "../screens/pet/idPet/IdInfoPet";
+import IdInfoPet from "../screens/pet/idPet/IdInfoPet/IdInfoPet";
 import MyCards from "../screens/cards/MyCards";
 import AddNewCard from "../screens/cards/AddNewCard";
 import Dates from "../screens/pet/dates/Dates";
