@@ -5,6 +5,7 @@ import { Colors } from "../../../../styles/Colors";
 import WithoutPhoto from "../../../../components/WithoutPhoto";
 import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 import { IdInfoPetProps } from "./types";
+import RenderInfoPets from "../../../../components/renders/RenderInfoPets";
 
 const IdInfoPet = ({ route }: IdInfoPetProps) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -12,19 +13,18 @@ const IdInfoPet = ({ route }: IdInfoPetProps) => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.white }}>
-      <View paddingT-10>
+      <View >
         <View
           padding-10
+          paddingB-20
           row
           style={{
-            shadowColor: Colors.gray,
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 5,
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
           }}
         >
           {pet?.picture ? (
+            
             <AnimatedImage
               height={120}
               width={120}
@@ -44,81 +44,49 @@ const IdInfoPet = ({ route }: IdInfoPetProps) => {
           </View>
         </View>
 
-        <View padding-10 row gap-20 marginV-5>
+        <View
+          paddingL-30
+          paddingV-15
+          style={{
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
+          }}
+        >
           <Text text70BL>PET PARENT</Text>
         </View>
 
         <View
           padding-10
           backgroundColor={Colors.white}
-          marginB-10
           style={{
-            shadowColor: Colors.gray,
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 5,
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
           }}
         >
-          <View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/user-icon.png")}
-                  style={{ height: 30, width: 30 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-
-              <Text text70L>Nombre</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{user?.name}</Text>
-            </View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/phone-icon.png")}
-                  style={{ height: 30, width: 30 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-              <Text text70L>Celular</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{user?.phone}</Text>
-            </View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/mail-icon.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View>
-              <Text text70L>E-mail</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{user?.email}</Text>
-            </View>
-          </View>
+          <RenderInfoPets
+            icon={require("../../../../assets/user-icon.png")}
+            label="Nombre"
+            value={user?.name}
+          />
+          <RenderInfoPets
+            icon={require("../../../../assets/phone-icon.png")}
+            label="Celular"
+            value={user?.phone}
+          />
+          <RenderInfoPets
+            icon={require("../../../../assets/mail-icon.png")}
+            label="E-mail"
+            value={user?.email}
+          />
         </View>
-        <View padding-10 row gap-20 marginV-5>
+        <View
+          paddingL-30
+          paddingV-15
+          style={{
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
+          }}
+        >
           <Text text70BL>MASCOTA</Text>
         </View>
         <View
@@ -126,89 +94,30 @@ const IdInfoPet = ({ route }: IdInfoPetProps) => {
           backgroundColor={Colors.white}
           marginB-10
           style={{
-            shadowColor: Colors.gray,
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 5,
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
           }}
         >
-          <View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/fingerprint-icon.png")}
-                  style={{ height: 20, width: 20 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-              <Text text70L>Nombre</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{pet?.name}</Text>
-            </View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/cake-icon.png")}
-                  style={{ height: 20, width: 20 }}
-                  resizeMode={"cover"}
-                />
-              </View>
-              <Text text70L>Edad</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{pet?.age}</Text>
-            </View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/pet-dog-icon.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View>
-              <Text text70L>Raza</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>{pet?.pet_breed.name}</Text>
-            </View>
-            <View row marginT-15>
-              <View width={"10%"}>
-                <Image
-                  source={require("../../../../assets/female.png")}
-                  style={{ height: 25, width: 25 }}
-                  resizeMode={"contain"}
-                />
-              </View>
-              <Text text70L>Género</Text>
-            </View>
-            <View
-              style={{ borderBottomColor: Colors.gray, borderBottomWidth: 0.3 }}
-              row
-              paddingB-10
-            >
-              <View width={"10%"} />
-              <Text text70BL>
-                {pet?.pet_breed?.life_stages?.[0]?.gender}
-              </Text>
-            </View>
-          </View>
+          <RenderInfoPets
+            icon={require("../../../../assets/fingerprint-icon.png")}
+            label="Nombre"
+            value={pet?.name}
+          />
+          <RenderInfoPets
+            icon={require("../../../../assets/cake-icon.png")}
+            label="Edad"
+            value={pet?.age}
+          />
+          <RenderInfoPets
+            icon={require("../../../../assets/pet-dog-icon.png")}
+            label="Raza"
+            value={pet?.pet_breed.name}
+          />
+          <RenderInfoPets
+            icon={require("../../../../assets/female.png")}
+            label="Género"
+            value={pet?.pet_breed?.life_stages?.[0]?.gender}
+          />
         </View>
       </View>
     </ScrollView>

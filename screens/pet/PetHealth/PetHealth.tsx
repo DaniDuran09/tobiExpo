@@ -35,6 +35,7 @@ const PetProfile = () => {
   const [imageSource, setImageSource] = useState(null);
   const [showDeleteModal, setShowDeletModal] = useState(false);
   const [idItemSelected, setIdItemSelected] = useState(0);
+
   const [permissionsRequested, setPermissionsRequested] = useState({
     camera: false,
     library: false,
@@ -183,11 +184,6 @@ const PetProfile = () => {
 
   const closeModal = () => setModalVisible(false);
 
-  const { data: vaccineBrandsResponse, isLoading: isLoadingVaccineBrands } =
-    useGetVaccinesQuery(selectedPet.id || idSelectedPet);
-  const vaccineBrands = vaccineBrandsResponse?.data.vaccine_brands || [];
-  const dewormersBrands = vaccineBrandsResponse?.data.dewormer_brands || [];
-
   useEffect(() => {
     getPetInfo();
   }, []);
@@ -285,13 +281,11 @@ const PetProfile = () => {
       <ScrollView style={{ flex: 1, backgroundColor: Colors.white }}>
         <View
           padding-10
+          paddingB-20
           row
           style={{
-            shadowColor: Colors.gray,
-            shadowOffset: { width: 0, height: 3 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 5,
+            borderBottomColor: Colors.secondGray,
+            borderBottomWidth: 1,
           }}
         >
           <View center>
@@ -349,6 +343,7 @@ const PetProfile = () => {
             }}
             autoCapitalize="none"
           />
+
           <Text marginB-5 marginT-20 text80>
             Peso de tu mascota
           </Text>
