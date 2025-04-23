@@ -17,9 +17,11 @@ export const petsApi = createApi({
     endpoints: (builder) => ({
         getPets: builder.query<ApiResponse<Pet[]>, void>({
             query: () => '/pets',
+            keepUnusedDataFor: 0
         }),
         getPetById: builder.query<Pet, number>({
             query: (id) => `/pets/${id}`,
+            keepUnusedDataFor: 0
         }),
         createPet: builder.mutation<Pet, Partial<Pet>>({
             query: (data) => ({
@@ -50,6 +52,7 @@ export const petsApi = createApi({
         }),
         getPetBreeds: builder.query<any[], number>({
             query: (typeId) => `/pets_breeds?type_pet=${typeId}`,
+            keepUnusedDataFor: 0
         }),
     }),
 });

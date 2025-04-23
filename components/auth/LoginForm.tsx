@@ -27,27 +27,19 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
           br10
           bg-white
           style={styles.textInput}
-          paddingL-20
           spread
         >
           <TextInput
+            style={{ width: "100%", height: "100%", paddingLeft: 20 }}
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
             onChangeText={(val) => setInput({ ...input, username: val })}
           />
         </View>
-        <View
-          row
-          centerV
-          height={60}
-          width={"90%"}
-          br10
-          bg-white
-          paddingL-20
-          spread
-        >
+        <View row centerV height={60} width={"90%"} br10 bg-white spread>
           <TextInput
+            style={{ width: "90%", height: "100%", paddingLeft: 20 }}
             placeholder="Contraseña"
             secureTextEntry={visible}
             autoCapitalize="none"
@@ -70,9 +62,11 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             ¿Olvidaste tu contraseña?
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("UserStepsRegister")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("UserStepsRegister")}
+        >
           <Text text80R center color={Colors.white} underline>
-          Registrarse
+            Registrarse
           </Text>
         </TouchableOpacity>
       </View>

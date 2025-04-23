@@ -18,7 +18,7 @@
           "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
-      "bundleIdentifier": "com.tobi"
+      "bundleIdentifier": "com.tobi.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,9 +37,18 @@
     },
     "extra": {
       "eas": {
-        "projectId": "54d03539-f3b9-409a-8b33-18ce275e8698"
+        "projectId": "f65ecfcd-2965-4845-874e-f1581e444da1"
       }
     },
-    "owner": "andy2025"
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ],
+    "owner": "tobiapp"
   }
 }

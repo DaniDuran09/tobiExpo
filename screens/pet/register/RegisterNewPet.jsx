@@ -21,7 +21,6 @@ import { setPetInfo } from "../../../redux/slice/petSlice";
 import TobiButton from "../../../components/TobiButton";
 import { DateTimePicker } from "react-native-ui-lib";
 
-
 const RegisterNewPet = (props) => {
   const { pet, setPet } = props;
 
@@ -170,7 +169,7 @@ const RegisterNewPet = (props) => {
         </View>
         <View style={styles.birthdayContainer}>
           <DateTimePicker
-          display="spinner"
+            display="spinner"
             style={[
               styles.birthdayContainer,
               { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },
@@ -208,7 +207,7 @@ const RegisterNewPet = (props) => {
           */}
           <Image
             source={require("../../../assets/pastel.png")}
-            style={{ height: 30, width: 30 }}
+            style={{ height: 30, width: 30, position: "absolute", right: 10 }}
             resizeMode={"contain"}
           />
         </View>
@@ -290,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: "5%",
+    paddingHorizontal: 10,
     borderRadius: 4,
     height: 60,
     marginTop: "5%",

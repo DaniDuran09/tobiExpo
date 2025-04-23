@@ -8,11 +8,11 @@ import Button from "../../../atoms/Button";
 import Icon from "react-native-vector-icons/AntDesign";
 import UploadImage from "../../../atoms/UploadImage";
 
-const VaccinesPage: React.FC<VaccinesPageProps> = ({
+const DerwomersPage: React.FC<DerwomersPageProps> = ({
   isLoading,
-  vaccineBrands,
+  derwomersBrands,
   selectedPet,
-  allVaccines,
+  allDerwomers,
   refreshData,
 }) => {
   const [idEditPet, setIdEditPet] = useState<number | null>(null);
@@ -34,10 +34,10 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
           initialPage={0}
           pageControlPosition={Carousel.pageControlPositions.UNDER}
         >
-          {allVaccines.map((item) => (
+          {allDerwomers.map((item) => (
             <CardVaccine
               idPet={selectedPet.id}
-              vaccineBrands={vaccineBrands}
+              derwomersBrands={derwomersBrands}
               item={item}
               setIdEditPet={setIdEditPet}
               idEditPet={idEditPet}
@@ -46,7 +46,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
           ))}
         </Carousel>
       )}
-      <View row spread absB absR style={{marginBottom: "22%"}}>
+      <View row spread absB absR style={{ marginBottom: "22%" }}>
         <View />
         <View>
           {idEditPet == null && (
@@ -54,7 +54,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
               <View />
               <TouchableOpacity
                 disabled={isLoading || idEditPet != null}
-                marginB-25
+                marginT-25
                 onPress={() => setVisible(true)}
                 backgroundColor={Colors.mediumGray}
                 paddingH-20
@@ -79,4 +79,4 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
   );
 };
 
-export default VaccinesPage;
+export default DerwomersPage;

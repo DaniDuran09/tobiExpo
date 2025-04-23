@@ -56,6 +56,7 @@ import { NotificationsScreen } from "../screens/Notifications";
 import PetHealth from "../screens/pet/PetHealth/PetHealth";
 import { NotificationIcon } from '../components/notifications';
 import NotificationsStack from './NotificationsStack';
+import PetProfile from "../screens/pet/PetProfile";
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -146,16 +147,19 @@ const MainTabScreen = () => (
     />
     */
     }
-
     <Tab.Screen
-      name="Notifications"
-      component={NotificationsStack}
+      name="PetParent"
+      component={DetailsStackScreen}
       options={{
         headerShown: false,
-        tabBarLabel: '',
-        tabBarColor: '#fff',
+        tabBarLabel: "",
+        tabBarColor: "#fff",
         tabBarIcon: ({ color }) => (
-          <NotificationIcon color={color} size={28} style={{ marginTop: 15 }} />
+          <Image
+            source={require("../assets/social.png")}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+            resizeMode="contain"
+          />
         ),
       }}
     />
@@ -257,6 +261,16 @@ const HomeStackScreen = ({ navigation }) => (
         headerShown: true,
         headerBackTitleVisible: false,
         title: "Registro nueva mascota",
+        headerTintColor: "black",
+      })}
+    />
+    <HomeStack.Screen
+      name="PetProfile"
+      component={PetProfile}
+      options={({ route }) => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "",
         headerTintColor: "black",
       })}
     />

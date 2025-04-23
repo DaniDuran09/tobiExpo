@@ -20,9 +20,11 @@ import ImageOption from "../../../components/ImageOption";
 import * as ImagePicker from "expo-image-picker";
 import DeleteModal from "../../../components/DeleteModal";
 
+
 const PetProfile = () => {
   const navigation = useNavigation();
   const route = useRoute();
+
   const { item } = route.params as { item: Pet };
   const [selectedPet, setSelectedPet] = useState<Pet>(item);
   const [petInfo, setPetInfo] = useState({
@@ -35,6 +37,7 @@ const PetProfile = () => {
   const [imageSource, setImageSource] = useState(null);
   const [showDeleteModal, setShowDeletModal] = useState(false);
   const [idItemSelected, setIdItemSelected] = useState(0);
+
 
   const [permissionsRequested, setPermissionsRequested] = useState({
     camera: false,

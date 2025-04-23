@@ -5,7 +5,7 @@ import Section from "./pet/Section";
 
 const NoPetsHome = () => {
   return (
-    <View flex center>
+    <View flex centerH>
       <NoPets />
       <Text marginV-20>Agregue y actualice los detalles de su mascota</Text>
       <View
@@ -17,7 +17,7 @@ const NoPetsHome = () => {
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.2,
           shadowRadius: 2,
-          elevation: 2,
+          elevation: 5,
         }}
       >
         <Section

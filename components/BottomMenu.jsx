@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -16,7 +16,7 @@ const BottomMenu = () => {
   };
 
   return (
-    <View paddingH-10 absB>
+    <View paddingH-10 absB marginB-20={Platform.OS === "android"} bg-white>
       <TouchableOpacity onPress={addNewPet}>
         <Text marginT-5>+ Mascotas</Text>
       </TouchableOpacity>
@@ -26,7 +26,7 @@ const BottomMenu = () => {
         </Text>
       </View>
       <TouchableOpacity onPress={() => {
-        navigation.navigate("Notifications", { screen: "NotificationsHome" })
+        navigation.navigate("NotificationsTab", { screen: "NotificationsHome" })
       }}>
         <View
           row
@@ -34,7 +34,7 @@ const BottomMenu = () => {
           centerV
           paddingV-15
           width={"100%"}
-          style={{ borderBottomWidth: 0.2 }}
+          style={{ borderBottomWidth: 0.5 }}
         >
           <View row gap-10 centerV marginL-10>
             <Icon name="bell-outline" size={25} color={Colors.red} />
@@ -53,7 +53,7 @@ const BottomMenu = () => {
           centerV
           paddingV-15
           width={"100%"}
-          style={{ borderBottomWidth: 0.2 }}
+          style={{ borderBottomWidth: 0.5 }}
         >
           <View row gap-10 centerV marginL-10>
             <Feather name="user" size={25} color={Colors.red} />

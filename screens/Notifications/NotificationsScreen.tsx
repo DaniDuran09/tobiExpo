@@ -6,11 +6,15 @@ import { FlatList } from "react-native";
 import RenderNotification from "../../components/renders/RenderNotification";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-
+import { useEffect } from "react";
 export default function NotificationsScreen() {
   const navigation = useNavigation<any>()
-  const { notifications, markNotificationAsRead } = useNotificationsContext();
+  const { notifications, markNotificationAsRead, clearNotifications } = useNotificationsContext();
   const notificationsSorted = [...notifications].sort((a, b) => b.date - a.date)
+
+  // useEffect(() => {
+  //   clearNotifications()
+  // }, [])
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>

@@ -6,7 +6,7 @@ import {
   LoaderScreen,
 } from "react-native-ui-lib";
 import React from "react";
-import { Modal } from "react-native";
+import { Dimensions, Modal } from "react-native";
 import { UploadImageProps } from "./types";
 import { Feather, MaterialIcons, Octicons } from "react-native-vector-icons";
 import { Colors } from "../../styles/Colors";
@@ -56,13 +56,7 @@ const UploadImage: React.FC<UploadImageProps> = ({
       onRequestClose={onRequestClose}
     >
       <View flex center backgroundColor={"rgba(0, 0, 0, 0.8)"}>
-        <View
-          height={imageUrl || libraryImageUrl ? "50%" : "22%"}
-          width={"95%"}
-          backgroundColor={"white"}
-          br30
-          padding-15
-        >
+        <View width={"95%"} backgroundColor={"white"} br30 padding-15>
           <View absR margin-10>
             <TouchableOpacity onPress={onRequestClose}>
               <MaterialIcons name="close" size={20} color={"black"} />
@@ -72,14 +66,14 @@ const UploadImage: React.FC<UploadImageProps> = ({
             <Text text60BO>Certificado de vacunación</Text>
             <Text marginV-10>
               {imageUrl || libraryImageUrl
-                ? "Gurdaremos esta fotografía para que la información sea válida y puedes verla o actualziarla en cualquier momento."
-                : "Sube una fotografía del certificado o cartilla de vacunación de tu mascota."}
+                ? "Esta imagen será tu comprobante y parte del historial de salud. Podrás actualizarla con cada nueva vacuna o desparasitación."
+                : "Sube una foto del certificado de vacunación de tu mascota."}
             </Text>
           </View>
           {imageUrl || libraryImageUrl ? (
             <View center marginT-15>
               <AnimatedImage
-                source={{ uri: (imageUrl || libraryImageUrl) || undefined }}
+                source={{ uri: imageUrl || libraryImageUrl || undefined }}
                 height={200}
                 width={200}
                 loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
@@ -90,13 +84,23 @@ const UploadImage: React.FC<UploadImageProps> = ({
                   Elegir otra foto
                 </Text>
               </TouchableOpacity>
-              <Button
+              <TouchableOpacity
+                marginT-25
+                onPress={onUpload}
+                backgroundColor={Colors.mediumGray}
+                paddingH-20
+                paddingV-10
+                br20
+              >
+                <Text color={Colors.white}>Subir</Text>
+              </TouchableOpacity>
+              {/* <Button
                 marginT-25
                 label="Subir"
                 variant="primary"
-                bgColor={Colors.primaryColor}
+                bgColor={Colors.gray}
                 onPress={onUpload}
-              />
+              /> */}
             </View>
           ) : (
             <View marginT-15 gap-15>

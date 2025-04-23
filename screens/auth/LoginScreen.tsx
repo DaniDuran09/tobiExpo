@@ -49,17 +49,18 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.danger }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, flexDirection: "column" }}
-        behavior={"height"}
-      >
-        {isLoading && (
-          <Loading
-            textColor={Colors.white}
-            backgroundColorProp={Colors.danger}
-          />
-        )}
-        <View flex>
+      <View flex>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={"height"}
+          keyboardVerticalOffset={-100}
+        >
+          {isLoading && (
+            <Loading
+              textColor={Colors.white}
+              backgroundColorProp={Colors.danger}
+            />
+          )}
           <View flex>
             <View padding-20>
               <Image
@@ -72,34 +73,33 @@ const LoginScreen = () => {
 
             <LoginForm onSubmit={loginHandle} />
           </View>
-          <View centerH>
-            <View absB center >
-              <Text color={Colors.white}>
-                Al registrarse, aceptas el
+        </KeyboardAvoidingView>
+
+        <View centerH paddingB-20>
+          <Text color={Colors.white}>Al registrarse, aceptas el</Text>
+          <View row>
+            <TouchableOpacity
+              onPress={() =>
+                openLink("https://tobipets.mx/terminos-y-condiciones-app")
+              }
+            >
+              <Text color={Colors.white} underline>
+                Aviso de usuario{" "}
               </Text>
-              <View row>
-                <TouchableOpacity
-                  onPress={() =>
-                    openLink("https://tobipets.mx/terminos-y-condiciones-app")
-                  }
-                >
-                  <Text color={Colors.white} underline>Aviso de usuario </Text>
-                </TouchableOpacity>
-                <Text color={Colors.white}>y la </Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    openLink("https://tobipets.mx/aviso-de-privacidad-app")
-                  }
-                >
-                  <Text color={Colors.white} underline>
-                    Política de Privacidad
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            </TouchableOpacity>
+            <Text color={Colors.white}>y la </Text>
+            <TouchableOpacity
+              onPress={() =>
+                openLink("https://tobipets.mx/aviso-de-privacidad-app")
+              }
+            >
+              <Text color={Colors.white} underline>
+                Política de Privacidad
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };

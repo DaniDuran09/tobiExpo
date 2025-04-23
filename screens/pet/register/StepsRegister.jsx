@@ -69,7 +69,11 @@ const StepsRegister = () => {
       });
       const response = await apiFetcher.updatePicturePet(idPet, formData);
     } catch (error) {
-      console.log("Ocurrió un error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Error al guardar la foto",
+        text2: `Intenta de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }
@@ -158,6 +162,7 @@ const StepsRegister = () => {
         />
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
+          disabled={loading}
             style={styles.buttonNext}
             onPress={() => nextStep(currentPosition)}
           >

@@ -7,11 +7,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Context = createContext({
     notifications: [],
     markNotificationAsRead: (notificationId: string) => { },
-    registerForPushNotifications: () => { }
+    registerForPushNotifications: () => { },
+    clearNotifications: () => { }
 } as {
     notifications: (Notifications.Notification & { readed: boolean })[]
     markNotificationAsRead: (notificationId: string) => void
     registerForPushNotifications: () => void
+    clearNotifications: () => void
 })
 
 Notifications.setNotificationHandler({
@@ -25,6 +27,11 @@ Notifications.setNotificationHandler({
 export default function NotificationContext({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<(Notifications.Notification & { readed: boolean })[]>([])
     const notificationListener = useRef<Notifications.Subscription>();
+
+    const clearNotifications = async () => {
+        await AsyncStorage.removeItem("notifications")
+        setNotifications([])
+    }
 
     const registerForPushNotifications = async () => {
 
@@ -87,7 +94,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
     }, [])
 
     return (
-        <Context.Provider value={{ notifications: notifications, markNotificationAsRead: markNotificationAsRead, registerForPushNotifications }}>
+        <Context.Provider value={{ notifications: notifications, markNotificationAsRead: markNotificationAsRead, registerForPushNotifications, clearNotifications }}>
             {children}
         </Context.Provider>
     )

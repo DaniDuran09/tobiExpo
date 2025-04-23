@@ -17,13 +17,13 @@ import CalendarIcon from "../../../../assets/svg/calendar-icon.svg";
 import Toast from "react-native-toast-message";
 import { useSaveVaccineMutation } from "../../../../services/api/health.api";
 
-const CardVaccine: React.FC<CardVaccineProps> = ({
+const CardDerwomers: React.FC<CardDerwomersProps> = ({
   idPet,
   vaccineBrands,
   item,
   setIdEditPet,
   idEditPet,
-  refreshData = ()=> {},
+  refreshData,
 }) => {
   const [date, setDate] = useState<Date | null>(null);
   const [labelDate, setLabelDate] = useState<string>("");
@@ -31,7 +31,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   const [showHint, setShowHint] = useState<boolean>(false);
   const [saveVaccine, { isLoading }] = useSaveVaccineMutation();
 
-  const formattedBrands = vaccineBrands?.map((brand) => ({
+  const formattedBrands = vaccineBrands.map((brand) => ({
     label: brand,
     value: brand,
   }));
@@ -214,4 +214,4 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   );
 };
 
-export default CardVaccine;
+export default CardDerwomers;
