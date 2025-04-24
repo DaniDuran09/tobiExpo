@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, Modal } from "react-native-ui-lib";
-import MaterialIcon from "react-native-vector-icons/MaterialCommunityIcons"
+import { View, Text, TouchableOpacity, Modal, Image } from "react-native-ui-lib";
 import { Colors } from "../../styles/Colors";
 import useNotificationsPermissions from "../../hooks/useNotificationsPermission";
 import Toast from "react-native-toast-message";
@@ -54,23 +53,36 @@ export default function NotificationPermissionDialog() {
             onRequestClose={handleOnPressCancel}
             transparent={true}
         >
-            <View flex backgroundColor="rgba(0,0,0,0.4)">
-                <View width={"80%"} backgroundColor={Colors.white} center br20 padding-20 style={{ top: "20%", alignSelf: "center" }}>
-                    <MaterialIcon name="bell-outline" size={32} color={Colors.black} style={{ marginBottom: 16 }} />
-                    <Text text60 marginB-20 text80M>Activa las notificaciones para recibir recordatorios y actualizaciones sobre el bienestar de tus mascotas</Text>
-                    <View width={"100%"} row style={{ justifyContent: "space-around" }} >
-                        <TouchableOpacity backgroundColor={Colors.red} paddingH-20 paddingV-8 br100 onPress={async () => {
-                            await handleOnPressOk()
-
-                        }}>
-                            <Text text80M color={Colors.white}>Aceptar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ borderColor: Colors.red, borderWidth: 2 }} paddingH-20 paddingV-8 br100 onPress={() => {
-                            handleOnPressCancel()
-                        }}>
-                            <Text text80M>Cancelar</Text>
-                        </TouchableOpacity>
-                    </View>
+            <View flex backgroundColor={Colors.danger} centerH padding-20>
+                <View width={80} height={80} backgroundColor={Colors.black} padding-20 br100 marginB-20>
+                    <Image
+                        width={"100%"}
+                        height={"100%"}
+                        source={require("../../assets/notifications.png")}
+                        tintColor={Colors.white}
+                    />
+                </View>
+                <Text center text60BO marginB-20 color={Colors.black}>Te ayudo a que no se te pase lo que sí importa.</Text>
+                <Text center text70BO color={Colors.black}>Sabemos que los días pasan volando... ¿Quieres que te avise cuando toque su vacuna, desparasitación o cita con el vet?</Text>
+                <Image
+                    source={require("../../assets/phone-notifications.png")}
+                    width={"100%"}
+                    style={{flex:1}}
+                    resizeMode="contain"
+                    marginT-40
+                />
+                <View marginT-20 center style={{marginBottom:20,width:"100%"}}>
+                    <TouchableOpacity backgroundColor={Colors.black} padding-18 center br100 marginB-10
+                        onPress={handleOnPressOk}
+                       style={{width:"100%"}}
+                    >
+                        <Text center text60BO color={Colors.danger}>Permitir recordatorios</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity padding-10 br100
+                        onPress={handleOnPressCancel}
+                    >
+                        <Text text60BO color={Colors.white}>Tal vez depués</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <Toast />
