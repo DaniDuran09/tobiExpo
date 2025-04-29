@@ -32,7 +32,7 @@ export const useCameraPermissions = () => {
 
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1
       });
 

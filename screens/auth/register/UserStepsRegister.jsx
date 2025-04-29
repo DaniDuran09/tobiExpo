@@ -162,7 +162,7 @@ const UserStepsRegister = () => {
       formData.append("picture", {
         uri: imageSource.uri,
         type: "image/jpeg",
-        name: imageSource.fileName,
+        name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);

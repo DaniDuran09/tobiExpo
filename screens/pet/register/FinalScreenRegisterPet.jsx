@@ -71,7 +71,7 @@ const FinalScreenRegisterPet = (props) => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
       console.log("result: ", result);
@@ -131,7 +131,7 @@ const FinalScreenRegisterPet = (props) => {
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
 

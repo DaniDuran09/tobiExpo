@@ -1,46 +1,93 @@
-import { StyleSheet } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import momentTZ from "../../utils/moment";
 import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
 import Section from "../pet/Section";
 import { Colors } from "../../styles/Colors";
 import { calculateIdealWeight } from "../../utils/scripts";
 import Icon from "react-native-vector-icons/Entypo";
-
+import { useGetVaccinationRecordsQuery } from "../../services/api/health.api";
+import NoHealthRecord from "../atoms/NoHealthRecord";
+import ModalWeightInfo from "../atoms/ModalWeightInfo";
 const RenderSections = ({ item }) => {
-  const calculateRemainingDays = (serviceDate, today) => {
-    const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
+  const {
+    data: vaccinesResponse,
+    refetch: refetchVaccines,
+    isLoading: isLoadingVaccines,
+  } = useGetVaccinationRecordsQuery(item.id);
+  const vaccines = vaccinesResponse?.data || [];
 
-    if (daysDifference < 0) return { text: "---", color: "black" };
-    else if (daysDifference === 0)
-      return { text: "La cita es hoy", color: "green" };
-    else
-      return {
-        text: `${daysDifference} ${daysDifference !== 1 ? "días" : "día"}`,
-        color: "green",
-      };
-  };
+  const [lowestDaysRemaining, setLowestDaysRemaining] = useState(null);
+  const [haveAnyVaccine, setHaveAnyVaccine] = useState(false);
+  const [haveAnyDewormers, setHaveAnyDewormers] = useState(false);
 
-  const getServiceDateInfo = (serviceDate) =>
-    momentTZ(serviceDate).utc().format("DD.MMM");
+  const [modalWeightInfoVisible, setModalWeightInfoVisible] = useState(false);
 
-  const getServiceStatus = (item) => {
-    // if (!(item.status === "actived" && item?.service_date))
-    if (!item?.service_date)
-      return { service: "---", remainingDays: { text: "---", color: "green" } };
-    const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
-      .tz("America/Mexico_City")
-      .startOf("day");
-    const today = momentTZ().tz("America/Mexico_City").startOf("day");
+  useEffect(() => {
+    refetchVaccines();
 
-    const remainingDays = calculateRemainingDays(serviceDate, today);
-    const service =
-      remainingDays.text !== "---"
-        ? getServiceDateInfo(item?.service_date)
-        : "---";
+    if (vaccines?.vaccines_records || vaccines?.vaccines_expired) {
+      const vaccinesList = [
+        ...(vaccines.vaccines_records || []).map((record) => {
+          setHaveAnyVaccine(vaccines.vaccines_records.length > 0);
+          setHaveAnyDewormers(vaccines.dewormers_records.length > 0);
+          const matchingToExpire = (vaccines.vaccines_toexpire || []).find(
+            (toExpire) => toExpire.id === record.id
+          );
+          if (matchingToExpire) {
+            return {
+              ...record,
+              days_remaining: matchingToExpire.days_remaining,
+            };
+          }
+          return record;
+        }),
+        ...(vaccines.vaccines_expired || []),
+      ];
 
-    return { service, remainingDays };
-  };
+      const lowestDaysRemaining = vaccinesList.reduce((lowest, vaccine) => {
+        if (!vaccine.days_remaining) return lowest;
+        if (!lowest || vaccine.days_remaining < lowest) {
+          return vaccine.days_remaining;
+        }
+        return lowest;
+      }, null);
+      setLowestDaysRemaining(lowestDaysRemaining);
+    }
+  }, [vaccines]);
+
+  // const calculateRemainingDays = (serviceDate, today) => {
+  //   const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
+
+  //   if (daysDifference < 0) return { text: "---", color: "black" };
+  //   else if (daysDifference === 0)
+  //     return { text: "La cita es hoy", color: "green" };
+  //   else
+  //     return {
+  //       text: `${daysDifference} ${daysDifference !== 1 ? "días" : "día"}`,
+  //       color: "green",
+  //     };
+  // };
+
+  // const getServiceDateInfo = (serviceDate) =>
+  //   momentTZ(serviceDate).utc().format("DD.MMM");
+
+  // const getServiceStatus = (item) => {
+  //   // if (!(item.status === "actived" && item?.service_date))
+  //   if (!item?.service_date)
+  //     return { service: "---", remainingDays: { text: "---", color: "green" } };
+  //   const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
+  //     .tz("America/Mexico_City")
+  //     .startOf("day");
+  //   const today = momentTZ().tz("America/Mexico_City").startOf("day");
+
+  //   const remainingDays = calculateRemainingDays(serviceDate, today);
+  //   const service =
+  //     remainingDays.text !== "---"
+  //       ? getServiceDateInfo(item?.service_date)
+  //       : "---";
+
+  //   return { service, remainingDays };
+  // };
 
   const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
   const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
@@ -50,7 +97,7 @@ const RenderSections = ({ item }) => {
     item?.weight_status?.weight
   );
 
-  const { service, remainingDays } = getServiceStatus(item);
+  // const { service, remainingDays } = getServiceStatus(item);
 
   return (
     <View marginB-25>
@@ -79,18 +126,44 @@ const RenderSections = ({ item }) => {
         <Section
           item={item}
           tabIndex={0}
+          haveItem={haveAnyVaccine}
           children={
             <>
-              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>Vacunas</Text>
-              <Text text90M>Próximos vencimientos</Text>
-              {/* <Text text80BL>{service}</Text> */}
-              <Text text90MM>Faltan</Text>
-              {/* <Text color={remainingDays.color} text80BO>
+              {haveAnyVaccine ? (
+                <>
+                  <Text
+                    text70BL
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                    uppercase
+                  >
+                    Vacunas
+                  </Text>
+
+                  <Text text90M>Próximos vencimientos </Text>
+                  <Text
+                    text90MM
+                    color={lowestDaysRemaining > 30 ? "green" : "red"}
+                  >
+                    {lowestDaysRemaining
+                      ? `Faltan ${lowestDaysRemaining} días`
+                      : "No hemos podido calcular el tiempo que falta para la próxima vacuna"}
+                  </Text>
+
+                  {/* <Text color={remainingDays.color} text80BO>
                 {remainingDays.text}
               </Text> */}
-              <View alignSelf="flex-end">
-                <Text>+ info</Text>
-              </View>
+                  <View alignSelf="flex-end">
+                    <Text>+ info</Text>
+                  </View>
+                </>
+              ) : (
+                <NoHealthRecord
+                  title="¿Ya tiene sus vacunas?"
+                  description="Regístralas para no olvidar y cuidar su salud."
+                  buttonText="Registrar aquí"
+                />
+              )}
             </>
           }
         />
@@ -98,15 +171,26 @@ const RenderSections = ({ item }) => {
         <Section
           item={item}
           tabIndex={1}
+          haveItem={haveAnyDewormers}
           children={
-            <>
-              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>Desparacitación</Text>
-              <Text text90M>Próximos vencimientos</Text>
-              <Text text90MM>Faltan</Text>
-              <View alignSelf="flex-end">
-                <Text>+ info</Text>
-              </View>
-            </>
+            haveAnyDewormers ? (
+              <>
+                <Text text70BL adjustsFontSizeToFit numberOfLines={1} uppercase>
+                  Desparasitación
+                </Text>
+                <Text text90M>Próximos vencimientos</Text>
+                <Text text90MM>Faltan</Text>
+                <View alignSelf="flex-end">
+                  <Text>+ info</Text>
+                </View>
+              </>
+            ) : (
+              <NoHealthRecord
+                title="Dile adiós a los parásitos"
+                description="Regístralas y te avisamos justo a tiempo."
+                buttonText="Registrar aquí"
+              />
+            )
           }
         />
       </View>
@@ -126,21 +210,12 @@ const RenderSections = ({ item }) => {
           item={item}
           tabIndex={2}
           screen="Weight"
+          onPress={() => setModalWeightInfoVisible(true)}
           children={
             <>
-              <Text text70BL adjustsFontSizeToFit numberOfLines={1}>PESO</Text>
-
-              {/* <View row>
-                <View centerH>
-                  <Text text90M>De</Text>
-                  <Text text80BO>{`${rangeOne} Kg`}</Text>
-                </View>
-                <View width={20} />
-                <View centerH>
-                  <Text text90M>A</Text>
-                  <Text text80BO>{`${rangeTwo} Kg`}</Text>
-                </View>
-              </View> */}
+              <Text text70BL adjustsFontSizeToFit numberOfLines={1} uppercase>
+                Peso
+              </Text>
               <View>
                 <Text text90M>Rango ideal</Text>
                 <Text text80BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
@@ -170,20 +245,13 @@ const RenderSections = ({ item }) => {
           }
         />
       </View>
+      <ModalWeightInfo
+        visible={modalWeightInfoVisible}
+        onRequestClose={() => setModalWeightInfoVisible(false)}
+        idealWeight={realWeight?.ideal}
+      />
     </View>
   );
 };
 
 export default RenderSections;
-
-const styles = StyleSheet.create({
-  elevation: {
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    height: "90%",
-    width: "45%",
-    justifyContent: "space-around",
-    paddingHorizontal: 10,
-    backgroundColor: Colors.lightGray,
-  },
-});

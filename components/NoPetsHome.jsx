@@ -44,7 +44,7 @@ const NoPetsHome = () => {
           tabIndex={1}
           children={
             <>
-              <Text text70BL>Desparacitación</Text>
+              <Text text70BL>Desparasitación</Text>
               <Text text90M>Próximos vencimientos</Text>
               <Text text90MM>Faltan</Text>
               <View alignSelf="flex-end">

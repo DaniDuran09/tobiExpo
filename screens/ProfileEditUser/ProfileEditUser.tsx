@@ -92,7 +92,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
 
@@ -145,7 +145,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
 
@@ -191,7 +191,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
       formData.append("picture", {
         uri: imageSource.uri,
         type: "image/jpeg",
-        name: imageSource.fileName,
+        name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);

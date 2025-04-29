@@ -21,7 +21,10 @@ import DerwomersPage from "../../../components/pet/Health/DerwomersPage";
 
 const PetHealth = () => {
   const route = useRoute();
-  const { idSelectedPet, tabIndex } = route.params as { idSelectedPet: number, tabIndex: number };
+  const { idSelectedPet, tabIndex } = route.params as {
+    idSelectedPet: number;
+    tabIndex: number;
+  };
 
   const [selectedPet, setSelectedPet] = useState<Pet>({} as Pet);
   const [allVaccines, setAllVaccines] = useState<any[]>([]);
@@ -50,7 +53,18 @@ const PetHealth = () => {
 
     if (vaccines?.vaccines_records || vaccines?.vaccines_expired) {
       const vaccinesList = [
-        ...(vaccines.vaccines_records || []),
+        ...(vaccines.vaccines_records || []).map((record: any) => {
+          const matchingToExpire = (vaccines.vaccines_toexpire || []).find(
+            (toExpire: any) => toExpire.id === record.id
+          );
+          if (matchingToExpire) {
+            return {
+              ...record,
+              days_remaining: matchingToExpire.days_remaining
+            };
+          }
+          return record;
+        }),
         ...(vaccines.vaccines_expired || []),
       ];
 
@@ -60,7 +74,14 @@ const PetHealth = () => {
         ...(vaccines.dewormers_records || []),
         ...(vaccines.dewormers_expired || []),
       ];
-      setAllDewormers(dewormersList);
+      const dewormersWithType = dewormersList.map(dewormer => ({
+        ...dewormer,
+        deworming_type_toRegister: !dewormer.applied
+          ? dewormer?.description?.replace("Desparasitación ", "").charAt(0).toUpperCase() + 
+            dewormer?.description?.replace("Desparasitación ", "").slice(1)
+          : dewormer?.deworming_type
+      }));
+      setAllDewormers(dewormersWithType);
     }
   }, [vaccines, selectedPet]);
 
@@ -120,14 +141,17 @@ const PetHealth = () => {
                   allVaccines={allVaccines}
                 />
               }
-              secondPage={<DerwomersPage
-                refreshData={refetchVaccines}
-                isLoading={
-                  isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands
-                }
-                derwomersBrands={dewormersBrands}
-                selectedPet={selectedPet}
-                allDerwomers={allDewormers} />}
+              secondPage={
+                <DerwomersPage
+                  refreshData={refetchVaccines}
+                  isLoading={
+                    isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands
+                  }
+                  derwomersBrands={dewormersBrands}
+                  selectedPet={selectedPet}
+                  allDerwomers={allDewormers}
+                />
+              }
             />
           </View>
         </>

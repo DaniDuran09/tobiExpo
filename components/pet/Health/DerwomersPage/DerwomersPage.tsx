@@ -1,6 +1,6 @@
 import { Carousel, Text, TouchableOpacity, View } from "react-native-ui-lib";
 import { Colors } from "../../../../styles/Colors";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import HeaderInfoPet from "../../HeaderInfoPet";
 import CardVaccine from "../CardVaccine";
 import Loading from "../../../Loading";
@@ -17,6 +17,44 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
 }) => {
   const [idEditPet, setIdEditPet] = useState<number | null>(null);
   const [visible, setVisible] = useState(false);
+
+  const filteredDewormers = useMemo(() => {
+    // Verificar si hay una desparasitación de "Ambas en una aplicacion" registrada
+    const hasBoth = allDerwomers.some(
+      (dewormer) =>
+        dewormer.applied &&
+        dewormer.deworming_type === "Ambas en una aplicacion"
+    );
+
+    // Verificar si hay desparasitaciones de "Interna" o "Externa" registradas
+    const hasInternalOrExternal = allDerwomers.some(
+      (dewormer) =>
+        dewormer.applied &&
+        (dewormer.deworming_type === "Interna" ||
+          dewormer.deworming_type === "Externa")
+    );
+
+    console.log("hasBoth:", hasBoth);
+    console.log("hasInternalOrExternal:", hasInternalOrExternal);
+    console.log("allDerwomers:", allDerwomers);
+
+    return allDerwomers.filter((dewormer) => {
+      const typeToRegister = dewormer.deworming_type_toRegister;
+
+      // Si hay una de "Ambas", solo mostrar "Ambas"
+      if (hasBoth) {
+        return typeToRegister === "Ambas en una aplicacion";
+      }
+
+      // Si hay de "Interna" o "Externa", no mostrar "Ambas"
+      if (hasInternalOrExternal) {
+        return typeToRegister !== "Ambas en una aplicacion";
+      }
+
+      return true;
+    });
+  }, [allDerwomers]);
+
   return (
     <View marginT-15 flexG>
       <View marginB-25>
@@ -34,14 +72,16 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
           initialPage={0}
           pageControlPosition={Carousel.pageControlPositions.UNDER}
         >
-          {allDerwomers.map((item) => (
+          {filteredDewormers.map((item) => (
             <CardVaccine
+              key={item.id}
               idPet={selectedPet.id}
-              derwomersBrands={derwomersBrands}
+              vaccineBrands={derwomersBrands}
               item={item}
               setIdEditPet={setIdEditPet}
               idEditPet={idEditPet}
               refreshData={refreshData}
+              type={"derwomers"}
             />
           ))}
         </Carousel>
@@ -54,7 +94,7 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
               <View />
               <TouchableOpacity
                 disabled={isLoading || idEditPet != null}
-                marginT-25
+                marginB-25
                 onPress={() => setVisible(true)}
                 backgroundColor={Colors.mediumGray}
                 paddingH-20

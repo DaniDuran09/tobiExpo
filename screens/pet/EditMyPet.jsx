@@ -129,7 +129,7 @@ const EditMyPet = ({ route }) => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
 
@@ -168,7 +168,7 @@ const EditMyPet = ({ route }) => {
       console.log("entro al try");
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [4, 4],
         quality: 1,
       });
       console.log("RESULT ", result);
@@ -194,7 +194,7 @@ const EditMyPet = ({ route }) => {
       formData.append("picture", {
         uri: imageSource.uri,
         type: "image/jpeg",
-        name: imageSource.fileName,
+        name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
       });
       console.log("formdata: ", formData._parts);
       const response = await apiFetcher.updatePicturePet(id, formData);

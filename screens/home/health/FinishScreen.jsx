@@ -86,7 +86,7 @@ const FinishScreen = () => {
               />
 
               <View>
-                <Text style={styles.vaccineName}>Desparacitación</Text>
+                <Text style={styles.vaccineName}>Desparasitación</Text>
               </View>
             
           </View>

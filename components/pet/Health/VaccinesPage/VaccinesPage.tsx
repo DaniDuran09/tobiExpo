@@ -42,6 +42,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
               setIdEditPet={setIdEditPet}
               idEditPet={idEditPet}
               refreshData={refreshData}
+              type={"vaccines"}
             />
           ))}
         </Carousel>

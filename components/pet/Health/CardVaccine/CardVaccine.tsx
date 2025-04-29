@@ -15,7 +15,10 @@ import Button from "../../../atoms/Button";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CalendarIcon from "../../../../assets/svg/calendar-icon.svg";
 import Toast from "react-native-toast-message";
-import { useSaveVaccineMutation } from "../../../../services/api/health.api";
+import {
+  useSaveDewormerMutation,
+  useSaveVaccineMutation,
+} from "../../../../services/api/health.api";
 
 const CardVaccine: React.FC<CardVaccineProps> = ({
   idPet,
@@ -23,14 +26,24 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   item,
   setIdEditPet,
   idEditPet,
-  refreshData = ()=> {},
+  refreshData = () => {},
+  type,
 }) => {
   const [date, setDate] = useState<Date | null>(null);
   const [labelDate, setLabelDate] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedFrequency, setSelectedFrequency] = useState<string>("");
   const [showHint, setShowHint] = useState<boolean>(false);
   const [saveVaccine, { isLoading }] = useSaveVaccineMutation();
+  const [saveDewormer, { isLoading: isLoadingDewormer }] =
+    useSaveDewormerMutation();
 
+  const frequencies = [
+    { label: "Anual", value: "Anual" },
+    { label: "Semestral", value: "Semestral" },
+    { label: "Trimestral", value: "Trimestral" },
+    { label: "Mensual", value: "Mensual" },
+  ];
   const formattedBrands = vaccineBrands?.map((brand) => ({
     label: brand,
     value: brand,
@@ -52,28 +65,55 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
     setIdEditPet(null);
     setDate(null);
     setSelectedBrand("");
+    setSelectedFrequency("");
   };
 
-  const handleSaveVaccine = async () => {
+  const handleSave = async () => {
     if (!idEditPet || !date || !selectedBrand) {
       return;
     }
     try {
-      const data = {
-        pet_id: idPet,
-        vaccine_id: item.id,
-        application_day: momentTZ(date).format("DD/MM/YYYY"),
-        dose: 0,
-        applied: true,
-        brand: selectedBrand,
-        applied_by: "",
-      };
+      let data;
+      if (type === "vaccines")
+        data = {
+          pet_id: idPet,
+          vaccine_id: item.id,
+          application_day: momentTZ(date).format("DD/MM/YYYY"),
+          dose: 0,
+          applied: true,
+          brand: selectedBrand,
+          applied_by: "",
+        };
+      else
+        data = {
+          pet_id: idPet,
+          vaccine_id: item.id,
+          application_day: momentTZ(date).format("DD/MM/YYYY"),
+          dose: 0,
+          brand: selectedBrand || "",
+          applied_by: "",
+          applied: true,
+          deworming_type: item.deworming_type_toRegister,
+          deworming_frequency: selectedFrequency,
+          last_deworming: momentTZ(date).format("DD/MM/YYYY"),
+        };
 
-      await saveVaccine(data).unwrap();
+      if(type === "vaccines"){
+        const response = await saveVaccine(data).unwrap();
+        console.log("guardo vacuna")
+        console.log("response: ", response)
+      }else{
+        await saveDewormer(data).unwrap();
+        console.log("guardo desparasitación")
+      }
+      Toast.show({
+        type: "success",
+        text1: `${type === "vaccines" ? "Vacuna" : "Desparasitación"} guardada correctamente`,
+      });
       setIdEditPet(null);
       refreshData();
     } catch (error) {
-      console.log("error: ", error);
+      console.log("error: ", JSON.stringify(error));
       Toast.show({
         type: "error",
         text1: "Error al guardar la vacuna",
@@ -81,7 +121,6 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       });
     }
   };
-
   return (
     <View
       width={Dimensions.get("window").width * 0.86}
@@ -102,11 +141,17 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       <View row spread>
         <View width="80%">
           <Text text70BO numberOfLines={2} adjustsFontSizeToFit>
-            {item.name}
+            {type === "vaccines"
+              ? item.name
+              : item.applied
+              ? `Desparasitación ${item?.deworming_type}`
+              : item.description}
           </Text>
-          <Text text90L numberOfLines={1} adjustsFontSizeToFit>
-            {item.description}
-          </Text>
+          {type === "vaccines" && (
+            <Text text90L numberOfLines={1} adjustsFontSizeToFit>
+              {item.description}
+            </Text>
+          )}
         </View>
         {!item.applied && (
           <View row gap-10>
@@ -131,6 +176,28 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           </View>
         )}
       </View>
+      {type == "derwomers" && (
+        <View row spread>
+          <Text text70>Frecuencia: </Text>
+          <Picker
+            editable={idEditPet === item.id}
+            style={
+              !item.applied && !selectedFrequency
+                ? {
+                    backgroundColor: Colors.white,
+                    padding: 25,
+                    height: 30,
+                    borderRadius: 2,
+                  }
+                : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
+            }
+            placeholder={"Elegir"}
+            value={selectedFrequency || item.deworming_frequency}
+            onChange={(value) => setSelectedFrequency(value as string)}
+            items={frequencies}
+          />
+        </View>
+      )}
       <View row spread>
         <Text text70>Fecha de Aplicación: </Text>
         <View centerV>
@@ -181,13 +248,24 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       </View>
       <View row spread>
         <Text text70>Vence: </Text>
-        <Text text70BL color={item.applied ? Colors.green : Colors.gray}>
+        <Text
+          text70BL
+          color={
+            !item.days_remaining
+              ? Colors.gray
+              : item.days_remaining > 30
+              ? Colors.green
+              : item.days_remaining > 15
+              ? Colors.gray
+              : Colors.danger
+          }
+        >
           {item.applied ? momentTZ(item.next_dose).format("DD.MM.YYYY") : ""}
         </Text>
       </View>
       {idEditPet === item.id && (
         <View row spread>
-          {isLoading ? (
+          {isLoading || isLoadingDewormer ? (
             <View flex center>
               <ActivityIndicator size="small" color={Colors.primaryColor} />
             </View>
@@ -201,10 +279,15 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
               />
               <Button
                 label="Confirmar"
-                disabled={!date || !selectedBrand}
+                disabled={
+                  (!date && type == "vaccines") ||
+                  (!date && type == "derwomers") ||
+                  (!selectedBrand && type == "vaccines") ||
+                  (!selectedFrequency && type == "derwomers")
+                }
                 variant="primary"
                 bgColor={Colors.primaryColor}
-                onPress={handleSaveVaccine}
+                onPress={handleSave}
               />
             </>
           )}

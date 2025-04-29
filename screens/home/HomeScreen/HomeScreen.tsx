@@ -11,7 +11,7 @@ import { setUserInfo } from "../../../redux/slice/userSlice";
 import RenderSections from "../../../components/renders/RenderSections";
 import NoPetsHome from "../../../components/NoPetsHome";
 import { NotificationPermissionDialog } from "../../../components/notifications";
-import { View, Text } from "react-native-ui-lib";
+import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import useNotificationsPermissions from "../../../hooks/useNotificationsPermission";
 import { useNotificationsContext } from "../../../context/NotificationContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +28,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   const { notificationPermissionResponse } = useNotificationsPermissions();
   const { registerForPushNotifications } = useNotificationsContext();
+
 
   useEffect(() => {
     fetchData();
@@ -153,7 +154,7 @@ const HomeScreen = ({ navigation }: any) => {
           </Text>
         </View>
       </View>
-      <View center marginT-30 marginB-10>
+      <View center marginT-30 marginB-30>
         <FlatList
           showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => `item-${index}`}
@@ -170,6 +171,18 @@ const HomeScreen = ({ navigation }: any) => {
           renderItem={({ item }) => <RenderSections item={item} />}
           contentContainerStyle={{ flexGrow: 1 }}
           ListEmptyComponent={<NoPetsHome />}
+          ListFooterComponent={
+            <View marginB-30>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("RegisterNewPet")}
+                marginB-20
+              >
+                <Text text70L>
+                  + Mascota
+                </Text>
+              </TouchableOpacity>
+            </View>
+          }
         />
       </View>
     </SafeAreaView>

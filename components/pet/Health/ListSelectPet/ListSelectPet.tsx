@@ -4,12 +4,13 @@ import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import { Colors } from "../../../../styles/Colors";
 import { AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 import { FlatList } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
 const ListSelectPet: React.FC<ListSelectPetProps> = ({
   pets,
   selectedPet,
   setSelectedPet,
 }) => {
+  const navigation = useNavigation();
   return (
     <View row spread>
       <Text>Mis mascotas</Text>
@@ -36,15 +37,15 @@ const ListSelectPet: React.FC<ListSelectPetProps> = ({
                 source={{ uri: item.picture || "" }}
                 height={30}
                 width={30}
-                borderRadius={11}
                 loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
                 animationDuration={500}
-                resizeMode="contain"
+                borderRadius={50}
+                resizeMode="cover"
               />
             </TouchableOpacity>
           )}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>navigation.navigate("RegisterNewPet")}>
           <View
             height={30}
             width={30}

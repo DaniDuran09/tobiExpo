@@ -16,6 +16,8 @@ import ApiFetcher from '../modules/ApiFetcher';
 const SearchItem = ({route}) => {
   const {type, setValue, id, screen} = route.params;
 
+  console.log("setValue: ", setValue)
+
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);

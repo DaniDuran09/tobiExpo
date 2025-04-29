@@ -24,7 +24,7 @@ const HealthTabController: React.FC<HealthTabControllerProps> = ({
           <TabController.TabPage index={0}>
             <View flex>{firstPage}</View>
           </TabController.TabPage>
-          <TabController.TabPage index={1} lazy>
+          <TabController.TabPage index={1}>
             <View flex>{secondPage}</View>
           </TabController.TabPage>
         </View>

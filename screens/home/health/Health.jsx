@@ -180,7 +180,7 @@ const Health = ({ pet }) => {
               text={
                 "La desparasitación es esencial para reducir los parásitos internos y externos de tu mascota. Completa el registro para darle seguimiento."
               }
-              type="desparacitación"
+              type="Desparasitación"
               changeVisible={(visible) =>
                 setState((prev) => ({ ...prev, dewormingVisible: visible }))
               }

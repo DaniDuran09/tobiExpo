@@ -20,7 +20,7 @@ import ProfileDetails from "../screens/ProfileDetails";
 import ProfileEdit from "../screens/ProfileEdit";
 import EditPet from "../screens/EditPet";
 import ProfileEditUser from "../screens/ProfileEditUser/ProfileEditUser";
-import ProfileEditUserMenu from "../screens/ProfileEditUserMenu/ProfileEditUserMenu"
+import ProfileEditUserMenu from "../screens/ProfileEditUserMenu/ProfileEditUserMenu";
 import ProfileEditPet from "../screens/ProfileEditPet";
 import ProfileEditPetInfo from "../screens/ProfileEditPetInfo";
 import ProfileEditPetInfo2 from "../screens/ProfileEditPetInfo2";
@@ -54,8 +54,8 @@ import SelectPartner from "../screens/home/health/SelectPartner";
 import ListPartners from "../screens/partners/ListPartners";
 import { NotificationsScreen } from "../screens/Notifications";
 import PetHealth from "../screens/pet/PetHealth/PetHealth";
-import { NotificationIcon } from '../components/notifications';
-import NotificationsStack from './NotificationsStack';
+import { NotificationIcon } from "../components/notifications";
+import NotificationsStack from "./NotificationsStack";
 import PetProfile from "../screens/pet/PetProfile";
 
 const HomeStack = createStackNavigator();
@@ -127,8 +127,7 @@ const MainTabScreen = () => (
         ),
       }}
     />
-    {
-      /*
+    {/*
       <Tab.Screen
       name="Notifications2"
       component={DetailsStackScreen}
@@ -145,8 +144,7 @@ const MainTabScreen = () => (
         ),
       }}
     />
-    */
-    }
+    */}
     <Tab.Screen
       name="PetParent"
       component={DetailsStackScreen}
@@ -245,16 +243,15 @@ const HomeStackScreen = ({ navigation }) => (
       name="HomeProfileDetails"
       component={PetHealth}
       options={({ route }) => {
-        console.log("route: ", route);
-        return ({
+        return {
           headerShown: true,
           headerBackTitleVisible: false,
           title: "Salud",
           headerTintColor: "black",
-        })
+        };
       }}
     />
-     <HomeStack.Screen
+    <HomeStack.Screen
       name="RegisterNewPet"
       component={StepsRegister}
       options={({ route }) => ({
@@ -264,7 +261,7 @@ const HomeStackScreen = ({ navigation }) => (
         headerTintColor: "black",
       })}
     />
-    <HomeStack.Screen
+    {/* <HomeStack.Screen
       name="PetProfile"
       component={PetProfile}
       options={({ route }) => ({
@@ -273,7 +270,7 @@ const HomeStackScreen = ({ navigation }) => (
         title: "",
         headerTintColor: "black",
       })}
-    />
+    /> */}
     <HomeStack.Screen
       name="EditPet"
       component={EditMyPet}
@@ -406,6 +403,17 @@ const ProfileStackScreen = ({ navigation }) => (
         // ),
       }}
     />
+
+    <ProfileStack.Screen
+      name="PetProfile"
+      component={PetProfile}
+      options={({ route }) => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "",
+        headerTintColor: "black",
+      })}
+    />
     <ProfileStack.Screen
       name="ChangePassword"
       component={ChangePassword}
@@ -467,7 +475,7 @@ const ProfileStackScreen = ({ navigation }) => (
         headerShown: true,
         headerBackTitleVisible: false,
         title: "Editar perfil",
-        headerTitleAlign:"center",
+        headerTitleAlign: "center",
         headerTintColor: "black",
       }}
     />

@@ -27,7 +27,7 @@ const CompleteVaccinationList = (props) => {
 
   const emptyDeworming = {
     item: {
-      name: "Desparacitación",
+      name: "Desparasitación",
       isCompleted: false,
     },
   };

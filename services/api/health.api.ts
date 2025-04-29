@@ -17,9 +17,11 @@ export const healthApi = createApi({
     endpoints: (builder) => ({
         getVaccines: builder.query<ApiResponse<any>, number>({
             query: (id: number) => `/pets/${id}/vaccines`,
+            keepUnusedDataFor: 0
         }),
         getVaccinationRecords: builder.query<ApiResponse<any>, number>({
             query: (id) => `/pets/${id}/vaccination_records`,
+            keepUnusedDataFor: 0
         }),
         saveVaccine: builder.mutation<ApiResponse<any>, any>({
             query: (data) => ({

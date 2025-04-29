@@ -5,4 +5,5 @@ interface CardVaccineProps {
     setIdEditPet: (id: number) => void;
     idEditPet: number | null;
     refreshData: () => void;
+    type?: string; 
 }

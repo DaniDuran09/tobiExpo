@@ -8,6 +8,8 @@ const Section = ({
   tabIndex,
   disabled = false,
   screen = "HomeProfileDetails",
+  haveItem = false,
+  onPress,
 }) => {
   const navigation = useNavigation();
   return (
@@ -15,7 +17,10 @@ const Section = ({
       <TouchableOpacity
         disabled={disabled}
         onPress={() => {
-          if (screen == "Weight") return;
+          if (screen == "Weight") {
+            onPress();
+            return;
+          }
           navigation.navigate(screen, {
             idSelectedPet: item.id,
             tabIndex: tabIndex,
@@ -26,7 +31,11 @@ const Section = ({
         }}
       >
         <View
-          backgroundColor={Colors.lightGray}
+          backgroundColor={
+            !haveItem && screen == "HomeProfileDetails"
+              ? Colors.primaryColor
+              : Colors.lightGray
+          }
           height={"100%"}
           style={[
             { borderRadius: 10, elevation: 5 },

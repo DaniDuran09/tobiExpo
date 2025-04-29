@@ -57,9 +57,11 @@ const SecondScreenRegisterPet = props => {
   };
 
   const setValue = value => {
+    console.log("ENTRO :", value)
     setPetBreed(value);
     petInfo.pet_breed_id = value.id;
     setPetSize(value.pet_size);
+    console.log("Lo hago todo bien")
     navigation.goBack();
   };
 
