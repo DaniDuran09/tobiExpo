@@ -4,7 +4,7 @@ import momentTZ from "../../utils/moment";
 
 interface RenderNotificationProps {
   content: string | null;
-  date: number;
+  date: string;
   onPress: () => void;
   readed: boolean
 }
@@ -16,7 +16,7 @@ export default function RenderNotification({
   readed = false
 }: RenderNotificationProps) {
 
-  const displayDate = (notificationDate: number) => {
+  const displayDate = (notificationDate: string) => {
     const date = momentTZ(notificationDate)
     const now = momentTZ()
     if (now.diff(date, "minutes") < 1) {

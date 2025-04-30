@@ -21,7 +21,7 @@ export const userApi = createApi({
         updateProfile: builder.mutation<User, Partial<User>>({
             query: (data) => ({
                 url: '/profile',
-                method: 'PUT', 
+                method: 'PUT',
                 body: data,
             }),
         }),
@@ -32,6 +32,13 @@ export const userApi = createApi({
                 body: image,
             }),
         }),
+        updateNotificationToken: builder.mutation<ApiResponse<User>, { expotoken: string }>({
+            query: (data) => ({
+                url: '/profile/update/information',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -39,4 +46,5 @@ export const {
     useGetProfileQuery,
     useUpdateProfileMutation,
     useUpdateProfilePictureMutation,
+    useUpdateNotificationTokenMutation
 } = userApi;

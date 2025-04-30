@@ -80,4 +80,5 @@ interface Pet {
     addresses: [];
     client_levels: ClientLevel[]
     token: string;
+    expotoken: string;
 }

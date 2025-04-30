@@ -2,16 +2,16 @@ import { createContext, ReactNode, useContext, useEffect, useRef, useState } fro
 import * as Notifications from "expo-notifications"
 import Constants from "expo-constants"
 import { Alert, Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUpdateNotificationTokenMutation } from "../services/api/user.api";
+import { notificationsApi, useGetNotificationsQuery } from "../services/api/notifications.api";
+import { useDispatch } from "react-redux";
 
 const Context = createContext({
-    notifications: [],
-    markNotificationAsRead: (notificationId: string) => { },
+    markNotificationAsRead: (notificationId: number) => { },
     registerForPushNotifications: () => { },
     clearNotifications: () => { }
 } as {
-    notifications: (Notifications.Notification & { readed: boolean })[]
-    markNotificationAsRead: (notificationId: string) => void
+    markNotificationAsRead: (notificationId: number) => void
     registerForPushNotifications: () => void
     clearNotifications: () => void
 })
@@ -25,16 +25,12 @@ Notifications.setNotificationHandler({
 });
 
 export default function NotificationContext({ children }: { children: ReactNode }) {
-    const [notifications, setNotifications] = useState<(Notifications.Notification & { readed: boolean })[]>([])
     const notificationListener = useRef<Notifications.Subscription>();
 
-    const clearNotifications = async () => {
-        await AsyncStorage.removeItem("notifications")
-        setNotifications([])
-    }
+    const [updateNotificationToken, { error }] = useUpdateNotificationTokenMutation();
+    const dispatch = useDispatch()
 
     const registerForPushNotifications = async () => {
-
         if (Platform.OS === 'android') {
             await Notifications.setNotificationChannelAsync('default', {
                 name: 'default',
@@ -47,7 +43,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
         const projectId =
             Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
         if (!projectId) {
-            console.log("Project ID not found")
+            console.log("Project ID not found");
         }
         try {
             const pushTokenString = (
@@ -55,49 +51,36 @@ export default function NotificationContext({ children }: { children: ReactNode 
                     projectId,
                 })
             ).data;
-            console.log("token", pushTokenString);
+            await updateNotificationToken({ expotoken: pushTokenString }).unwrap();
         } catch (e: unknown) {
             Alert.alert(`${e}`);
         }
-    }
-
-    const markNotificationAsRead = async (notificationId: string) => {
-        const tempNotifications = notifications.map(n => n.request.identifier === notificationId ? { ...n, readed: true } : n)
-        setNotifications(tempNotifications)
-        await AsyncStorage.setItem("notifications", JSON.stringify(tempNotifications))
-    }
-
-    useEffect(() => {
-        const loadStoredNotifications = async () => {
-            let notificationsString = await AsyncStorage.getItem("notifications")
-            let notificationsParsed = notificationsString ? JSON.parse(notificationsString) : []
-            setNotifications(notificationsParsed)
-        }
-        loadStoredNotifications()
-    }, [])
+    };
 
 
     useEffect(() => {
-
-        notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {
-            let notificationsString = await AsyncStorage.getItem("notifications")
-            let notificationsStored = notificationsString ? JSON.parse(notificationsString) : []
-
-            const notifications = [...notificationsStored, { ...notification, readed: false }]
-            await AsyncStorage.setItem("notifications", JSON.stringify(notifications))
-            setNotifications(notifications)
+        notificationListener.current = Notifications.addNotificationReceivedListener(() => {
+            dispatch(notificationsApi.util.invalidateTags([{ type: 'Notification', id: 'LIST' }]));
+            // invalidate refetchNotifications();
         });
 
         return () => {
-            notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current)
-        }
-    }, [])
+            notificationListener.current &&
+                Notifications.removeNotificationSubscription(notificationListener.current);
+        };
+    }, []);
 
     return (
-        <Context.Provider value={{ notifications: notifications, markNotificationAsRead: markNotificationAsRead, registerForPushNotifications, clearNotifications }}>
+        <Context.Provider
+            value={{
+                markNotificationAsRead: () => {},
+                registerForPushNotifications,
+                clearNotifications: () => {},
+            }}
+        >
             {children}
         </Context.Provider>
-    )
+    );
 }
 
 export const useNotificationsContext = () => {
