@@ -15,7 +15,7 @@ const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
       overlayBackgroundColor={Colors.primaryColor}
     >
       <View flex center>
-        <View bg-white br30 height={"50%"} width={"90%"} padding-15>
+        <View bg-white br30 height={"30%"} width={"90%"} padding-15>
           <View row spread>
             <View />
             <TouchableOpacity onPress={onRequestClose} padding-10>

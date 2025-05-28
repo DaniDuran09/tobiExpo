@@ -59,7 +59,11 @@ class ApiFetcher {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired, isMultipart);
-      const response = await axios.put(url, data, { headers, timeout: 15000 });
+      console.log("url: ", url);
+      console.log("headers: ", headers);
+      console.log("data: ", data);
+      const response = await axios.put(url, data, { headers, timeout: 30000 });
+      console.log("response: ", response);
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in PUT request:", error);
@@ -163,6 +167,13 @@ class ApiFetcher {
     return await this._post(`/pets/${data.pet_id}/dewormer_records`, data);
   }
 
+  async getCertificates(id) {
+    return await this._get(`/pets/certificate/${id}`);
+  }
+
+  async saveCertificate(id, data) {
+    return await this._put(`/pets/save/certificate/${id}`, data, true, true);
+  }
   // partners
 
   async getPartners() {
@@ -196,6 +207,12 @@ class ApiFetcher {
 
   async registerAppointments(data) {
     return await this._post("/appointments", data);
+  }
+
+   // notifications
+
+   async getNotifications() {
+    return await this._get("/notifications");
   }
 }
 

@@ -20,9 +20,12 @@ export type ButtonProps = ButtonPropsType & {
   loading?: boolean;
 };
 export interface UploadImageProps {
+  type: "vacunación" | "desparasitación";
   visible: boolean;
   onRequestClose: () => void;
-  onUpload: () => void;
+  onUpload: (uri: any, filename: any) => void;
+  defaultImage: string;
+  loading?: boolean;
 }
 
 export interface NoHealthRecordProps {

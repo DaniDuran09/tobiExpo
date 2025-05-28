@@ -163,7 +163,7 @@ const MainTabScreen = () => (
     />
     <Tab.Screen
       name="NotificationsTab"
-      component={NotificationsScreen}
+      component={NotificationsStack}
       options={{
         headerShown: false,
         tabBarLabel: "",

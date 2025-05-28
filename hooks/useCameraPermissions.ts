@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 export const useCameraPermissions = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const requestCameraPermissions = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -44,10 +45,13 @@ export const useCameraPermissions = () => {
       }
 
       setImageUrl(result.assets[0].uri);
+      const fileName = Platform.OS == "android" ? result.assets[0].fileName : result.assets[0].uri.split("ImagePicker/")[1];
+      setFileName(fileName || null);
 
       return {
         success: true,
-        imageUrl: result.assets[0].uri
+        imageUrl: result.assets[0].uri,
+        fileName: fileName
       };
 
     } catch (error) {
@@ -61,6 +65,7 @@ export const useCameraPermissions = () => {
   return {
     setImageUrl,
     imageUrl,
+    fileName,
     takePicture,
     requestCameraPermissions
   };

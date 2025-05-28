@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import { Platform } from 'react-native';
 
 export const useLibraryPermissions = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const requestLibraryPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -45,10 +47,13 @@ export const useLibraryPermissions = () => {
       }
 
       setImageUrl(result.assets[0].uri);
-
+      const fileName = Platform.OS == "android" ? result.assets[0].fileName : result.assets[0].uri.split("ImagePicker/")[1];
+      console.log("fileName: ", fileName);
+      setFileName(fileName || null);
       return {
         success: true,
-        imageUrl: result.assets[0].uri
+        imageUrl: result.assets[0].uri,
+        fileName: fileName
       };
 
     } catch (error) {
@@ -61,6 +66,7 @@ export const useLibraryPermissions = () => {
 
   return {
     imageUrl,
+    fileName,
     setImageUrl,
     selectImage,
     requestLibraryPermissions

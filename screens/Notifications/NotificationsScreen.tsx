@@ -6,15 +6,51 @@ import { FlatList } from "react-native";
 import RenderNotification from "../../components/renders/RenderNotification";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import ApiFetcher from "../../modules/ApiFetcher";
+
+interface Notification {
+  id: number;
+  title: string;
+  created_at: string;
+  status: string;
+}
+
+type NotificationsStackParamList = {
+  NotificationsHome: undefined;
+  NotificationDetail: {
+    id: number;
+    title: string;
+    body: string;
+  };
+};
+
+type NotificationsScreenNavigationProp = StackNavigationProp<NotificationsStackParamList>;
+
 export default function NotificationsScreen() {
-  const navigation = useNavigation<any>()
-  const { notifications, markNotificationAsRead, clearNotifications } = useNotificationsContext();
-  const notificationsSorted = [...notifications].sort((a, b) => b.date - a.date)
+  const navigation = useNavigation<NotificationsScreenNavigationProp>();
+  // const { notifications, markNotificationAsRead, clearNotifications } = useNotificationsContext();
+  // const notificationsSorted = [...notifications].sort((a, b) => b.date - a.date)
+
+  const apiFetcher = new ApiFetcher();
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    getNotificationsHistory();
+  }, []);
+
+  const getNotificationsHistory = async () => {
+    try {
+      const response = await apiFetcher.getNotifications();
+      setNotifications(response.data);
+      console.log("response", response.data[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // useEffect(() => {
-  //   clearNotifications()
-  // }, [])
 
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
@@ -22,23 +58,23 @@ export default function NotificationsScreen() {
         <Text text50BO>Notificaciones</Text>
       </View>
       <FlatList
-        data={notificationsSorted}
+        data={notifications}
         renderItem={({ item }) => (
           <RenderNotification
-            content={item.request.content.body}
-            date={item.date}
+            content={item.title}
+            date={item.created_at}
             onPress={() => {
-              markNotificationAsRead(item.request.identifier)
-              navigation.push("NotificationDetail", {
-                id: item.request.identifier,
-                title: item.request.content.title,
-                body: item.request.content.body
+              // markNotificationAsRead(item.request.identifier)
+              navigation.navigate("NotificationDetail", {
+                id: item.id,
+                title: item.title,
+                body: item.title
               })
             }}
-            readed={item.readed}
+            readed={item.status === "read"}
           />
         )}
-        keyExtractor={item => item.request.identifier}
+        keyExtractor={item => item.id.toString()}
       />
     </SafeAreaView>
   );
