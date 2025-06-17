@@ -10,23 +10,26 @@ const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
 }) => {
   return (
     <Modal
+      transparent={true}
       visible={visible}
       onRequestClose={onRequestClose}
-      overlayBackgroundColor={Colors.primaryColor}
     >
-      <View flex center>
-        <View bg-white br30 height={"30%"} width={"90%"} padding-15>
-          <View row spread>
-            <View />
+      <View style={{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',}}>
+        <View style={{backgroundColor:Colors.primaryColor}} br30 height={"30%"} width={"90%"} padding-15>
+          <View row spread right>
             <TouchableOpacity onPress={onRequestClose} padding-10>
               <MaterialIcons name="close" size={20} color={"black"} />
             </TouchableOpacity>
           </View>
           <View marginT-15 center>
-            <Text text60BO color={Colors.primaryColor}>
+            <Text text60BO white>
               ✅ ¡Peso registrado!
             </Text>
-            <Text text70BO color={Colors.primaryColor} marginT-60 center>
+            <Text text70BO white marginT-60 center>
               {idealWeight
                 ? "¡Todo en orden! Su peso es el ideal. Sigamos cuidando juntos."
                 : "Está fuera del peso ideal. Nada grave, pero una visita al veterinario puede ayudarte a saber qué hacer."}

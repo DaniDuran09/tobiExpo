@@ -57,6 +57,7 @@ import PetHealth from "../screens/pet/PetHealth/PetHealth";
 import { NotificationIcon } from "../components/notifications";
 import NotificationsStack from "./NotificationsStack";
 import PetProfile from "../screens/pet/PetProfile";
+import PetPdf from "../screens/pet/PetProfile/PetPdf";
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -69,7 +70,7 @@ const Tab = createBottomTabNavigator();
 const shareInfo = async (url) => {
   try {
     const result = await Share.share({
-      message: `Mira esta información acerca de nuestras mascotas: ${url}`,
+      message: `Encontramos algo que puede ayudarte como Pet Parent 🐾 Échale un vistazo:  ${url}`,
       title: "Tobi",
     });
     if (result.action === Share.sharedAction) {
@@ -468,6 +469,16 @@ const ProfileStackScreen = ({ navigation }) => (
       }}
     />
     <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} />
+    <ProfileStack.Screen
+      name="PetPdf"
+      component={PetPdf}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        headerShown: false,
+      }}
+    />
+    
     <ProfileStack.Screen
       name="ProfileEditUser"
       component={ProfileEditUser}

@@ -30,6 +30,7 @@
           "apiKey": "AIzaSyCcWkZ7Q6emAMTbXIFZHzgEc8VC3CUih7s"
         }
       },
+      "googleServicesFile": "./google-services.json",
       "package": "com.tobi"
     },
     "web": {

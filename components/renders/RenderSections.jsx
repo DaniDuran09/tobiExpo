@@ -26,6 +26,7 @@ const RenderSections = ({ item }) => {
     refetchVaccines();
 
     if (vaccines?.vaccines_records || vaccines?.vaccines_expired) {
+      console.log(vaccines)
       const vaccinesList = [
         ...(vaccines.vaccines_records || []).map((record) => {
           setHaveAnyVaccine(vaccines.vaccines_records.length > 0);
@@ -139,14 +140,15 @@ const RenderSections = ({ item }) => {
                   >
                     Vacunas
                   </Text>
-
-                  <Text text90M>Próximos vencimientos </Text>
+                  <Text text80M>Próximos vencimientos </Text>
+                
+                <Text text80M >Faltan</Text>
                   <Text
-                    text90MM
-                    color={lowestDaysRemaining > 30 ? "green" : "red"}
+                    text90
+                    color={lowestDaysRemaining > 30 ? Colors.green : "orange"}
                   >
                     {lowestDaysRemaining
-                      ? `Faltan ${lowestDaysRemaining} días`
+                      ? lowestDaysRemaining <= 50?`Faltan ${lowestDaysRemaining} días`:`Aún falta. Te avisaremos cuando se acerque la fecha`
                       : "No hemos podido calcular el tiempo que falta para la próxima vacuna"}
                   </Text>
 
@@ -237,10 +239,22 @@ const RenderSections = ({ item }) => {
                   size={25}
                 />
               )}
-
-              <View alignSelf="flex-end">
-                <Text>+ info</Text>
-              </View>
+              {
+              realWeight?.ideal && (
+                <View row centerV>
+                <View
+                  style={{
+                    backgroundColor: Colors.green,
+                    borderRadius: 50,
+                    width:10,
+                    height: 10,
+                    marginRight: 5,
+                  }}
+                />
+                <Text text90 style={{color:Colors.green}} >¡Bien hecho!</Text>
+                </View>
+              )
+              }
             </>
           }
         />

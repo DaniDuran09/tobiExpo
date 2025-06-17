@@ -10,8 +10,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function CustomizeSlide() {
   return (
     <Layout footer={<Footer />} >
-      <Title text="Di adiós a las llamadas pidiendo registros de vacunación." />
-      <Description text="Accede y comparte los registros de salud de tu mascota fácilmente, cuando lo necesites." />
+      <Title text="Su historial de salud, listo para lo que venga." />
+      <Description text="Comparte con un clic sus registros de vacunas y cuidados. Desde el veterinario hasta la guardería, Tobi está contigo." />
     </Layout>
   );
 }

@@ -5,8 +5,8 @@ import Title from "./Title";
 export default function HealthSlide() {
   return (
     <Layout>
-      <Title text="Su salud, siempre a la mano con la cartilla digital." />
-      <Description text="Toda la salud de tu mascota en un solo lugar: vacunas, desparasitaciones y sin papeles perdidos." />
+      <Title text="Tu mascota, tu familia. Su salud, siempre contigo." />
+      <Description text="Adiós al caos de papeles. Vacunas, desparasitaciones y todo lo importante, siempre a la mano." />
     </Layout>
   );
 }
