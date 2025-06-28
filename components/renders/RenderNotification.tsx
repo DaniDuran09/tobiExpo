@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native-ui-lib";
+import { View, Text, TouchableOpacity, AnimatedImage } from "react-native-ui-lib";
 import { Colors } from "../../styles/Colors";
 import momentTZ from "../../utils/moment";
 
@@ -7,6 +7,8 @@ interface RenderNotificationProps {
   date: number;
   onPress: () => void;
   readed: boolean;
+  image:string;
+  body:string | null;
 }
 
 export default function RenderNotification({
@@ -14,6 +16,8 @@ export default function RenderNotification({
   date,
   onPress,
   readed = false,
+  image,
+  body,
 }: RenderNotificationProps) {
   const displayDate = (notificationDate: number) => {
     const date = momentTZ(notificationDate);
@@ -25,13 +29,7 @@ export default function RenderNotification({
   };
   return (
     <TouchableOpacity paddingH-10 onPress={onPress} row centerV>
-      <View
-        height={40}
-        width={40}
-        br100
-        marginR-8
-        backgroundColor={Colors.gray}
-      />
+      <AnimatedImage marginR-8  source={{ uri: image }} style={{width:40,height:40,borderRadius:100}}/>
       <View
         flex
         row

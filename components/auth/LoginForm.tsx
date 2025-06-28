@@ -1,20 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import Entypo from "react-native-vector-icons/Entypo";
 import { Colors } from "../../styles/Colors";
 import React from "react";
+import * as Notifications from 'expo-notifications';
 
 export default function LoginForm({ onSubmit }: LoginFormProps) {
   const [input, setInput] = useState<LoginPayload>({
     username: "",
     password: "",
+    expotoken:""
   });
 
   const [visible, setVisible] = useState<boolean>(true);
 
   const navigation = useNavigation<any>();
+
+  
+  useEffect(() => {
+    getPushToken();
+}, []);
+  
+  const getPushToken = async () => {
+    const token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log("Token", token);
+    setInput({...input,expotoken:token})
+};
 
   return (
     <>

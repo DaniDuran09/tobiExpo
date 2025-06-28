@@ -5,4 +5,5 @@ interface LoginFormProps {
 interface LoginPayload {
     username: string,
     password: string,
+    expotoken:string,
 }

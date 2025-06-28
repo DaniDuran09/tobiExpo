@@ -172,7 +172,10 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
   const fetchData = async () => {
     try {
       const response = await apiFetcher.getProfile();
-      if (response) setUserData(response.data);
+      if (response) {
+        setUserData(response.data);
+        console.log(response.data)
+      }
     } catch (e) {
       console.log("Error: ", e);
       Toast.show({

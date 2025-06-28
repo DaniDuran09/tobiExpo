@@ -442,7 +442,7 @@ const PetProfile = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate("PetPdf")}
+              onPress={() => navigation.navigate("PetPdf",{ pet: selectedPet})}
             >
               <View
                 row

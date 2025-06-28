@@ -473,7 +473,6 @@ const ProfileStackScreen = ({ navigation }) => (
       name="PetPdf"
       component={PetPdf}
       options={{
-        headerShown: true,
         headerBackTitleVisible: false,
         headerShown: false,
       }}

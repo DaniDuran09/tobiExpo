@@ -214,6 +214,9 @@ class ApiFetcher {
    async getNotifications() {
     return await this._get("/notifications");
   }
+  /*async updateNotificationStatus(){
+    return await this._put("/notifications")
+  }*/
 }
 
 export default ApiFetcher;
