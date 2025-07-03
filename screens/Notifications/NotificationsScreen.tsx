@@ -45,10 +45,12 @@ export default function NotificationsScreen() {
   }, []);
 
   const getNotificationsHistory = async () => {
+        const token = (await Notifications.getExpoPushTokenAsync({projectId:"f65ecfcd-2965-4845-874e-f1581e444da1"})).data;
+        console.log("Token", token);
     try {
       const response = await apiFetcher.getNotifications();
       const notifications = response.data;
-      console.log("NOTIFICACIONES",notifications);
+      //console.log("NOTIFICACIONES",notifications);
       setNotifications(notifications);
       
     } catch (error) {
