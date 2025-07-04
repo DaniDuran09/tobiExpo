@@ -20,13 +20,15 @@ const LoginScreen = () => {
   const navigation = useNavigation<any>();
   const [login, { isLoading }] = useLoginMutation();
 
-  const loginHandle = async ({ username, password }: LoginPayload) => {
+  const loginHandle = async ({ username, password,expotoken }: LoginPayload) => {
     try {
       const data = {
         username: username,
         password: password,
+        expotoken:expotoken,
       };
       const { data: response } = await login(data);
+      console.log("respuesta del back : ",response,"lo que mandé",data);
       await appStorage.saveUser(response?.data);
       await appStorage.saveAppToken(response?.data.token);
 
