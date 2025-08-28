@@ -137,17 +137,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     borderRadius: 32,
-    padding: 5,
+    padding: 15,
     backgroundColor: Colors.lightGray,
-    alignItems: 'center',
   },
   searchInput: {
-    height: 40,
-    width: '100%',
+    width:'100%'
   },
   image: {
-    height: 20,
     width: 20,
+    height: 20,
     backgroundColor: Colors.lightGray,
   },
   item: {

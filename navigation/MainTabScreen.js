@@ -163,6 +163,22 @@ const MainTabScreen = () => (
       }}
     />
     <Tab.Screen
+      name="Explore"
+      component={PartnersStack}
+      options={{
+        headerShown: false,
+        tabBarLabel: '',
+        tabBarColor: '#fff',
+        tabBarIcon: ({ color }) => (
+          <Image
+            source={require('../assets/shop.png')}
+            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+            resizeMode="contain"
+          />
+        ),
+      }}
+    /> 
+    <Tab.Screen
       name="NotificationsTab"
       component={NotificationsStack}
       options={{
@@ -179,22 +195,7 @@ const MainTabScreen = () => (
       }}
     />
 
-    {/* <Tab.Screen
-      name="Explore"
-      component={PartnersStack}
-      options={{
-        headerShown: false,
-        tabBarLabel: '',
-        tabBarColor: '#fff',
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require('../assets/shop.png')}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    /> */}
+     
     {/* <Tab.Screen
       name="Heart"
       component={HeartStackScreen}

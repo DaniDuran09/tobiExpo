@@ -109,26 +109,31 @@ const CardDerwomers: React.FC<CardDerwomersProps> = ({
           </Text>
         </View>
         {!item.applied && (
-          <View row gap-10>
-            <TouchableOpacity onPress={() => setIdEditPet(item.id)}>
-              <Icon name="pencil-outline" size={20} color={Colors.gray} />
-            </TouchableOpacity>
-            <Hint
-              position="top"
-              visible={showHint}
-              message="¡Ups! Parece que esta vacuna no está registrada"
-              color={"#F5F5F5"}
-              onBackgroundPress={() => setShowHint(false)}
-              messageStyle={{
-                color: Colors.black,
-                fontSize: 14,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowHint(true)}>
-                <Icon name="information-outline" size={20} color={Colors.red} />
-              </TouchableOpacity>
-            </Hint>
-          </View>
+          <>
+            {(!item.application_day && !item.brand) ? null : (
+              <Hint
+                position="top"
+                visible={showHint}
+                message={
+                  item.application_day && !item.brand
+                    ? "El registro está casi listo (falta marca)"
+                    : !item.application_day && item.brand
+                      ? "El registro está casi listo (falta fecha)"
+                      : "¡Ups! Parece que esta vacuna no está registrada"
+                }
+                color={"#F5F5F5"}
+                onBackgroundPress={() => setShowHint(false)}
+                messageStyle={{
+                  color: Colors.black,
+                  fontSize: 14,
+                }}
+              >
+                <TouchableOpacity onPress={() => setShowHint(true)}>
+                  <Icon name="information-outline" size={20} color={Colors.red} />
+                </TouchableOpacity>
+              </Hint>
+            )}
+          </>
         )}
       </View>
       <View row spread>
@@ -166,11 +171,11 @@ const CardDerwomers: React.FC<CardDerwomersProps> = ({
           style={
             !item.applied && !selectedBrand
               ? {
-                  backgroundColor: Colors.white,
-                  padding: 25,
-                  height: 30,
-                  borderRadius: 2,
-                }
+                backgroundColor: Colors.white,
+                padding: 25,
+                height: 30,
+                borderRadius: 2,
+              }
               : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
           }
           placeholder={"Elegir"}

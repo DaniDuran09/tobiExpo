@@ -170,6 +170,7 @@ const RegisterNewPet = (props) => {
         <View style={styles.birthdayContainer}>
           <DateTimePicker
             display="spinner"
+            themeVariant="light"
             style={[
               styles.birthdayContainer,
               { paddingHorizontal: 0, marginTop: 0, width: 300, height: 60 },

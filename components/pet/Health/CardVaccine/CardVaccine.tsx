@@ -39,7 +39,6 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
     useSaveDewormerMutation();
 
   const frequencies = [
-    { label: "Anual", value: "Anual" },
     { label: "Semestral", value: "Semestral" },
     { label: "Trimestral", value: "Trimestral" },
     { label: "Mensual", value: "Mensual" },
@@ -49,8 +48,10 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
     value: brand,
   }));
 
+  const isEditable = idEditPet === item.id;
+
   useEffect(() => {
-    if (idEditPet === item.id && date) {
+    if (isEditable && date) {
       setLabelDate(momentTZ(date).format("DD.MM.YYYY"));
     } else {
       setLabelDate(
@@ -59,7 +60,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           : ""
       );
     }
-  }, [idEditPet, date, item.application_day]);
+  }, [isEditable, date, item.application_day]);
 
   const cancelEdit = () => {
     setIdEditPet(null);
@@ -98,17 +99,18 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           last_deworming: momentTZ(date).format("DD/MM/YYYY"),
         };
 
-      if(type === "vaccines"){
-        const response = await saveVaccine(data).unwrap();
-        console.log("guardo vacuna")
-        console.log("response: ", response)
-      }else{
+      if (type === "vaccines") {
+        await saveVaccine(data).unwrap();
+        console.log("guardo vacuna");
+      } else {
         await saveDewormer(data).unwrap();
-        console.log("guardo desparasitación")
+        console.log("guardo desparasitación");
       }
       Toast.show({
         type: "success",
-        text1: `${type === "vaccines" ? "Vacuna" : "Desparasitación"} guardada correctamente`,
+        text1: `${
+          type === "vaccines" ? "Vacuna" : "Desparasitación"
+        } guardada correctamente`,
       });
       setIdEditPet(null);
       refreshData();
@@ -121,6 +123,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       });
     }
   };
+
   return (
     <View
       width={Dimensions.get("window").width * 0.86}
@@ -153,34 +156,39 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
             </Text>
           )}
         </View>
-        {!item.applied && (
+        {/* Mostrar lápiz solo si ya existe algo guardado y no está en edición */}
+        {(item.applied || item.application_day) && !isEditable && (
           <View row gap-10>
             <TouchableOpacity onPress={() => setIdEditPet(item.id)}>
               <Icon name="pencil-outline" size={20} color={Colors.gray} />
             </TouchableOpacity>
-            <Hint
-              position="top"
-              visible={showHint}
-              message="¡Ups! Parece que esta vacuna no está registrada"
-              color={"#F5F5F5"}
-              onBackgroundPress={() => setShowHint(false)}
-              messageStyle={{
-                color: Colors.black,
-                fontSize: 14,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowHint(true)}>
-                <Icon name="information-outline" size={20} color={Colors.red} />
-              </TouchableOpacity>
-            </Hint>
           </View>
         )}
+        {/* Hint solo si aún no está aplicado */}
+        {!item.applied && !item.application_day && (
+          <Hint
+            position="top"
+            visible={showHint}
+            message="¡Casi listo! Registra las vacunas que faltan."
+            color={"#F5F5F5"}
+            onBackgroundPress={() => setShowHint(false)}
+            messageStyle={{
+              color: Colors.black,
+              fontSize: 14,
+            }}
+          >
+            <TouchableOpacity onPress={() => setShowHint(true)}>
+              <Icon name="information-outline" size={20} color={Colors.red} />
+            </TouchableOpacity>
+          </Hint>
+        )}
       </View>
+
       {type == "derwomers" && (
         <View row spread>
           <Text text70>Frecuencia: </Text>
           <Picker
-            editable={idEditPet === item.id}
+            editable={isEditable || (!item.applied && !item.application_day)}
             style={
               !item.applied && !selectedFrequency
                 ? {
@@ -198,38 +206,39 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           />
         </View>
       )}
+
       <View row spread>
         <Text text70>Fecha de Aplicación: </Text>
         <View centerV>
-          <View>
-            <DateTimePicker
-              minimumDate={
-                new Date(new Date().setFullYear(new Date().getFullYear() - 1))
-              }
-              maximumDate={new Date()}
-              editable={idEditPet === item.id}
-              display="spinner"
-              mode={"date"}
-              onChange={(selectedDate) => {
-                setDate(selectedDate);
-              }}
-              children={
-                <View>
-                  {!item.application_day && !date ? (
-                    <CalendarIcon />
-                  ) : (
-                    <Text text70BL>{labelDate}</Text>
-                  )}
-                </View>
-              }
-            />
-          </View>
+          <DateTimePicker
+            minimumDate={
+              new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+            }
+            maximumDate={new Date()}
+            editable={isEditable || (!item.applied && !item.application_day)}
+            display="spinner"
+            mode={"date"}
+            onChange={(selectedDate) => {
+              setDate(selectedDate);
+              setIdEditPet(item.id);
+            }}
+            children={
+              <View>
+                {!item.application_day && !date ? (
+                  <CalendarIcon />
+                ) : (
+                  <Text text70BL>{labelDate}</Text>
+                )}
+              </View>
+            }
+          />
         </View>
       </View>
+
       <View row spread>
         <Text text70>Marca: </Text>
         <Picker
-          editable={idEditPet === item.id}
+          editable={isEditable || (!item.applied && !item.application_day)}
           style={
             !item.applied && !selectedBrand
               ? {
@@ -246,6 +255,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           items={formattedBrands}
         />
       </View>
+
       <View row spread>
         <Text text70>Vence: </Text>
         <Text
@@ -263,7 +273,8 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           {item.applied ? momentTZ(item.next_dose).format("DD.MM.YYYY") : ""}
         </Text>
       </View>
-      {idEditPet === item.id && (
+
+      {isEditable || (!item.applied && !item.application_day) ? (
         <View row spread>
           {isLoading || isLoadingDewormer ? (
             <View flex center>
@@ -292,7 +303,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
             </>
           )}
         </View>
-      )}
+      ) : null}
     </View>
   );
 };

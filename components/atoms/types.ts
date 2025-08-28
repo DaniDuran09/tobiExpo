@@ -39,3 +39,9 @@ export interface ModalWeightInfoProps {
   onRequestClose: () => void;
   idealWeight: boolean;
 }
+
+export interface ModalNoPictureProps{
+  visible:boolean;
+  onRequestClose:() => void;
+  picture:string;
+}

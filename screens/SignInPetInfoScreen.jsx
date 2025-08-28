@@ -17,6 +17,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import ViewLoading from '../components/ViewLoading';
 import {useNavigation} from '@react-navigation/native';
 import {setUserInfo} from '../redux/slice/userSlice';
+import * as Notifications from 'expo-notifications';
 
 const SignInPetInfoScreen = props => {
   const [selectedBrand, setSelectedBrand] = useState({});
@@ -30,14 +31,28 @@ const SignInPetInfoScreen = props => {
   const [weight, setWeight] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const [token,setToken] = useState(" ");
 
   const userInfo = useSelector(store => store.user.userInfo);
 
   console.log('Lo que debo de llevar hasta ahora: ', userInfo);
 
   useEffect(() => {
+      getPushToken();
+  }, []);
+    
+    const getPushToken = async () => {
+      const data2 = (await Notifications.getExpoPushTokenAsync({projectId:"f65ecfcd-2965-4845-874e-f1581e444da1"})).data;
+      setToken(data2)
+      console.log("si está entrando")
+      console.log("eltoken ",token)
+  };
+
+  useEffect(() => {
+    if (!token || token.trim() === "") return;
     const updatedInfo = {
       ...userInfo,
+      expotoken:token,
       pet:
         {
           ...pet,
@@ -49,7 +64,7 @@ const SignInPetInfoScreen = props => {
     };
     dispatch(setUserInfo(updatedInfo));
     setData({...pet, weight: weight})
-  }, [check, selectedBrand, weight]);
+  }, [check, selectedBrand, weight,token]);
 
   const goToSearchItem = async type => {
     navigation.navigate('SearchItem', {

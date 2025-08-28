@@ -106,7 +106,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
       <View row spread absB absR style={{marginBottom: "22%"}}>
         <View />
         <View>
-          {idEditPet == null && (
+          {//idEditPet == null && (
             <View row spread>
               <View />
               <TouchableOpacity
@@ -124,7 +124,8 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
                 <Text color={Colors.white}>Certificado</Text>
               </TouchableOpacity>
             </View>
-          )}
+          //)
+          }
         </View>
       </View>
       <UploadImage

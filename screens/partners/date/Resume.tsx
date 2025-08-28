@@ -67,7 +67,7 @@ const Resume = ({ route }) => {
   };
 
   const totalPrice = appointment?.service.reduce((sum, item) => {
-    const priceToPay = parseFloat(item.price)
+    const priceToPay = parseFloat(item.price_total)
 
     return sum + priceToPay
 

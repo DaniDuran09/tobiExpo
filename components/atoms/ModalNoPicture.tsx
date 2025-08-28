@@ -1,13 +1,12 @@
 import { View, Text, Modal, TouchableOpacity } from "react-native-ui-lib";
 import React from "react";
-import { ModalWeightInfoProps } from "./types";
+import { ModalNoPictureProps } from "./types";
 import { Colors } from "../../styles/Colors";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-
-const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
+const ModalNoPicture: React.FC<ModalNoPictureProps> = ({
   visible,
   onRequestClose,
-  idealWeight,
+  picture,
 }) => {
   return (
     <Modal
@@ -22,18 +21,16 @@ const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
     backgroundColor: 'rgba(0, 0, 0, 0.8)',}}>
         <View style={{backgroundColor:Colors.primaryColor}} br30 height={"30%"} width={"90%"} padding-15>
           <View row spread right>
-            <TouchableOpacity onPress={onRequestClose} padding-10>
-              <MaterialIcons name="close" size={20} color={"black"} />
+            <TouchableOpacity onPress={()=>onRequestClose()} padding-10>
+              <MaterialIcons name="close" size={20} color={"white"} />
             </TouchableOpacity>
           </View>
           <View marginT-15 center>
-            <Text text60BO white>
-              ✅ ¡Peso registrado!
+            <Text text50BO white>
+              ¡NO HAY NINGÚNA IMAGEN!
             </Text>
-            <Text text70BO white marginT-60 center>
-              {idealWeight
-                ? "¡Todo en orden! Su peso es el ideal. Sigamos cuidando juntos."
-                : "Está fuera del peso ideal. Nada grave, pero una visita al veterinario puede ayudarte a saber qué hacer."}
+            <Text text60BO white marginT-60 center>
+              Te invitamos a subir la imagen de {picture}
             </Text>
           </View>
         </View>
@@ -42,4 +39,4 @@ const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
   );
 };
 
-export default ModalWeightInfo;
+export default ModalNoPicture;

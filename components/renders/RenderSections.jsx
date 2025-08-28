@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import momentTZ from "../../utils/moment";
-import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View, FeatureHighlight } from "react-native-ui-lib";
 import Section from "../pet/Section";
 import { Colors } from "../../styles/Colors";
 import { calculateIdealWeight } from "../../utils/scripts";
@@ -18,6 +18,7 @@ const RenderSections = ({ item }) => {
 
   const [lowestDaysRemaining, setLowestDaysRemaining] = useState(null);
   const [haveAnyVaccine, setHaveAnyVaccine] = useState(false);
+  const [nameVaccine, setNameVaccine] = useState('');
   const [haveAnyDewormers, setHaveAnyDewormers] = useState(false);
 
   const [modalWeightInfoVisible, setModalWeightInfoVisible] = useState(false);
@@ -26,7 +27,6 @@ const RenderSections = ({ item }) => {
     refetchVaccines();
 
     if (vaccines?.vaccines_records || vaccines?.vaccines_expired) {
-      console.log(vaccines)
       const vaccinesList = [
         ...(vaccines.vaccines_records || []).map((record) => {
           setHaveAnyVaccine(vaccines.vaccines_records.length > 0);
@@ -34,6 +34,7 @@ const RenderSections = ({ item }) => {
           const matchingToExpire = (vaccines.vaccines_toexpire || []).find(
             (toExpire) => toExpire.id === record.id
           );
+          setNameVaccine(matchingToExpire.name);
           if (matchingToExpire) {
             return {
               ...record,
@@ -140,31 +141,29 @@ const RenderSections = ({ item }) => {
                   >
                     Vacunas
                   </Text>
-                  <Text text80M>Próximos vencimientos </Text>
-                
-                <Text text80M >Faltan</Text>
+                  <Text text90M>Próximos vencimientos</Text>
+                  <Text text80BL >{nameVaccine}</Text>
+                  <Text text90M>Faltan</Text>
                   <Text
-                    text90
+                    text90M
                     color={lowestDaysRemaining > 30 ? Colors.green : "orange"}
                   >
                     {lowestDaysRemaining
-                      ? lowestDaysRemaining <= 50?`Faltan ${lowestDaysRemaining} días`:`Aún falta. Te avisaremos cuando se acerque la fecha`
+                      ? lowestDaysRemaining <= 50
+                        ? `Faltan ${lowestDaysRemaining} días`
+                        : `Aún falta. Te avisaremos cuando se acerque la fecha`
                       : "No hemos podido calcular el tiempo que falta para la próxima vacuna"}
                   </Text>
-
-                  {/* <Text color={remainingDays.color} text80BO>
-                {remainingDays.text}
-              </Text> */}
                   <View alignSelf="flex-end">
-                    <Text>+ info</Text>
+                    <Text text90M>+ info</Text>
                   </View>
                 </>
               ) : (
-                <NoHealthRecord
-                  title="¿Ya tiene sus vacunas?"
-                  description="Regístralas para no olvidar y cuidar su salud."
-                  buttonText="Registrar aquí"
-                />
+                  <NoHealthRecord
+                    title="¿Ya tiene sus vacunas?"
+                    description="Regístralas para no olvidar y cuidar su salud."
+                    buttonText="Registrar aquí"
+                  />
               )}
             </>
           }
@@ -183,7 +182,7 @@ const RenderSections = ({ item }) => {
                 <Text text90M>Próximos vencimientos</Text>
                 <Text text90MM>Faltan</Text>
                 <View alignSelf="flex-end">
-                  <Text>+ info</Text>
+                  <Text text90M >+ info</Text>
                 </View>
               </>
             ) : (
@@ -240,20 +239,20 @@ const RenderSections = ({ item }) => {
                 />
               )}
               {
-              realWeight?.ideal && (
-                <View row centerV>
-                <View
-                  style={{
-                    backgroundColor: Colors.green,
-                    borderRadius: 50,
-                    width:10,
-                    height: 10,
-                    marginRight: 5,
-                  }}
-                />
-                <Text text90 style={{color:Colors.green}} >¡Bien hecho!</Text>
-                </View>
-              )
+                realWeight?.ideal && (
+                  <View row centerV>
+                    <View
+                      style={{
+                        backgroundColor: Colors.green,
+                        borderRadius: 50,
+                        width: 10,
+                        height: 10,
+                        marginRight: 5,
+                      }}
+                    />
+                    <Text text90 style={{ color: Colors.green }} >¡Bien hecho!</Text>
+                  </View>
+                )
               }
             </>
           }

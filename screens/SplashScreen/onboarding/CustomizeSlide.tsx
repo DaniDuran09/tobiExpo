@@ -6,12 +6,14 @@ import { Colors } from "../../../styles/Colors";
 import { View, Text } from "react-native-ui-lib";
 import { TouchableWithoutFeedback } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import MicroText from "./MicroText";
 
 export default function CustomizeSlide() {
   return (
     <Layout footer={<Footer />} >
       <Title text="Su historial de salud, listo para lo que venga." />
       <Description text="Comparte con un clic sus registros de vacunas y cuidados. Desde el veterinario hasta la guardería, Tobi está contigo." />
+      <MicroText text="Descárgalo. Compártelo. Listo."/>
     </Layout>
   );
 }

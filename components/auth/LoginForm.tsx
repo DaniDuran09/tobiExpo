@@ -24,7 +24,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
 }, []);
   
   const getPushToken = async () => {
-    const token = (await Notifications.getExpoPushTokenAsync()).data;
+    const token = (await Notifications.getExpoPushTokenAsync({projectId:"f65ecfcd-2965-4845-874e-f1581e444da1"})).data;
     console.log("Token", token);
     setInput({...input,expotoken:token})
 };
@@ -88,8 +88,8 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
         <TouchableWithoutFeedback onPress={() => onSubmit(input)}>
           <View
             height={60}
-            width={"80%"}
-            backgroundColor={Colors.primaryColor}
+            width={"90%"}
+            backgroundColor={Colors.black}
             centerV
             br100
           >

@@ -51,6 +51,7 @@ const HomeScreen = ({ navigation }: any) => {
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
+      console.log("data list ",list.data);
       const user = await apiFetcher.getProfile();
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
