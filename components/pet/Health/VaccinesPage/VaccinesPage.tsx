@@ -92,6 +92,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
         >
           {allVaccines.map((item) => (
             <CardVaccine
+              key={item.id}
               idPet={selectedPet.id}
               vaccineBrands={vaccineBrands}
               item={item}

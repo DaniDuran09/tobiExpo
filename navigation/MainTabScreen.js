@@ -352,14 +352,14 @@ const DetailsStackScreen = ({ navigation }) => (
       component={DetailsScreen}
       options={{
         headerLeft: null,
-        title: "Pet Parent University",
+        title: "Pawrent Academy",
       }}
     />
     <DetailsStack.Screen
       name="WebView"
       component={ViewWeb}
       options={({ route }) => ({
-        title: "Pet Parent University",
+        title: "Pawrent Academy",
         headerLeft: null,
         headerRight: () => (
           <TouchableOpacity onPress={() => shareInfo(route.params.url)}>

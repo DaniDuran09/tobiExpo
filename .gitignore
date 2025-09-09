@@ -76,3 +76,4 @@ yarn-error.*
 # @end expo-cli
 
 android/app/my-upload-key.keystore
+android/app/*.keystore

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import momentTZ from "../../utils/moment";
-import { AnimatedImage, LoaderScreen, Text, View, FeatureHighlight } from "react-native-ui-lib";
+import { AnimatedImage, LoaderScreen, Text, View } from "react-native-ui-lib";
 import Section from "../pet/Section";
 import { Colors } from "../../styles/Colors";
 import { calculateIdealWeight } from "../../utils/scripts";
@@ -8,6 +8,7 @@ import Icon from "react-native-vector-icons/Entypo";
 import { useGetVaccinationRecordsQuery } from "../../services/api/health.api";
 import NoHealthRecord from "../atoms/NoHealthRecord";
 import ModalWeightInfo from "../atoms/ModalWeightInfo";
+
 const RenderSections = ({ item }) => {
   const {
     data: vaccinesResponse,
@@ -20,7 +21,7 @@ const RenderSections = ({ item }) => {
   const [haveAnyVaccine, setHaveAnyVaccine] = useState(false);
   const [nameVaccine, setNameVaccine] = useState('');
   const [haveAnyDewormers, setHaveAnyDewormers] = useState(false);
-
+  const [nextDewormer, setNextDewormer] = useState(null);
   const [modalWeightInfoVisible, setModalWeightInfoVisible] = useState(false);
 
   useEffect(() => {
@@ -31,10 +32,11 @@ const RenderSections = ({ item }) => {
         ...(vaccines.vaccines_records || []).map((record) => {
           setHaveAnyVaccine(vaccines.vaccines_records.length > 0);
           setHaveAnyDewormers(vaccines.dewormers_records.length > 0);
+          console.log("VACCINES",vaccines.dewormers_records);
           const matchingToExpire = (vaccines.vaccines_toexpire || []).find(
             (toExpire) => toExpire.id === record.id
           );
-          setNameVaccine(matchingToExpire.name);
+          setNameVaccine(matchingToExpire?.name || '');
           if (matchingToExpire) {
             return {
               ...record,
@@ -55,41 +57,29 @@ const RenderSections = ({ item }) => {
       }, null);
       setLowestDaysRemaining(lowestDaysRemaining);
     }
+
+    if (vaccines?.dewormers_records?.length > 0) {
+  setHaveAnyDewormers(true);
+
+  const today = momentTZ().startOf("day");
+
+  const dewormersWithDays = vaccines.dewormers_records.map((dewormer) => {
+    const nextDoseDate = momentTZ(dewormer.next_dose).startOf("day");
+    const daysRemaining = nextDoseDate.diff(today, "days");
+    return { ...dewormer, days_remaining: daysRemaining };
+  });
+
+  const sortedDewormers = dewormersWithDays.sort(
+    (a, b) => a.days_remaining - b.days_remaining
+  );
+
+  setNextDewormer(sortedDewormers[0]);
+} else {
+  setHaveAnyDewormers(false);
+  setNextDewormer(null);
+}
+
   }, [vaccines]);
-
-  // const calculateRemainingDays = (serviceDate, today) => {
-  //   const daysDifference = Math.ceil(serviceDate.diff(today, "hours") / 24);
-
-  //   if (daysDifference < 0) return { text: "---", color: "black" };
-  //   else if (daysDifference === 0)
-  //     return { text: "La cita es hoy", color: "green" };
-  //   else
-  //     return {
-  //       text: `${daysDifference} ${daysDifference !== 1 ? "días" : "día"}`,
-  //       color: "green",
-  //     };
-  // };
-
-  // const getServiceDateInfo = (serviceDate) =>
-  //   momentTZ(serviceDate).utc().format("DD.MMM");
-
-  // const getServiceStatus = (item) => {
-  //   // if (!(item.status === "actived" && item?.service_date))
-  //   if (!item?.service_date)
-  //     return { service: "---", remainingDays: { text: "---", color: "green" } };
-  //   const serviceDate = momentTZ(item?.service_date, "YYYY-MM-DDTHH:mm:ssZ")
-  //     .tz("America/Mexico_City")
-  //     .startOf("day");
-  //   const today = momentTZ().tz("America/Mexico_City").startOf("day");
-
-  //   const remainingDays = calculateRemainingDays(serviceDate, today);
-  //   const service =
-  //     remainingDays.text !== "---"
-  //       ? getServiceDateInfo(item?.service_date)
-  //       : "---";
-
-  //   return { service, remainingDays };
-  // };
 
   const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
   const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
@@ -98,8 +88,6 @@ const RenderSections = ({ item }) => {
     rangeTwo,
     item?.weight_status?.weight
   );
-
-  // const { service, remainingDays } = getServiceStatus(item);
 
   return (
     <View marginB-25>
@@ -142,7 +130,7 @@ const RenderSections = ({ item }) => {
                     Vacunas
                   </Text>
                   <Text text90M>Próximos vencimientos</Text>
-                  <Text text80BL >{nameVaccine}</Text>
+                  <Text text80BL>{nameVaccine}</Text>
                   <Text text90M>Faltan</Text>
                   <Text
                     text90M
@@ -159,11 +147,11 @@ const RenderSections = ({ item }) => {
                   </View>
                 </>
               ) : (
-                  <NoHealthRecord
-                    title="¿Ya tiene sus vacunas?"
-                    description="Regístralas para no olvidar y cuidar su salud."
-                    buttonText="Registrar aquí"
-                  />
+                <NoHealthRecord
+                  title="¿Ya tiene sus vacunas?"
+                  description="Regístralas para no olvidar y cuidar su salud."
+                  buttonText="Registrar aquí"
+                />
               )}
             </>
           }
@@ -174,15 +162,24 @@ const RenderSections = ({ item }) => {
           tabIndex={1}
           haveItem={haveAnyDewormers}
           children={
-            haveAnyDewormers ? (
+            haveAnyDewormers && nextDewormer ? (
               <>
                 <Text text70BL adjustsFontSizeToFit numberOfLines={1} uppercase>
                   Desparasitación
                 </Text>
                 <Text text90M>Próximos vencimientos</Text>
-                <Text text90MM>Faltan</Text>
+                <Text text80BL>{nextDewormer.brand}</Text>
+                <Text text90M>Faltan</Text>
+                <Text
+                  text90M
+                  color={nextDewormer.days_remaining > 30 ? Colors.green : "orange"}
+                >
+                  {nextDewormer.days_remaining > 30
+                    ? `Aún falta. Te avisaremos cuando se acerque la fecha`
+                    : `Faltan ${nextDewormer.days_remaining} días`}
+                </Text>
                 <View alignSelf="flex-end">
-                  <Text text90M >+ info</Text>
+                  <Text text90M>+ info</Text>
                 </View>
               </>
             ) : (
@@ -221,9 +218,7 @@ const RenderSections = ({ item }) => {
                 <Text text90M>Rango ideal</Text>
                 <Text text80BO>{`${rangeOne} Kg - ${rangeTwo} Kg`}</Text>
               </View>
-
               <Text text90M>Real</Text>
-
               <View row spread centerV>
                 <Text
                   color={"red"}
@@ -238,22 +233,20 @@ const RenderSections = ({ item }) => {
                   size={25}
                 />
               )}
-              {
-                realWeight?.ideal && (
-                  <View row centerV>
-                    <View
-                      style={{
-                        backgroundColor: Colors.green,
-                        borderRadius: 50,
-                        width: 10,
-                        height: 10,
-                        marginRight: 5,
-                      }}
-                    />
-                    <Text text90 style={{ color: Colors.green }} >¡Bien hecho!</Text>
-                  </View>
-                )
-              }
+              {realWeight?.ideal && (
+                <View row centerV>
+                  <View
+                    style={{
+                      backgroundColor: Colors.green,
+                      borderRadius: 50,
+                      width: 10,
+                      height: 10,
+                      marginRight: 5,
+                    }}
+                  />
+                  <Text text90 style={{ color: Colors.green }}>¡Bien hecho!</Text>
+                </View>
+              )}
             </>
           }
         />

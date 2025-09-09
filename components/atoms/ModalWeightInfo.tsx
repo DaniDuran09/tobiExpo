@@ -28,7 +28,7 @@ const ModalWeightInfo: React.FC<ModalWeightInfoProps> = ({
           </View>
           <View marginT-15 center>
             <Text text60BO white>
-              ✅ ¡Peso registrado!
+              {idealWeight?"✅Peso en rango":"⚠️ Peso fuera de rango"}
             </Text>
             <Text text70BO white marginT-60 center>
               {idealWeight
