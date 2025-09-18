@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import StepIndicator from "react-native-step-indicator";
 import { Colors } from "../../../styles/Colors";
@@ -166,6 +166,7 @@ const UserStepsRegister = () => {
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
+      console.log("Response foto: ", response);
       if (response.code == 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
