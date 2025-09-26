@@ -76,7 +76,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => navigation.navigate("UserStepsRegister")}
+          onPress={() => navigation.navigate("MailForm")}
         >
           <Text text80R center color={Colors.white} underline>
             Registrarse

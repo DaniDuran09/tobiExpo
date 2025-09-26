@@ -24,8 +24,12 @@ class ApiFetcher {
   }
 
   handleErrors(response) {
-    if (response.status !== 200) {
-      throw new Error("Status code error");
+    console.log("a ver la respueseta", response)
+    if (response.status < 200 || response.status >= 300) {
+      if (response.data === "email.verification_already_done") {
+        return response.data;
+      }
+      throw new Error("Status code error" + response.data);
     }
     return response.data;
   }
@@ -51,8 +55,14 @@ class ApiFetcher {
       const response = await axios.post(url, data, { headers, timeout: 15000 });
       return this.handleErrors(response);
     } catch (error) {
-      console.error("Error in POST request:", error);
-      throw error;
+      console.log("ERROR EN POST", error.response?.data || error.message);
+      if (error.response) {
+        const { status, data } = error.response;
+        console.log("Status del error:", status);
+        console.log("Data del error:", data);
+        throw new Error(data?.error || data?.message || "Error desconocido");
+      }
+      throw new Error("Error de red o servidor no disponible");
     }
   }
   async _put(endpoint, data, tokenRequired = true, isMultipart = false) {
@@ -86,6 +96,12 @@ class ApiFetcher {
   // Métodos específicos de la API
 
   // auth
+  async sendVerification(mail) {
+    return await this._post("/registers/send_verification_email", mail, false);
+  }
+  async verifyPin(data) {
+    return await this._post("/registers/verify_email", data, false);
+  }
   async login(data) {
     return await this._post("/login", data, false);
   }
@@ -111,7 +127,7 @@ class ApiFetcher {
   async updatePassword(data) {
     return await this._put(`/forgot/password`, data);
   }
-  
+
   async getProfile() {
     return await this._get("/profile");
   }
@@ -200,8 +216,8 @@ class ApiFetcher {
 
   async getAvailabilitySlotsByServices(id, date, services) {
     const urlComplement = services
-    .map(service => `service_ids[]=${service.id}`)
-    .join('&');
+      .map(service => `service_ids[]=${service.id}`)
+      .join('&');
     return await this._get(`/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
   }
 
@@ -209,9 +225,9 @@ class ApiFetcher {
     return await this._post("/appointments", data);
   }
 
-   // notifications
+  // notifications
 
-   async getNotifications() {
+  async getNotifications() {
     return await this._get("/notifications");
   }
   /*async updateNotificationStatus(){

@@ -14,12 +14,16 @@ import { Colors } from "../styles/Colors";
 import UserStepsRegister from "../screens/auth/register/UserStepsRegister";
 import ForgotPassword from "../screens/auth/ForgotPassword";
 import ChangePassword from "../screens/auth/ChangePassword";
+import MailForm from "../screens/auth/register/MailForm";
+import ValidateMail from "../screens/auth/register/ValidateMail";
 
 const RootStack = createStackNavigator();
 
 const RootStackScreen = ({}) => (
   <RootStack.Navigator screenOptions={{ headerShown: false }}>
     <RootStack.Screen name="SplashScreen" component={SplashScreen} />
+    <RootStack.Screen name="MailForm" component={MailForm}/>
+    <RootStack.Screen name="ValidateMail" component={ValidateMail}/>
     <RootStack.Screen name="LoginScreen" component={LoginScreen} />
     <RootStack.Screen
       name="ForgotPassword"

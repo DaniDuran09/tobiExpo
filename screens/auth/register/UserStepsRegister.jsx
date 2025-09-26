@@ -17,7 +17,8 @@ import Toast from "react-native-toast-message";
 import { clearPetInfo } from "../../../redux/slice/petSlice";
 import { useRegisterMutation } from "../../../api/auth/auth";
 
-const UserStepsRegister = () => {
+const UserStepsRegister = ({route}) => {
+  const { email } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const labels = ["1", "2", "3", "4"];
@@ -28,10 +29,13 @@ const UserStepsRegister = () => {
     name: "",
     last_name: "",
     phone: "",
-    email: "",
+    email: email,
     birthday: "",
     password: "",
   });
+  useEffect(() => {
+    setUser((prev) => ({ ...prev, email: email }));
+  }, [email]);
   const [data, setData] = useState({
     name: "",
     birthday: "",
@@ -113,6 +117,7 @@ const UserStepsRegister = () => {
     if (data.pet_breed_id != 0 && data.weight != 0) {
       return true;
     } else {
+      console.log("data", data);
       Toast.show({
         type: "error",
         text1: "Campos incompletos",

@@ -138,13 +138,14 @@ const SignInScreen = (props) => {
                 onChangeText={(val) => setUser({ ...user, last_name: val })}
               />
               <TextInput
+                editable={false}
                 placeholder="Email"
                 keyboardType="email-address"
                 elevation={5}
                 placeholderTextColor="#000"
                 style={styles.textInput}
                 autoCapitalize="none"
-                onChangeText={(val) => setUser({ ...user, email: val })}
+                value={user.email}
               />
               <TextInput
                 keyboardType="numeric"
