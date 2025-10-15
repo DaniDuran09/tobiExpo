@@ -19,7 +19,7 @@ const ModalNoPicture: React.FC<ModalNoPictureProps> = ({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',}}>
-        <View style={{backgroundColor:Colors.primaryColor}} br30 height={"30%"} width={"90%"} padding-15>
+        <View style={{backgroundColor:Colors.primaryColor}} br30 height={"auto"} width={"90%"} padding-15>
           <View row spread right>
             <TouchableOpacity onPress={()=>onRequestClose()} padding-10>
               <MaterialIcons name="close" size={20} color={"white"} />

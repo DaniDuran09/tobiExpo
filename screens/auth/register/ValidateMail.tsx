@@ -7,6 +7,7 @@ import PinValidate from '../../../components/atoms/PinValidate';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ApiFetcher from '../../../modules/ApiFetcher';
+import Toast from 'react-native-toast-message';
 
 export default function ValidateMail({ route }: any) {
   const { email } = route.params;
@@ -28,8 +29,15 @@ export default function ValidateMail({ route }: any) {
         console.log("Response", response.data);
           navigation.navigate("UserStepsRegister", { email: email })
       }
-      catch (error) {
-
+      catch (error:any) {
+        console.error("Error verifying pin:", error);
+        if(error.message === "token.incorrect_token"){
+          Toast.show({
+                    type: "error",
+                    text1: "Pin inválido",
+                    text2: "El pin ingresado es incorrecto",
+                  });
+        }
       }
     }
   }

@@ -162,7 +162,7 @@ const MainTabScreen = () => (
         ),
       }}
     />
-    <Tab.Screen
+    {/*<Tab.Screen
       name="Explore"
       component={PartnersStack}
       options={{
@@ -177,7 +177,7 @@ const MainTabScreen = () => (
           />
         ),
       }}
-    /> 
+    /> */}
     <Tab.Screen
       name="NotificationsTab"
       component={NotificationsStack}
