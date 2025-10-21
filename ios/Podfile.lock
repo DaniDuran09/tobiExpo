@@ -1531,7 +1531,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.31.1):
+  - RNScreens (4.16.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.01.01.00)
@@ -2009,7 +2009,7 @@ SPEC CHECKSUMS:
   RNDateTimePicker: dde7ca9005d716f3efa9a63004b441679bca9a41
   RNGestureHandler: 20633aae71a1a4311657e568fd234e914d22fbef
   RNReanimated: 76f916b85bb322b7075f1f9022e4bc0c3f59b7c6
-  RNScreens: 16ad8ab2ffcb02b7e5d1e047eda9a4c0ecc94c78
+  RNScreens: 894d8bbfbca99fb1357753720da4e8b19fea88ac
   RNSVG: 2df577ee9762d1b6deef820173b59b064c2570fe
   RNVectorIcons: c96187ecb8207acdfb70c81906f44643f0805a31
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
@@ -2025,6 +2025,6 @@ SPEC CHECKSUMS:
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 4c2ac25f872535bb59e885507f857e4aa7751358
+PODFILE CHECKSUM: 955e31ddff7307e2be75d1219ae86749b80a55e4
 
 COCOAPODS: 1.16.2
