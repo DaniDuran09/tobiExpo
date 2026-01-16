@@ -115,11 +115,11 @@ class ApiFetcher {
   // user
 
   async updatePictureProfile(image) {
-    return await this._put(`/profile/save/picture`, image, true, true);
+    return await this._put(`/v1/portal_client/profile/save/picture`, image, true, true);
   }
 
   async updateUser(data) {
-    return await this._put(`/profile/update/information`, data);
+    return await this._put(`/v1/portal_client/profile/update/information`, data);
   }
 
   async sendPin(data) {
@@ -131,7 +131,7 @@ class ApiFetcher {
   }
 
   async getProfile() {
-    return await this._get("v1/portal_client/profile");
+    return await this._get("/v1/portal_client/profile");
   }
 
   async getBlogs() {
@@ -212,10 +212,12 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/appointments?pet_id=${id}`);
   }
 
+  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilityDaysByPartnerId(id) {
     return await this._get(`/v1/portal_client/partners/${id}/availability/days`);
   }
 
+  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilitySlotsByServices(id, date, services) {
     const urlComplement = services
       .map(service => `service_ids[]=${service.id}`)
@@ -223,6 +225,7 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
   }
 
+  
   async registerAppointments(data) {
     return await this._post("/v1/portal_client/appointments", data);
   }

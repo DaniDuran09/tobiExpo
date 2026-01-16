@@ -51,10 +51,6 @@ const SelectService = ({ route }) => {
       onPress={() => goToMoreInfo(item, serviceType)}
     >
       <View style={styles.leftSection}>
-        <Text style={styles.itemTitle}>{item.name}</Text>
-        <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
-      </View>
-      <View style={styles.RightSection}>
         <AnimatedImage
           source={{ uri: item?.picture }}
           style={styles.imageItem}
@@ -62,6 +58,10 @@ const SelectService = ({ route }) => {
           animationDuration={500}
           resizeMode="contain"
         />
+      </View>
+      <View style={styles.RightSection}>
+        <Text style={styles.itemTitle}>{item.name}</Text>
+        <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
       </View>
     </TouchableOpacity>
   );
