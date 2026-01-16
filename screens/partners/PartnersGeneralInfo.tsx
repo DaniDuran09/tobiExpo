@@ -34,7 +34,11 @@ const PartnersGeneralInfo = () => {
       id: "",
       partnerId:"",
       description:"",
-      phone:""
+      phone:"",
+      type_partner: {
+        id: 0,
+        name: ""
+      }
     },
     address: {
       state: "",

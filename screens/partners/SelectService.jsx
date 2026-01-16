@@ -45,23 +45,47 @@ const SelectService = ({ route }) => {
     navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type });
   };
 
+  const ExpandableText = ({ text }) => {
+    const [expanded, setExpanded] = useState(false);
+    return (
+      <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+        <Text numberOfLines={expanded ? undefined : 1}
+          style={styles.itemDescription}
+        >
+          {text}
+        </Text>
+      </TouchableOpacity>
+    )
+  }
+
   const renderPartners = ({ item }) => (
     <TouchableOpacity
-      style={styles.item}
       onPress={() => goToMoreInfo(item, serviceType)}
+      style={styles.item}
     >
-      <View style={styles.leftSection}>
-        <AnimatedImage
-          source={{ uri: item?.picture }}
-          style={styles.imageItem}
-          loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-          animationDuration={500}
-          resizeMode="contain"
-        />
+      <View 
+      style={styles.item2}>
+        <View style={styles.leftSection}>
+          <AnimatedImage
+            source={{ uri: item?.picture }}
+            style={styles.imageItem}
+            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+            animationDuration={500}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.RightSection}>
+          <Text style={styles.itemTitle}>{item.name}</Text>
+          <ExpandableText
+            text={item.description}
+          />
+          <Text>⭐⭐⭐⭐⭐ {item.rating}</Text>
+        </View>
       </View>
-      <View style={styles.RightSection}>
-        <Text style={styles.itemTitle}>{item.name}</Text>
-        <Text style={styles.itemDescription}>{item.type_partner.name}</Text>
+      <View style={styles.footer}>
+        <Text>
+          📍 Circuito Misioneros 4-A, Naucalpan de Juá...
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -100,11 +124,11 @@ const SelectService = ({ route }) => {
       </View>
       <View style={styles.partnersContainer}>
         <FlatList
-              data={filteredPartners}
-              renderItem={renderPartners}
-              keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
-              style={styles.flatList}
-            />
+          data={filteredPartners}
+          renderItem={renderPartners}
+          keyExtractor={(item) => item.id.toString()} // Use toString() para asegurar que sea una cadena
+          style={styles.flatList}
+        />
       </View>
     </View>
   );
@@ -151,18 +175,16 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingBottom: 120,
   },
+  item2:{
+    flexDirection: "row",
+    backgroundColor: Colors.white,
+  },
   item: {
-    height: 130,
+    minHeight: 130,
     paddingLeft: 15,
     paddingTop: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: Colors.white,
-    alignItems: "center",
     shadowColor: Colors.gray,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
+    backgroundColor: Colors.white,
     marginBottom: 10,
     elevation: 5,
   },
@@ -171,7 +193,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   leftSection: {
-    width: "50%",
+    marginRight: 20
   },
   imageItem: {
     height: 90,
@@ -179,11 +201,16 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   RightSection: {
-    paddingRight: 15,
+    flex: 1,
+    padding: 10
   },
   itemDescription: {
     fontSize: 15,
     marginTop: 5,
     color: Colors.gray,
   },
+  footer:{
+    marginVertical:10,
+    marginHorizontal:10
+  }
 });
