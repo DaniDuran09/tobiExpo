@@ -19,6 +19,7 @@ const SelectService = ({ route }) => {
   const { type } = route.params;
   const [listPartners, setListPartners] = useState([]);
   const [serviceType, setServiceType] = useState(2);
+  const [pets, stePets] = useState([]);
 
   const appStorage = new AppStorage();
   const apiFetcher = new ApiFetcher();
@@ -63,8 +64,8 @@ const SelectService = ({ route }) => {
       onPress={() => goToMoreInfo(item, serviceType)}
       style={styles.item}
     >
-      <View 
-      style={styles.item2}>
+      <View
+        style={styles.item2}>
         <View style={styles.leftSection}>
           <AnimatedImage
             source={{ uri: item?.picture }}
@@ -79,7 +80,15 @@ const SelectService = ({ route }) => {
           <ExpandableText
             text={item.description}
           />
-          <Text>⭐⭐⭐⭐⭐ {item.rating}</Text>
+          <View style={styles.rating}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Text key={i}>
+                {i < item.rating ? "⭐" : "☆"}
+              </Text>
+            ))}
+            <Text> {item.rating}</Text>
+          </View>
+
         </View>
       </View>
       <View style={styles.footer}>
@@ -175,7 +184,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingBottom: 120,
   },
-  item2:{
+  item2: {
     flexDirection: "row",
     backgroundColor: Colors.white,
   },
@@ -209,8 +218,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: Colors.gray,
   },
-  footer:{
-    marginVertical:10,
-    marginHorizontal:10
+  footer: {
+    marginVertical: 10,
+    marginHorizontal: 10
+  },
+  rating: {
+    flexDirection: 'row'
   }
 });

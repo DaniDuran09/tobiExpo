@@ -55,7 +55,8 @@ const PartnersStack = () => {
         name="PartnersGeneralInfo"
         component={PartnersGeneralInfo}
         options={{
-          headerShown: false,
+          headerShown: true,
+          title:'Reserva de cita'
         }}
       />
       <Stack.Screen

@@ -1,8 +1,8 @@
 import { ScrollView, Share, FlatList } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
@@ -13,15 +13,21 @@ import { ServicesOptionsList } from "../../components/appointments/ServicesOptio
 import PartnersContactInformation from "./PartnersContactInformation";
 import Toast from "react-native-toast-message";
 import Loading from "../../components/Loading";
+import { RenderPets } from "../../components/renders/RenderPets";
 
 const PartnersGeneralInfo = () => {
   const { params } = useRoute<any>()
-  const {id,type} = params
+  const { id, type } = params
   const navigation = useNavigation<any>();
 
   const apiFetcher = new ApiFetcher();
 
   const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(false);
+  const [pets, stePets] = useState([]);
+  const [selectedPet, setSelectedPet] = useState(null);
+  const handleSelectPet = (pet: any) => setSelectedPet(pet);
 
   const [item, setItem] = useState<PartnerGeneralInfo>({
     services: [],
@@ -32,9 +38,9 @@ const PartnersGeneralInfo = () => {
       longitude: "0",
       name: "",
       id: "",
-      partnerId:"",
-      description:"",
-      phone:"",
+      partnerId: "",
+      description: "",
+      phone: "",
       type_partner: {
         id: 0,
         name: ""
@@ -106,6 +112,32 @@ const PartnersGeneralInfo = () => {
     setShowActionSheet(true);
   };
 
+  const fetchPets = async () => {
+    setLoading(true);
+    try {
+      const response = await apiFetcher.getPets();
+      stePets(response.data);
+    } catch (error) {
+      console.error("Error: ", error);
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error",
+        text2: `No pudimos acceder a tus mascotas, inténtalo de nuevo más tarde`,
+      });
+      navigation.goBack()
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPets();
+      return () => { };
+    }, [])
+  );
+
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
       {isLoading && (
@@ -115,6 +147,35 @@ const PartnersGeneralInfo = () => {
         />
       )}
       <ScrollView style={{ padding: 10 }}>
+        <FlatList
+          data={pets}
+          horizontal={true}
+          renderItem={({ item }) => (
+            <RenderPets
+              pet={item}
+              selectedPet={selectedPet}
+              handleSelectPet={handleSelectPet}
+            />
+          )}
+          keyExtractor={(item: { id: number }) => item.id.toString()}
+          showsHorizontalScrollIndicator={false}
+        />
+        {/*NEW VERSION */}
+        <View marginT-10 width={'100%'} height={0.2} bg-black />
+        <View>
+          <Text text50H marginT-20 >{partner.name} </Text>
+          <Text text60L marginV-10 >Calendario </Text>
+        </View>
+
+        {/*OLD VERSION*/}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default PartnersGeneralInfo;
+
+/* 
         <View row spread>
           {!isLoading && (
             <Image
@@ -214,9 +275,4 @@ const PartnersGeneralInfo = () => {
           setShowActionSheet={setShowActionSheet}
           showActionSheet={showActionSheet}
         />
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
-export default PartnersGeneralInfo;
+*/
