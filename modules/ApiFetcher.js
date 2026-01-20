@@ -230,6 +230,15 @@ class ApiFetcher {
     return await this._post("/v1/portal_client/appointments", data);
   }
 
+  // carts
+  async createCart(data){
+    return await this._post("/v2/portal_client/carts",data)
+  }
+
+  async getCart(id){
+    return await this._get(`/api/v2/portal_client/carts/${id}`)
+  }
+
   // notifications
 
   async getNotifications() {

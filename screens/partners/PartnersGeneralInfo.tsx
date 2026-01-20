@@ -7,17 +7,17 @@ import ApiFetcher from "../../modules/ApiFetcher";
 import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
 import { useDispatch } from "react-redux";
-import { OpenDirectionMap } from "../../components/appointments/OpenDirection";
-import { UserItem } from "../../components/renders/UserItem";
-import { ServicesOptionsList } from "../../components/appointments/ServicesOptionsList";
-import PartnersContactInformation from "./PartnersContactInformation";
 import Toast from "react-native-toast-message";
 import Loading from "../../components/Loading";
 import { RenderPets } from "../../components/renders/RenderPets";
+import ResumeService from "./components/ResumeService";
+import Service from "./components/Service";
 
 const PartnersGeneralInfo = () => {
   const { params } = useRoute<any>()
   const { id, type } = params
+  //type 2 = veterinaria
+  //type 3 = grooming
   const navigation = useNavigation<any>();
 
   const apiFetcher = new ApiFetcher();
@@ -28,6 +28,8 @@ const PartnersGeneralInfo = () => {
   const [pets, stePets] = useState([]);
   const [selectedPet, setSelectedPet] = useState(null);
   const handleSelectPet = (pet: any) => setSelectedPet(pet);
+  const [showServices, setShowServices] = useState(false);
+  const [localCart, setLocalCart] = useState<CartItem[]>([])
 
   const [item, setItem] = useState<PartnerGeneralInfo>({
     services: [],
@@ -65,6 +67,50 @@ const PartnersGeneralInfo = () => {
     dispatch(clearAppointments());
     getPartnerInfo();
   }, []);
+
+  useEffect(() => {
+    if (!partner?.id) return
+    createCart();
+  }, [partner])
+
+  const fetchCart = async () => {
+    setIsLoading(true)
+    try {
+
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+
+
+  const createCart = async () => {
+    setIsLoading(true)
+    try {
+      const payload = {
+        "partner_id": partner.id
+      }
+      console.log("partner id", partner.id)
+      const create = await apiFetcher.createCart(payload)
+      console.log("intentar crear un carro", create);
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const addToLocalCart = (service: CartItem) => {
+    setLocalCart(prev => [...prev, service]);
+    setShowServices(false);
+  }
+  const removeFromLocalCart = (id: number) => {
+  setLocalCart(prev => prev.filter(item => item.id !== id))
+}
+
 
   const getPartnerInfo = async (): Promise<void> => {
     setIsLoading(true);
@@ -162,10 +208,52 @@ const PartnersGeneralInfo = () => {
         />
         {/*NEW VERSION */}
         <View marginT-10 width={'100%'} height={0.2} bg-black />
-        <View>
-          <Text text50H marginT-20 >{partner.name} </Text>
-          <Text text60L marginV-10 >Calendario </Text>
+
+        <View >
+          <Text text60H marginT-20 >{partner.name} </Text>
         </View>
+        {!showServices ? (
+          <View>
+            <Text text70L marginV-10 >Calendario </Text>
+            <FlatList
+              data={localCart}
+              renderItem={({ item }) => (
+                <ResumeService
+                  item={item}
+                  type={type}
+                  onRemove={removeFromLocalCart}
+                />
+              )}
+              keyExtractor={(item) => item.id.toString()}
+            />
+
+          </View>
+        ) :
+          <FlatList
+            data={services}
+            renderItem={({ item }) => (
+              <Service
+                id={item.id}
+                name={item.name}
+                price={item.price}
+                duration_minutes={item.duration_minutes}
+                addToLocalCart={addToLocalCart}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        }
+
+
+        <TouchableOpacity
+          style={{ width: '100%', height: 30, justifyContent: 'center', marginBottom: 50 }}
+          onPress={() => setShowServices(!showServices)}
+        >
+          <Text>
+            {showServices == false ? '+ Añadir otro servicio' : 'Cancelar'}
+          </Text>
+        </TouchableOpacity>
+        {/**/}
 
         {/*OLD VERSION*/}
       </ScrollView>
