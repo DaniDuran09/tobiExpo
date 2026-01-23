@@ -31,7 +31,7 @@ const PartnersGeneralInfo = () => {
   const handleSelectPet = (pet: any) => setSelectedPet(pet);
   const [showServices, setShowServices] = useState(false);
   const [localCart, setLocalCart] = useState<CartItem[]>([])
-  const [currentId, setCurrentId] = useState(null);
+  const [currentId, setCurrentId] = useState(0);
   const [cart, setCart] = useState(0);
   const [availableDays, setAvailableDays] = useState([])
   const [isChoising, setIsChoising] = useState<boolean>(false);
