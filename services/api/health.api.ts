@@ -16,18 +16,18 @@ export const healthApi = createApi({
   }),
   endpoints: (builder) => ({
     getVaccines: builder.query<ApiResponse<any>, number>({
-      query: (id: number) => `/pets/${id}/vaccines`,
+      query: (id: number) => `/v1/portal_client/pets/${id}/vaccines`,
       keepUnusedDataFor: 0,
     }),
 
     getVaccinationRecords: builder.query<ApiResponse<any>, number>({
-      query: (id) => `/pets/${id}/vaccination_records`,
+      query: (id) => `/v1/portal_client/pets/${id}/vaccination_records`,
       keepUnusedDataFor: 0,
     }),
 
     saveVaccine: builder.mutation<ApiResponse<any>, any>({
       query: (data) => ({
-        url: `/pets/${data.pet_id}/vaccination_records`,
+        url: `/v1/portal_client/pets/${data.pet_id}/vaccination_records`,
         method: 'POST',
         body: data,
       }),
@@ -35,7 +35,7 @@ export const healthApi = createApi({
 
     updateVaccine: builder.mutation<ApiResponse<any>, any>({
   query: (data) => ({
-    url: `/pets/${data.pet_id}/vaccination_records/${data.record_id}`,
+    url: `/v1/portal_client/pets/${data.pet_id}/vaccination_records/${data.record_id}`,
     method: 'PUT', // o PATCH si tu back lo soporta
     body: data,
   }),

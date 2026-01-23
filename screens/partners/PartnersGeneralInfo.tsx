@@ -12,6 +12,7 @@ import Loading from "../../components/Loading";
 import { RenderPets } from "../../components/renders/RenderPets";
 import ResumeService from "./components/ResumeService";
 import Service from "./components/Service";
+import CalendarComponent from "./components/Calendar";
 
 const PartnersGeneralInfo = () => {
   const { params } = useRoute<any>()
@@ -30,7 +31,10 @@ const PartnersGeneralInfo = () => {
   const handleSelectPet = (pet: any) => setSelectedPet(pet);
   const [showServices, setShowServices] = useState(false);
   const [localCart, setLocalCart] = useState<CartItem[]>([])
-
+  const [currentId, setCurrentId] = useState(null);
+  const [cart, setCart] = useState(0);
+  const [availableDays, setAvailableDays] = useState([])
+  const [isChoising, setIsChoising] = useState<boolean>(false);
   const [item, setItem] = useState<PartnerGeneralInfo>({
     services: [],
     users: [],
@@ -84,18 +88,43 @@ const PartnersGeneralInfo = () => {
     }
   }
 
+  const getCalendar = async () => {
+    setIsLoading(true)
+    try {
+      if (!currentId) return
+      const payload = {
+        "service_id": currentId,
+        "pet_id": selectedPet,
+        "cart_id": cart
+      }
+      const response = await apiFetcher.getAvailabilityAgenda(partner.id, payload);
+      setAvailableDays(response.data['2026-01-23'].available)
+      console.log('-----------', response)
+      console.log('-----------', response.data['2026-01-23'].available)
 
+    } catch (error) {
+      console.log('-----------', error)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!partner?.id) return
+    getCalendar();
+  }, [localCart, partner])
 
   const createCart = async () => {
     setIsLoading(true)
     try {
       const payload = {
-        "partner_id": partner.id
+        "partner_id": partner.id,
       }
       console.log("partner id", partner.id)
       const create = await apiFetcher.createCart(payload)
-      console.log("intentar crear un carro", create);
-
+      console.log("intentar crear un carro", create.data.id);
+      setCart(create.data.id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -104,12 +133,13 @@ const PartnersGeneralInfo = () => {
   }
 
   const addToLocalCart = (service: CartItem) => {
+    setCurrentId(service.id)
     setLocalCart(prev => [...prev, service]);
     setShowServices(false);
   }
   const removeFromLocalCart = (id: number) => {
-  setLocalCart(prev => prev.filter(item => item.id !== id))
-}
+    setLocalCart(prev => prev.filter(item => item.id !== id))
+  }
 
 
   const getPartnerInfo = async (): Promise<void> => {
@@ -182,6 +212,7 @@ const PartnersGeneralInfo = () => {
       return () => { };
     }, [])
   );
+  console.log(pets)
 
 
   return (
@@ -244,15 +275,26 @@ const PartnersGeneralInfo = () => {
           />
         }
 
+        {availableDays && (
+          <CalendarComponent agenda={availableDays} />
+        )
+        }
+        {isChoising == false ? (
+          <TouchableOpacity
+            style={{ width: '100%', height: 30, justifyContent: 'center', marginBottom: 50 }}
+            onPress={() => {
+              setShowServices(!showServices)
+              setIsChoising(true)
+            }}
+          >
+            <Text>
+              {showServices == false ? '+ Añadir otro servicio' : 'Cancelar'}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
 
-        <TouchableOpacity
-          style={{ width: '100%', height: 30, justifyContent: 'center', marginBottom: 50 }}
-          onPress={() => setShowServices(!showServices)}
-        >
-          <Text>
-            {showServices == false ? '+ Añadir otro servicio' : 'Cancelar'}
-          </Text>
-        </TouchableOpacity>
         {/**/}
 
         {/*OLD VERSION*/}

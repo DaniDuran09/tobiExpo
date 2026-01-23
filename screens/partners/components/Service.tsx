@@ -18,6 +18,9 @@ const Service = ({
     duration_minutes,
     addToLocalCart,
 }: ServiceProps) => {
+
+console.log(id);
+
     return (
         <View>
             <View width={'100%'} height={50} marginT-10 row spread paddingH-15>

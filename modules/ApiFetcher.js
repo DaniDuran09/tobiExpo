@@ -225,19 +225,27 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
   }
 
-  
+
   async registerAppointments(data) {
     return await this._post("/v1/portal_client/appointments", data);
   }
 
   // carts
-  async createCart(data){
-    return await this._post("/v2/portal_client/carts",data)
+  async createCart(data) {
+    return await this._post("/v2/portal_client/carts", data)
   }
 
-  async getCart(id){
-    return await this._get(`/api/v2/portal_client/carts/${id}`)
+  async getCart(id) {
+    return await this._get(`/v2/portal_client/carts/${id}`)
   }
+
+  getAvailabilityAgenda(partnerId, payload) {
+    const query = new URLSearchParams(payload).toString();
+    return this._get(
+      `/v2/portal_client/partners/${partnerId}/agenda?${query}`
+    );
+  }
+
 
   // notifications
 
