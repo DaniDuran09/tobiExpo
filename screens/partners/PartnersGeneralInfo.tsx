@@ -12,60 +12,32 @@ import Loading from "../../components/Loading";
 import { RenderPets } from "../../components/renders/RenderPets";
 import ResumeService from "./components/ResumeService";
 import Service from "./components/Service";
-import CalendarComponent from "./components/Calendar";
+import CalendarComponent from "./components/CalendarComponent";
 
 const PartnersGeneralInfo = () => {
-  const { params } = useRoute<any>()
-  const { id, type } = params
-  //type 2 = veterinaria
-  //type 3 = grooming
+  const { params } = useRoute<any>();
+  const { id, type } = params;
   const navigation = useNavigation<any>();
-
   const apiFetcher = new ApiFetcher();
-
   const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState(false);
-  const [pets, stePets] = useState([]);
-  const [selectedPet, setSelectedPet] = useState(null);
-  const handleSelectPet = (pet: any) => setSelectedPet(pet);
+  const [pets, setPets] = useState([]);
+  const [selectedPet, setSelectedPet] = useState<any>(null);
+
+  const [item, setItem] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [cart, setCart] = useState<number | null>(null);
+  const [localCart, setLocalCart] = useState<any[]>([]);
+
   const [showServices, setShowServices] = useState(false);
-  const [localCart, setLocalCart] = useState<CartItem[]>([])
-  const [currentId, setCurrentId] = useState(0);
-  const [cart, setCart] = useState(0);
-  const [availableDays, setAvailableDays] = useState([])
-  const [isChoising, setIsChoising] = useState<boolean>(false);
-  const [item, setItem] = useState<PartnerGeneralInfo>({
-    services: [],
-    users: [],
-    partner: {
-      picture: null,
-      latitude: "0",
-      longitude: "0",
-      name: "",
-      id: "",
-      partnerId: "",
-      description: "",
-      phone: "",
-      type_partner: {
-        id: 0,
-        name: ""
-      }
-    },
-    address: {
-      state: "",
-      city: "",
-      street: ""
-    }
-  });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [showActionSheet, setShowActionSheet] = useState<boolean>(false);
+  const [currentService, setCurrentService] = useState<any>(null);
 
-  const services = item.services
-  const users = item.users
-  const partner = item.partner
-
-  const partnerLocation = `${item?.address?.state}, ${item?.address?.city} ${item?.address?.street}`;
+  const [availableDays, setAvailableDays] = useState<any>({});
+  const [selectedSlot, setSelectedSlot] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
 
   useEffect(() => {
     dispatch(clearAppointments());
@@ -73,231 +45,177 @@ const PartnersGeneralInfo = () => {
   }, []);
 
   useEffect(() => {
-    if (!partner?.id) return
-    createCart();
-  }, [partner])
-
-  const fetchCart = async () => {
-    setIsLoading(true)
-    try {
-
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const getCalendar = async () => {
-    setIsLoading(true)
-    try {
-      if (!currentId) return
-      const payload = {
-        "service_id": currentId,
-        "pet_id": selectedPet,
-        "cart_id": cart
-      }
-      const response = await apiFetcher.getAvailabilityAgenda(partner.id, payload);
-      setAvailableDays(response.data['2026-01-23'].available)
-      console.log('-----------', response)
-      console.log('-----------', response.data['2026-01-23'].available)
-
-    } catch (error) {
-      console.log('-----------', error)
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }
+    if (item?.partner?.id) createCart();
+  }, [item]);
 
   useEffect(() => {
-    if (!partner?.id) return
+    if (!cart || !selectedPet || !currentService) return;
     getCalendar();
-  }, [localCart, partner])
+  }, [cart, selectedPet, currentService]);
 
-  const createCart = async () => {
-    setIsLoading(true)
+  const getPartnerInfo = async () => {
     try {
-      const payload = {
-        "partner_id": partner.id,
-      }
-      console.log("partner id", partner.id)
-      const create = await apiFetcher.createCart(payload)
-      console.log("intentar crear un carro", create.data.id);
-      setCart(create.data.id);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const addToLocalCart = (service: CartItem) => {
-    setCurrentId(service.id)
-    setLocalCart(prev => [...prev, service]);
-    setShowServices(false);
-  }
-  const removeFromLocalCart = (id: number) => {
-    setLocalCart(prev => prev.filter(item => item.id !== id))
-  }
-
-
-  const getPartnerInfo = async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const partner = await apiFetcher.getPartnersById(id);
-      console.log(JSON.stringify(partner.data, null, " "));
-      if (partner.code == 200 || partner.code == 201) setItem(partner.data);
-    } catch (error) {
-      console.log("Error: ", error);
+      const res = await apiFetcher.getPartnersById(id);
+      setItem(res.data);
+    } catch {
       Toast.show({
         type: "error",
-        text1: "Ha ocurrido un error",
-        text2: "Inténtelo de nuevo más tarde",
+        text1: "Error",
+        text2: "No se pudo cargar el partner",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const shareInfo = async (url: string): Promise<void> => {
-    try {
-      const result = await Share.share({
-        message: `Mira este lugar para nuestras mascotas: ${url}`,
-        title: "Tobi",
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Ha ocurrido un error",
-        text2: "Inténtelo de nuevo más tarde",
-      });
-    }
+  const createCart = async () => {
+    const res = await apiFetcher.createCart({
+      partner_id: item.partner.id,
+    });
+    setCart(res.data.id);
   };
 
-  const handleDirections = (): void => {
-    setShowActionSheet(true);
+  const getCalendar = async () => {
+    const payload = {
+      service_id: currentService.id,
+      pet_id: selectedPet,
+      cart_id: cart,
+    };
+    const res = await apiFetcher.getAvailabilityAgenda(item.partner.id, payload);
+    setAvailableDays(res.data);
   };
 
   const fetchPets = async () => {
-    setLoading(true);
     try {
-      const response = await apiFetcher.getPets();
-      stePets(response.data);
-    } catch (error) {
-      console.error("Error: ", error);
-      Toast.show({
-        type: "error",
-        text1: "Ocurrió un error",
-        text2: `No pudimos acceder a tus mascotas, inténtalo de nuevo más tarde`,
-      });
-      navigation.goBack()
-    } finally {
-      setLoading(false);
+      const res = await apiFetcher.getPets();
+      setPets(res.data);
+    } catch {
+      navigation.goBack();
     }
   };
 
   useFocusEffect(
     useCallback(() => {
       fetchPets();
-      return () => { };
     }, [])
   );
-  console.log(pets)
+
+  const getCartTotal = (cart: CartItem[]) => {
+  return cart.reduce((total, item) => {
+    const price = Number(item.price.replace(/[^0-9.]/g, ""));
+    return total + (isNaN(price) ? 0 : price);
+  }, 0);
+};
+const total = getCartTotal(localCart);
 
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.white }}>
-      {isLoading && (
-        <Loading
-          textColor={Colors.primaryColor}
-          backgroundColorProp={Colors.white}
-        />
-      )}
+      {isLoading && <Loading backgroundColorProp={Colors.white} />}
+
       <ScrollView style={{ padding: 10 }}>
         <FlatList
           data={pets}
-          horizontal={true}
+          horizontal
           renderItem={({ item }) => (
             <RenderPets
               pet={item}
               selectedPet={selectedPet}
-              handleSelectPet={handleSelectPet}
+              handleSelectPet={setSelectedPet}
             />
           )}
-          keyExtractor={(item: { id: number }) => item.id.toString()}
+          keyExtractor={(item:{id:number}) => item.id.toString()}
           showsHorizontalScrollIndicator={false}
         />
-        {/*NEW VERSION */}
-        <View marginT-10 width={'100%'} height={0.2} bg-black />
 
-        <View >
-          <Text text60H marginT-20 >{partner.name} </Text>
-        </View>
-        {!showServices ? (
-          <View>
-            <Text text70L marginV-10 >Calendario </Text>
-            <FlatList
-              data={localCart}
-              renderItem={({ item }) => (
-                <ResumeService
-                  item={item}
-                  type={type}
-                  onRemove={removeFromLocalCart}
-                />
-              )}
-              keyExtractor={(item) => item.id.toString()}
-            />
+        {!selectedPet && (
+          <>
 
-          </View>
-        ) :
+            <View marginT-10 width="100%" height={0.2} bg-black />
+
+            <Text center text80BO >selecciona una mascota</Text>
+          </>
+        )}
+
+        <View marginT-10 width="100%" height={0.2} bg-black />
+
+        <Text text60H marginT-20>{item?.partner?.name}</Text>
+
+        {/* NEW VERSION */}
+
+        {selectedPet && localCart.length > 0 && (
           <FlatList
-            data={services}
+            data={localCart}
+            renderItem={({ item }) => (
+              <ResumeService
+                item={item}
+                type={type}
+                onRemove={(id) =>
+                  setLocalCart(prev => prev.filter(s => s.id !== id))
+                }
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        )}
+
+        {selectedPet && showServices && (
+          <FlatList
+            data={item?.services || []}
             renderItem={({ item }) => (
               <Service
                 id={item.id}
                 name={item.name}
                 price={item.price}
                 duration_minutes={item.duration_minutes}
-                addToLocalCart={addToLocalCart}
+                addToLocalCart={(service) => {
+                  setCurrentService(service);
+                  setShowServices(false);
+                }}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
           />
-        }
-
-        {availableDays && (
-          <CalendarComponent agenda={availableDays} />
-        )
-        }
-        {isChoising == false ? (
-          <TouchableOpacity
-            style={{ width: '100%', height: 30, justifyContent: 'center', marginBottom: 50 }}
-            onPress={() => {
-              setShowServices(!showServices)
-              setIsChoising(true)
-            }}
-          >
-            <Text>
-              {showServices == false ? '+ Añadir otro servicio' : 'Cancelar'}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <></>
         )}
 
-        {/**/}
+        {selectedPet && currentService && Object.keys(availableDays).length > 0 && (
+          <CalendarComponent
+            agenda={availableDays}
+            onSelect={(slot) => setSelectedSlot(slot)}
+          />
+        )}
 
-        {/*OLD VERSION*/}
+        {selectedPet && currentService && selectedSlot && (
+          <TouchableOpacity
+            style={{ height: 40, justifyContent: "center", marginBottom: 40 }}
+            onPress={() => {
+              setLocalCart(prev => [
+                ...prev,
+                {
+                  ...currentService,
+                  pet_id: selectedPet,
+                  start_datetime: selectedSlot.value,
+                },
+              ]);
+              setCurrentService(null);
+              setSelectedSlot(null);
+              setShowServices(true);
+            }}
+          >
+            <Text text70BL style={{color:Colors.primaryColor}}>+ Añadir otro servicio</Text>
+          </TouchableOpacity>
+        )}
+
+        {!showServices && selectedPet && !currentService && (
+          <TouchableOpacity
+            style={{ height: 40, justifyContent: "center" }}
+            onPress={() => setShowServices(true)}
+          >
+            <Text text70BL style={{color:Colors.primaryColor}}>+ Añadir servicio</Text>
+          </TouchableOpacity>
+        )}
+          <Text>{total}</Text>
+        {/* OLD VERSION */}
       </ScrollView>
     </SafeAreaView>
   );
