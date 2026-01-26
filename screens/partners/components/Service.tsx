@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib"
 
 type ServiceProps = ServiceItem & {

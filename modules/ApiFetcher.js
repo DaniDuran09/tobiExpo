@@ -25,7 +25,7 @@ class ApiFetcher {
   }
 
   handleErrors(response) {
-    console.log("a ver la respueseta", response)
+    //console.log("a ver la respueseta", response)
     if (response.status < 200 || response.status >= 300) {
       if (response.data === "email.verification_already_done") {
         return response.data;
@@ -246,6 +246,9 @@ class ApiFetcher {
     );
   }
 
+  addItemToCart(cartId,data){
+    return this._post(`/v2/portal_client/carts/${cartId}/items`,data);
+  }
 
   // notifications
 
