@@ -1,11 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
-import { View, Text } from "react-native-ui-lib";
+import { Text, TouchableOpacity, View } from "react-native-ui-lib";
 import ApiFetcher from "../../../modules/ApiFetcher";
 
+const formatDateTimeMX = (isoDate: string) => {
+  const date = new Date(isoDate);
+
+  const dateFormatter = new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "America/Mexico_City",
+  });
+
+  const timeFormatter = new Intl.DateTimeFormat("es-MX", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "America/Mexico_City",
+  });
+
+  return {
+    date: dateFormatter.format(date),
+    time: timeFormatter.format(date),
+  };
+};
+
 const ResumeByPet = ({ route }: any) => {
-  const [itemsByPet, setItemsByPet] = useState<Record<string, any[]>>({});
   const apiFetcher = new ApiFetcher();
+  const [data, setData] = useState<any>();
+
+  const confirmCart = async () => {
+    try {
+      const res = await apiFetcher.confirmCart(route.params.cart); 
+      console.log(res)
+    } catch (error) {
+      console.log('error al confirmar el carro',error);
+    }
+  }
 
   useEffect(() => {
     if (!route?.params?.cart) return;
@@ -13,17 +45,7 @@ const ResumeByPet = ({ route }: any) => {
     const getCart = async () => {
       try {
         const res = await apiFetcher.getCart(route.params.cart);
-        const items = res?.data?.data?.items || [];
-
-        // Agrupar items por mascota
-        const grouped: Record<string, any[]> = {};
-        items.forEach(item => {
-          const petName = item.pet?.name || "Sin mascota";
-          if (!grouped[petName]) grouped[petName] = [];
-          grouped[petName].push(item);
-        });
-
-        setItemsByPet(grouped);
+        setData(res);
       } catch (error) {
         console.log("Error fetching cart:", error);
       }
@@ -32,52 +54,87 @@ const ResumeByPet = ({ route }: any) => {
     getCart();
   }, [route?.params?.cart]);
 
-  // Formatear fecha y hora
-  const formatDateTime = (datetime?: string) => {
-    if (!datetime) return { day: "-", time: "-" };
-    const d = new Date(datetime);
-    return {
-      day: d.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "short" }),
-      time: d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
-    };
-  };
+  if (!data?.data) {
+    return (
+      <View flex style={{ backgroundColor: "#D0F9FF" }} width={"100%"} height={"100%"} center>
+        <Text>Cargando carrito...</Text>
+      </View>
+    );
+  }
+
+  const generalStart = formatDateTimeMX(data.data.datetime_start);
+  const generalEnd = formatDateTimeMX(data.data.datetime_end);
 
   return (
-    <ScrollView style={{ padding: 20 }}>
-      {Object.keys(itemsByPet).length === 0 && (
-        <Text>No hay productos o servicios en el carrito</Text>
-      )}
+    <ScrollView style={{ padding: 20, backgroundColor: "white",paddingBottom:50}}>
+      <View bg-white paddingB-30>
+        <Text
+          text70BL
+          style={{ color: data.data.status === "active" ? "green" : "red" }}
+        >
+          {data.data.status === "active" ? "Activo" : "Expirado"}
+        </Text>
 
-      {Object.entries(itemsByPet).map(([petName, items]) => (
-        <View key={petName} marginB-20>
-          <Text text60H marginB-10>{`Mascota: ${petName}`}</Text>
+        <Text text60>{data.data.partner.display_name}</Text>
 
-          {items.map(item => {
-            const start = formatDateTime(item.datetime_range?.start);
-            const end = formatDateTime(item.datetime_range?.end);
-
-            return (
-              <View
-                key={item.id || Math.random()}
-                marginB-10
-                padding-10
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#DDD",
-                  borderRadius: 8,
-                  backgroundColor: "#FAFAFA"
-                }}
-              >
-                <Text text70>{item.service?.name || "Sin nombre"}</Text>
-                <Text text90>{`Precio: $${item.price_total || "0"}`}</Text>
-                <Text text90>{`Día: ${start.day}`}</Text>
-                <Text text90>{`Hora: ${start.time} - ${end.time}`}</Text>
-              </View>
-            );
-          })}
+        <View row spread marginV-20>
+          <Text text60BL>Servicios: {data.data.items_count}</Text>
+          <Text text60BL>Total: ${data.data.price_total}</Text>
         </View>
-      ))}
-    </ScrollView>
+
+        <Text>{generalStart.date}</Text>
+        <Text>
+          {generalStart.time} - {generalEnd.time} (GMT-6)
+        </Text>
+
+        {data.data.items.map((item: any) => {
+          const itemStart = formatDateTimeMX(item.datetime_range.start);
+          const itemEnd = formatDateTimeMX(item.datetime_range.end);
+
+          return (
+            <View
+              key={item.id}
+              style={{
+                marginTop: 16,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: "#8c8c8c",
+                borderRadius: 8,
+              }}
+            >
+              <View row spread>
+                <Text text60>{item.service.name}</Text>
+                <Text text60>Total: ${item.price_total}</Text>
+              </View>
+
+              <Text>{item.pet.display_name}</Text>
+              <Text>Duración: {item.duration_minutes} min</Text>
+
+              <Text>{itemStart.date}</Text>
+              <Text>
+                {itemStart.time} - {itemEnd.time} (GMT-6)
+              </Text>
+
+              <Text>Subtotal: ${item.price_subtotal}</Text>
+              <Text>Impuesto: ${item.tax_amount}</Text>
+
+              <View width={"100%"} bg-black height={0.5} />
+
+              <Text text70L>Veterinario</Text>
+            </View>
+          );
+        })}
+      </View>
+      <TouchableOpacity
+        bg-red30
+        br100
+        center
+        style={{ height: 50, marginBottom: 50 }}
+        onPress={() => {confirmCart()}}
+      >
+        <Text white text60L>Continuar y pagar</Text>
+      </TouchableOpacity>
+    </ScrollView >
   );
 };
 

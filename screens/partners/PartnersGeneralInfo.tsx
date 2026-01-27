@@ -92,6 +92,7 @@ const PartnersGeneralInfo = () => {
       item.partner.id,
       payload
     );
+    console.log('AGENDA',res.data)
 
     setAvailableDays(res.data);
   };
@@ -105,11 +106,12 @@ const PartnersGeneralInfo = () => {
       .replace(" ", "T")
       .concat("-06:00");
 
-    await apiFetcher.addItemToCart(cart, {
+    const res = await apiFetcher.addItemToCart(cart, {
       pet_id: selectedPet.id,
       service_id: currentService.id,
       start_datetime,
-    });
+    },"America/Mexico_City");
+    console.log('RES DE BACK AL AGREGAR A CARRITO',res);
 
     setLocalCart(prev => [
       ...prev,
@@ -205,10 +207,14 @@ const PartnersGeneralInfo = () => {
               center
               style={{ height: 50, marginTop: 20 }}
               onPress={async () => {
+                try {  
                 if (currentService && selectedSlot) {
                   await addItemToCart();
-                }
                 navigation.navigate("Resume", { cart });
+                }
+                } catch (error) {
+                  console.log(error)
+                }
               }}
             >
               <Text white text60L>Continuar</Text>

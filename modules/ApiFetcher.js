@@ -16,6 +16,7 @@ class ApiFetcher {
     const headers = {
       Accept: "application/json",
       "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
+      //"X-Timezone": "America/Mexico_City"
     };
     if (tokenRequired) {
       const token = await this.appStorage.getAppToken();
@@ -35,13 +36,21 @@ class ApiFetcher {
     return response.data;
   }
 
-  async _get(endpoint, tokenRequired = true) {
+  async _get(endpoint, tokenRequired = true, extraHeaders = {}) {
     try {
       const url = this.buildUrl(endpoint);
       console.log("URL FINAL >>>", url);
+
       const headers = await this.getHeaders(tokenRequired);
-      // console.log("headers: ", headers)
-      const response = await axios.get(url, { headers, timeout: 15000 });
+      Object.assign(headers, extraHeaders);
+
+      console.log("HEADERS FINALES >>>", headers);
+      console.log("HEADERS EXTRA >>>", extraHeaders);
+
+      const response = await axios.get(url, {
+        headers,
+        timeout: 15000,
+      });
 
       return this.handleErrors(response);
     } catch (error) {
@@ -50,23 +59,27 @@ class ApiFetcher {
     }
   }
 
-  async _post(endpoint, data, tokenRequired = true) {
+
+  async _post(endpoint, data, tokenRequired = true, extraHeaders = {}) {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
-      const response = await axios.post(url, data, { headers, timeout: 15000 });
+      Object.assign(headers, extraHeaders);
+      const response = await axios.post(url, data, {
+        headers,
+        timeout: 15000,
+      });
       return this.handleErrors(response);
     } catch (error) {
       console.log("ERROR EN POST", error.response?.data || error.message);
       if (error.response) {
         const { status, data } = error.response;
-        console.log("Status del error:", status);
-        console.log("Data del error:", data);
         throw new Error(data?.error || data?.message || "Error desconocido");
       }
       throw new Error("Error de red o servidor no disponible");
     }
   }
+
   async _put(endpoint, data, tokenRequired = true, isMultipart = false) {
     try {
       const url = this.buildUrl(endpoint);
@@ -239,15 +252,35 @@ class ApiFetcher {
     return await this._get(`/v2/portal_client/carts/${id}`)
   }
 
-  getAvailabilityAgenda(partnerId, payload) {
+  async getAvailabilityAgenda(partnerId, payload) {
     const query = new URLSearchParams(payload).toString();
+
     return this._get(
-      `/v2/portal_client/partners/${partnerId}/agenda?${query}`
+      `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
+      true
     );
   }
 
-  addItemToCart(cartId,data){
-    return this._post(`/v2/portal_client/carts/${cartId}/items`,data);
+  async addItemToCart(cartId, data, timezone) {
+    try {
+      const url = this.buildUrl(`/v2/portal_client/carts/${cartId}/items`);
+      const headers = await this.getHeaders(true);
+      console.log('TIMEZONE', timezone)
+      headers["X-Timezone"] = timezone;
+      const response = await axios.post(url, data, { headers, timeout: 15000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.log("ERROR EN ADD ITEM TO CART", error.response?.data || error.message);
+      if (error.response) {
+        const { status, data } = error.response;
+        throw new Error(data?.error || data?.message || "Error desconocido");
+      }
+      throw new Error("Error de red o servidor no disponible");
+    }
+  }
+
+  confirmCart(id){
+    return this._get(`/v2/portal_client/carts/${id}/confirm`)
   }
 
   // notifications
