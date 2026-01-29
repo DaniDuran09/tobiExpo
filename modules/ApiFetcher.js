@@ -16,7 +16,7 @@ class ApiFetcher {
     const headers = {
       Accept: "application/json",
       "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
-      //"X-Timezone": "America/Mexico_City"
+      "X-Timezone": "America/Mexico_City"
     };
     if (tokenRequired) {
       const token = await this.appStorage.getAppToken();
@@ -252,14 +252,17 @@ class ApiFetcher {
     return await this._get(`/v2/portal_client/carts/${id}`)
   }
 
-  async getAvailabilityAgenda(partnerId, payload) {
-    const query = new URLSearchParams(payload).toString();
+  async getAvailabilityAgenda(partnerId, payload, timezone) {
+  const query = new URLSearchParams(payload).toString();
 
-    return this._get(
-      `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
-      true
-    );
-  }
+  return this._get(
+    `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
+    true,
+    {
+      "X-Timezone": timezone
+    }
+  );
+}
 
   async addItemToCart(cartId, data, timezone) {
     try {
@@ -280,7 +283,7 @@ class ApiFetcher {
   }
 
   confirmCart(id){
-    return this._get(`/v2/portal_client/carts/${id}/confirm`)
+    return this._post(`/v2/portal_client/carts/${id}/confirm`)
   }
 
   // notifications

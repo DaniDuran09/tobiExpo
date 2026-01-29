@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
 import ApiFetcher from "../../../modules/ApiFetcher";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const formatDateTimeMX = (isoDate: string) => {
   const date = new Date(isoDate);
@@ -27,17 +28,24 @@ const formatDateTimeMX = (isoDate: string) => {
 };
 
 const ResumeByPet = ({ route }: any) => {
+  const navigation = useNavigation<any>();
   const apiFetcher = new ApiFetcher();
   const [data, setData] = useState<any>();
 
   const confirmCart = async () => {
-    try {
-      const res = await apiFetcher.confirmCart(route.params.cart); 
-      console.log(res)
-    } catch (error) {
-      console.log('error al confirmar el carro',error);
-    }
+  try {
+    const res = await apiFetcher.confirmCart(route.params.cart);
+
+    navigation.navigate('PaymentScreen', {
+      url: res.data.session.url,
+      cartId: route.params.cart,
+    });
+
+  } catch (error) {
+    console.log('error al confirmar el carro', error);
   }
+};
+
 
   useEffect(() => {
     if (!route?.params?.cart) return;
@@ -66,7 +74,7 @@ const ResumeByPet = ({ route }: any) => {
   const generalEnd = formatDateTimeMX(data.data.datetime_end);
 
   return (
-    <ScrollView style={{ padding: 20, backgroundColor: "white",paddingBottom:50}}>
+    <ScrollView style={{ padding: 20, backgroundColor: "white", paddingBottom: 50 }}>
       <View bg-white paddingB-30>
         <Text
           text70BL
@@ -130,7 +138,7 @@ const ResumeByPet = ({ route }: any) => {
         br100
         center
         style={{ height: 50, marginBottom: 50 }}
-        onPress={() => {confirmCart()}}
+        onPress={() => { confirmCart() }}
       >
         <Text white text60L>Continuar y pagar</Text>
       </TouchableOpacity>

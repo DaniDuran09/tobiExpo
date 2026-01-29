@@ -1,4 +1,4 @@
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import SelectService from '../screens/partners/SelectService';
 import PartnersGeneralInfo from '../screens/partners/PartnersGeneralInfo';
 import PartnersMain from '../screens/partners/PartnersMain';
@@ -10,10 +10,12 @@ import InfoServiceByPartner from '../screens/partners/InfoServiceByPartner';
 import ResumeDateByPartner from '../screens/partners/ResumeDateByPartner';
 import NewService1 from '../screens/newService/NewService1';
 import Success from '../components/Success';
+import PaymentScreen from '../screens/cards/PaymentScreen';
 
 const Stack = createStackNavigator();
 
 const PartnersStack = () => {
+  
   return (
     <Stack.Navigator
       screenOptions={{
@@ -40,7 +42,7 @@ const PartnersStack = () => {
         name="NewService"
         component={NewService1}
         options={{
-          title:"Busqueda de servicio",
+          title: "Busqueda de servicio",
         }}
       />
       <Stack.Screen
@@ -56,7 +58,7 @@ const PartnersStack = () => {
         component={PartnersGeneralInfo}
         options={{
           headerShown: true,
-          title:'Reserva de cita'
+          title: 'Reserva de cita'
         }}
       />
       <Stack.Screen
@@ -76,12 +78,12 @@ const PartnersStack = () => {
         }}
       />
       <Stack.Screen
-      name="Success"
-      component={Success}
-      options={({route}) => ({
-        headerShown: false,
-      })}
-    />
+        name="Success"
+        component={Success}
+        options={({ route }) => ({
+          headerShown: false,
+        })}
+      />
       <Stack.Screen
         name="Resume"
         component={Resume}
@@ -111,11 +113,19 @@ const PartnersStack = () => {
       <Stack.Screen
         name="AddNewCard"
         component={AddNewCard}
-        options={({navigation}) => ({
+        options={({ navigation }) => ({
           headerShown: true,
           headerBackTitleVisible: false,
           title: 'Agregar nueva tarjeta',
           headerTintColor: 'black',
+        })}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={({
+          headerShown: true,
+          headerBackTitleVisible: false,
         })}
       />
     </Stack.Navigator>

@@ -13,9 +13,9 @@ import { Colors } from "../../styles/Colors";
 import AppStorage from "../../modules/AppStorage";
 import { useNavigation } from "@react-navigation/native";
 
-const AddNewCard = ({route}) => {
+const AddNewCard = (/*{route}*/) => {
 
-  const {executeFunction} = route.params;
+  //const {executeFunction} = route.params;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -65,7 +65,7 @@ const AddNewCard = ({route}) => {
     //     "Rellenar correctamente todos los campos"
     //   );
     // }
-    if(executeFunction) executeFunction()
+    //if(executeFunction) executeFunction()
   };
 
   useEffect(() => {

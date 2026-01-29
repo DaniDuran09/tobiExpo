@@ -81,11 +81,13 @@ const RootStackScreen = ({}) => (
           (route.params.type == "pets_breeds" && "Buscar raza de mascota"),
       })}
     />
+  
     <RootStack.Screen
-      name="Home"
-      component={MainTabScreen}
-      options={{ headerShown: false, gestureEnabled: false }}
-    />
+  name="Home"
+  component={MainTabScreen}
+  options={{ headerShown: false }}
+/>
+
   </RootStack.Navigator>
 );
 

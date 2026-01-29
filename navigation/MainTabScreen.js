@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -58,6 +58,9 @@ import { NotificationIcon } from "../components/notifications";
 import NotificationsStack from "./NotificationsStack";
 import PetProfile from "../screens/pet/PetProfile";
 import PetPdf from "../screens/pet/PetProfile/PetPdf";
+import { Linking } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
+
 
 const HomeStack = createStackNavigator();
 const DetailsStack = createStackNavigator();
@@ -88,7 +91,10 @@ const shareInfo = async (url) => {
 };
 const activeColor = "red";
 
-const MainTabScreen = () => (
+const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
+const navigation = useNavigation();
+  
+  return(
   <Tab.Navigator
     initialRouteName="Home"
     screenOptions={({ route }) => ({
@@ -207,8 +213,8 @@ const MainTabScreen = () => (
         ),
       }}
     /> */}
-  </Tab.Navigator>
-);
+  </Tab.Navigator>)
+};
 
 export default MainTabScreen;
 

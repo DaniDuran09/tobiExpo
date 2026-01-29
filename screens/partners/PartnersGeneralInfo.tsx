@@ -34,8 +34,23 @@ const PartnersGeneralInfo = () => {
   const [currentService, setCurrentService] = useState<any>(null);
   const [availableDays, setAvailableDays] = useState<any>({});
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const [showServices, setShowServices] = useState(true);
+
+  const toRFC3339 = (slotValue: string) => {
+    const raw = slotValue.split("...")[0].trim();
+    const [date, time, tz] = raw.split(" ");
+
+    if (tz === "UTC") {
+      return `${date}T${time}.000Z`;
+    }
+
+    const formattedOffset = tz.slice(0, 3) + ":" + tz.slice(3);
+    return `${date}T${time}.000${formattedOffset}`;
+  };
+
+
 
   useEffect(() => {
     dispatch(clearAppointments());
@@ -90,9 +105,10 @@ const PartnersGeneralInfo = () => {
 
     const res = await apiFetcher.getAvailabilityAgenda(
       item.partner.id,
-      payload
+      payload,
+      timezone
     );
-    console.log('AGENDA',res.data)
+    console.log('AGENDA', res.data)
 
     setAvailableDays(res.data);
   };
@@ -100,18 +116,17 @@ const PartnersGeneralInfo = () => {
   const addItemToCart = async () => {
     if (!selectedSlot || !selectedPet || !currentService || !cart) return;
 
-    const rawStart = selectedSlot.value.split("...")[0].trim();
-    const start_datetime = rawStart
-      .replace(" UTC", "")
-      .replace(" ", "T")
-      .concat("-06:00");
+    const start_datetime = toRFC3339(selectedSlot.value);
 
-    const res = await apiFetcher.addItemToCart(cart, {
-      pet_id: selectedPet.id,
-      service_id: currentService.id,
-      start_datetime,
-    },"America/Mexico_City");
-    console.log('RES DE BACK AL AGREGAR A CARRITO',res);
+    const res = await apiFetcher.addItemToCart(
+      cart,
+      {
+        pet_id: selectedPet.id,
+        service_id: currentService.id,
+        start_datetime,
+      },
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
 
     setLocalCart(prev => [
       ...prev,
@@ -127,6 +142,7 @@ const PartnersGeneralInfo = () => {
     setSelectedSlot(null);
     setShowServices(true);
   };
+
 
   if (isLoading) {
     return <Loading backgroundColorProp={Colors.white} />;
@@ -207,11 +223,11 @@ const PartnersGeneralInfo = () => {
               center
               style={{ height: 50, marginTop: 20 }}
               onPress={async () => {
-                try {  
-                if (currentService && selectedSlot) {
-                  await addItemToCart();
-                navigation.navigate("Resume", { cart });
-                }
+                try {
+                  if (currentService && selectedSlot) {
+                    await addItemToCart();
+                    navigation.navigate("Resume", { cart });
+                  }
                 } catch (error) {
                   console.log(error)
                 }
