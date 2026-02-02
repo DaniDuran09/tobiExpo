@@ -34,10 +34,17 @@ const PartnersGeneralInfo = () => {
   const [currentService, setCurrentService] = useState<any>(null);
   const [availableDays, setAvailableDays] = useState<any>({});
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const [globalCart, setGlobalCart] = useState<any[]>([]);
+
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const [showServices, setShowServices] = useState(true);
 
+  const addDays = (date: Date, days: number) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  };
   const toRFC3339 = (slotValue: string) => {
     const raw = slotValue.split("...")[0].trim();
     const [date, time, tz] = raw.split(" ");
@@ -97,10 +104,16 @@ const PartnersGeneralInfo = () => {
   };
 
   const getCalendar = async () => {
+    const today = new Date();
+    const date = today.toISOString().slice(0, 10);
+    const date_to = addDays(today, 2);
+
     const payload = {
       service_id: currentService.id,
       pet_id: selectedPet.id,
       cart_id: cart,
+      date,
+      date_to,
     };
 
     const res = await apiFetcher.getAvailabilityAgenda(
@@ -108,10 +121,38 @@ const PartnersGeneralInfo = () => {
       payload,
       timezone
     );
-    console.log('AGENDA', res.data)
 
+    console.log("AGENDA", res.data);
     setAvailableDays(res.data);
   };
+
+  const getGlobalCart = async () => {
+    const res = await apiFetcher.getCart(cart);
+    console.log("GLOBAL CART:", res.data);
+
+    const normalized = res.data.items.map((it: any) => ({
+      uuid: it.id.toString(),
+      id: it.id,
+      name: it.service?.name,
+      price: it.price_total,
+      duration_minutes: it.duration_minutes,
+      start_datetime: it.datetime_range?.start,
+    }));
+
+    setGlobalCart(normalized);
+  };
+
+  useEffect(() => {
+    if (cart) {
+      getGlobalCart();
+    }
+  },[cart]);
+
+
+  const removeGlobalItem = async (cartId: any, item_id: number) => {
+    const response = await apiFetcher.removeItemFromCart(cartId, item_id);
+    console.log("eliminar producto : ", response)
+  }
 
   const addItemToCart = async () => {
     if (!selectedSlot || !selectedPet || !currentService || !cart) return;
@@ -169,20 +210,43 @@ const PartnersGeneralInfo = () => {
           {item?.partner?.name}
         </Text>
 
+        <FlatList
+          data={globalCart}
+          renderItem={({ item }) => (
+            <ResumeService
+              item={item}
+              type={type}
+              onRemove={id => {
+                console.log("CART ID:", cart, "ITEM ID:", id);
+                removeGlobalItem(cart, id);
+              }}
+
+            />
+          )}
+          keyExtractor={item => item.id.toString()}
+        />
+
         {localCart.length > 0 && (
-          <FlatList
-            data={localCart}
-            renderItem={({ item }) => (
-              <ResumeService
-                item={item}
-                type={type}
-                onRemove={uuid =>
-                  setLocalCart(prev => prev.filter(i => i.uuid !== uuid))
-                }
-              />
-            )}
-            keyExtractor={item => item.uuid}
-          />
+          <>
+            {// global cart
+            }
+            {//carrito local
+            }
+            <FlatList
+              data={localCart}
+              renderItem={({ item }) => (
+                <ResumeService
+                  item={item}
+                  type={type}
+                  onRemove={uuid =>
+                    setLocalCart(prev => prev.filter(i => i.uuid !== uuid))
+                  }
+                />
+              )}
+              keyExtractor={item => item.uuid}
+            />
+          </>
+
         )}
 
         {selectedPet && showServices && (

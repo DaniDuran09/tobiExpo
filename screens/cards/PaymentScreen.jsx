@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Linking } from 'react-native';
 import { Text } from 'react-native-ui-lib';
+import WebView from 'react-native-webview';
 
 const PaymentScreen = ({ route, navigation }) => {
   const { url, cartId } = route.params || {};
@@ -12,7 +13,7 @@ const PaymentScreen = ({ route, navigation }) => {
       return;
     }
 
-    Linking.openURL(url);
+    //Linking.openURL(url);
 
     const sub = Linking.addEventListener('url', ({ url }) => {
       if (url.includes('payment-success')) {
@@ -45,10 +46,13 @@ const PaymentScreen = ({ route, navigation }) => {
     return () => sub.remove();
   }, []);
 
-  return <View style={{ flex: 1 }}>
-    <Text>
-regresando desde stripe
-    </Text>
+  return <View style={{ height:'100%' }}>
+  
+      <WebView
+        source={{ uri: url }}
+        style={{ flex: 1 }}
+        //onNavigationStateChange={handleNavigationStateChange}
+      /> 
   </View>;
 };
 

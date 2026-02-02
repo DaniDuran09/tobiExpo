@@ -1,5 +1,5 @@
  interface LoginRequest {
-    username: string;
+    identifier: string;
     password: string;
 };
 

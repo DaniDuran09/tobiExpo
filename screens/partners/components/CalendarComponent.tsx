@@ -54,7 +54,7 @@ const CalendarComponent = ({ agenda, selectedSlot, onSelect }: Props) => {
   if (days.length === 0) return null;
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={true}>
       <View row padding-16>
         {days.map(([date, info]) => {
           const slots = buildSlots(info.available, info.blocked);

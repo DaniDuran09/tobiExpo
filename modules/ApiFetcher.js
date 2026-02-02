@@ -253,16 +253,16 @@ class ApiFetcher {
   }
 
   async getAvailabilityAgenda(partnerId, payload, timezone) {
-  const query = new URLSearchParams(payload).toString();
+    const query = new URLSearchParams(payload).toString();
 
-  return this._get(
-    `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
-    true,
-    {
-      "X-Timezone": timezone
-    }
-  );
-}
+    return this._get(
+      `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
+      true,
+      {
+        "X-Timezone": timezone
+      }
+    );
+  }
 
   async addItemToCart(cartId, data, timezone) {
     try {
@@ -282,7 +282,11 @@ class ApiFetcher {
     }
   }
 
-  confirmCart(id){
+  removeItemFromCart(id,item_id){
+    return this._delete(`/v2/portal_client/carts/${id}/items/${item_id}`)
+  }
+
+  confirmCart(id) {
     return this._post(`/v2/portal_client/carts/${id}/confirm`)
   }
 
