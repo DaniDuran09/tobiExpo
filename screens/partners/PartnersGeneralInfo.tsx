@@ -150,39 +150,35 @@ const PartnersGeneralInfo = () => {
 
 
   const removeGlobalItem = async (cartId: any, item_id: number) => {
-    const response = await apiFetcher.removeItemFromCart(cartId, item_id);
-    console.log("eliminar producto : ", response)
+  try {
+    await apiFetcher.removeItemFromCart(cartId, item_id);
+    await getGlobalCart(); 
+  } catch (error) {
+    console.log("Error al eliminar:", error);
   }
+};
+
 
   const addItemToCart = async () => {
-    if (!selectedSlot || !selectedPet || !currentService || !cart) return;
+  if (!selectedSlot || !selectedPet || !currentService || !cart) return;
 
-    const start_datetime = toRFC3339(selectedSlot.value);
+  const start_datetime = toRFC3339(selectedSlot.value);
 
-    const res = await apiFetcher.addItemToCart(
-      cart,
-      {
-        pet_id: selectedPet.id,
-        service_id: currentService.id,
-        start_datetime,
-      },
-      Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
+  await apiFetcher.addItemToCart(
+    cart,
+    {
+      pet_id: selectedPet.id,
+      service_id: currentService.id,
+      start_datetime,
+    },
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
+  await getGlobalCart();
+  setCurrentService(null);
+  setSelectedSlot(null);
+  setShowServices(true);
+};
 
-    setLocalCart(prev => [
-      ...prev,
-      {
-        uuid: Date.now().toString(),
-        ...currentService,
-        pet_id: selectedPet.id,
-        start_datetime,
-      },
-    ]);
-
-    setCurrentService(null);
-    setSelectedSlot(null);
-    setShowServices(true);
-  };
 
 
   if (isLoading) {
@@ -225,30 +221,6 @@ const PartnersGeneralInfo = () => {
           )}
           keyExtractor={item => item.id.toString()}
         />
-
-        {localCart.length > 0 && (
-          <>
-            {// global cart
-            }
-            {//carrito local
-            }
-            <FlatList
-              data={localCart}
-              renderItem={({ item }) => (
-                <ResumeService
-                  item={item}
-                  type={type}
-                  onRemove={uuid =>
-                    setLocalCart(prev => prev.filter(i => i.uuid !== uuid))
-                  }
-                />
-              )}
-              keyExtractor={item => item.uuid}
-            />
-          </>
-
-        )}
-
         {selectedPet && showServices && (
           <FlatList
             data={item?.services || []}
