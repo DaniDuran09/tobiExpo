@@ -28,20 +28,15 @@ export default function App(): React.JSX.Element {
   useEffect(() => {
     fetchPublishableKey();
   }, []);
-
   const linkingConfig = {
-  prefixes: ['exp+tobi://', 'tobi://'],
+  prefixes: ['tobi://', 'exp+tobi://'],
   config: {
     screens: {
       Home: {
         screens: {
-          PartnersTab: {
+          Explore: {
             screens: {
-              PartnersStack: {
-                screens: {
-                  PaymentScreen: 'payment',
-                },
-              },
+              PaymentScreen: 'payment',
             },
           },
         },
@@ -49,6 +44,7 @@ export default function App(): React.JSX.Element {
     },
   },
 };
+
 
 
   return (

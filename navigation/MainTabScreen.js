@@ -96,14 +96,14 @@ const navigation = useNavigation();
   
   return(
   <Tab.Navigator
-    initialRouteName="Home"
+    initialRouteName="HomeStack"
     screenOptions={({ route }) => ({
       tabBarActiveTintColor: activeColor,
       tabBarInactiveTintColor: "gray",
     })}
   >
     <Tab.Screen
-      name="Home"
+      name="HomeStack"
       component={HomeStackScreen}
       options={{
         headerShown: false,
@@ -231,7 +231,7 @@ const HomeStackScreen = ({ navigation }) => (
     }}
   >
     <HomeStack.Screen
-      name="Home"
+      name="HomeScreen"
       component={HomeScreen}
       options={{
         headerShown: false,

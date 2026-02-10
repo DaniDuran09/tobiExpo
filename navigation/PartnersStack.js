@@ -124,8 +124,9 @@ const PartnersStack = () => {
         name="PaymentScreen"
         component={PaymentScreen}
         options={({
-          headerShown: true,
+          headerShown: false,
           headerBackTitleVisible: false,
+          title:'Confirmación de cita'
         })}
       />
     </Stack.Navigator>

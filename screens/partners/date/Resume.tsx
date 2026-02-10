@@ -3,6 +3,7 @@ import { ScrollView } from "react-native";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
 import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
 
 const formatDateTimeMX = (isoDate: string) => {
   const date = new Date(isoDate);
@@ -27,24 +28,29 @@ const formatDateTimeMX = (isoDate: string) => {
   };
 };
 
-const ResumeByPet = ({ route }: any) => {
+const Resume = ({ route }: any) => {
   const navigation = useNavigation<any>();
   const apiFetcher = new ApiFetcher();
   const [data, setData] = useState<any>();
 
   const confirmCart = async () => {
-  try {
-    const res = await apiFetcher.confirmCart(route.params.cart);
+    try {
+      const res = await apiFetcher.confirmCart(route.params.cart);
 
-    navigation.navigate('PaymentScreen', {
-      url: res.data.session.url,
-      cartId: route.params.cart,
-    });
+      navigation.navigate('PaymentScreen', {
+        url: res.data.session.url,
+        cartId: route.params.cart,
+      });
 
-  } catch (error) {
-    console.log('error al confirmar el carro', error);
-  }
-};
+    } catch (error) {
+      console.log('error al confirmar el carro', error);
+      Toast.show({
+          type: "error",
+          text1: "Hubo un error al confirmar tu carrito",
+          text2: `Inténtalo de nuevo más tarde`,
+        });
+    }
+  };
 
 
   useEffect(() => {
@@ -55,6 +61,11 @@ const ResumeByPet = ({ route }: any) => {
         const res = await apiFetcher.getCart(route.params.cart);
         setData(res);
       } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Hubo un error al traer tu carrito",
+          text2: `Inténtalo de nuevo más tarde`,
+        });
         console.log("Error fetching cart:", error);
       }
     };
@@ -146,4 +157,4 @@ const ResumeByPet = ({ route }: any) => {
   );
 };
 
-export default ResumeByPet;
+export default Resume;

@@ -16,6 +16,7 @@ import ForgotPassword from "../screens/auth/ForgotPassword";
 import ChangePassword from "../screens/auth/ChangePassword";
 import MailForm from "../screens/auth/register/MailForm";
 import ValidateMail from "../screens/auth/register/ValidateMail";
+import PaymentScreen from "../screens/cards/PaymentScreen";
 
 const RootStack = createStackNavigator();
 
@@ -81,7 +82,6 @@ const RootStackScreen = ({}) => (
           (route.params.type == "pets_breeds" && "Buscar raza de mascota"),
       })}
     />
-  
     <RootStack.Screen
   name="Home"
   component={MainTabScreen}
