@@ -60,6 +60,8 @@ import PetProfile from "../screens/pet/PetProfile";
 import PetPdf from "../screens/pet/PetProfile/PetPdf";
 import { Linking } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
+import AppointmentsHome from "../screens/appointments/AppointmentsHome";
+import AppointmentDetails from "../screens/appointments/AppointmentDetails";
 
 
 const HomeStack = createStackNavigator();
@@ -92,49 +94,49 @@ const shareInfo = async (url) => {
 const activeColor = "red";
 
 const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
-const navigation = useNavigation();
-  
-  return(
-  <Tab.Navigator
-    initialRouteName="HomeStack"
-    screenOptions={({ route }) => ({
-      tabBarActiveTintColor: activeColor,
-      tabBarInactiveTintColor: "gray",
-    })}
-  >
-    <Tab.Screen
-      name="HomeStack"
-      component={HomeStackScreen}
-      options={{
-        headerShown: false,
-        tabBarLabel: "",
-        tabBarColor: "#fff",
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require("../assets/home.png")}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="ProfileStack"
-      component={ProfileStackScreen}
-      options={{
-        headerShown: false,
-        tabBarLabel: "",
-        tabBarColor: "#fff",
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require("../assets/pet.png")}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    />
-    {/*
+  const navigation = useNavigation();
+
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeStack"
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen
+        name="HomeStack"
+        component={HomeStackScreen}
+        options={{
+          headerShown: false,
+          tabBarLabel: "",
+          tabBarColor: "#fff",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require("../assets/home.png")}
+              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProfileStack"
+        component={ProfileStackScreen}
+        options={{
+          headerShown: false,
+          tabBarLabel: "",
+          tabBarColor: "#fff",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require("../assets/pet.png")}
+              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+      {/*
       <Tab.Screen
       name="Notifications2"
       component={DetailsStackScreen}
@@ -152,57 +154,57 @@ const navigation = useNavigation();
       }}
     />
     */}
-    <Tab.Screen
-      name="PetParent"
-      component={DetailsStackScreen}
-      options={{
-        headerShown: false,
-        tabBarLabel: "",
-        tabBarColor: "#fff",
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require("../assets/social.png")}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    />
-    <Tab.Screen
-      name="Explore"
-      component={PartnersStack}
-      options={{
-        headerShown: false,
-        tabBarLabel: '',
-        tabBarColor: '#fff',
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require('../assets/shop.png')}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    /> 
-    <Tab.Screen
-      name="NotificationsTab"
-      component={NotificationsStack}
-      options={{
-        headerShown: false,
-        tabBarLabel: "",
-        tabBarColor: "#fff",
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require("../assets/notifications.png")}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    />
+      <Tab.Screen
+        name="PetParent"
+        component={DetailsStackScreen}
+        options={{
+          headerShown: false,
+          tabBarLabel: "",
+          tabBarColor: "#fff",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require("../assets/social.png")}
+              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Explore"
+        component={PartnersStack}
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarColor: '#fff',
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('../assets/shop.png')}
+              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="NotificationsTab"
+        component={NotificationsStack}
+        options={{
+          headerShown: false,
+          tabBarLabel: "",
+          tabBarColor: "#fff",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require("../assets/notifications.png")}
+              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
 
-     
-    {/* <Tab.Screen
+
+      {/* <Tab.Screen
       name="Heart"
       component={HeartStackScreen}
       options={{
@@ -213,7 +215,7 @@ const navigation = useNavigation();
         ),
       }}
     /> */}
-  </Tab.Navigator>)
+    </Tab.Navigator>)
 };
 
 export default MainTabScreen;
@@ -484,7 +486,7 @@ const ProfileStackScreen = ({ navigation }) => (
         headerShown: false,
       }}
     />
-    
+
     <ProfileStack.Screen
       name="ProfileEditUser"
       component={ProfileEditUser}
@@ -506,6 +508,26 @@ const ProfileStackScreen = ({ navigation }) => (
         headerTitleAlign: "center",
         headerTintColor: "black",
       }}
+    />
+    <ProfileStack.Screen
+      name="AppointmentsHome"
+      component={AppointmentsHome}
+      options={() => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Mis citas",
+        headerTintColor: "black",
+      })}
+    />
+    <ProfileStack.Screen
+      name="AppointmentDetails"
+      component={AppointmentDetails}
+      options={() => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Detalles de la cita",
+        headerTintColor: "black",
+      })}
     />
     <ProfileStack.Screen
       name="EditPet"

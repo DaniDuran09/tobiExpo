@@ -282,12 +282,16 @@ class ApiFetcher {
     }
   }
 
-  removeItemFromCart(id,item_id){
+  removeItemFromCart(id, item_id) {
     return this._delete(`/v2/portal_client/carts/${id}/items/${item_id}`)
   }
 
   confirmCart(id) {
     return this._post(`/v2/portal_client/carts/${id}/confirm`)
+  }
+  // appointments
+  async getAppointments() {
+    return await this._get("/v1/portal_client/appointments");
   }
 
   // notifications

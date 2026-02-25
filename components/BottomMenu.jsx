@@ -46,7 +46,27 @@ const BottomMenu = () => {
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>navigation.navigate("ProfileEditUserMenu")}>
+      <TouchableOpacity onPress={() => {
+        navigation.navigate("AppointmentsHome")
+      }}>
+        <View
+          row
+          spread
+          centerV
+          paddingV-15
+          width={"100%"}
+          style={{ borderBottomWidth: 0.5 }}
+        >
+          <View row gap-10 centerV marginL-10>
+            <Icon name="calendar" size={25} color={Colors.red} />
+            <Text text70>Mis citas</Text>
+          </View>
+          <View row gap-10 centerV>
+            <Icon name="chevron-right" size={25} color={Colors.red} />
+          </View>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("ProfileEditUserMenu")}>
         <View
           row
           spread
