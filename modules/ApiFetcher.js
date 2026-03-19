@@ -293,6 +293,14 @@ class ApiFetcher {
   async getAppointments() {
     return await this._get("/v1/portal_client/appointments");
   }
+  async getAppointmentsById(id) {
+    return await this._get(`/v1/portal_client/appointments/${id}`);
+  }
+
+  // visits
+  async getVisits() {
+    return await this._get("/v2/portal_client/visits");
+  }
 
   // notifications
 
