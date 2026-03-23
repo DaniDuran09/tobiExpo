@@ -59,3 +59,13 @@ export interface Appointment {
     appointment_pet_services: AppointmentPetService[];
     appointment_time: AppointmentTime;
 }
+
+export interface Visit {
+    id: number;
+    expected_start_time: string;
+    expected_end_time: string;
+    status: string;
+    checked_in_at: string | null;
+    checkin_available: boolean;
+    appointments: Appointment[];
+}

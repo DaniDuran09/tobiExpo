@@ -108,6 +108,18 @@ class ApiFetcher {
     }
   }
 
+  async _patch(endpoint, data, tokenRequired = true, isMultipart = false) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired, isMultipart);
+      const response = await axios.patch(url, data, { headers, timeout: 30000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.error("Error in PATCH request:", error);
+      throw error;
+    }
+  }
+
   // Métodos específicos de la API
 
   // auth
@@ -300,6 +312,14 @@ class ApiFetcher {
   // visits
   async getVisits() {
     return await this._get("/v2/portal_client/visits");
+  }
+
+  async getVisitById(id) {
+    return await this._get(`/v2/portal_client/visits/${id}`);
+  }
+
+  async checkinVisit(id) {
+    return await this._patch(`/v2/portal_client/visits/${id}/checkin`, {}, true);
   }
 
   // notifications

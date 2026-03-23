@@ -62,6 +62,7 @@ import { Linking } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import AppointmentsHome from "../screens/appointments/AppointmentsHome";
 import AppointmentDetails from "../screens/appointments/AppointmentDetails";
+import VisitDetails from "../screens/appointments/VisitDetails";
 
 
 const HomeStack = createStackNavigator();
@@ -526,6 +527,16 @@ const ProfileStackScreen = ({ navigation }) => (
         headerShown: true,
         headerBackTitleVisible: false,
         title: "Detalles de la cita",
+        headerTintColor: "black",
+      })}
+    />
+    <ProfileStack.Screen
+      name="VisitDetails"
+      component={VisitDetails}
+      options={() => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Detalles de cita",
         headerTintColor: "black",
       })}
     />
