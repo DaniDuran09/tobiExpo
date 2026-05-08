@@ -9,7 +9,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import "moment/locale/es";
 
-// Ensure moment uses Spanish
 moment.locale("es");
 
 export default function AppointmentsHome() {
@@ -25,7 +24,6 @@ export default function AppointmentsHome() {
         try {
             const response = await apiFetcher.getVisits();
             if (response.status) {
-                // The backend visits array is inside response.data per the JSON block.
                 setVisits(response.data || []);
             }
         } catch (error) {
@@ -73,9 +71,9 @@ export default function AppointmentsHome() {
     };
 
     const renderVisitGroup = ({ item: visit, index }: { item: Visit, index: number }) => {
-        // Format date and time
+
         const capitalizeWords = (str: string) => str.replace(/\b\w/g, char => char.toUpperCase());
-        // e.g. "Jueves, 13 de noviembre 2026."
+
         const dateStr = capitalizeWords(moment(visit.expected_start_time).format("dddd, D [de] MMMM YYYY."));
         const timeFormatted = `${moment(visit.expected_start_time).format("hh:mm a")} - ${moment(visit.expected_end_time).format("hh:mm a")} (GMT-6)`;
         const statusInfo = getStatusInfo(visit.status);
@@ -149,7 +147,7 @@ export default function AppointmentsHome() {
                     <TouchableOpacity
                         backgroundColor={Colors.primaryColor}
                         onPress={() => {
-                            // @ts-ignore - el stack está en js , problemas de tipado
+                            // @ts-ignore
                             navigation.navigate("VisitDetails", { id: visit.id.toString(), isVisit: true });
                         }}
                         style={{ height: 45, borderRadius: 25 }}

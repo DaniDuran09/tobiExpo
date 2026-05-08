@@ -1,15 +1,15 @@
-import {Image, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import {Colors} from '../../styles/Colors';
-import {TouchableOpacity, TouchableWithoutFeedback} from 'react-native-gesture-handler';
-import {useNavigation} from '@react-navigation/native';
+import { Colors } from '../../styles/Colors';
+import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const PartnersMain = () => {
   const navigation = useNavigation();
 
   const goToSelectedScreen = type => {
-    navigation.navigate('SelectService', {type: type});
+    navigation.navigate('SelectService', { type: type });
   };
 
   return (
@@ -25,7 +25,7 @@ const PartnersMain = () => {
             <TouchableOpacity onPress={() => goToSelectedScreen(2)}>
               <Image
                 source={require('../../assets/vetBackground.png')}
-                style={{width: 375, height: 250}}
+                style={{ width: 375, height: 250 }}
                 resizeMode="contain"
               />
               <View style={styles.cover}>
@@ -41,7 +41,7 @@ const PartnersMain = () => {
             <TouchableOpacity onPress={() => goToSelectedScreen(3)}>
               <Image
                 source={require('../../assets/groomingBackground.png')}
-                style={{width: 375, height: 250}}
+                style={{ width: 375, height: 250 }}
                 resizeMode="contain"
               />
               <View style={styles.cover}>

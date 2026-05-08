@@ -13,7 +13,7 @@ const Section = ({
 }) => {
   const navigation = useNavigation();
   return (
-    <View width={"45%"} height={165}>
+    <View width={"48%"} style={{ minHeight: 165 }}>
       <TouchableOpacity
         disabled={disabled}
         onPress={() => {
@@ -28,6 +28,7 @@ const Section = ({
         }}
         style={{
           opacity: 1,
+          flex: 1,
         }}
       >
         <View
@@ -36,9 +37,8 @@ const Section = ({
               ? Colors.primaryColor
               : Colors.lightGray
           }
-          height={"100%"}
           style={[
-            { borderRadius: 10, elevation: 5 },
+            { borderRadius: 10, elevation: 5, flex: 1, minHeight: 165 },
             disabled && { opacity: 0.5 },
           ]}
           padding-10

@@ -43,7 +43,7 @@ export const healthApi = createApi({
 
 updateDewormer: builder.mutation<ApiResponse<any>, any>({
   query: (data) => ({
-    url: `/pets/${data.pet_id}/dewormer_records/${data.record_id}`,
+    url: `/v1/portal_client/pets/${data.pet_id}/dewormer_records/${data.record_id}`,
     method: 'PUT',
     body: data,
   }),
@@ -52,7 +52,7 @@ updateDewormer: builder.mutation<ApiResponse<any>, any>({
 
     saveDewormer: builder.mutation<ApiResponse<any>, any>({
       query: (data) => ({
-        url: `/pets/${data.pet_id}/dewormer_records`,
+        url: `/v1/portal_client/pets/${data.pet_id}/dewormer_records`,
         method: 'POST',
         body: data,
       }),

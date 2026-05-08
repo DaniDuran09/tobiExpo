@@ -219,8 +219,22 @@ class ApiFetcher {
   }
   // partners
 
-  async getPartners() {
-    return await this._get("/v1/portal_client/partners");
+  async getPartners(options = {}) {
+    const { q, lat, lng, serviceId } = options;
+    const queryParts = [];
+
+    if (q) queryParts.push(`q=${encodeURIComponent(q)}`);
+    if (lat) queryParts.push(`lat=${lat}`);
+    if (lng) queryParts.push(`lng=${lng}`);
+    if (serviceId) queryParts.push(`service_id=${serviceId}`);
+
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : "";
+
+    const endpoint = (q || lat || lng || serviceId)
+      ? `/v2/portal_client/partners${queryString}`
+      : "/v1/portal_client/partners";
+
+    return await this._get(endpoint);
   }
 
   async getPartnersById(id) {
@@ -237,12 +251,10 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/appointments?pet_id=${id}`);
   }
 
-  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilityDaysByPartnerId(id) {
     return await this._get(`/v1/portal_client/partners/${id}/availability/days`);
   }
 
-  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilitySlotsByServices(id, date, services) {
     const urlComplement = services
       .map(service => `service_ids[]=${service.id}`)

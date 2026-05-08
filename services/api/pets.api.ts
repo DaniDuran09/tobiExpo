@@ -16,42 +16,42 @@ export const petsApi = createApi({
     }),
     endpoints: (builder) => ({
         getPets: builder.query<ApiResponse<Pet[]>, void>({
-            query: () => '/pets',
+            query: () => '/v1/portal_client/pets',
             keepUnusedDataFor: 0
         }),
         getPetById: builder.query<Pet, number>({
-            query: (id) => `/pets/${id}`,
+            query: (id) => `/v1/portal_client/pets/${id}`,
             keepUnusedDataFor: 0
         }),
         createPet: builder.mutation<Pet, Partial<Pet>>({
             query: (data) => ({
-                url: '/pets',
+                url: '/v1/portal_client/pets',
                 method: 'POST',
                 body: data,
             }),
         }),
         updatePet: builder.mutation<Pet, { id: number; data: Partial<Pet> }>({
             query: ({ id, data }) => ({
-                url: `/pets/${id}`,
+                url: `/v1/portal_client/pets/${id}`,
                 method: 'PUT',
                 body: data,
             }),
         }),
         deletePet: builder.mutation<void, number>({
             query: (id) => ({
-                url: `/pets/${id}`,
+                url: `/v1/portal_client/pets/${id}`,
                 method: 'DELETE',
             }),
         }),
         updatePetPicture: builder.mutation<Pet, { id: number; image: FormData }>({
             query: ({ id, image }) => ({
-                url: `/pets/save/picture/${id}`,
+                url: `/v1/portal_client/pets/save/picture/${id}`,
                 method: 'PUT',
                 body: image,
             }),
         }),
         getPetBreeds: builder.query<any[], number>({
-            query: (typeId) => `/pets_breeds?type_pet=${typeId}`,
+            query: (typeId) => `/v1/portal_client/pets_breeds?type_pet=${typeId}`,
             keepUnusedDataFor: 0
         }),
     }),

@@ -3,6 +3,7 @@ import * as Notifications from "expo-notifications"
 import Constants from "expo-constants"
 import { Alert, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { navigate } from "../hooks/navigationRef";
 
 const Context = createContext({
     notifications: [],
@@ -80,6 +81,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
     useEffect(() => {
 
         notificationListener.current = Notifications.addNotificationReceivedListener(async (notification) => {
+            console.log("Notification Received:", notification);
             let notificationsString = await AsyncStorage.getItem("notifications")
             let notificationsStored = notificationsString ? JSON.parse(notificationsString) : []
 
@@ -88,8 +90,43 @@ export default function NotificationContext({ children }: { children: ReactNode 
             setNotifications(notifications)
         });
 
+        const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+            const data = response.notification.request.content.data;
+            const metadata = data?.metadata || data;
+            const body = response.notification.request.content.body || "";
+
+            let q = data?.q || metadata?.service_name || metadata?.vaccine_name || metadata?.deworming_type;
+            const type = metadata?.type;
+
+            if (!q) {
+                if (type === "weight") {
+                    q = "Consulta General";
+                } else if (type === "deworming") {
+                    q = "Desparasitación";
+                } else if (type === "vaccine") {
+                    const match = body.match(/vacuna de ([^ ,.]+)/i);
+                    q = match ? match[1] : "Vacuna";
+                }
+            }
+
+            const serviceId = metadata?.service_id || metadata?.vaccine_id || 15;
+            const petId = data?.pet_id || metadata?.pet_id;
+
+            if (q || metadata?.vaccine_id || metadata?.service_id || type) {
+                navigate("Explore", {
+                    screen: "SelectService",
+                    params: {
+                        serviceId: serviceId,
+                        petId: petId,
+                        q: q
+                    }
+                });
+            }
+        });
+
         return () => {
             notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current)
+            responseListener && Notifications.removeNotificationSubscription(responseListener);
         }
     }, [])
 

@@ -25,7 +25,12 @@ const LoginScreen = () => {
 
   const loginHandle = async ({ identifier, password, expotoken }: LoginPayload) => {
     try {
-      const payload = { identifier, password, expotoken };
+      const payload: any = { identifier, password };
+      if (expotoken && expotoken.trim() !== "") {
+        payload.expotoken = expotoken;
+      }
+
+      console.log("PAYLOAD REFORMADO", payload);
 
       const response = await apiFetcher.login(payload);
       if (!response?.data) {

@@ -6,18 +6,39 @@ import ApiFetcher from "../../../modules/ApiFetcher";
 import { useNavigation } from "@react-navigation/native";
 import RenderPartners from "../../../components/renders/RenderPartners";
 import { Colors } from "../../../styles/Colors";
+import * as ExpoLocation from 'expo-location';
+import { SelectServiceProps, Partner, NavigationService } from "./types";
 
 const SelectService = ({ route }: SelectServiceProps) => {
-  const { type } = route.params;
+  const { type, q } = route.params;
   const [listPartners, setListPartners] = useState<Partner[]>([]);
-  const [serviceType, setServiceType] = useState<number>(type || 2);
+  const [loading, setLoading] = useState(false);
+  const [location, setLocation] = useState<ExpoLocation.LocationObjectCoords | null>(null);
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      try {
+        const loc = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Balanced });
+        setLocation(loc.coords);
+      } catch (e) {
+        console.log('Error getting location:', e);
+      }
+    })();
+  }, []);
+
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const partners = await apiFetcher.getPartners();
+      const partners = await apiFetcher.getPartners({
+        q,
+        lat: location?.latitude,
+        lng: location?.longitude
+      });
       setListPartners(partners.data);
     } catch (error) {
       console.log("error: ", error);
@@ -26,62 +47,45 @@ const SelectService = ({ route }: SelectServiceProps) => {
         text1: "Ha ocurrido un error",
         text2: "Inténtelo de nuevo más tarde",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [q, location]);
 
-  const goToMoreInfo = ({ id }: Partner) => {
+  const goToMoreInfo = (item: Partner) => {
     navigation.navigate("PartnersGeneralInfo", {
-      id: id,
-      type: serviceType,
+      id: item.id,
+      type: item.type_partner.id,
     });
   };
 
-  const filteredPartners = listPartners.filter(({ type_partner }) =>
-    serviceType === 2 ? type_partner.id === 2 : type_partner.id !== 2
-  );
 
   return (
     <View flex bg-white>
-      <View row center padding-10>
-        {[
-          { id: 2, label: "Veterinarias" },
-          { id: 3, label: "Grooming" },
-        ].map(({ id, label }) => (
-          <TouchableOpacity
-            key={id}
-            onPress={() => setServiceType(id)}
-            marginH-20
-            paddingT-10
-            style={{
-              borderBottomColor:
-                serviceType === id ? Colors.primaryColor : "transparent",
-              borderBottomWidth: 2,
-            }}
-          >
-            <Text
-              text70BO
-              color={serviceType === id ? Colors.primaryColor : Colors.gray}
-            >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
       <View paddingB-10 paddingL-10>
         <Text text70 color={Colors.gray} marginT-20>
           Encontramos estas opciones para ti
         </Text>
       </View>
       <FlatList
-        data={filteredPartners}
+        data={listPartners}
         renderItem={({ item }) => (
           <RenderPartners item={item} goToMoreInfo={goToMoreInfo} />
         )}
         keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={() => (
+          <View center marginT-40 paddingH-40>
+            <Text gray text70 center>
+              {q 
+                ? `Actualmente los partners no ofrecen el servicio "${q}".`
+                : "No hay partners disponibles."}
+            </Text>
+          </View>
+        )}
       />
     </View>
   );

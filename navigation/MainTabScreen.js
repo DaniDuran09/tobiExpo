@@ -174,6 +174,13 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
       <Tab.Screen
         name="Explore"
         component={PartnersStack}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (navigation.isFocused()) {
+              navigation.navigate("Explore", { screen: "PartnersMain" });
+            }
+          },
+        })}
         options={{
           headerShown: false,
           tabBarLabel: '',
@@ -187,7 +194,7 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
           ),
         }}
       />
-      <Tab.Screen
+{/* <Tab.Screen
         name="NotificationsTab"
         component={NotificationsStack}
         options={{
@@ -202,7 +209,7 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
             />
           ),
         }}
-      />
+      /> */}
 
 
       {/* <Tab.Screen
@@ -741,6 +748,13 @@ const ProfileStackScreen = ({ navigation }) => (
     <ProfileStack.Screen
       name="ProfileEditPetInfo2"
       component={ProfileEditPetInfo2}
+    />
+    <ProfileStack.Screen
+      name="NotificationsTab"
+      component={NotificationsStack}
+      options={{
+        headerShown: false,
+      }}
     />
     <ProfileStack.Screen name="ScreenMaps" component={ScreenMaps} />
     {/* <ProfileStack.Screen name="RootStack" component={RootStackScreen} /> */}

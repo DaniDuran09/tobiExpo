@@ -11,11 +11,12 @@ import ResumeDateByPartner from '../screens/partners/ResumeDateByPartner';
 import NewService1 from '../screens/newService/NewService1';
 import Success from '../components/Success';
 import PaymentScreen from '../screens/cards/PaymentScreen';
+import { Colors } from '../styles/Colors';
 
 const Stack = createStackNavigator();
 
 const PartnersStack = () => {
-  
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -28,7 +29,7 @@ const PartnersStack = () => {
         },
         headerTitleAlign: 'center',
       }}
-      initialRouteName="PartnersMain">
+      initialRouteName="SelectService">
       <Stack.Screen
         name="PartnersMain"
         component={PartnersMain}
@@ -49,7 +50,9 @@ const PartnersStack = () => {
         name="SelectService"
         component={SelectService}
         options={{
-          headerLeft: null,
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.black,
           title: 'Servicios',
         }}
       />
@@ -126,7 +129,7 @@ const PartnersStack = () => {
         options={({
           headerShown: false,
           headerBackTitleVisible: false,
-          title:'Confirmación de cita'
+          title: 'Confirmación de cita'
         })}
       />
     </Stack.Navigator>

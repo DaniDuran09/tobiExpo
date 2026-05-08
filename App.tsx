@@ -36,6 +36,7 @@ export default function App(): React.JSX.Element {
         screens: {
           Explore: {
             screens: {
+              SelectService: 'servicios/:serviceId/:petId',
               PaymentScreen: 'payment',
             },
           },

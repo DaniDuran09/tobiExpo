@@ -12,17 +12,17 @@ import { Linking } from 'react-native';
 moment.locale("es");
 
 const getServiceBadgeInfo = (status: string) => {
-    switch(status) {
-        case 'completed': return { label: 'Completada', bg: '#6A1B9A', text: '#FFF' }; 
+    switch (status) {
+        case 'completed': return { label: 'Completada', bg: '#6A1B9A', text: '#FFF' };
         case 'checked_in':
         case 'arrived':
         case 'in_queue':
         case 'actived':
         case 'in_progress':
-            return { label: 'En fila', bg: '#FFA000', text: '#FFF' }; 
-        case 'no_show': 
-            return { label: 'No se presentó', bg: '#EF4136', text: '#FFF' }; 
-        default: return null; 
+            return { label: 'En fila', bg: '#FFA000', text: '#FFF' };
+        case 'no_show':
+            return { label: 'No se presentó', bg: '#EF4136', text: '#FFF' };
+        default: return null;
     }
 };
 
@@ -86,7 +86,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                     const next = { ...prev, status: 'checked_in' };
                     if (next.appointments) {
                         next.appointments = next.appointments.map((app: any) => ({
-                            ...app, 
+                            ...app,
                             appointment_pet_services: app.appointment_pet_services?.map((aps: any) => ({
                                 ...aps,
                                 status: aps.status === 'pending' || !aps.status ? 'checked_in' : aps.status
@@ -152,16 +152,16 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
 
     const capitalizeWords = (str: string) => str.replace(/\b\w/g, char => char.toUpperCase());
     const dateStr = capitalizeWords(moment(visit.expected_start_time).format("dddd, D [de] MMMM YYYY."));
-    
+
     const visitMoment = moment(visit.expected_start_time);
     const isWithin15MinsOrAfter = visitMoment && currentTime.isAfter(visitMoment.clone().subtract(15, 'minutes'));
-    
+
     // Status Logic
     const isCheckedInAtAll = visit.status === 'checked_in' || visit.status === 'actived' || visit.status === 'in_progress' || visit.status === 'completed';
     const isNoShow = visit.status === 'no_show' || (petsList.length > 0 && petsList.every(p => p.services.every(s => s.status === 'no_show')));
     const hasCompletedService = petsList.some(p => p.services.some(s => s.status === 'completed'));
     const allServicesCompleted = petsList.length > 0 && petsList.every(p => p.services.every(s => s.status === 'completed'));
-    
+
     const shouldShowCheckIn = !isCheckedInAtAll && !isNoShow && (visit.status === 'confirmed' || visit.status === 'pending');
 
     return (
@@ -200,7 +200,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                     {isCheckedInAtAll && !isNoShow && (
                         <View marginB-20 padding-15 style={{ borderWidth: 1, borderColor: Colors.secondGray, borderRadius: 8 }}>
                             <Text text80L color={Colors.gray} marginB-15>ESTADO DE LA VISITA</Text>
-                            
+
                             <View row centerV marginB-10>
                                 <MaterialCommunityIcons name="circle" size={12} color={Colors.green} />
                                 <Text text80 marginL-10 color={Colors.black}>Check-in realizado</Text>
@@ -212,10 +212,10 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                             </View>
 
                             <View row centerV>
-                                <MaterialCommunityIcons 
-                                    name={hasCompletedService ? "circle" : "circle-outline"} 
-                                    size={12} 
-                                    color={hasCompletedService ? "#6A1B9A" : Colors.gray} 
+                                <MaterialCommunityIcons
+                                    name={hasCompletedService ? "circle" : "circle-outline"}
+                                    size={12}
+                                    color={hasCompletedService ? "#6A1B9A" : Colors.gray}
                                 />
                                 <Text text80 marginL-10 color={Colors.black}>Completada</Text>
                             </View>
@@ -234,7 +234,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
 
                             {petGroup.services.map((service, sIdx) => {
                                 const badgeInfo = getServiceBadgeInfo(service.status);
-                                
+
                                 return (
                                     <View key={sIdx} marginB-10>
                                         <View row centerV spread>
@@ -245,7 +245,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                                                 {service.startTime}
                                             </Text>
                                         </View>
-                                        
+
                                         {badgeInfo ? (
                                             <View marginT-5 style={{ backgroundColor: badgeInfo.bg, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}>
                                                 <Text text90 color={badgeInfo.text} style={{ fontWeight: '600' }}>{badgeInfo.label}</Text>
@@ -255,7 +255,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                                                 {service.role}
                                             </Text>
                                         )}
-                                        
+
                                         {sIdx < petGroup.services.length - 1 && (
                                             <View height={1} bg-grey60 marginT-10 marginB-5 />
                                         )}
@@ -307,7 +307,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                         <View row centerV marginB-15>
                             <MaterialCommunityIcons name="check-circle" size={20} color={Colors.green} />
                             <Text text80 marginL-10 color={Colors.black}>
-                                Se actualizó el historial de salud de {petsList.map(p=>p.pet.display_name || p.pet.name).join(', ')}.
+                                Se actualizó el historial de salud de {petsList.map(p => p.pet.display_name || p.pet.name).join(', ')}.
                             </Text>
                         </View>
                         <TouchableOpacity
