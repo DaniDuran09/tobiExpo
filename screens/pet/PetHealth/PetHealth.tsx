@@ -215,6 +215,7 @@ const PetHealth = () => {
                       isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands || isFetchingVaccines
                     }
                     derwomersBrands={dewormersBrands}
+                    dewormersFrequency={vaccinesResponse?.data?.dewormers_frequency}
                     selectedPet={selectedPet}
                     allDerwomers={allDewormers}
                   />

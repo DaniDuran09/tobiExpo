@@ -109,7 +109,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
                 }
             }
 
-            const serviceId = metadata?.service_id || metadata?.vaccine_id || 15;
+            const serviceId = metadata?.service_id || metadata?.vaccine_id || null;
             const petId = data?.pet_id || metadata?.pet_id;
 
             if (q || metadata?.vaccine_id || metadata?.service_id || type) {

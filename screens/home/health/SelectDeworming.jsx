@@ -70,13 +70,33 @@ const SelectDeworming = ({ petId, action }) => {
     try {
       console.log("petid: ", petId)
       const response = await apiFetcher.getVaccines(petId);
+      const recordsResponse = await apiFetcher.getVaccinesRecords(petId);
+      
       setDerwomerId(response.data.dewormers[0].id);
       const data = response.data.dewormer_brands.map((dewormer) => ({
         label: dewormer,
         value: dewormer,
       }));
       setBrands(data);
+
+      if (recordsResponse.data.dewormers_frequency) {
+        const dynamicFrequencies = recordsResponse.data.dewormers_frequency.map((f, index) => ({
+          id: index + 1,
+          value: f.text,
+          isChecked: false,
+        }));
+        
+        // Mantener la opción "No lo he desparacitado" al final
+        dynamicFrequencies.push({
+          id: dynamicFrequencies.length + 1,
+          value: "No lo he desparacitado",
+          isChecked: false,
+        });
+        
+        setFrequencies(dynamicFrequencies);
+      }
     } catch (error) {
+      console.log("Error fetching dewormers info: ", error);
       Toast.show({
         type: "error",
         text1: "Error",

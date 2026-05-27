@@ -4,7 +4,7 @@ import { Text, Toast, TouchableOpacity, View, Avatar } from "react-native-ui-lib
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Visit } from "./components/Item";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import "moment/locale/es";
@@ -12,7 +12,8 @@ import "moment/locale/es";
 moment.locale("es");
 
 export default function AppointmentsHome() {
-    const [selected, setSelected] = useState(1);
+    const route = useRoute<any>();
+    const [selected, setSelected] = useState(route.params?.initialTab || 1);
     const [visits, setVisits] = useState<Visit[]>([]);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
@@ -45,11 +46,35 @@ export default function AppointmentsHome() {
         return unsubscribe;
     }, [navigation]);
 
+    const isVisitInHistory = (visit: Visit) => {
+        if (visit.status === "completed" || visit.status === "cancelled" || visit.status === "no_show") return true;
+
+        let hasServices = false;
+        let allCompletedOrNoShow = true;
+
+        if (visit.appointments) {
+            visit.appointments.forEach((app: any) => {
+                if (app.appointment_pet_services) {
+                    app.appointment_pet_services.forEach((aps: any) => {
+                        hasServices = true;
+                        if (aps.status !== "completed" && aps.status !== "no_show" && aps.status !== "cancelled") {
+                            allCompletedOrNoShow = false;
+                        }
+                    });
+                }
+            });
+        }
+
+        if (hasServices && allCompletedOrNoShow) return true;
+
+        return false;
+    };
+
     const filterVisits = () => {
         if (selected === 1) {
-            return visits.filter(v => v.status !== "completed" && v.status !== "cancelled");
+            return visits.filter(v => !isVisitInHistory(v));
         } else {
-            return visits.filter(v => v.status === "completed" || v.status === "cancelled");
+            return visits.filter(v => isVisitInHistory(v));
         }
     };
 
@@ -142,7 +167,6 @@ export default function AppointmentsHome() {
                     ))}
                 </View>
 
-                {/* Footer Button */}
                 <View marginT-15>
                     <TouchableOpacity
                         backgroundColor={Colors.primaryColor}
@@ -160,6 +184,96 @@ export default function AppointmentsHome() {
         );
     };
 
+    const renderHistoryGroup = ({ item: visit, index }: { item: Visit, index: number }) => {
+        const capitalizeWords = (str: string) => str.replace(/\b\w/g, char => char.toUpperCase());
+
+        const dateStr = capitalizeWords(moment(visit.expected_start_time).format("dddd, D [de] MMMM."));
+        const timeFormatted = `${moment(visit.expected_start_time).format("hh:mm a")} - ${moment(visit.expected_end_time).format("hh:mm a")} (GMT-6)`;
+
+        const partner = visit.partner as any;
+        let address = "Dirección no disponible";
+        if (partner?.address) {
+            address = partner.address;
+        } else if (partner?.addresses && partner.addresses.length > 0) {
+            address = `${partner.addresses[0].street || ''} ${partner.addresses[0].number || ''}, ${partner.addresses[0].city || ''}`;
+        }
+
+        const petsMap = new Map<number, { pet: any, services: any[] }>();
+        if (visit.appointments) {
+            visit.appointments.forEach((app: any) => {
+                if (app.appointment_pet_services) {
+                    app.appointment_pet_services.forEach((aps: any) => {
+                        const petId = aps.pet?.id;
+                        if (petId) {
+                            if (!petsMap.has(petId)) {
+                                petsMap.set(petId, { pet: aps.pet, services: [] });
+                            }
+                            petsMap.get(petId)!.services.push({
+                                name: aps.service?.name || aps.service?.description || "Servicio",
+                                provider: aps.user?.display_name || aps.user?.name || "Especialista",
+                                time: aps.appointment_time ? moment(aps.appointment_time.start_time, "YYYY-MM-DD HH:mm:ss").format("hh:mm a") : moment(app.date_service).format("hh:mm a")
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        const petsList = Array.from(petsMap.values());
+
+        // Si no hay mascotas procesadas, evitamos renderizar una tarjeta vacía
+        if (petsList.length === 0) return null;
+
+        return (
+            <View marginH-20 marginB-30>
+                {petsList.map((petGroup, pIndex) => (
+                    <View key={`pet-${petGroup.pet.id}`}>
+                        <View row centerV marginB-20>
+                            <Avatar source={{ uri: petGroup.pet.picture }} size={45} />
+                            <Text text60BO marginL-15 color={Colors.black}>{petGroup.pet.display_name || petGroup.pet.name}</Text>
+                        </View>
+
+                        {petGroup.services.map((srv, sIndex) => (
+                            <View key={`srv-${sIndex}`} style={{ backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3, borderRadius: 8, padding: 15, marginBottom: 15, borderWidth: 1, borderColor: '#eee' }}>
+                                <View row spread centerV>
+                                    <Text text70BO color={Colors.black}>{srv.name}</Text>
+                                    <MaterialCommunityIcons name="check-circle-outline" size={20} color={Colors.green} />
+                                </View>
+                                <Text text90 color={Colors.gray} marginB-10 style={{ textTransform: 'uppercase' }}>SALUD</Text>
+
+                                <Text text80 color={Colors.black}>{srv.provider}</Text>
+                                <Text text80 color={Colors.gray} numberOfLines={2}>{address}</Text>
+                                <Text text80 color={Colors.black}>{dateStr}</Text>
+                                <Text text80 color={Colors.black}>{srv.time} (GMT-6)</Text>
+                            </View>
+                        ))}
+
+                        <View center marginT-10 marginB-20>
+                            <Text text80 color={Colors.black} center marginB-5>El esquema de salud de {petGroup.pet.display_name || petGroup.pet.name} ya está actualizado.</Text>
+                            <Text text80 color={Colors.black} center marginB-15>Guárdala en Tobi para que no se te pierda.</Text>
+                            <TouchableOpacity
+                                backgroundColor={Colors.red}
+                                style={{ height: 45, borderRadius: 25, width: '100%' }}
+                                center
+                                onPress={() => { }}
+                            >
+                                <Text white text70BO>Guardar cartilla médica</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ))}
+            </View>
+        );
+    };
+
+    const renderItem = ({ item, index }: { item: Visit, index: number }) => {
+        if (selected === 1) {
+            return renderVisitGroup({ item, index });
+        } else {
+            return renderHistoryGroup({ item, index });
+        }
+    };
+
     return (
         <View flex bg-white>
             <View row center marginT-20 marginB-20>
@@ -175,13 +289,13 @@ export default function AppointmentsHome() {
 
             <FlatList
                 data={filterVisits()}
-                renderItem={renderVisitGroup}
+                renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={{ paddingBottom: 40 }}
                 refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchData} />}
                 ListEmptyComponent={
                     <View center marginT-40>
-                        <Text text70 color={Colors.gray}>{loading ? "Cargando..." : "No hay visitas programadas"}</Text>
+                        <Text text70 color={Colors.gray}>{loading ? "Cargando..." : (selected === 1 ? "No hay visitas programadas" : "No hay visitas en el historial")}</Text>
                     </View>
                 }
             />

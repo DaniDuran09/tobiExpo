@@ -30,6 +30,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   idEditPet,
   refreshData = () => { },
   type,
+  dewormersFrequency = [],
 }) => {
   const [date, setDate] = useState<Date | null>(null);
   const [labelDate, setLabelDate] = useState<string>("");
@@ -42,16 +43,20 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   const [saveDewormer, { isLoading: isLoadingDewormer }] = useSaveDewormerMutation();
   const [updateDewormer] = useUpdateDewormerMutation();
 
-  const frequencies = [
-    { label: "Semestral", value: "Semestral" },
-    { label: "Trimestral", value: "Trimestral" },
-    { label: "Mensual", value: "Mensual" },
-  ];
+  const frequencies = dewormersFrequency.length > 0
+    ? dewormersFrequency.map(f => ({ label: f.text, value: f.text }))
+    : [
+      { label: "Semestral", value: "Semestral" },
+      { label: "Trimestral", value: "Trimestral" },
+      { label: "Mensual", value: "Mensual" },
+    ];
 
   const formattedBrands = vaccineBrands?.map((brand) => ({
     label: brand,
     value: brand,
   }));
+
+  const computedFrequencyValue = selectedFrequency || item.deworming_frequency;
 
   const isEditable = idEditPet === (item.uid || item.id);
 
@@ -212,23 +217,6 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
             <Icon name="pencil-outline" size={20} color={Colors.gray} />
           </TouchableOpacity>
         )}
-        {!item.applied && !item.application_day && (
-          <Hint
-            position={Hint.positions?.TOP || "top" as any}
-            visible={showHint}
-            message="¡Casi listo! Registra las vacunas que faltan."
-            color={"#F5F5F5"}
-            onBackgroundPress={() => setShowHint(false)}
-            messageStyle={{
-              color: Colors.black,
-              fontSize: 14,
-            }}
-          >
-            <TouchableOpacity onPress={() => setShowHint(true)}>
-              <Icon name="information-outline" size={20} color={Colors.red} />
-            </TouchableOpacity>
-          </Hint>
-        )}
       </View>
 
       {type === "derwomers" && (
@@ -237,7 +225,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           <Picker
             editable={isEditable || (!item.applied && !item.application_day)}
             style={
-              !item.applied && !selectedFrequency
+              isEditable || (!item.applied && !item.application_day)
                 ? {
                   backgroundColor: Colors.white,
                   padding: 25,
@@ -247,7 +235,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
                 : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
             }
             placeholder={"Elegir"}
-            value={selectedFrequency || item.deworming_frequency}
+            value={computedFrequencyValue}
             onChange={(value) => setSelectedFrequency(value as string)}
             items={frequencies}
           />
@@ -287,7 +275,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
         <Picker
           editable={isEditable || (!item.applied && !item.application_day)}
           style={
-            !item.applied && !selectedBrand
+            isEditable || (!item.applied && !item.application_day)
               ? {
                 backgroundColor: Colors.white,
                 padding: 25,

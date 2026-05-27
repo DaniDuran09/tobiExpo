@@ -10,7 +10,7 @@ import * as ExpoLocation from 'expo-location';
 import { SelectServiceProps, Partner, NavigationService } from "./types";
 
 const SelectService = ({ route }: SelectServiceProps) => {
-  const { type, q } = route.params;
+  const { type, serviceId, petId, q } = route.params;
   const [listPartners, setListPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState<ExpoLocation.LocationObjectCoords | null>(null);
@@ -60,6 +60,9 @@ const SelectService = ({ route }: SelectServiceProps) => {
     navigation.navigate("PartnersGeneralInfo", {
       id: item.id,
       type: item.type_partner.id,
+      petId,
+      serviceId,
+      q,
     });
   };
 

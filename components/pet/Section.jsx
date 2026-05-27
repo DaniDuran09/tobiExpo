@@ -18,7 +18,7 @@ const Section = ({
         disabled={disabled}
         onPress={() => {
           if (screen == "Weight") {
-            onPress();
+            if (onPress) onPress();
             return;
           }
           navigation.navigate(screen, {

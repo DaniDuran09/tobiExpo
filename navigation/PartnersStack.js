@@ -1,7 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import SelectService from '../screens/partners/SelectService';
 import PartnersGeneralInfo from '../screens/partners/PartnersGeneralInfo';
-import PartnersMain from '../screens/partners/PartnersMain';
 import InfoServiceForDate from '../screens/partners/date/InfoServiceForDate';
 import Resume from '../screens/partners/date/Resume';
 import AddNewCard from '../screens/cards/AddNewCard';
@@ -30,15 +29,6 @@ const PartnersStack = () => {
         headerTitleAlign: 'center',
       }}
       initialRouteName="SelectService">
-      <Stack.Screen
-        name="PartnersMain"
-        component={PartnersMain}
-        options={{
-          gestureEnabled: false,
-          headerLeft: null,
-          title: 'Servicios',
-        }}
-      />
       <Stack.Screen
         name="NewService"
         component={NewService1}

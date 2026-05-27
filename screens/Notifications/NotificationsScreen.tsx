@@ -99,7 +99,7 @@ export default function NotificationsScreen() {
                 }
               }
 
-              const serviceId = metadata.service_id || metadata.vaccine_id || 15;
+              const serviceId = metadata.service_id || metadata.vaccine_id || null;
               const petId = item.pet_id || metadata.pet_id;
 
               const isServiceNotification = item.category === "URGENTE" ||

@@ -109,6 +109,7 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
         name="HomeStack"
         component={HomeStackScreen}
         options={{
+          unmountOnBlur: true,
           headerShown: false,
           tabBarLabel: "",
           tabBarColor: "#fff",
@@ -177,7 +178,7 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             if (navigation.isFocused()) {
-              navigation.navigate("Explore", { screen: "PartnersMain" });
+              navigation.navigate("Explore", { screen: "SelectService" });
             }
           },
         })}
@@ -194,7 +195,7 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
           ),
         }}
       />
-{/* <Tab.Screen
+      {/* <Tab.Screen
         name="NotificationsTab"
         component={NotificationsStack}
         options={{

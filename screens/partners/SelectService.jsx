@@ -72,8 +72,7 @@ const SelectService = ({ route }) => {
       const partners = await apiFetcher.getPartners({
         q: q,
         lat: location?.latitude,
-        lng: location?.longitude,
-        serviceId: serviceId
+        lng: location?.longitude
       });
       if (partners.code == 200 || partners.code == 201)
         setListPartners(partners.data);
@@ -86,7 +85,7 @@ const SelectService = ({ route }) => {
   };
 
   const goToMoreInfo = (item, type) => {
-    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type });
+    navigation.navigate("PartnersGeneralInfo", { id: item.id, type: type, petId, serviceId, q });
   };
 
   const ExpandableText = ({ text }) => {

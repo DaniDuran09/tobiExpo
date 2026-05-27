@@ -13,12 +13,14 @@ import { useNavigation } from "@react-navigation/native";
 const RenderSections = ({ item }) => {
   const navigation = useNavigation();
 
-  const navigateToService = (query) => {
+  const navigateToService = (query, serviceId) => {
     navigation.navigate("Explore", {
       screen: "SelectService",
-      params: { q: query },
+      params: { q: query, petId: item.id, serviceId: serviceId },
     });
   };
+
+
 
   const {
     data: vaccinesResponse,
@@ -27,8 +29,8 @@ const RenderSections = ({ item }) => {
   } = useGetVaccinationRecordsQuery(item.id);
   const vaccines = vaccinesResponse?.data || [];
 
-  const [vaccineState, setVaccineState] = useState({ present: false, name: '', days: null, isExpired: false, cannotCalc: false, hasAppointment: false });
-  const [dewormerState, setDewormerState] = useState({ present: false, name: '', days: null, isExpired: false, cannotCalc: false, hasAppointment: false });
+  const [vaccineState, setVaccineState] = useState({ present: false, name: '', id: null, days: null, isExpired: false, cannotCalc: false, hasAppointment: false });
+  const [dewormerState, setDewormerState] = useState({ present: false, name: '', id: null, days: null, isExpired: false, cannotCalc: false, hasAppointment: false });
 
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [actionModalContent, setActionModalContent] = useState({
@@ -37,6 +39,7 @@ const RenderSections = ({ item }) => {
     summaryText: "",
     footerText: "",
     query: "",
+    serviceId: null,
   });
 
   useEffect(() => {
@@ -76,32 +79,42 @@ const RenderSections = ({ item }) => {
 
       let vHasAppt = false;
 
+      let vId = null;
       if (vPresent) {
         if (hasExpired) {
           vIsExpired = true;
           const firstExp = actualExpired[0];
           vName = firstExp.name || firstExp.vaccine_name || firstExp.brand || 'Vacuna';
-          vHasAppt = !!firstExp.has_existing_appointment;
+          vId = firstExp.vaccine_id || firstExp.id;
+          // Revisar si ALGUNA vacuna vencida ya tiene cita
+          vHasAppt = actualExpired.some(v => !!v.has_existing_appointment);
         } else if (hasToExpire) {
           const sortedToExpire = [...actualToExpire].sort((a, b) => a.days_remaining - b.days_remaining);
           const nextV = sortedToExpire[0];
           vName = nextV.name || nextV.vaccine_name || nextV.brand || 'Vacuna';
+          vId = nextV.vaccine_id || nextV.id;
           vDays = nextV.days_remaining;
-          vHasAppt = !!nextV.has_existing_appointment;
+          // Revisar si ALGUNA vacuna por vencer ya tiene cita
+          vHasAppt = actualToExpire.some(v => !!v.has_existing_appointment);
           if (vDays <= 0) vIsExpired = true;
         } else {
           vCannotCalc = true;
           if (hasRecords) {
             const lastRec = validRecords[validRecords.length - 1];
             vName = lastRec.name || lastRec.vaccine_name || lastRec.brand || 'Vacuna';
+            vId = lastRec.vaccine_id || lastRec.id;
           }
         }
       }
-      setVaccineState({ present: vPresent, name: vName, days: vDays, isExpired: vIsExpired, cannotCalc: vCannotCalc, hasAppointment: vHasAppt });
+      setVaccineState({ present: vPresent, name: vName, id: vId, days: vDays, isExpired: vIsExpired, cannotCalc: vCannotCalc, hasAppointment: vHasAppt });
 
       // DEWORMERS LOGIC
       const validDewormers = vaccinesData.dewormers_records || [];
       const hasDewormerRecords = validDewormers.length > 0;
+
+      console.log('[DEW] dewormers_expired raw:', JSON.stringify(vaccinesData.dewormers_expired || vaccinesData.expired_dewormers));
+      console.log('[DEW] dewormers_toexpire raw:', JSON.stringify(vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers));
+      console.log('[DEW] dewormers_records raw:', JSON.stringify(validDewormers));
 
       const isDewormerApplied = (d) => {
         if (d.applied || d.application_day) return true;
@@ -115,6 +128,8 @@ const RenderSections = ({ item }) => {
 
       const actualDewormersExpired = (vaccinesData.dewormers_expired || vaccinesData.expired_dewormers || []).filter(isDewormerApplied);
       const actualDewormersToExpire = (vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers || []).filter(isDewormerApplied);
+      console.log('[DEW] actualDewormersExpired (filtered):', JSON.stringify(actualDewormersExpired));
+      console.log('[DEW] actualDewormersToExpire (filtered):', JSON.stringify(actualDewormersToExpire));
 
       const hasDewormersExpired = actualDewormersExpired.length > 0;
       const hasDewormersToExpire = actualDewormersToExpire.length > 0;
@@ -127,29 +142,35 @@ const RenderSections = ({ item }) => {
 
       let dHasAppt = false;
 
+      let dId = null;
       if (dPresent) {
         if (hasDewormersExpired) {
           dIsExpired = true;
           const firstExp = actualDewormersExpired[0];
           dName = firstExp.deworming_type || firstExp.description || firstExp.name || firstExp.brand || 'Desparasitante';
-          dHasAppt = !!firstExp.has_existing_appointment;
+          dId = firstExp.vaccine_id || firstExp.id;
+          // Revisar si ALGÚN desparasitante vencido ya tiene cita
+          dHasAppt = actualDewormersExpired.some(d => !!d.has_existing_appointment);
         } else if (hasDewormersToExpire) {
           const sortedToExpire = [...actualDewormersToExpire].sort((a, b) => a.days_remaining - b.days_remaining);
           const nextD = sortedToExpire[0];
           dName = nextD.deworming_type || nextD.description || nextD.name || nextD.brand || 'Desparasitante';
+          dId = nextD.vaccine_id || nextD.id;
           dDays = nextD.days_remaining;
-          dHasAppt = !!nextD.has_existing_appointment;
+          // Revisar si ALGÚN desparasitante por vencer ya tiene cita
+          dHasAppt = actualDewormersToExpire.some(d => !!d.has_existing_appointment);
           if (dDays <= 0) dIsExpired = true;
         } else {
           dCannotCalc = true;
           if (hasDewormerRecords) {
             const lastRec = validDewormers[validDewormers.length - 1];
             dName = lastRec.deworming_type || lastRec.description || lastRec.name || lastRec.brand || 'Desparasitante';
+            dId = lastRec.vaccine_id || lastRec.id;
           }
         }
       }
 
-      setDewormerState({ present: dPresent, name: dName, days: dDays, isExpired: dIsExpired, cannotCalc: dCannotCalc, hasAppointment: dHasAppt });
+      setDewormerState({ present: dPresent, name: dName, id: dId, days: dDays, isExpired: dIsExpired, cannotCalc: dCannotCalc, hasAppointment: dHasAppt });
     }
   }, [vaccinesData]);
 
@@ -172,19 +193,21 @@ const RenderSections = ({ item }) => {
     }
 
     return (
-      <Text text90M color={color}>
+      <Text text70BL color={color}>
         {text}
       </Text>
     );
   };
 
-  const rangeOne = item?.weight_status?.ideal_weight?.from / 1000;
-  const rangeTwo = item?.weight_status?.ideal_weight?.to / 1000;
-  const realWeight = calculateIdealWeight(
-    rangeOne,
-    rangeTwo,
-    item?.weight_status?.weight
-  );
+  const rangeOne = (item?.ideal_weight?.from || item?.weight_status?.ideal_weight?.from || 0) / 1000;
+  const rangeTwo = (item?.ideal_weight?.to || item?.weight_status?.ideal_weight?.to || 0) / 1000;
+
+  const currentWeight = parseFloat(item?.weight || item?.weight_status?.weight || 0) / 1000;
+  const realWeight = {
+    ideal: currentWeight >= rangeOne && currentWeight <= rangeTwo,
+    down: currentWeight < rangeOne,
+    up: currentWeight > rangeTwo,
+  };
 
   const openVaccineModal = () => {
     if (vaccineState.isExpired) {
@@ -198,6 +221,7 @@ const RenderSections = ({ item }) => {
         summaryText: "Vacunar a tiempo es clave para mantenerlo protegido.",
         footerText: "Un veterinario puede ayudarte a actualizar su esquema.",
         query: vaccineState.name,
+        serviceId: vaccineState.id,
       });
     } else {
       setActionModalContent({
@@ -210,6 +234,7 @@ const RenderSections = ({ item }) => {
         summaryText: "Agendar a tiempo ayuda a evitar riesgos.",
         footerText: "Mantener su esquema al día es clave para su salud.",
         query: vaccineState.name,
+        serviceId: vaccineState.id,
       });
     }
     setActionModalVisible(true);
@@ -227,6 +252,7 @@ const RenderSections = ({ item }) => {
         summaryText: "Atenderlo a tiempo ayuda a evitar problemas de salud.",
         footerText: "Un veterinario puede indicarte el tratamiento adecuado.",
         query: dewormerState.name,
+        serviceId: dewormerState.id,
       });
     } else {
       setActionModalContent({
@@ -239,6 +265,7 @@ const RenderSections = ({ item }) => {
         summaryText: "Hacerlo a tiempo ayuda a evitar problemas.",
         footerText: "Mantenerlo al día es clave para su bienestar.",
         query: dewormerState.name,
+        serviceId: dewormerState.id,
       });
     }
     setActionModalVisible(true);
@@ -255,7 +282,8 @@ const RenderSections = ({ item }) => {
         ],
         summaryText: "Detectarlo a tiempo puede evitar complicaciones.",
         footerText: "Un veterinario puede ayudarte a encontrar la causa.",
-        query: "Consulta",
+        query: "Consulta General",
+        serviceId: null,
       });
     } else {
       setActionModalContent({
@@ -263,11 +291,12 @@ const RenderSections = ({ item }) => {
         bullets: [
           "Puede aumentar el riesgo de enfermedades cardiacas.",
           "Puede afectar sus articulaciones.",
-          "Reduce su energía y movilidad."
+          "Reduce su energía and movilidad."
         ],
         summaryText: "Atenderlo a tiempo puede mejorar su calidad de vida.",
         footerText: "Un veterinario puede ayudarte a definir un plan adecuado.",
-        query: "Consulta",
+        query: "Consulta General",
+        serviceId: null,
       });
     }
     setActionModalVisible(true);
@@ -309,8 +338,13 @@ const RenderSections = ({ item }) => {
                     <Text text70BL adjustsFontSizeToFit numberOfLines={1} uppercase>
                       Vacunas
                     </Text>
-                    <View flex centerV centerH marginT-15 padding-10>
-                      <Text text80BO color={Colors.green} center>
+                    <View flex>
+                      <Text marginT-10 text90M>Próximos vencimientos</Text>
+                      <Text text70BL>{vaccineState.name}</Text>
+                    </View>
+
+                    <View flex>
+                      <Text text70BL color={Colors.green}>
                         Vacunas al día. Te avisamos si algo cambia.
                       </Text>
                     </View>
@@ -321,14 +355,14 @@ const RenderSections = ({ item }) => {
                       Vacunas
                     </Text>
                     <Text text90M>Próximos vencimientos</Text>
-                    <Text text80BL>{vaccineState.name}</Text>
+                    <Text text70BL>{vaccineState.name}</Text>
                     <Text text90M>Faltan</Text>
                     {renderStatus(vaccineState)}
                     {vaccineState.hasAppointment ? (
                       <View marginT-10>
                         <View row centerV>
                           <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.red, marginRight: 6 }} />
-                          <Text text100 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
+                          <Text text90 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
                             Ya tienes una cita programada
                           </Text>
                         </View>
@@ -400,7 +434,7 @@ const RenderSections = ({ item }) => {
                     Desparasitaciones
                   </Text>
                   <Text text90M>Próximos vencimientos</Text>
-                  <Text text80BL>{dewormerState.name}</Text>
+                  <Text text70BL>{dewormerState.name}</Text>
                   <Text text90M>Faltan</Text>
                   {renderStatus(dewormerState)}
                   {dewormerState.hasAppointment ? (
@@ -427,7 +461,7 @@ const RenderSections = ({ item }) => {
                     </View>
                   ) : (
                     <>
-                      <Text text100 marginT-10 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
+                      <Text text90 marginT-10 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
                         Evita que aparezcan parásitos
                       </Text>
                       <Button
@@ -486,14 +520,14 @@ const RenderSections = ({ item }) => {
                   color={"red"}
                   text80BO
                   style={realWeight?.ideal && { color: Colors.green }}
-                >{`${item.weight} Kg`}</Text>
+                >{`${currentWeight.toFixed(1)} Kg`}</Text>
               </View>
               {!realWeight?.ideal && (
                 item.has_health_appointment ? (
                   <View marginT-10>
                     <View row centerV>
                       <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.red, marginRight: 6 }} />
-                      <Text text100 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
+                      <Text text90 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
                         Ya tienes una cita programada
                       </Text>
                     </View>
@@ -519,7 +553,7 @@ const RenderSections = ({ item }) => {
                         color="red"
                         size={20}
                       />
-                      <Text text100 color={Colors.gray} marginL-5 style={{ flex: 1, flexWrap: 'wrap' }}>
+                      <Text text90 color={Colors.gray} marginL-5 style={{ flex: 1, flexWrap: 'wrap' }}>
                         Puede afectar su movilidad y salud.
                       </Text>
                     </View>
@@ -561,7 +595,7 @@ const RenderSections = ({ item }) => {
         onRequestClose={() => setActionModalVisible(false)}
         onAction={() => {
           setActionModalVisible(false);
-          navigateToService(actionModalContent.query);
+          navigateToService(actionModalContent.query, actionModalContent.serviceId);
         }}
         title={actionModalContent.title}
         bullets={actionModalContent.bullets}

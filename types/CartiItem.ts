@@ -6,4 +6,5 @@ type CartItem = {
   name: string,
   price: string,
   duration_minutes: string,
+  pet_name?: string,
 }

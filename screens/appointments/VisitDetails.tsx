@@ -313,7 +313,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                         <TouchableOpacity
                             backgroundColor={Colors.primaryColor}
                             onPress={() => {
-                                // "ahorita el de ver historia lde salud que no haga nada"
+
                             }}
                             style={{ height: 50, borderRadius: 25, width: '100%' }}
                             center

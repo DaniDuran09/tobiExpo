@@ -13,6 +13,7 @@ import Toast from "react-native-toast-message";
 const DerwomersPage: React.FC<DerwomersPageProps> = ({
   isLoading,
   derwomersBrands,
+  dewormersFrequency,
   selectedPet,
   allDerwomers,
   refreshData,
@@ -136,6 +137,7 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
               key={item.uid || item.id}
               idPet={selectedPet.id}
               vaccineBrands={derwomersBrands}
+              dewormersFrequency={dewormersFrequency}
               item={item}
               setIdEditPet={setIdEditPet}
               idEditPet={idEditPet}

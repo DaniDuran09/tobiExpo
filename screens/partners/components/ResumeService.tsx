@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Text, View } from 'react-native-ui-lib'
+import momentTZ from '../../../utils/moment'
+import { Colors } from '../../../styles/Colors'
 
 type Props = {
   type: number
@@ -10,6 +12,13 @@ type Props = {
 
 const ResumeService = ({ type, item, onRemove }: Props) => {
   const [ViewMore, SetViewMore] = useState(false)
+
+  const formattedDate = item.start_datetime
+    ? momentTZ(item.start_datetime).locale('es').format('dddd D [de] MMMM, h:mm A')
+    : ''
+  const capitalizedDate = formattedDate
+    ? formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
+    : ''
 
   return (
     <View
@@ -39,29 +48,31 @@ const ResumeService = ({ type, item, onRemove }: Props) => {
       </TouchableOpacity>
 
       <View row spread>
-        <Text text80BO>
-          {item.name}
-        </Text>
+        <View style={{ flex: 1, paddingRight: 10 }}>
+          <Text text80BO>
+            {item.name}
+          </Text>
+          {item.pet_name && (
+            <Text text90M color={Colors.primaryColor} marginT-2>
+              Para: {item.pet_name}
+            </Text>
+          )}
+        </View>
         <Text text80BO>
           {item.price}
         </Text>
       </View>
 
       <View row spread marginT-5>
-        <TouchableOpacity
-          onPress={() => SetViewMore(!ViewMore)}
-          style={{ width: '70%' }}
+        <Text
+          text90L
+          numberOfLines={1}
         >
-          <Text
-            text90L
-            numberOfLines={!ViewMore ? 1 : undefined}
-          >
-            {item.duration_minutes} minutos
-          </Text>
-        </TouchableOpacity>
+          {item.duration_minutes} min
+        </Text>
 
-        <Text text90L>
-          {item.start_datetime}
+        <Text text90L style={{ flex: 1, textAlign: 'right' }}>
+          {capitalizedDate}
         </Text>
       </View>
 
@@ -75,3 +86,4 @@ const ResumeService = ({ type, item, onRemove }: Props) => {
 }
 
 export default ResumeService
+

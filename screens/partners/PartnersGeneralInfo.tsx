@@ -84,6 +84,56 @@ const PartnersGeneralInfo = () => {
 
       setItem(partnerRes.data);
       setPets(petsRes.data);
+      
+      if (params.petId) {
+        const p = petsRes.data.find((pet: any) => pet.id == params.petId);
+        if (p) setSelectedPet(p);
+      }
+
+      let s = null;
+      if (params.serviceId) {
+        s = partnerRes.data?.services?.find((serv: any) => serv.id == params.serviceId);
+      }
+
+      if (!s && params.q) {
+        const normalizeString = (str: string) => {
+          return str
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+        };
+
+        const services = partnerRes.data?.services || [];
+        const qNorm = normalizeString(params.q);
+
+        s = services.find((serv: any) => serv.name && normalizeString(serv.name) === qNorm);
+
+        if (!s) {
+          s = services.find((serv: any) => {
+            if (!serv.name) return false;
+            const nameNorm = normalizeString(serv.name);
+            return nameNorm.includes(qNorm) || qNorm.includes(nameNorm);
+          });
+        }
+
+        if (!s) {
+          s = services.find((serv: any) => {
+            if (!serv.name) return false;
+            const nameNorm = normalizeString(serv.name);
+            const prefixLen = Math.min(nameNorm.length, qNorm.length, 8);
+            if (prefixLen >= 5) {
+              return nameNorm.substring(0, prefixLen) === qNorm.substring(0, prefixLen);
+            }
+            return false;
+          });
+        }
+      }
+
+      if (s) {
+        setCurrentService(s);
+        setShowServices(false);
+      }
     } catch {
       Toast.show({
         type: "error",
@@ -137,6 +187,7 @@ const PartnersGeneralInfo = () => {
       price: it.price_total,
       duration_minutes: it.duration_minutes,
       start_datetime: it.datetime_range?.start,
+      pet_name: it.pet?.name || "Sin mascota",
     }));
 
     setGlobalCart(normalized);
@@ -164,19 +215,28 @@ const PartnersGeneralInfo = () => {
 
   const start_datetime = toRFC3339(selectedSlot.value);
 
-  await apiFetcher.addItemToCart(
-    cart,
-    {
-      pet_id: selectedPet.id,
-      service_id: currentService.id,
-      start_datetime,
-    },
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
-  await getGlobalCart();
-  setCurrentService(null);
-  setSelectedSlot(null);
-  setShowServices(true);
+  try {
+    await apiFetcher.addItemToCart(
+      cart,
+      {
+        pet_id: selectedPet.id,
+        service_id: currentService.id,
+        start_datetime,
+      },
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
+    await getGlobalCart();
+    setCurrentService(null);
+    setSelectedSlot(null);
+    setShowServices(true);
+  } catch (error: any) {
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: error?.message || "No se pudo añadir el servicio",
+    });
+    throw error;
+  }
 };
 
 
@@ -247,7 +307,13 @@ const PartnersGeneralInfo = () => {
 
         {selectedPet && currentService && selectedSlot && (
           <>
-            <TouchableOpacity onPress={addItemToCart}>
+            <TouchableOpacity onPress={async () => {
+              try {
+                await addItemToCart();
+              } catch (error) {
+                console.log(error);
+              }
+            }}>
               <Text text70BL style={{ color: Colors.primaryColor }}>
                 + Añadir otro servicio
               </Text>
