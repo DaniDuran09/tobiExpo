@@ -18,7 +18,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
   allVaccines,
   refreshData,
 }) => {
-  const [idEditPet, setIdEditPet] = useState<number | null>(null);
+  const [idEditPet, setIdEditPet] = useState<string | number | null>(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
@@ -92,7 +92,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
         >
           {allVaccines.map((item) => (
             <CardVaccine
-              key={item.id}
+              key={item.uid || item.id}
               idPet={selectedPet.id}
               vaccineBrands={vaccineBrands}
               item={item}

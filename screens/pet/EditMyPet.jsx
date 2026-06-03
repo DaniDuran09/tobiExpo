@@ -39,6 +39,7 @@ const EditMyPet = ({ route }) => {
     picture: "",
     sterilized: false,
   });
+  const [weightInput, setWeightInput] = useState("");
 
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -109,8 +110,12 @@ const EditMyPet = ({ route }) => {
     setLoadData(true);
     try {
       const response = await apiFetcher.getPetById(id);
-      if (response.code == 200) setPetInfo(response.data);
-      else console.log("Algo salió mal");
+      if (response.code == 200) {
+        setPetInfo(response.data);
+        if (response.data?.weight) {
+          setWeightInput((Number(response.data.weight) / 1000).toString());
+        }
+      } else console.log("Algo salió mal");
     } catch (error) {
       console.log("Error: ", error);
       Toast.show({
@@ -311,10 +316,11 @@ const EditMyPet = ({ route }) => {
               keyboardType="numeric"
               placeholderTextColor="#000"
               style={styles.textInput}
-              value={petInfo?.weight ? Number(petInfo.weight).toFixed(0) : ""}
-              onChangeText={(value) =>
-                setPetInfo({ ...petInfo, weight: value })
-              }
+              value={weightInput}
+              onChangeText={(value) => {
+                setWeightInput(value);
+                setPetInfo({ ...petInfo, weight: value ? (Number(value) * 1000).toString() : "0" });
+              }}
             />
             <View elevation={5} style={[styles.textInput, { marginTop: "5%" }]}>
               <View style={{ flexDirection: "row" }}>

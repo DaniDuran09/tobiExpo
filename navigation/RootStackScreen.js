@@ -16,6 +16,7 @@ import ForgotPassword from "../screens/auth/ForgotPassword";
 import ChangePassword from "../screens/auth/ChangePassword";
 import MailForm from "../screens/auth/register/MailForm";
 import ValidateMail from "../screens/auth/register/ValidateMail";
+import PaymentScreen from "../screens/cards/PaymentScreen";
 
 const RootStack = createStackNavigator();
 
@@ -82,10 +83,11 @@ const RootStackScreen = ({}) => (
       })}
     />
     <RootStack.Screen
-      name="Home"
-      component={MainTabScreen}
-      options={{ headerShown: false, gestureEnabled: false }}
-    />
+  name="Home"
+  component={MainTabScreen}
+  options={{ headerShown: false }}
+/>
+
   </RootStack.Navigator>
 );
 

@@ -16,6 +16,7 @@ class ApiFetcher {
     const headers = {
       Accept: "application/json",
       "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
+      "X-Timezone": "America/Mexico_City"
     };
     if (tokenRequired) {
       const token = await this.appStorage.getAppToken();
@@ -25,7 +26,7 @@ class ApiFetcher {
   }
 
   handleErrors(response) {
-    console.log("a ver la respueseta", response)
+    //console.log("a ver la respueseta", response)
     if (response.status < 200 || response.status >= 300) {
       if (response.data === "email.verification_already_done") {
         return response.data;
@@ -35,13 +36,21 @@ class ApiFetcher {
     return response.data;
   }
 
-  async _get(endpoint, tokenRequired = true) {
+  async _get(endpoint, tokenRequired = true, extraHeaders = {}) {
     try {
       const url = this.buildUrl(endpoint);
       console.log("URL FINAL >>>", url);
+
       const headers = await this.getHeaders(tokenRequired);
-      // console.log("headers: ", headers)
-      const response = await axios.get(url, { headers, timeout: 15000 });
+      Object.assign(headers, extraHeaders);
+
+      console.log("HEADERS FINALES >>>", headers);
+      console.log("HEADERS EXTRA >>>", extraHeaders);
+
+      const response = await axios.get(url, {
+        headers,
+        timeout: 15000,
+      });
 
       return this.handleErrors(response);
     } catch (error) {
@@ -50,23 +59,27 @@ class ApiFetcher {
     }
   }
 
-  async _post(endpoint, data, tokenRequired = true) {
+
+  async _post(endpoint, data, tokenRequired = true, extraHeaders = {}) {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired);
-      const response = await axios.post(url, data, { headers, timeout: 15000 });
+      Object.assign(headers, extraHeaders);
+      const response = await axios.post(url, data, {
+        headers,
+        timeout: 15000,
+      });
       return this.handleErrors(response);
     } catch (error) {
       console.log("ERROR EN POST", error.response?.data || error.message);
       if (error.response) {
         const { status, data } = error.response;
-        console.log("Status del error:", status);
-        console.log("Data del error:", data);
         throw new Error(data?.error || data?.message || "Error desconocido");
       }
       throw new Error("Error de red o servidor no disponible");
     }
   }
+
   async _put(endpoint, data, tokenRequired = true, isMultipart = false) {
     try {
       const url = this.buildUrl(endpoint);
@@ -91,6 +104,18 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in DELETE request:", error);
+      throw error;
+    }
+  }
+
+  async _patch(endpoint, data, tokenRequired = true, isMultipart = false) {
+    try {
+      const url = this.buildUrl(endpoint);
+      const headers = await this.getHeaders(tokenRequired, isMultipart);
+      const response = await axios.patch(url, data, { headers, timeout: 30000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.error("Error in PATCH request:", error);
       throw error;
     }
   }
@@ -194,12 +219,46 @@ class ApiFetcher {
   }
   // partners
 
-  async getPartners() {
-    return await this._get("/v1/portal_client/partners");
+  async getPartners(options = {}) {
+    const { q, lat, lng, serviceId, service_catalog_id, catalog_code, vaccine_id, category_id } = options;
+    const queryParts = [];
+
+    if (q) queryParts.push(`q=${encodeURIComponent(q)}`);
+    if (lat) queryParts.push(`lat=${lat}`);
+    if (lng) queryParts.push(`lng=${lng}`);
+    if (serviceId) queryParts.push(`service_id=${serviceId}`);
+    if (service_catalog_id) queryParts.push(`service_catalog_id=${service_catalog_id}`);
+    if (catalog_code) queryParts.push(`catalog_code=${encodeURIComponent(catalog_code)}`);
+    if (vaccine_id) queryParts.push(`vaccine_id=${vaccine_id}`);
+    if (category_id) queryParts.push(`category_id=${category_id}`);
+
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : "";
+
+    const endpoint = (queryParts.length > 0)
+      ? `/v2/portal_client/partners${queryString}`
+      : "/v1/portal_client/partners";
+
+    return await this._get(endpoint);
   }
 
   async getPartnersById(id) {
     return await this._get(`/v1/portal_client/partners/${id}`);
+  }
+
+  async getPartnerServices(id, options = {}) {
+    const { category_id, vaccine_id, service_catalog_id, catalog_code } = options;
+    const queryParts = [];
+    if (category_id) queryParts.push(`category_id=${category_id}`);
+    if (vaccine_id) queryParts.push(`vaccine_id=${vaccine_id}`);
+    if (service_catalog_id) queryParts.push(`service_catalog_id=${service_catalog_id}`);
+    if (catalog_code) queryParts.push(`catalog_code=${encodeURIComponent(catalog_code)}`);
+
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : "";
+    return await this._get(`/v2/portal_client/partners/${id}/services${queryString}`);
+  }
+
+  async getServiceCategories() {
+    return await this._get("/v2/portal_client/service_categories");
   }
 
   // appointments
@@ -212,12 +271,10 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/appointments?pet_id=${id}`);
   }
 
-  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilityDaysByPartnerId(id) {
     return await this._get(`/v1/portal_client/partners/${id}/availability/days`);
   }
 
-  // FOUTURE CHANGE : ENDPOINT
   async getAvailabilitySlotsByServices(id, date, services) {
     const urlComplement = services
       .map(service => `service_ids[]=${service.id}`)
@@ -225,9 +282,76 @@ class ApiFetcher {
     return await this._get(`/v1/portal_client/partners/${id}/availability/slots?date=${date}&${urlComplement}`);
   }
 
-  
+
   async registerAppointments(data) {
     return await this._post("/v1/portal_client/appointments", data);
+  }
+
+  // carts
+  async createCart(data) {
+    return await this._post("/v2/portal_client/carts", data)
+  }
+
+  async getCart(id) {
+    return await this._get(`/v2/portal_client/carts/${id}`)
+  }
+
+  async getAvailabilityAgenda(partnerId, payload, timezone) {
+    const query = new URLSearchParams(payload).toString();
+
+    return this._get(
+      `/v2/portal_client/partners/${partnerId}/agenda?${query}`,
+      true,
+      {
+        "X-Timezone": timezone
+      }
+    );
+  }
+
+  async addItemToCart(cartId, data, timezone) {
+    try {
+      const url = this.buildUrl(`/v2/portal_client/carts/${cartId}/items`);
+      const headers = await this.getHeaders(true);
+      console.log('TIMEZONE', timezone)
+      headers["X-Timezone"] = timezone;
+      const response = await axios.post(url, data, { headers, timeout: 15000 });
+      return this.handleErrors(response);
+    } catch (error) {
+      console.log("ERROR EN ADD ITEM TO CART", error.response?.data || error.message);
+      if (error.response) {
+        const { status, data } = error.response;
+        throw new Error(data?.error || data?.message || "Error desconocido");
+      }
+      throw new Error("Error de red o servidor no disponible");
+    }
+  }
+
+  removeItemFromCart(id, item_id) {
+    return this._delete(`/v2/portal_client/carts/${id}/items/${item_id}`)
+  }
+
+  confirmCart(id) {
+    return this._post(`/v2/portal_client/carts/${id}/confirm`)
+  }
+  // appointments
+  async getAppointments() {
+    return await this._get("/v1/portal_client/appointments");
+  }
+  async getAppointmentsById(id) {
+    return await this._get(`/v1/portal_client/appointments/${id}`);
+  }
+
+  // visits
+  async getVisits() {
+    return await this._get("/v2/portal_client/visits");
+  }
+
+  async getVisitById(id) {
+    return await this._get(`/v2/portal_client/visits/${id}`);
+  }
+
+  async checkinVisit(id) {
+    return await this._patch(`/v2/portal_client/visits/${id}/checkin`, {}, true);
   }
 
   // notifications

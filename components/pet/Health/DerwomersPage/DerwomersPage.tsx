@@ -13,11 +13,12 @@ import Toast from "react-native-toast-message";
 const DerwomersPage: React.FC<DerwomersPageProps> = ({
   isLoading,
   derwomersBrands,
+  dewormersFrequency,
   selectedPet,
   allDerwomers,
   refreshData,
 }) => {
-  const [idEditPet, setIdEditPet] = useState<number | null>(null);
+  const [idEditPet, setIdEditPet] = useState<string | number | null>(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
@@ -133,9 +134,10 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
         >
           {filteredDewormers.map((item) => (
             <CardVaccine
-              key={item.id}
+              key={item.uid || item.id}
               idPet={selectedPet.id}
               vaccineBrands={derwomersBrands}
+              dewormersFrequency={dewormersFrequency}
               item={item}
               setIdEditPet={setIdEditPet}
               idEditPet={idEditPet}

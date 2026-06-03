@@ -28,8 +28,9 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   item,
   setIdEditPet,
   idEditPet,
-  refreshData = () => {},
+  refreshData = () => { },
   type,
+  dewormersFrequency = [],
 }) => {
   const [date, setDate] = useState<Date | null>(null);
   const [labelDate, setLabelDate] = useState<string>("");
@@ -42,42 +43,48 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   const [saveDewormer, { isLoading: isLoadingDewormer }] = useSaveDewormerMutation();
   const [updateDewormer] = useUpdateDewormerMutation();
 
-  const frequencies = [
-    { label: "Semestral", value: "Semestral" },
-    { label: "Trimestral", value: "Trimestral" },
-    { label: "Mensual", value: "Mensual" },
-  ];
+  const frequencies = dewormersFrequency.length > 0
+    ? dewormersFrequency.map(f => ({ label: f.text, value: f.text }))
+    : [
+      { label: "Semestral", value: "Semestral" },
+      { label: "Trimestral", value: "Trimestral" },
+      { label: "Mensual", value: "Mensual" },
+    ];
 
   const formattedBrands = vaccineBrands?.map((brand) => ({
     label: brand,
     value: brand,
   }));
 
-  const isEditable = idEditPet === item.id;
+  const computedFrequencyValue = selectedFrequency || item.deworming_frequency;
+
+  const isEditable = idEditPet === (item.uid || item.id);
 
   useEffect(() => {
-  if (isEditable) {
-    if (!selectedBrand) {
-      setSelectedBrand(item.brand || "");
-    }
+    if (isEditable) {
+      if (!selectedBrand) {
+        setSelectedBrand(item.brand || "");
+      }
 
-    if (type === "derwomers" && !selectedFrequency) {
-      setSelectedFrequency(item.deworming_frequency || "");
-    }
+      if (type === "derwomers" && !selectedFrequency) {
+        setSelectedFrequency(item.deworming_frequency || "");
+      }
 
-    if (!date && item.application_day) {
-      const formatted = momentTZ(item.application_day).format("DD.MM.YYYY");
-      setDate(momentTZ(item.application_day).toDate());
+      if (!date && item.application_day) {
+        const parsedMoment = momentTZ(item.application_day, ["YYYY-MM-DD", "DD/MM/YYYY", "DD-MM-YYYY", "YYYY/MM/DD"]);
+        const formatted = parsedMoment.isValid() ? parsedMoment.format("DD.MM.YYYY") : "";
+        setDate(parsedMoment.isValid() ? parsedMoment.toDate() : new Date());
+        setLabelDate(formatted);
+      }
+    } else {
+      let formatted = "";
+      if (item.application_day) {
+        const parsed = momentTZ(item.application_day, ["YYYY-MM-DD", "DD/MM/YYYY", "DD-MM-YYYY", "YYYY/MM/DD"]);
+        formatted = parsed.isValid() ? parsed.format("DD.MM.YYYY") : "";
+      }
       setLabelDate(formatted);
     }
-  } else {
-    setLabelDate(
-      item.application_day
-        ? momentTZ(item.application_day).format("DD.MM.YYYY")
-        : ""
-    );
-  }
-}, [isEditable]);
+  }, [isEditable]);
 
 
   const cancelEdit = () => {
@@ -96,43 +103,50 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       if (type === "vaccines") {
         const data = {
           pet_id: idPet,
-          record_id: item.id,
+          record_id: item.vaccination_record_id || item.id,
           application_day: formattedDate,
           brand: selectedBrand,
         };
-        if (item.applied || item.application_day) {
+        if (item.vaccination_record_id || item.applied || item.application_day) {
+          console.log("UPDATING VACCINE WITH PAYLOAD:", data);
           let response = await updateVaccine(data).unwrap();
-          console.log(response,"HOLASI");
+          console.log("UPDATE VACCINE RESP:", response);
         } else {
-          await saveVaccine({
+          const payload = {
             ...data,
             dose: 0,
             applied: true,
             applied_by: "",
-            vaccine_id: item.id,
-          }).unwrap();
+            vaccine_id: item.vaccine_id || item.id,
+          };
+          console.log("SAVING VACCINE WITH PAYLOAD:", payload);
+          let debugRes = await saveVaccine(payload).unwrap();
+          console.log("SAVE VACCINE RESP:", debugRes);
         }
       } else {
         const data = {
           pet_id: idPet,
-          record_id: item.id,
+          record_id: item.deworming_record_id || item.vaccination_record_id || item.id,
           application_day: formattedDate,
           brand: selectedBrand,
           deworming_type: item.deworming_type_toRegister,
           deworming_frequency: selectedFrequency,
           last_deworming: formattedDate,
         };
-        if (item.applied || item.application_day) {
+        if (item.deworming_record_id || item.vaccination_record_id || item.applied || item.application_day) {
+          console.log("UPDATING DEWORMER WITH PAYLOAD:", data);
           let response = await updateDewormer(data).unwrap();
-          console.log(response,"HOLASI");
+          console.log("UPDATE DEWORMER RESP:", response);
         } else {
-          await saveDewormer({
-  ...data,
-  applied: true,
-  dose: 0, 
-  vaccine_id: item.id,
-}).unwrap();
-
+          const payload = {
+            ...data,
+            applied: true,
+            dose: 0,
+            vaccine_id: item.vaccine_id || item.id,
+          };
+          console.log("SAVING DEWORMER WITH PAYLOAD:", payload);
+          let debugResDewormer = await saveDewormer(payload).unwrap();
+          console.log("SAVE DEWORMER RESP:", debugResDewormer);
         }
       }
 
@@ -153,16 +167,16 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
     }
   };
 
-  let venceColor:any = Colors.gray;
+  let venceColor: any = Colors.gray;
   if (item.days_remaining !== undefined) {
     if (item.days_remaining > 50) {
       venceColor = Colors.black;
     } else if (item.days_remaining >= 31) {
       venceColor = Colors.green;
     } else if (item.days_remaining >= 1) {
-      venceColor = ColorsUI.yellow20;
+      venceColor = "#F5A623";
     } else {
-      venceColor = ColorsUI.red;
+      venceColor = Colors.red;
     }
   }
 
@@ -189,8 +203,8 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
             {type === "vaccines"
               ? item.name
               : item.applied
-              ? `Desparasitación ${item?.deworming_type}`
-              : item.description}
+                ? item?.name
+                : item.description}
           </Text>
           {type === "vaccines" && (
             <Text text90L numberOfLines={1} adjustsFontSizeToFit>
@@ -199,26 +213,9 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           )}
         </View>
         {(item.applied || item.application_day) && !isEditable && (
-          <TouchableOpacity onPress={() => setIdEditPet(item.id)}>
+          <TouchableOpacity onPress={() => setIdEditPet(item.uid || item.id)}>
             <Icon name="pencil-outline" size={20} color={Colors.gray} />
           </TouchableOpacity>
-        )}
-        {!item.applied && !item.application_day && (
-          <Hint
-            position="top"
-            visible={showHint}
-            message="¡Casi listo! Registra las vacunas que faltan."
-            color={"#F5F5F5"}
-            onBackgroundPress={() => setShowHint(false)}
-            messageStyle={{
-              color: Colors.black,
-              fontSize: 14,
-            }}
-          >
-            <TouchableOpacity onPress={() => setShowHint(true)}>
-              <Icon name="information-outline" size={20} color={Colors.red} />
-            </TouchableOpacity>
-          </Hint>
         )}
       </View>
 
@@ -228,17 +225,17 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           <Picker
             editable={isEditable || (!item.applied && !item.application_day)}
             style={
-              !item.applied && !selectedFrequency
+              isEditable || (!item.applied && !item.application_day)
                 ? {
-                    backgroundColor: Colors.white,
-                    padding: 25,
-                    height: 30,
-                    borderRadius: 2,
-                  }
+                  backgroundColor: Colors.white,
+                  padding: 25,
+                  height: 30,
+                  borderRadius: 2,
+                }
                 : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
             }
             placeholder={"Elegir"}
-            value={selectedFrequency || item.deworming_frequency}
+            value={computedFrequencyValue}
             onChange={(value) => setSelectedFrequency(value as string)}
             items={frequencies}
           />
@@ -249,16 +246,16 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
         <Text text70>Fecha de Aplicación: </Text>
         <View centerV>
           <DateTimePicker
-            minimumDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
+            minimumDate={new Date(new Date().setFullYear(new Date().getFullYear() - (type === "vaccines" ? 2 : 1)))}
             maximumDate={new Date()}
             editable={isEditable || (!item.applied && !item.application_day)}
             display="spinner"
             mode={"date"}
             onChange={(selectedDate) => {
-  setDate(selectedDate);
-  setLabelDate(momentTZ(selectedDate).format("DD.MM.YYYY"));
-  setIdEditPet(item.id);
-}}
+              setDate(selectedDate);
+              setLabelDate(momentTZ(selectedDate).format("DD.MM.YYYY"));
+              setIdEditPet(item.uid || item.id);
+            }}
 
             children={
               <View>
@@ -278,13 +275,13 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
         <Picker
           editable={isEditable || (!item.applied && !item.application_day)}
           style={
-            !item.applied && !selectedBrand
+            isEditable || (!item.applied && !item.application_day)
               ? {
-                  backgroundColor: Colors.white,
-                  padding: 25,
-                  height: 30,
-                  borderRadius: 2,
-                }
+                backgroundColor: Colors.white,
+                padding: 25,
+                height: 30,
+                borderRadius: 2,
+              }
               : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
           }
           placeholder={"Elegir"}
@@ -297,7 +294,14 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       <View row spread>
         <Text text70>Vence: </Text>
         <Text text70BL color={venceColor}>
-          {item.applied ? momentTZ(item.next_dose).format("DD.MM.YYYY") : ""}
+          {(item.applied || item.application_day)
+            ? item.next_dose
+              ? (() => {
+                const m = momentTZ(item.next_dose, ["YYYY-MM-DD", "DD/MM/YYYY", "DD-MM-YYYY"]);
+                return m.isValid() ? m.format("DD.MM.YYYY") : "Pendiente";
+              })()
+              : "Pendiente"
+            : ""}
         </Text>
       </View>
 

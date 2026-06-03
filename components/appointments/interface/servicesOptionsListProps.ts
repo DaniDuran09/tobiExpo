@@ -5,6 +5,7 @@ interface Service {
     discount: string;
     discount_percent: boolean;
     duration_minuts: number;
+    duration_minutes:string;
     id: number;
     name: string;
     picture: string;

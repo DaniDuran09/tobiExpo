@@ -38,7 +38,7 @@ const SecondScreenRegisterPet = props => {
     const updatedInfo = {
       ...petInfo,
       pet_breed_id: petBreed.id,
-      weight: parseInt(weight),
+      weight: weight ? parseInt(parseFloat(weight) * 1000) : 0,
       sterilized: sterilized,
     };
   
@@ -89,7 +89,7 @@ const SecondScreenRegisterPet = props => {
               </Text>
             </View>
             <TextInput
-              placeholder="Peso de tu mascota"
+              placeholder="Peso de tu mascota (Kg)"
               placeholderTextColor="#000"
               keyboardType="number-pad"
               style={styles.textInput}

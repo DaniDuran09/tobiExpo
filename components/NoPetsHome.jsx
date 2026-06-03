@@ -3,10 +3,10 @@ import NoPets from "./NoPets";
 import { Text, View } from "react-native-ui-lib";
 import Section from "./pet/Section";
 
-const NoPetsHome = () => {
+const NoPetsHome = ({ onPress }) => {
   return (
     <View flex centerH>
-      <NoPets />
+      <NoPets onPress={onPress} />
       <Text marginV-20>Agregue y actualice los detalles de su mascota</Text>
       <View
         row

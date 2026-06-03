@@ -1,9 +1,9 @@
 interface LoginFormProps {
-    onSubmit: (values: { username: string; password: string ; expotoken:string }) => void;
+    onSubmit: (values: { identifier: string; password: string ; expotoken:string }) => void;
 }
 
 interface LoginPayload {
-    username: string,
+    identifier: string,
     password: string,
     expotoken:string,
 }

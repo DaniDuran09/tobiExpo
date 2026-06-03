@@ -1,8 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Dimensions, Image, Linking } from 'react-native';
-import { Avatar } from 'react-native-paper';
-import Pdf from 'react-native-pdf';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedImage, Modal, Text, TouchableOpacity, View } from 'react-native-ui-lib';
 import ApiFetcher from "../../../modules/ApiFetcher";

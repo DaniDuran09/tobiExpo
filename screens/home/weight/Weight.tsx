@@ -30,7 +30,7 @@ const Weight = ({ item }: WeightProps) => {
   const realWeight = calculateIdealWeight(
     rangeOne,
     rangeTwo,
-    parseInt(pet?.weight)
+    parseFloat(pet?.weight) / 1000
   );
 
   const getPet = async (): Promise<void> => {
@@ -70,7 +70,7 @@ const Weight = ({ item }: WeightProps) => {
           marginT-10
           color={realWeight?.ideal ? Colors.green : Colors.primaryColor}
         >
-          {parseInt(pet.weight)} kg
+          {pet?.weight ? (parseFloat(pet.weight) / 1000).toFixed(1) : "0.0"} kg
         </Text>
         <Text marginT-15>
           Último registro:{" "}

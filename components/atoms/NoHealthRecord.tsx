@@ -16,8 +16,8 @@ const NoHealthRecord: React.FC<NoHealthRecordProps> = ({
       <Text text100L color={Colors.white} center>
         {description}
       </Text>
-      <View backgroundColor={Colors.black} paddingH-20 paddingV-5 br30>
-        <Text text100BO color={Colors.primaryColor}>
+      <View backgroundColor={Colors.black} width={'100%'} paddingV-5 br30 centerH>
+        <Text text100BO color={Colors.white}>
           {buttonText}
         </Text>
       </View>

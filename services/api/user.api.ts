@@ -16,18 +16,18 @@ export const userApi = createApi({
     }),
     endpoints: (builder) => ({
         getProfile: builder.query<ApiResponse<User>, void>({
-            query: () => '/profile',
+            query: () => '/v1/portal_client/profile',
         }),
         updateProfile: builder.mutation<User, Partial<User>>({
             query: (data) => ({
-                url: '/profile',
+                url: '/v1/portal_client/profile/update/information',
                 method: 'PUT', 
                 body: data,
             }),
         }),
         updateProfilePicture: builder.mutation<User, FormData>({
             query: (image) => ({
-                url: '/profile/picture',
+                url: '/v1/portal_client/profile/save/picture',
                 method: 'PUT',
                 body: image,
             }),

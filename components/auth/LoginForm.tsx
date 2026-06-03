@@ -9,7 +9,7 @@ import * as Notifications from 'expo-notifications';
 
 export default function LoginForm({ onSubmit }: LoginFormProps) {
   const [input, setInput] = useState<LoginPayload>({
-    username: "",
+    identifier: "",
     password: "",
     expotoken:""
   });
@@ -47,7 +47,7 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
-            onChangeText={(val) => setInput({ ...input, username: val })}
+            onChangeText={(val) => setInput({ ...input, identifier: val })}
           />
         </View>
         <View row centerV height={60} width={"90%"} br10 bg-white spread>
@@ -85,7 +85,10 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       </View>
 
       <View center marginT-30>
-        <TouchableWithoutFeedback onPress={() => onSubmit(input)}>
+        <TouchableWithoutFeedback 
+        onPress={() => onSubmit(input)}
+         // onPress={()=> console.log("input",input)}
+          >
           <View
             height={60}
             width={"90%"}

@@ -13,6 +13,7 @@ import LoginForm from "../../components/auth/LoginForm";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLoginMutation } from "../../api/auth/auth";
+import ApiFetcher from "../../modules/ApiFetcher";
 
 const LoginScreen = () => {
   const appStorage = new AppStorage();
@@ -20,30 +21,42 @@ const LoginScreen = () => {
   const navigation = useNavigation<any>();
   const [login, { isLoading }] = useLoginMutation();
 
-  const loginHandle = async ({ username, password,expotoken }: LoginPayload) => {
+  const apiFetcher = new ApiFetcher();
+
+  const loginHandle = async ({ identifier, password, expotoken }: LoginPayload) => {
     try {
-      const data = {
-        username: username,
-        password: password,
-        expotoken:expotoken,
-      };
-      const { data: response } = await login(data);
-      console.log("respuesta del back : ",response,"lo que mandé",data);
-      await appStorage.saveUser(response?.data);
-      await appStorage.saveAppToken(response?.data.token);
+      const payload: any = { identifier, password };
+      if (expotoken && expotoken.trim() !== "") {
+        payload.expotoken = expotoken;
+      }
 
-      dispatch(setUserInfo(response?.data));
+      console.log("PAYLOAD REFORMADO", payload);
 
+      const response = await apiFetcher.login(payload);
+      if (!response?.data) {
+        throw new Error("Login failed");
+      }
+
+      console.log("LOGIN OK", response);
+
+      await appStorage.saveUser(response.data);
+      await appStorage.saveAppToken(response.data.token);
+
+      dispatch(setUserInfo(response.data));
       navigation.replace("Home");
+
     } catch (error) {
-      console.log("Error:", error);
+      console.log("Error login:", error);
+
       Toast.show({
         type: "error",
         text1: "Usuario y/o contraseña incorrectas",
-        text2: `Verifique sus credenciales.`,
+        text2: "Verifique sus credenciales.",
       });
     }
   };
+
+
 
   const openLink = (url: string) => {
     Linking.openURL(url);

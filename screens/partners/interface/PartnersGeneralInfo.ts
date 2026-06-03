@@ -14,6 +14,10 @@ interface Partner{
     partnerId:string
     description:string
     phone:string
+    type_partner:{
+        id: number
+        name: string
+    }
 }
 
 interface Address{

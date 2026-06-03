@@ -1,7 +1,6 @@
-import {createStackNavigator} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import SelectService from '../screens/partners/SelectService';
 import PartnersGeneralInfo from '../screens/partners/PartnersGeneralInfo';
-import PartnersMain from '../screens/partners/PartnersMain';
 import InfoServiceForDate from '../screens/partners/date/InfoServiceForDate';
 import Resume from '../screens/partners/date/Resume';
 import AddNewCard from '../screens/cards/AddNewCard';
@@ -10,10 +9,13 @@ import InfoServiceByPartner from '../screens/partners/InfoServiceByPartner';
 import ResumeDateByPartner from '../screens/partners/ResumeDateByPartner';
 import NewService1 from '../screens/newService/NewService1';
 import Success from '../components/Success';
+import PaymentScreen from '../screens/cards/PaymentScreen';
+import { Colors } from '../styles/Colors';
 
 const Stack = createStackNavigator();
 
 const PartnersStack = () => {
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -26,28 +28,21 @@ const PartnersStack = () => {
         },
         headerTitleAlign: 'center',
       }}
-      initialRouteName="PartnersMain">
-      <Stack.Screen
-        name="PartnersMain"
-        component={PartnersMain}
-        options={{
-          gestureEnabled: false,
-          headerLeft: null,
-          title: 'Servicios',
-        }}
-      />
+      initialRouteName="SelectService">
       <Stack.Screen
         name="NewService"
         component={NewService1}
         options={{
-          title:"Busqueda de servicio",
+          title: "Busqueda de servicio",
         }}
       />
       <Stack.Screen
         name="SelectService"
         component={SelectService}
         options={{
-          headerLeft: null,
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.black,
           title: 'Servicios',
         }}
       />
@@ -55,7 +50,8 @@ const PartnersStack = () => {
         name="PartnersGeneralInfo"
         component={PartnersGeneralInfo}
         options={{
-          headerShown: false,
+          headerShown: true,
+          title: 'Reserva de cita'
         }}
       />
       <Stack.Screen
@@ -75,18 +71,18 @@ const PartnersStack = () => {
         }}
       />
       <Stack.Screen
-      name="Success"
-      component={Success}
-      options={({route}) => ({
-        headerShown: false,
-      })}
-    />
+        name="Success"
+        component={Success}
+        options={({ route }) => ({
+          headerShown: false,
+        })}
+      />
       <Stack.Screen
         name="Resume"
         component={Resume}
         options={{
-          headerLeft: null,
           title: 'Agendar cita',
+          headerBackVisible: true,
         }}
       />
       <Stack.Screen
@@ -110,11 +106,20 @@ const PartnersStack = () => {
       <Stack.Screen
         name="AddNewCard"
         component={AddNewCard}
-        options={({navigation}) => ({
+        options={({ navigation }) => ({
           headerShown: true,
           headerBackTitleVisible: false,
           title: 'Agregar nueva tarjeta',
           headerTintColor: 'black',
+        })}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={({
+          headerShown: false,
+          headerBackTitleVisible: false,
+          title: 'Confirmación de cita'
         })}
       />
     </Stack.Navigator>

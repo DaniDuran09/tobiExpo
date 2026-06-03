@@ -28,6 +28,9 @@ const PetProfile = () => {
     weight: item?.weight || 0,
     sterilized: item?.sterilized ?? false,
   });
+  const [weightInput, setWeightInput] = useState<string>(
+    item?.weight ? (Number(item.weight) / 1000).toString() : ""
+  );
   const [loadData, setLoadData] = useState(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [imageSource, setImageSource] = useState<any>(null);
@@ -50,6 +53,9 @@ const PetProfile = () => {
       const response = await apiFetcher.getPetById(selectedPet.id);
       if (response.code == 200) {
         setPetInfo(response.data);
+        if (response.data?.weight) {
+          setWeightInput((Number(response.data.weight) / 1000).toString());
+        }
       } else {
         console.log("Algo salió mal");
       }
@@ -340,14 +346,18 @@ const PetProfile = () => {
           />
 
           <Text marginB-5 marginT-20 text80>
-            Peso de tu mascota
+            Peso de tu mascota (Kg)
           </Text>
           <TextInput
-            placeholder="Peso"
+            placeholder="Peso en Kg"
+            keyboardType="numeric"
             placeholderTextColor="#000"
             elevation={5}
-            value={petInfo.weight}
-            onChangeText={(text) => setPetInfo({ ...petInfo, weight: text })}
+            value={weightInput}
+            onChangeText={(text) => {
+              setWeightInput(text);
+              setPetInfo({ ...petInfo, weight: text ? (Number(text) * 1000) : 0 });
+            }}
             style={{
               color: "#000",
               height: 60,

@@ -39,7 +39,7 @@ const ResumeDateByPartner = () => {
         {
           text: "OK",
           onPress: () => {
-            navigation.replace("PartnersMain");
+            navigation.replace("SelectService");
           },
         },
       ],

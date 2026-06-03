@@ -81,7 +81,7 @@ const PaymentScreen = (props) => {
         action: () =>
           navigation.reset({
             index: 0,
-            routes: [{ name: "PartnersMain" }],
+            routes: [{ name: "SelectService" }],
           }),
       });
     } else if (url.includes("cancel")) {

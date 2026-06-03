@@ -14,7 +14,7 @@ export const tobiApi = createApi({
         }),
         register: builder.mutation<RegisterUserResponse, RegisterUserRequest>({
             query: (data) => ({
-                url: "registers",
+                url: "v1/portal_client/registers",
                 method: "POST",
                 body: data
             })
