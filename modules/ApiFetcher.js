@@ -220,17 +220,21 @@ class ApiFetcher {
   // partners
 
   async getPartners(options = {}) {
-    const { q, lat, lng, serviceId } = options;
+    const { q, lat, lng, serviceId, service_catalog_id, catalog_code, vaccine_id, category_id } = options;
     const queryParts = [];
 
     if (q) queryParts.push(`q=${encodeURIComponent(q)}`);
     if (lat) queryParts.push(`lat=${lat}`);
     if (lng) queryParts.push(`lng=${lng}`);
     if (serviceId) queryParts.push(`service_id=${serviceId}`);
+    if (service_catalog_id) queryParts.push(`service_catalog_id=${service_catalog_id}`);
+    if (catalog_code) queryParts.push(`catalog_code=${encodeURIComponent(catalog_code)}`);
+    if (vaccine_id) queryParts.push(`vaccine_id=${vaccine_id}`);
+    if (category_id) queryParts.push(`category_id=${category_id}`);
 
     const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : "";
 
-    const endpoint = (q || lat || lng || serviceId)
+    const endpoint = (queryParts.length > 0)
       ? `/v2/portal_client/partners${queryString}`
       : "/v1/portal_client/partners";
 
@@ -239,6 +243,22 @@ class ApiFetcher {
 
   async getPartnersById(id) {
     return await this._get(`/v1/portal_client/partners/${id}`);
+  }
+
+  async getPartnerServices(id, options = {}) {
+    const { category_id, vaccine_id, service_catalog_id, catalog_code } = options;
+    const queryParts = [];
+    if (category_id) queryParts.push(`category_id=${category_id}`);
+    if (vaccine_id) queryParts.push(`vaccine_id=${vaccine_id}`);
+    if (service_catalog_id) queryParts.push(`service_catalog_id=${service_catalog_id}`);
+    if (catalog_code) queryParts.push(`catalog_code=${encodeURIComponent(catalog_code)}`);
+
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : "";
+    return await this._get(`/v2/portal_client/partners/${id}/services${queryString}`);
+  }
+
+  async getServiceCategories() {
+    return await this._get("/v2/portal_client/service_categories");
   }
 
   // appointments

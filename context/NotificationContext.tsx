@@ -116,9 +116,12 @@ export default function NotificationContext({ children }: { children: ReactNode 
                 navigate("Explore", {
                     screen: "SelectService",
                     params: {
-                        serviceId: serviceId,
-                        petId: petId,
-                        q: q
+                        serviceId: serviceId || null,
+                        petId: petId || null,
+                        q: q || null,
+                        service_catalog_id: metadata?.service_catalog_id || null,
+                        catalog_code: metadata?.service_catalog_code || metadata?.catalog_code || (type === "weight" ? "SC-CONSULTA-GENERAL" : null),
+                        vaccine_id: metadata?.vaccine_id || null
                     }
                 });
             }

@@ -178,7 +178,17 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             if (navigation.isFocused()) {
-              navigation.navigate("Explore", { screen: "SelectService" });
+              navigation.navigate("Explore", {
+                screen: "SelectService",
+                params: {
+                  q: null,
+                  petId: null,
+                  serviceId: null,
+                  vaccine_id: null,
+                  catalog_code: null,
+                  service_catalog_id: null
+                }
+              });
             }
           },
         })}
@@ -278,6 +288,30 @@ const HomeStackScreen = ({ navigation }) => (
         headerBackTitleVisible: false,
         title: "Registro nueva mascota",
         headerTintColor: "black",
+      })}
+    />
+    <HomeStack.Screen
+      name="Success"
+      component={Success}
+      options={({ route }) => ({
+        headerShown: false,
+      })}
+    />
+    <HomeStack.Screen
+      name="SearchItem"
+      component={SearchItem}
+      options={({ route }) => ({
+        headerShown: true,
+        headerBackTitleVisible: false,
+        headerTintColor: Colors.black,
+        headerTitleStyle: {
+          color: Colors.primaryColor,
+          fontWeight: "700",
+        },
+        title:
+          (route.params.type === "foodType" && "Buscar tipo de alimento") ||
+          (route.params.type == "foodBrand" && "Buscar marca de alimento") ||
+          (route.params.type == "pets_breeds" && "Buscar raza de mascota"),
       })}
     />
     {/* <HomeStack.Screen

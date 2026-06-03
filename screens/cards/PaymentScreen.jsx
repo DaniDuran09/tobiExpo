@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Linking, ScrollView } from 'react-native';
-import { View, Text } from 'react-native-ui-lib';
+import { View, Text, Button, Colors } from 'react-native-ui-lib';
 import WebView from 'react-native-webview';
 import ApiFetcher from '../../modules/ApiFetcher';
 import Toast from 'react-native-toast-message';
+import { Icon } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 const formatDateTimeMX = (isoDate) => {
   const date = new Date(isoDate);
@@ -31,6 +33,7 @@ const formatDateTimeMX = (isoDate) => {
 const PaymentScreen = ({ route }) => {
   const { status, url, cartId } = route?.params || {};
   const apiFetcher = new ApiFetcher();
+  const navigation = useNavigation();
 
   const [loading, setLoading] = useState(false);
   const [cartData, setCartData] = useState(null);
@@ -45,6 +48,7 @@ const PaymentScreen = ({ route }) => {
     try {
       setLoading(true);
       const res = await apiFetcher.getCart(cartId);
+      console.log("RESCARTDATA", res.data.items)
       setCartData(res?.data);
       Toast.show({
         type: "success",
@@ -73,16 +77,17 @@ const PaymentScreen = ({ route }) => {
     }
 
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <Text text50 style={{ color: 'green' }}>Reserva confirmada</Text>
+      <ScrollView style={{ flex: 1, backgroundColor: 'white', padding: 20, paddingTop: 50 }}>
+        <View center style={{ marginBottom: 20, flexDirection: 'row' }}>
+          <Icon source={'check-circle'} size={24} color={"#00b624ff"} />
+          <Text text50 >Reserva confirmada</Text>
         </View>
 
-        <Text text60BL>{cartData.partner?.display_name}</Text>
+        <Text text60BL>{cartData.partner?.name}</Text>
 
         <View style={{ marginVertical: 12 }}>
-          <Text>Servicios: {cartData.items_count}</Text>
-          <Text>Total: ${cartData.price_total}</Text>
+          <Text text70BL>Servicios: {cartData.items_count}</Text>
+          <Text text70BL>Total: ${cartData.price_total}</Text>
         </View>
 
         {cartData.items?.map((item) => {
@@ -100,22 +105,38 @@ const PaymentScreen = ({ route }) => {
                 borderRadius: 8,
               }}
             >
-              <Text text60>{item.service.name}</Text>
-              <Text>{item.pet.display_name}</Text>
+              <View width={'100%'} row spread >
+                <Text text70BL >{item.pet.display_name}</Text>
+                <Text text70BL >${item.price_total}</Text>
+              </View>
 
-              <Text>{itemStart.date}</Text>
-              <Text>
-                {itemStart.time} - {itemEnd.time} (GMT-6)
-              </Text>
+              <Text marginB-10 text70BL>{item.service.name}</Text>
 
-              <Text>Subtotal: ${item.price_subtotal}</Text>
-              <Text>Impuesto: ${item.tax_amount}</Text>
-              <Text>Total: ${item.price_total}</Text>
+              <View width={'100%'} row marginB-5>
+                <Icon source={'calendar'} size={20} color={"black"} />
+                <Text>{itemStart.date}</Text>
+              </View>
+              <View width={'100%'} row marginB-5>
+                <Icon source={'clock'} size={20} color={"black"} />
+                <Text>
+                  {itemStart.time} - {itemEnd.time} (GMT-6)
+                </Text>
+              </View>
+              {/* {<Text>Subtotal: ${item.price_subtotal}</Text>
+              <Text>Impuesto: ${item.tax_amount}</Text>} */}
             </View>
           );
         })}
-        <View style={{ width: '100%' }} center >
-          <Text text70B center>Tu cita ha sido generada. {cartData.partner?.display_name} ha sido notificado, pronto recibirás una confirmación.</Text>
+        <View style={{ width: '100%' }} center marginV-20>
+          <Text text70BL center>Tu cita ha sido generada. {cartData.partner?.name} ha sido notificado, pronto recibirás una confirmación.</Text>
+        </View>
+        <View>
+          <Button marginV-10 style={{ backgroundColor: "#EF3E36" }} onPress={() => navigation.navigate("SelectService")}>
+            <Text color='white' text60BL >Ver mis citas</Text>
+          </Button>
+          <Button marginV-10 style={{ backgroundColor: "#757575ff" }} onPress={() => navigation.navigate("SelectService")}>
+            <Text color='white' text60BL >Volver a inicio</Text>
+          </Button>
         </View>
 
       </ScrollView>

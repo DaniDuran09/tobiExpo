@@ -51,6 +51,7 @@ export default function NotificationsScreen() {
     try {
       const response = await apiFetcher.getNotifications();
       const notifications = response.data;
+      console.log("NOTIFICACIONES", notifications)
       setNotifications(notifications || []);
     } catch (error) {
       console.log('Error al obtener notificaciones:', error);
@@ -87,9 +88,17 @@ export default function NotificationsScreen() {
 
               let q = metadata.q || metadata.service_name || metadata.vaccine_name || metadata.deworming_type;
               const type = metadata.type;
+              const serviceCatalogId = metadata.service_catalog_id;
+              const serviceCatalogName = metadata.service_catalog_name;
+              let serviceCatalogCode = metadata.service_catalog_code || metadata.catalog_code;
+              if (!serviceCatalogCode && type === "weight") {
+                serviceCatalogCode = "SC-CONSULTA-GENERAL";
+              }
 
               if (!q) {
-                if (type === "weight") {
+                if (serviceCatalogName) {
+                  q = serviceCatalogName;
+                } else if (type === "weight") {
                   q = "Consulta General";
                 } else if (type === "deworming") {
                   q = "Desparasitación";
@@ -107,15 +116,19 @@ export default function NotificationsScreen() {
                 q ||
                 metadata.vaccine_id ||
                 metadata.service_id ||
+                serviceCatalogId ||
                 type;
 
               if (isServiceNotification) {
                 (navigation as any).navigate("Explore", {
                   screen: "SelectService",
                   params: {
-                    serviceId: serviceId,
-                    petId: petId,
-                    q: q
+                    serviceId: serviceId || null,
+                    petId: petId || null,
+                    q: q || null,
+                    service_catalog_id: serviceCatalogId || null,
+                    catalog_code: serviceCatalogCode || null,
+                    vaccine_id: metadata.vaccine_id || null
                   }
                 });
               }

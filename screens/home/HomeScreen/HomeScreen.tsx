@@ -171,11 +171,11 @@ const HomeScreen = ({ navigation }: any) => {
           }
           renderItem={({ item }) => <RenderSections item={item} />}
           contentContainerStyle={{ flexGrow: 1 }}
-          ListEmptyComponent={<NoPetsHome />}
+          ListEmptyComponent={<NoPetsHome onPress={() => navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" })} />}
           ListFooterComponent={
             <View marginB-30>
               <TouchableOpacity
-                onPress={() => navigation.navigate("RegisterNewPet")}
+                onPress={() => navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" })}
                 marginB-20
               >
                 <Text text70L>

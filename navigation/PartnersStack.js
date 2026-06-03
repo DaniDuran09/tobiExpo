@@ -81,8 +81,8 @@ const PartnersStack = () => {
         name="Resume"
         component={Resume}
         options={{
-          headerLeft: null,
           title: 'Agendar cita',
+          headerBackVisible: true,
         }}
       />
       <Stack.Screen

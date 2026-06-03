@@ -48,7 +48,7 @@ export default function RenderNotification({
     if (title.includes("hoy") || title.includes("urgente") || title.includes("ahora")) {
       return { label: "URGENTE", color: "#EF3E36" };
     }
-    console.log("title", title);
+    console.log("readed", readed);
     return { label: "RECORDATORIO", color: "#9E9E9E" };
   };
 

@@ -203,7 +203,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
             {type === "vaccines"
               ? item.name
               : item.applied
-                ? `Desparasitación ${item?.deworming_type}`
+                ? item?.name
                 : item.description}
           </Text>
           {type === "vaccines" && (

@@ -1,8 +1,8 @@
 import { ScrollView, FlatList } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Text, View, TouchableOpacity } from "react-native-ui-lib";
 import { clearAppointments } from "../../redux/slice/appointmentSlice";
@@ -39,6 +39,7 @@ const PartnersGeneralInfo = () => {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const [showServices, setShowServices] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
 
   const addDays = (date: Date, days: number) => {
     const d = new Date(date);
@@ -59,10 +60,24 @@ const PartnersGeneralInfo = () => {
 
 
 
-  useEffect(() => {
-    dispatch(clearAppointments());
-    loadInitialData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // Resetear estado al navegar con nuevos params
+      setItem(null);
+      setPets([]);
+      setSelectedPet(null);
+      setCart(null);
+      setLocalCart([]);
+      setCurrentService(null);
+      setSelectedSlot(null);
+      setGlobalCart([]);
+      setAvailableDays({});
+      setShowServices(true);
+      setIsLoading(true);
+      dispatch(clearAppointments());
+      loadInitialData();
+    }, [params.id, params.serviceId, params.petId, params.q])
+  );
 
   useEffect(() => {
     if (item?.partner?.id) {
@@ -84,14 +99,27 @@ const PartnersGeneralInfo = () => {
 
       setItem(partnerRes.data);
       setPets(petsRes.data);
-      
+
       if (params.petId) {
         const p = petsRes.data.find((pet: any) => pet.id == params.petId);
         if (p) setSelectedPet(p);
       }
 
       let s = null;
-      if (params.serviceId) {
+      if (params.service_catalog_id || params.vaccine_id || params.catalog_code) {
+        try {
+          const servicesRes = await apiFetcher.getPartnerServices(id, {
+            service_catalog_id: params.service_catalog_id,
+            vaccine_id: params.vaccine_id,
+            catalog_code: params.catalog_code
+          });
+          if (servicesRes && servicesRes.data && servicesRes.data.length > 0) {
+            s = servicesRes.data[0];
+          }
+        } catch (e) {
+          console.log("Error fetching specific services:", e);
+        }
+      } else if (params.serviceId) {
         s = partnerRes.data?.services?.find((serv: any) => serv.id == params.serviceId);
       }
 
@@ -197,47 +225,50 @@ const PartnersGeneralInfo = () => {
     if (cart) {
       getGlobalCart();
     }
-  },[cart]);
+  }, [cart]);
 
 
   const removeGlobalItem = async (cartId: any, item_id: number) => {
-  try {
-    await apiFetcher.removeItemFromCart(cartId, item_id);
-    await getGlobalCart(); 
-  } catch (error) {
-    console.log("Error al eliminar:", error);
-  }
-};
+    try {
+      await apiFetcher.removeItemFromCart(cartId, item_id);
+      await getGlobalCart();
+    } catch (error) {
+      console.log("Error al eliminar:", error);
+    }
+  };
 
 
   const addItemToCart = async () => {
-  if (!selectedSlot || !selectedPet || !currentService || !cart) return;
+    if (!selectedSlot || !selectedPet || !currentService || !cart) return;
+    setIsAdding(true);
 
-  const start_datetime = toRFC3339(selectedSlot.value);
+    const start_datetime = toRFC3339(selectedSlot.value);
 
-  try {
-    await apiFetcher.addItemToCart(
-      cart,
-      {
-        pet_id: selectedPet.id,
-        service_id: currentService.id,
-        start_datetime,
-      },
-      Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
-    await getGlobalCart();
-    setCurrentService(null);
-    setSelectedSlot(null);
-    setShowServices(true);
-  } catch (error: any) {
-    Toast.show({
-      type: "error",
-      text1: "Error",
-      text2: error?.message || "No se pudo añadir el servicio",
-    });
-    throw error;
-  }
-};
+    try {
+      await apiFetcher.addItemToCart(
+        cart,
+        {
+          pet_id: selectedPet.id,
+          service_id: currentService.id,
+          start_datetime,
+        },
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+      );
+      await getGlobalCart();
+      setCurrentService(null);
+      setSelectedSlot(null);
+      setShowServices(true);
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error?.message || "No se pudo añadir el servicio",
+      });
+      throw error;
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
 
 
@@ -305,15 +336,27 @@ const PartnersGeneralInfo = () => {
           />
         )}
 
-        {selectedPet && currentService && selectedSlot && (
+        {(selectedPet && currentService && selectedSlot || globalCart.length >= 0) && (
           <>
-            <TouchableOpacity onPress={async () => {
-              try {
-                await addItemToCart();
-              } catch (error) {
-                console.log(error);
-              }
-            }}>
+            <TouchableOpacity
+              disabled={isAdding}
+              onPress={async () => {
+                try {
+                  if (!selectedPet) {
+                    Toast.show({
+                      type: "error",
+                      text1: "Error",
+                      text2: "Selecciona una mascota",
+                    });
+                    return;
+                  }
+
+                  await addItemToCart();
+                } catch (error) {
+                  console.log(error);
+                }
+              }}
+            >
               <Text text70BL style={{ color: Colors.primaryColor }}>
                 + Añadir otro servicio
               </Text>
@@ -323,21 +366,35 @@ const PartnersGeneralInfo = () => {
               bg-red30
               br100
               center
+              disabled={isAdding}
               style={{ height: 50, marginTop: 20 }}
               onPress={async () => {
                 try {
+                  // Si el usuario está agregando un servicio nuevo
                   if (currentService && selectedSlot) {
                     await addItemToCart();
                     navigation.navigate("Resume", { cart });
+                    return;
                   }
+
+                  // Si ya tiene servicios en el carrito
+                  if (globalCart.length > 0) {
+                    navigation.navigate("Resume", { cart });
+                    return;
+                  }
+
+                  Toast.show({
+                    type: "error",
+                    text1: "Error",
+                    text2: "Agrega al menos un servicio",
+                  });
                 } catch (error) {
-                  console.log(error)
+                  console.log(error);
                 }
               }}
             >
               <Text white text60L>Continuar</Text>
             </TouchableOpacity>
-
           </>
         )}
       </ScrollView>

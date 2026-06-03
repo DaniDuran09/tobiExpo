@@ -1,16 +1,18 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors, gradientColors } from "../styles/Colors";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, View } from "react-native-ui-lib";
 
-const NoPets = () => {
+const NoPets = ({ onPress }) => {
   return (
-    <LinearGradient colors={gradientColors} style={styles.gradient}>
-      <View style={styles.gradientInter}>
-        <Text text70BO color={Colors.primaryColor}>No hay mascotas registradas</Text>
-      </View>
-    </LinearGradient>
+    <TouchableOpacity onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <View style={styles.gradientInter}>
+          <Text text70BO color={Colors.primaryColor}>No hay mascotas registradas</Text>
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
   );
 };
 

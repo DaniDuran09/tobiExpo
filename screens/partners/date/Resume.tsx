@@ -32,8 +32,11 @@ const Resume = ({ route }: any) => {
   const navigation = useNavigation<any>();
   const apiFetcher = new ApiFetcher();
   const [data, setData] = useState<any>();
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const confirmCart = async () => {
+    if (isConfirming) return;
+    setIsConfirming(true);
     try {
       const res = await apiFetcher.confirmCart(route.params.cart);
 
@@ -45,10 +48,12 @@ const Resume = ({ route }: any) => {
     } catch (error) {
       console.log('error al confirmar el carro', error);
       Toast.show({
-          type: "error",
-          text1: "Hubo un error al confirmar tu carrito",
-          text2: `Inténtalo de nuevo más tarde`,
-        });
+        type: "error",
+        text1: "Hubo un error al confirmar tu carrito",
+        text2: `Inténtalo de nuevo más tarde`,
+      });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -94,7 +99,7 @@ const Resume = ({ route }: any) => {
           {data.data.status === "active" ? "Activo" : "Expirado"}
         </Text>
 
-        <Text text60>{data.data.partner.display_name}</Text>
+        <Text text60>{data.data.partner.name}</Text>
 
         <View row spread marginV-20>
           <Text text60BL>Servicios: {data.data.items_count}</Text>
@@ -148,6 +153,7 @@ const Resume = ({ route }: any) => {
         bg-red30
         br100
         center
+        disabled={isConfirming}
         style={{ height: 50, marginBottom: 50 }}
         onPress={() => { confirmCart() }}
       >

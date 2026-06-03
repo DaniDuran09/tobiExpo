@@ -20,7 +20,7 @@ import { formatDateToDDMMYYYY } from "../../../utils/scripts";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 
-const StepsRegister = () => {
+const StepsRegister = ({ route }) => {
   const labels = ["1", "2", "3"];
   const [currentPosition, setCurrentPosition] = useState(0);
   const [imageSource, setImageSource] = useState(null);
@@ -29,6 +29,9 @@ const StepsRegister = () => {
   const picturePet = useSelector((store) => store.pet.picture);
   const [idPet, setIdPet] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  // Si viene del HomeStack, returnTo = 'HomeScreen'; si viene del ProfileStack, returnTo = 'Profile'
+  const returnTo = route?.params?.returnTo ?? "Profile";
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
@@ -46,13 +49,13 @@ const StepsRegister = () => {
       console.log("Ocurrió un error: ", error);
       navigation.reset({
         index: 0,
-        routes: [{ name: "Profile" }],
-      }),
-        Toast.show({
-          type: "error",
-          text1: "Ocurrió un error al guardar la mascota",
-          text2: `Inténtelo de nuevo más tarde`,
-        });
+        routes: [{ name: returnTo }],
+      });
+      Toast.show({
+        type: "error",
+        text1: "Ocurrió un error al guardar la mascota",
+        text2: `Inténtelo de nuevo más tarde`,
+      });
     } finally {
       setLoading(false);
     }
@@ -85,7 +88,7 @@ const StepsRegister = () => {
       action: () =>
         navigation.reset({
           index: 0,
-          routes: [{ name: "Profile" }],
+          routes: [{ name: returnTo }],
         }),
     });
   };

@@ -13,10 +13,17 @@ import { useNavigation } from "@react-navigation/native";
 const RenderSections = ({ item }) => {
   const navigation = useNavigation();
 
-  const navigateToService = (query, serviceId) => {
+  const navigateToService = (query, serviceId, vaccineId, catalogCode, serviceCatalogId) => {
     navigation.navigate("Explore", {
       screen: "SelectService",
-      params: { q: query, petId: item.id, serviceId: serviceId },
+      params: { 
+        q: query || null, 
+        petId: item.id || null, 
+        serviceId: serviceId || null, 
+        vaccine_id: vaccineId || null, 
+        catalog_code: catalogCode || null, 
+        service_catalog_id: serviceCatalogId || null 
+      },
     });
   };
 
@@ -40,6 +47,9 @@ const RenderSections = ({ item }) => {
     footerText: "",
     query: "",
     serviceId: null,
+    vaccineId: null,
+    catalogCode: null,
+    serviceCatalogId: null,
   });
 
   useEffect(() => {
@@ -221,7 +231,8 @@ const RenderSections = ({ item }) => {
         summaryText: "Vacunar a tiempo es clave para mantenerlo protegido.",
         footerText: "Un veterinario puede ayudarte a actualizar su esquema.",
         query: vaccineState.name,
-        serviceId: vaccineState.id,
+        serviceId: null,
+        vaccineId: vaccineState.id,
       });
     } else {
       setActionModalContent({
@@ -234,7 +245,8 @@ const RenderSections = ({ item }) => {
         summaryText: "Agendar a tiempo ayuda a evitar riesgos.",
         footerText: "Mantener su esquema al día es clave para su salud.",
         query: vaccineState.name,
-        serviceId: vaccineState.id,
+        serviceId: null,
+        vaccineId: vaccineState.id,
       });
     }
     setActionModalVisible(true);
@@ -252,7 +264,8 @@ const RenderSections = ({ item }) => {
         summaryText: "Atenderlo a tiempo ayuda a evitar problemas de salud.",
         footerText: "Un veterinario puede indicarte el tratamiento adecuado.",
         query: dewormerState.name,
-        serviceId: dewormerState.id,
+        serviceId: null,
+        vaccineId: dewormerState.id,
       });
     } else {
       setActionModalContent({
@@ -265,7 +278,8 @@ const RenderSections = ({ item }) => {
         summaryText: "Hacerlo a tiempo ayuda a evitar problemas.",
         footerText: "Mantenerlo al día es clave para su bienestar.",
         query: dewormerState.name,
-        serviceId: dewormerState.id,
+        serviceId: null,
+        vaccineId: dewormerState.id,
       });
     }
     setActionModalVisible(true);
@@ -284,6 +298,7 @@ const RenderSections = ({ item }) => {
         footerText: "Un veterinario puede ayudarte a encontrar la causa.",
         query: "Consulta General",
         serviceId: null,
+        catalogCode: "SC-CONSULTA-GENERAL",
       });
     } else {
       setActionModalContent({
@@ -297,6 +312,7 @@ const RenderSections = ({ item }) => {
         footerText: "Un veterinario puede ayudarte a definir un plan adecuado.",
         query: "Consulta General",
         serviceId: null,
+        catalogCode: "SC-CONSULTA-GENERAL",
       });
     }
     setActionModalVisible(true);
@@ -595,7 +611,7 @@ const RenderSections = ({ item }) => {
         onRequestClose={() => setActionModalVisible(false)}
         onAction={() => {
           setActionModalVisible(false);
-          navigateToService(actionModalContent.query, actionModalContent.serviceId);
+          navigateToService(actionModalContent.query, actionModalContent.serviceId, actionModalContent.vaccineId, actionModalContent.catalogCode, actionModalContent.serviceCatalogId);
         }}
         title={actionModalContent.title}
         bullets={actionModalContent.bullets}

@@ -309,7 +309,7 @@ const InfoServiceForDate = ({ route }) => {
             </View>
           </View>
           <View flex bottom>
-            <TouchableOpacity style={styles.saveButton} onPress={goToResume}>
+            <TouchableOpacity style={styles.saveButton} onPress={goToResume} disabled={loading}>
               <Text style={styles.textButton}>Continuar</Text>
             </TouchableOpacity>
           </View>
