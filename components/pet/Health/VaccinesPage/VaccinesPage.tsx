@@ -1,4 +1,4 @@
-import { Carousel, Text, TouchableOpacity, View } from "react-native-ui-lib";
+import { Carousel, Text, TouchableOpacity, View, PageControl } from "react-native-ui-lib";
 import { Colors } from "../../../../styles/Colors";
 import React, { useEffect, useState } from "react";
 import HeaderInfoPet from "../../HeaderInfoPet";
@@ -22,6 +22,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [certificates, setCertificates] = useState<any>({
     certificate_deworming: null,
     certificate_vaccine: null
@@ -86,23 +87,35 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
           />
         </View>
       ) : (
-        <Carousel
-          initialPage={0}
-          pageControlPosition={Carousel.pageControlPositions.UNDER}
-        >
-          {allVaccines.map((item) => (
-            <CardVaccine
-              key={item.uid || item.id}
-              idPet={selectedPet.id}
-              vaccineBrands={vaccineBrands}
-              item={item}
-              setIdEditPet={setIdEditPet}
-              idEditPet={idEditPet}
-              refreshData={refreshData}
-              type={"vaccines"}
+        <>
+          <Carousel
+            initialPage={currentPage}
+            onChangePage={(newIndex) => setCurrentPage(newIndex)}
+          >
+            {allVaccines.map((item) => (
+              <CardVaccine
+                key={item.uid || item.id}
+                idPet={selectedPet.id}
+                vaccineBrands={vaccineBrands}
+                item={item}
+                setIdEditPet={setIdEditPet}
+                idEditPet={idEditPet}
+                refreshData={refreshData}
+                type={"vaccines"}
+              />
+            ))}
+          </Carousel>
+          {allVaccines.length > 0 && (
+            <PageControl
+              containerStyle={{ marginTop: 10, alignSelf: 'center' }}
+              numOfPages={allVaccines.length}
+              currentPage={currentPage}
+              color={Colors.primaryColor}
+              inactiveColor={Colors.gray}
+              size={8}
             />
-          ))}
-        </Carousel>
+          )}
+        </>
       )}
       <View row spread absB absR style={{marginBottom: "22%"}}>
         <View />

@@ -1,4 +1,4 @@
-import { Carousel, Text, TouchableOpacity, View } from "react-native-ui-lib";
+import { Carousel, Text, TouchableOpacity, View, PageControl } from "react-native-ui-lib";
 import { Colors } from "../../../../styles/Colors";
 import React, { useState, useMemo, useEffect } from "react";
 import HeaderInfoPet from "../../HeaderInfoPet";
@@ -22,6 +22,7 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingUpload, setLoadingUpload] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [certificates, setCertificates] = useState<any>({
     certificate_deworming: null,
     certificate_vaccine: null,
@@ -79,36 +80,35 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
   };
 
   const filteredDewormers = useMemo(() => {
+    const normalize = (str: string | undefined) => 
+      str?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
+
     // Verificar si hay una desparasitación de "Ambas en una aplicacion" registrada
     const hasBoth = allDerwomers.some(
       (dewormer) =>
         dewormer.applied &&
-        dewormer.deworming_type === "Ambas en una aplicacion"
+        normalize(dewormer.deworming_type) === "ambas en una aplicacion"
     );
 
     // Verificar si hay desparasitaciones de "Interna" o "Externa" registradas
     const hasInternalOrExternal = allDerwomers.some(
       (dewormer) =>
         dewormer.applied &&
-        (dewormer.deworming_type === "Interna" ||
-          dewormer.deworming_type === "Externa")
+        (normalize(dewormer.deworming_type) === "interna" ||
+          normalize(dewormer.deworming_type) === "externa")
     );
 
-    // console.log("hasBoth:", hasBoth);
-    // console.log("hasInternalOrExternal:", hasInternalOrExternal);
-    // console.log("allDerwomers:", allDerwomers);
-
     return allDerwomers.filter((dewormer) => {
-      const typeToRegister = dewormer.deworming_type_toRegister;
+      const typeToRegister = normalize(dewormer.deworming_type_toRegister);
 
       // Si hay una de "Ambas", solo mostrar "Ambas"
       if (hasBoth) {
-        return typeToRegister === "Ambas en una aplicacion";
+        return typeToRegister === "ambas en una aplicacion";
       }
 
       // Si hay de "Interna" o "Externa", no mostrar "Ambas"
       if (hasInternalOrExternal) {
-        return typeToRegister !== "Ambas en una aplicacion";
+        return typeToRegister !== "ambas en una aplicacion";
       }
 
       return true;
@@ -128,24 +128,36 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
           />
         </View>
       ) : (
-        <Carousel
-          initialPage={0}
-          pageControlPosition={Carousel.pageControlPositions.UNDER}
-        >
-          {filteredDewormers.map((item) => (
-            <CardVaccine
-              key={item.uid || item.id}
-              idPet={selectedPet.id}
-              vaccineBrands={derwomersBrands}
-              dewormersFrequency={dewormersFrequency}
-              item={item}
-              setIdEditPet={setIdEditPet}
-              idEditPet={idEditPet}
-              refreshData={refreshData}
-              type={"derwomers"}
+        <>
+          <Carousel
+            initialPage={currentPage}
+            onChangePage={(newIndex) => setCurrentPage(newIndex)}
+          >
+            {filteredDewormers.map((item) => (
+              <CardVaccine
+                key={item.uid || item.id}
+                idPet={selectedPet.id}
+                vaccineBrands={derwomersBrands}
+                dewormersFrequency={dewormersFrequency}
+                item={item}
+                setIdEditPet={setIdEditPet}
+                idEditPet={idEditPet}
+                refreshData={refreshData}
+                type={"derwomers"}
+              />
+            ))}
+          </Carousel>
+          {filteredDewormers.length > 0 && (
+            <PageControl
+              containerStyle={{ marginTop: 10, alignSelf: 'center' }}
+              numOfPages={filteredDewormers.length}
+              currentPage={currentPage}
+              color={Colors.primaryColor}
+              inactiveColor={Colors.gray}
+              size={8}
             />
-          ))}
-        </Carousel>
+          )}
+        </>
       )}
       <View row spread absB absR style={{ marginBottom: "22%" }}>
         <View />

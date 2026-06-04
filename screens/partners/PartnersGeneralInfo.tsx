@@ -40,6 +40,8 @@ const PartnersGeneralInfo = () => {
 
   const [showServices, setShowServices] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [calendarOffset, setCalendarOffset] = useState(0); // días de avance desde hoy
+  const CALENDAR_WINDOW = 3; // días que se muestran por página
 
   const addDays = (date: Date, days: number) => {
     const d = new Date(date);
@@ -73,6 +75,7 @@ const PartnersGeneralInfo = () => {
       setGlobalCart([]);
       setAvailableDays({});
       setShowServices(true);
+      setCalendarOffset(0);
       setIsLoading(true);
       dispatch(clearAppointments());
       loadInitialData();
@@ -87,7 +90,7 @@ const PartnersGeneralInfo = () => {
 
   useEffect(() => {
     if (!cart || !selectedPet || !currentService) return;
-    getCalendar();
+    getCalendar(calendarOffset);
   }, [cart, selectedPet, currentService]);
 
   const loadInitialData = async () => {
@@ -181,10 +184,12 @@ const PartnersGeneralInfo = () => {
     setCart(res.data.id);
   };
 
-  const getCalendar = async () => {
+  const getCalendar = async (offset = 0) => {
     const today = new Date();
-    const date = today.toISOString().slice(0, 10);
-    const date_to = addDays(today, 2);
+    const from = new Date(today);
+    from.setDate(from.getDate() + offset);
+    const date = from.toISOString().slice(0, 10);
+    const date_to = addDays(from, CALENDAR_WINDOW - 1);
 
     const payload = {
       service_id: currentService.id,
@@ -202,6 +207,20 @@ const PartnersGeneralInfo = () => {
 
     console.log("AGENDA", res.data);
     setAvailableDays(res.data);
+  };
+
+  const handleNextDays = () => {
+    const newOffset = calendarOffset + CALENDAR_WINDOW;
+    setCalendarOffset(newOffset);
+    setSelectedSlot(null);
+    getCalendar(newOffset);
+  };
+
+  const handlePrevDays = () => {
+    const newOffset = Math.max(0, calendarOffset - CALENDAR_WINDOW);
+    setCalendarOffset(newOffset);
+    setSelectedSlot(null);
+    getCalendar(newOffset);
   };
 
   const getGlobalCart = async () => {
@@ -333,6 +352,14 @@ const PartnersGeneralInfo = () => {
             agenda={availableDays}
             selectedSlot={selectedSlot}
             onSelect={setSelectedSlot}
+            onLoadMore={handleNextDays}
+            onLoadPrev={handlePrevDays}
+            canGoPrev={calendarOffset > 0}
+            onCancel={() => {
+              setCurrentService(null);
+              setSelectedSlot(null);
+              setShowServices(true);
+            }}
           />
         )}
 
@@ -373,12 +400,28 @@ const PartnersGeneralInfo = () => {
                   // Si el usuario está agregando un servicio nuevo
                   if (currentService && selectedSlot) {
                     await addItemToCart();
+                    navigation.setParams({
+                      petId: undefined,
+                      serviceId: undefined,
+                      q: undefined,
+                      service_catalog_id: undefined,
+                      vaccine_id: undefined,
+                      catalog_code: undefined
+                    });
                     navigation.navigate("Resume", { cart });
                     return;
                   }
 
                   // Si ya tiene servicios en el carrito
                   if (globalCart.length > 0) {
+                    navigation.setParams({
+                      petId: undefined,
+                      serviceId: undefined,
+                      q: undefined,
+                      service_catalog_id: undefined,
+                      vaccine_id: undefined,
+                      catalog_code: undefined
+                    });
                     navigation.navigate("Resume", { cart });
                     return;
                   }

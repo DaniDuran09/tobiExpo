@@ -122,10 +122,15 @@ const SelectService = ({ route }) => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const { vaccine_id, catalog_code, service_catalog_id } = route?.params || {};
+
       const partners = await apiFetcher.getPartners({
         q: localQ,
         lat: location?.latitude,
         lng: location?.longitude,
+        service_catalog_id,
+        vaccine_id,
+        catalog_code
       });
       if (partners.code === 200 || partners.code === 201)
         setListPartners(partners.data);
@@ -273,11 +278,6 @@ const SelectService = ({ route }) => {
                 Me encanta verte por aquí.
               </Text>
             </View>
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={24}
-              color={Colors.black}
-            />
           </View>
 
           <View style={styles.searchBar}>

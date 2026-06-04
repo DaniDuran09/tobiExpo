@@ -46,8 +46,10 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   const frequencies = dewormersFrequency.length > 0
     ? dewormersFrequency.map(f => ({ label: f.text, value: f.text }))
     : [
+      { label: "Anual", value: "Anual" },
       { label: "Semestral", value: "Semestral" },
       { label: "Trimestral", value: "Trimestral" },
+      { label: "Bimestral", value: "Bimestral" },
       { label: "Mensual", value: "Mensual" },
     ];
 
@@ -56,7 +58,12 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
     value: brand,
   }));
 
-  const computedFrequencyValue = selectedFrequency || item.deworming_frequency;
+  const formatFrequency = (freq: any) => {
+    if (!freq || typeof freq !== 'string') return "";
+    return freq.charAt(0).toUpperCase() + freq.slice(1).toLowerCase();
+  };
+
+  const computedFrequencyValue = selectedFrequency || formatFrequency(item.deworming_frequency) || formatFrequency(item.frequency);
 
   const isEditable = idEditPet === (item.uid || item.id);
 
@@ -67,7 +74,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       }
 
       if (type === "derwomers" && !selectedFrequency) {
-        setSelectedFrequency(item.deworming_frequency || "");
+        setSelectedFrequency(formatFrequency(item.deworming_frequency) || formatFrequency(item.frequency) || "");
       }
 
       if (!date && item.application_day) {
@@ -129,7 +136,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           record_id: item.deworming_record_id || item.vaccination_record_id || item.id,
           application_day: formattedDate,
           brand: selectedBrand,
-          deworming_type: item.deworming_type_toRegister,
+          deworming_type: item.deworming_type_toRegister || item.deworming_type || "Interna",
           deworming_frequency: selectedFrequency,
           last_deworming: formattedDate,
         };
@@ -222,23 +229,27 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
       {type === "derwomers" && (
         <View row spread>
           <Text text70>Frecuencia: </Text>
-          <Picker
-            editable={isEditable || (!item.applied && !item.application_day)}
-            style={
-              isEditable || (!item.applied && !item.application_day)
-                ? {
-                  backgroundColor: Colors.white,
-                  padding: 25,
-                  height: 30,
-                  borderRadius: 2,
-                }
-                : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
-            }
-            placeholder={"Elegir"}
-            value={computedFrequencyValue}
-            onChange={(value) => setSelectedFrequency(value as string)}
-            items={frequencies}
-          />
+          {isEditable || (!item.applied && !item.application_day) ? (
+            <Picker
+              style={{
+                backgroundColor: Colors.white,
+                padding: 25,
+                height: 30,
+                borderRadius: 2,
+              }}
+              placeholder={"Elegir"}
+              value={computedFrequencyValue}
+              onChange={(value) => {
+                const selectedVal = typeof value === 'object' && value !== null && 'value' in value ? value.value : value;
+                setSelectedFrequency(selectedVal as string);
+              }}
+              items={frequencies}
+            />
+          ) : (
+            <Text style={{ color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }}>
+              {computedFrequencyValue || ""}
+            </Text>
+          )}
         </View>
       )}
 
@@ -272,23 +283,27 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
 
       <View row spread>
         <Text text70>Marca: </Text>
-        <Picker
-          editable={isEditable || (!item.applied && !item.application_day)}
-          style={
-            isEditable || (!item.applied && !item.application_day)
-              ? {
-                backgroundColor: Colors.white,
-                padding: 25,
-                height: 30,
-                borderRadius: 2,
-              }
-              : { color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }
-          }
-          placeholder={"Elegir"}
-          value={selectedBrand || item.brand}
-          onChange={(value) => setSelectedBrand(value as string)}
-          items={formattedBrands}
-        />
+        {isEditable || (!item.applied && !item.application_day) ? (
+          <Picker
+            style={{
+              backgroundColor: Colors.white,
+              padding: 25,
+              height: 30,
+              borderRadius: 2,
+            }}
+            placeholder={"Elegir"}
+            value={selectedBrand || item.brand}
+            onChange={(value) => {
+              const selectedVal = typeof value === 'object' && value !== null && 'value' in value ? value.value : value;
+              setSelectedBrand(selectedVal as string);
+            }}
+            items={formattedBrands}
+          />
+        ) : (
+          <Text style={{ color: ColorsUI.blue20, fontWeight: "bold", fontSize: 16 }}>
+            {item.brand || ""}
+          </Text>
+        )}
       </View>
 
       <View row spread>
