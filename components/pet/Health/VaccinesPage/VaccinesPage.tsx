@@ -38,11 +38,11 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
 
   const getCertificateVaccine = async () => {
     if (!selectedPet?.id) return;
-    
+
     setLoading(true);
     try {
       const response = await apiFetcher.getCertificates(selectedPet.id);
-      setCertificates(response.data);  
+      setCertificates(response.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -117,7 +117,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
           )}
         </>
       )}
-      <View row spread absB absR style={{marginBottom: "22%"}}>
+      <View row spread absB absR style={{ marginBottom: "22%" }}>
         <View />
         <View>
           {//idEditPet == null && (
@@ -138,7 +138,7 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
                 <Text color={Colors.white}>Certificado</Text>
               </TouchableOpacity>
             </View>
-          //)
+            //)
           }
         </View>
       </View>

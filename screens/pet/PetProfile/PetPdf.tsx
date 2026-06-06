@@ -78,11 +78,14 @@ type Certificate = {
         {certificates?.certificate_pet ? (
   <WebView
     source={{
-      uri: `https://docs.google.com/gview?embedded=true&url=${certificates?.certificate_pet}`
+      uri: `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(certificates?.certificate_pet)}`
     }}
     style={styles.pdf}
-    javaScriptEnabled
+    javaScriptEnabled={true}
+    domStorageEnabled={true}
+    startInLoadingState={true}
     originWhitelist={['*']}
+    mixedContentMode="always"
   />
 ) : (
   <Text black>Cargando PDF...</Text>

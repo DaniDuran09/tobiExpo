@@ -144,7 +144,7 @@ const Resume = ({ route }: any) => {
 
               <View width={"100%"} bg-black height={0.5} />
 
-              <Text text70L>Veterinario</Text>
+              <Text text70L>{item.service?.service_category?.name || "Servicio"}</Text>
             </View>
           );
         })}

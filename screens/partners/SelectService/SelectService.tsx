@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { FlatList } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { View, Text, TouchableOpacity, TextField } from "react-native-ui-lib";
 import { ScrollView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
@@ -32,6 +32,8 @@ const SelectService = ({ route }: SelectServiceProps) => {
   const [q, setQ] = useState(initialQ || '');
   const [searchInput, setSearchInput] = useState(initialQ || '');
   const [categories, setCategories] = useState<any[]>([]);
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
@@ -81,12 +83,13 @@ const SelectService = ({ route }: SelectServiceProps) => {
     setLoading(true);
     try {
       const partners = await apiFetcher.getPartners({
-        q,
+        q: q || undefined,
         //lat: location?.latitude,
         //lng: location?.longitude,
         service_catalog_id,
         catalog_code,
-        vaccine_id
+        vaccine_id,
+        category_id: activeCategoryId || undefined
       });
       setListPartners(partners.data);
     } catch (error) {
@@ -101,9 +104,15 @@ const SelectService = ({ route }: SelectServiceProps) => {
     }
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId]);
+
   useEffect(() => {
     fetchData();
-  }, [q, location, service_catalog_id, catalog_code, vaccine_id]);
+  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId]);
 
   const goToMoreInfo = (item: Partner) => {
     navigation.navigate("PartnersGeneralInfo", {
@@ -122,9 +131,14 @@ const SelectService = ({ route }: SelectServiceProps) => {
     setQ(searchInput);
   };
 
-  const handlePillClick = (categoryName: string) => {
-    setSearchInput(categoryName);
-    setQ(categoryName);
+  const handlePillClick = (category: any) => {
+    if (activeCategoryId === category.id) {
+      setActiveCategoryId(null);
+    } else {
+      setActiveCategoryId(category.id);
+      setSearchInput('');
+      setQ('');
+    }
   };
 
 
@@ -174,15 +188,25 @@ const SelectService = ({ route }: SelectServiceProps) => {
           </View>
 
           <View marginT-15 row style={{ flexWrap: 'wrap' }}>
-            {categories.map((cat, index) => (
-              <TouchableOpacity
-                key={index}
-                style={{ backgroundColor: '#F2F7FA', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 15, marginRight: 8, marginBottom: 10 }}
-                onPress={() => handlePillClick(cat.name)}
-              >
-                <Text text90 color="#1A2D3A">{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
+            {categories.map((cat, index) => {
+              const isSelected = activeCategoryId === cat.id;
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={{
+                    backgroundColor: isSelected ? Colors.primaryColor : '#F2F7FA',
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 15,
+                    marginRight: 8,
+                    marginBottom: 10
+                  }}
+                  onPress={() => handlePillClick(cat)}
+                >
+                  <Text text90 color={isSelected ? Colors.white : "#1A2D3A"}>{cat.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       )}
@@ -266,6 +290,9 @@ const SelectService = ({ route }: SelectServiceProps) => {
 
       <FlatList
         data={listPartners}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primaryColor]} />
+        }
         renderItem={({ item }) => (
           <RenderPartners item={item} goToMoreInfo={goToMoreInfo} />
         )}

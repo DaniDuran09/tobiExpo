@@ -79,7 +79,7 @@ const ResumeService = ({ type, item, onRemove }: Props) => {
       <View width={'100%'} marginV-10 height={0.5} style={{ backgroundColor: '#b4b4b4' }} />
 
       <Text text80BO>
-        {type === 2 ? 'Veterinario' : 'Grooming'}
+        {(item as any).category_name || (type === 2 ? 'Veterinario' : 'Grooming')}
       </Text>
     </View>
   )

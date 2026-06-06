@@ -80,7 +80,7 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
   };
 
   const filteredDewormers = useMemo(() => {
-    const normalize = (str: string | undefined) => 
+    const normalize = (str: string | undefined) =>
       str?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
 
     // Verificar si hay una desparasitación de "Ambas en una aplicacion" registrada

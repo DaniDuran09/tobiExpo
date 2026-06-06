@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
@@ -23,6 +24,8 @@ const SelectService = ({ route }) => {
   const [localQ, setLocalQ] = useState(q || "");
   const [searchInput, setSearchInput] = useState(q || "");
   const [categories, setCategories] = useState([]);
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeMode, setActiveMode] = useState(
     !!(type || serviceId || petId || q)
   );
@@ -117,7 +120,7 @@ const SelectService = ({ route }) => {
   // ─── Carga de partners ─────────────────────────────────────────────────────
   useEffect(() => {
     fetchData();
-  }, [localQ, location]);
+  }, [localQ, location, activeCategoryId]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -125,12 +128,13 @@ const SelectService = ({ route }) => {
       const { vaccine_id, catalog_code, service_catalog_id } = route?.params || {};
 
       const partners = await apiFetcher.getPartners({
-        q: localQ,
+        q: localQ || undefined,
         lat: location?.latitude,
         lng: location?.longitude,
         service_catalog_id,
         vaccine_id,
-        catalog_code
+        catalog_code,
+        category_id: activeCategoryId || undefined,
       });
       if (partners.code === 200 || partners.code === 201)
         setListPartners(partners.data);
@@ -142,11 +146,18 @@ const SelectService = ({ route }) => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
   // ─── NUEVO: Limpia todo y regresa al modo exploración ──────────────────────
   const handleBack = () => {
     setActiveMode(false);
     setLocalQ("");
     setSearchInput("");
+    setActiveCategoryId(null);
     setServiceData({ name: "", description: "", status: "", category: "" });
     setListPartners([]);
     navigation.setParams({
@@ -180,19 +191,24 @@ const SelectService = ({ route }) => {
     if (searchInput) setActiveMode(true);
   };
 
-  const handlePillClick = (categoryName) => {
-    if (localQ === categoryName) {
-      setSearchInput("");
-      setLocalQ("");
+  const handlePillClick = (category) => {
+    if (activeCategoryId === category.id) {
+      setActiveCategoryId(null);
       setActiveMode(false);
     } else {
-      setSearchInput(categoryName);
-      setLocalQ(categoryName);
+      setActiveCategoryId(category.id);
+      setLocalQ("");
+      setSearchInput("");
       setActiveMode(true);
+      setServiceData({
+        name: category.name,
+        description: "",
+        status: "",
+        category: category.name,
+      });
     }
   };
 
-  // ─── Componente texto expandible ──────────────────────────────────────────
   const ExpandableText = ({ text }) => {
     const [expanded, setExpanded] = useState(false);
     return (
@@ -256,8 +272,8 @@ const SelectService = ({ route }) => {
   // ─── Header de la lista ───────────────────────────────────────────────────
   const headerComponent = (
     <View>
-      {/* ── BOTÓN REGRESO: aparece cuando hay servicio activo o búsqueda ── */}
-      {activeMode && (
+      {/* ── BOTÓN REGRESO: aparece cuando hay servicio activo por notificacion ── */}
+      {hasParams && (
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <MaterialCommunityIcons
             name="arrow-left"
@@ -268,8 +284,8 @@ const SelectService = ({ route }) => {
         </TouchableOpacity>
       )}
 
-      {/* ── HEADER DE EXPLORACIÓN: solo en modo sin params y sin búsqueda activa ── */}
-      {!activeMode && (
+      {/* ── HEADER DE EXPLORACIÓN: siempre visible si no viene de notificacion ── */}
+      {!hasParams && (
         <View style={styles.searchHeaderContainer}>
           <View style={styles.greetingRow}>
             <View>
@@ -300,6 +316,7 @@ const SelectService = ({ route }) => {
                 onPress={() => {
                   setSearchInput("");
                   setLocalQ("");
+                  setActiveCategoryId(null);
                   setActiveMode(false);
                 }}
               >
@@ -314,7 +331,7 @@ const SelectService = ({ route }) => {
 
           <View style={styles.pillsContainer}>
             {categories.map((cat, index) => {
-              const isSelected = localQ === cat.name;
+              const isSelected = activeCategoryId === cat.id;
               return (
                 <TouchableOpacity
                   key={index}
@@ -322,7 +339,7 @@ const SelectService = ({ route }) => {
                     styles.pill,
                     isSelected && { backgroundColor: Colors.primaryColor },
                   ]}
-                  onPress={() => handlePillClick(cat.name)}
+                  onPress={() => handlePillClick(cat)}
                 >
                   <Text
                     style={[
@@ -370,7 +387,7 @@ const SelectService = ({ route }) => {
       <View
         style={[
           styles.textContainer,
-          !activeMode && {
+          !hasParams && {
             borderTopWidth: 1,
             borderTopColor: "#EAEAEA",
             paddingTop: 15,
@@ -378,9 +395,9 @@ const SelectService = ({ route }) => {
         ]}
       >
         <Text style={styles.textOptionsForYou}>
-          {isFromNotification && activeMode
+          {hasParams
             ? "Opciones disponibles cerca de ti"
-            : activeMode
+            : (localQ || activeCategoryId)
               ? "Encontramos estas opciones para ti"
               : "Cerca de ti"}
         </Text>
@@ -392,6 +409,9 @@ const SelectService = ({ route }) => {
     <View style={styles.container}>
       <FlatList
         data={listPartners}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primaryColor]} />
+        }
         renderItem={renderPartners}
         keyExtractor={(item) => item.id.toString()}
         style={styles.flatList}

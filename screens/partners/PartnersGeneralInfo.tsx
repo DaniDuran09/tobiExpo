@@ -235,6 +235,7 @@ const PartnersGeneralInfo = () => {
       duration_minutes: it.duration_minutes,
       start_datetime: it.datetime_range?.start,
       pet_name: it.pet?.name || "Sin mascota",
+      category_name: it.service?.service_category?.name,
     }));
 
     setGlobalCart(normalized);
