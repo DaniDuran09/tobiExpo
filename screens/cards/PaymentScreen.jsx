@@ -131,7 +131,7 @@ const PaymentScreen = ({ route }) => {
           <Text text70BL center>Tu cita ha sido generada. {cartData.partner?.name} ha sido notificado, pronto recibirás una confirmación.</Text>
         </View>
         <View>
-          <Button marginV-10 style={{ backgroundColor: "#EF3E36" }} onPress={() => navigation.navigate("SelectService")}>
+          <Button marginV-10 style={{ backgroundColor: "#EF3E36" }} onPress={() => navigation.navigate("ProfileStack", { screen: "AppointmentsHome" })}>
             <Text color='white' text60BL >Ver mis citas</Text>
           </Button>
           <Button marginV-10 style={{ backgroundColor: "#757575ff" }} onPress={() => navigation.navigate("SelectService")}>

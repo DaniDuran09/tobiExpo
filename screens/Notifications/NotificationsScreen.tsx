@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import ApiFetcher from "../../modules/ApiFetcher";
 import * as Notifications from 'expo-notifications';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Toast from "react-native-toast-message";
 
 interface Notification {
   id: number;
@@ -21,6 +22,7 @@ interface Notification {
   category: string;
   metadata: any;
   pet_id?: number;
+  has_existing_appointment?: boolean;
 }
 
 type NotificationsStackParamList = {
@@ -81,8 +83,32 @@ export default function NotificationsScreen() {
             date={item.created_at}
             image={item.picture}
             body={item.body}
-            onPress={() => {
+            petName={item.metadata?.pet_name || null}
+            petPicture={item.metadata?.pet_picture_url || null}
+            onPress={async () => {
               console.log('Notification details:', item);
+
+              if (item.status !== "read" && item.status !== "readed") {
+                try {
+                  await apiFetcher.markNotificationAsRead(item.id);
+                  setNotifications(prev => prev.map(n => n.id === item.id ? { ...n, status: "readed" } : n));
+                } catch (e) {
+                  console.log("Error marking notification as read:", e);
+                }
+              }
+
+              if (item.has_existing_appointment) {
+                console.log('[TOAST] Mostrando advertencia de cita existente...');
+                Toast.show({
+                  type: 'warning',
+                  text1: '⚠️ Ya tienes una cita agendada',
+                  text2: 'Este servicio ya cuenta con una cita existente.',
+                  visibilityTime: 4000,
+                });
+                return;
+              }
+              console.log('[DEBUG] has_existing_appointment:', item.has_existing_appointment, '- navegando...');
+
               const metadata = item.metadata || {};
               const body = item.body || "";
 
@@ -134,7 +160,7 @@ export default function NotificationsScreen() {
               }
             }}
             category={item.category}
-            readed={item.status === "read"}
+            readed={item.status === "read" || item.status === "readed"}
           />
         )}
         keyExtractor={item => item.id.toString()}

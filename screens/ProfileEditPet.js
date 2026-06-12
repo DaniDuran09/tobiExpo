@@ -57,7 +57,7 @@ const ProfileEditPet = ({ route, navigation, }) => {
         <KeyboardAvoidingView style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', }} behavior={'height'} enabled   >
             <ScrollView>
                 <View style={{
-                    backgroundColor: '#f2f2f2', //#E6F8DB
+                    backgroundColor: '#f2f2f2',
                     height: height / 1,
                     width: width
                 }}>

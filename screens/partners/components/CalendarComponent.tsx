@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, ActivityIndicator } from "react-native";
 import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import { Colors } from "../../../styles/Colors";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -52,6 +52,7 @@ interface Props {
   onLoadPrev?: () => void;
   canGoPrev?: boolean;
   onCancel?: () => void;
+  isLoading?: boolean;
 }
 
 const CalendarComponent = ({
@@ -62,12 +63,13 @@ const CalendarComponent = ({
   onLoadPrev,
   canGoPrev = false,
   onCancel,
+  isLoading = false,
 }: Props) => {
   const days = Object.entries(agenda);
   const hasAnySlot = days.some(([, info]) => (info.available?.length ?? 0) > 0);
 
   return (
-    <View>
+    <View >
       {/* ── Paginador ── */}
       <View row spread centerV paddingH-8 marginB-4>
         <TouchableOpacity
@@ -88,8 +90,13 @@ const CalendarComponent = ({
         </TouchableOpacity>
       </View>
 
-      {/* ── Sin disponibilidad ── */}
-      {days.length === 0 || !hasAnySlot ? (
+      {/* ── Cargando ── */}
+      {isLoading ? (
+        <View center padding-32>
+          <ActivityIndicator size="large" color={Colors.primaryColor} />
+          <Text text80 color="#888" marginT-12>Cargando horarios...</Text>
+        </View>
+      ) : days.length === 0 || !hasAnySlot ? (
         <View center padding-24 style={{ gap: 16 }}>
           <Icon name="calendar-remove-outline" size={52} color="#BBBBBB" />
           <Text text70 color="#888" style={{ textAlign: "center" }}>
@@ -170,12 +177,10 @@ const CalendarComponent = ({
                             br-8
                             marginV-6
                             style={{
-                              backgroundColor: isSelected ? "#007AFF" : "#D8EEFF",
-                              borderWidth: isSelected ? 2 : 0,
-                              borderColor: "#007AFF",
+                              backgroundColor: "#D8EEFF",
                             }}
                           >
-                            <Text style={{ color: isSelected ? "#FFF" : "#222" }}>
+                            <Text style={{ color: "#222", fontWeight: isSelected ? "900" : "300" }}>
                               {slot.label}
                             </Text>
                           </View>

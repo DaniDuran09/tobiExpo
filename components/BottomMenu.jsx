@@ -1,16 +1,34 @@
 import { Platform, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Image } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Colors, Text, View } from "react-native-ui-lib";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Feather from "react-native-vector-icons/Feather";
-import { useNotificationsContext } from "../context/NotificationContext";
+import ApiFetcher from "../modules/ApiFetcher";
+import { useState, useCallback } from "react";
 
 const BottomMenu = () => {
   const navigation = useNavigation();
-  const { notifications } = useNotificationsContext()
-  const unreadNotifications = notifications.filter(n => !n.readed)
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUnread = async () => {
+        try {
+          const apiFetcher = new ApiFetcher();
+          const response = await apiFetcher.getNotifications();
+          const apiNotifications = response.data || [];
+          const count = apiNotifications.filter(n => n.status !== "read" && n.status !== "readed").length;
+          setUnreadCount(count);
+        } catch (e) {
+          console.log("Error fetching notifications for BottomMenu:", e);
+        }
+      };
+      fetchUnread();
+    }, [])
+  );
+
   const addNewPet = () => {
     navigation.navigate("RegisterNewPet");
   };
@@ -41,7 +59,7 @@ const BottomMenu = () => {
             <Text text70>Notificaciones</Text>
           </View>
           <View row gap-10 centerV>
-            <Text text70BO>{unreadNotifications.length}</Text>
+            <Text text70BO>{unreadCount > 0 ? unreadCount : ""}</Text>
             <Icon name="chevron-right" size={25} color={Colors.red} />
           </View>
         </View>

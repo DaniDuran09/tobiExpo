@@ -58,6 +58,7 @@ const HomeScreen = ({ navigation }: any) => {
       const petsWithAppointments = await Promise.all(
         list.data.map(async (pet: any) => {
           const response = await fetchInfoAppointmentPet(pet.id);
+          const hasUpcomingAppointment = !!response?.appointment_status;
           return {
             ...pet,
             service_date: response?.appointment_pet_services
@@ -65,6 +66,7 @@ const HomeScreen = ({ navigation }: any) => {
                   ?.start_time
               : null,
             status: response.appointment_status,
+            has_appointment: hasUpcomingAppointment,
           };
         })
       );

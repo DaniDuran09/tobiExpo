@@ -13,6 +13,8 @@ interface RenderNotificationProps {
   body: string | null;
   status?: string | null;
   category?: string | null;
+  petName?: string | null;
+  petPicture?: string | null;
 }
 
 export default function RenderNotification({
@@ -25,6 +27,8 @@ export default function RenderNotification({
   body,
   status,
   category,
+  petName,
+  petPicture,
 }: RenderNotificationProps) {
 
   const displayDate = (notificationDate: string | number) => {
@@ -48,7 +52,7 @@ export default function RenderNotification({
     if (title.includes("hoy") || title.includes("urgente") || title.includes("ahora")) {
       return { label: "URGENTE", color: "#EF3E36" };
     }
-    console.log("readed", readed);
+    //console.log("readed", readed);
     return { label: "RECORDATORIO", color: "#9E9E9E" };
   };
 
@@ -61,8 +65,11 @@ export default function RenderNotification({
       style={[styles.container, !readed && styles.unreadBackground]}
     >
       <View row spread centerV marginB-8>
-        <View paddingH-8 paddingV-2 style={{ backgroundColor: color, borderRadius: 4 }}>
-          <Text white text100BO style={{ fontSize: 10, letterSpacing: 0.5 }}>{label}</Text>
+        <View row centerV>
+          {!readed && <View style={styles.unreadDot} marginR-6 />}
+          <View paddingH-8 paddingV-2 style={{ backgroundColor: color, borderRadius: 4 }}>
+            <Text white text100BO style={{ fontSize: 10, letterSpacing: 0.5 }}>{label}</Text>
+          </View>
         </View>
         <Text text90 gray style={{ fontSize: 11 }}>{displayDate(date)}</Text>
       </View>
@@ -78,19 +85,25 @@ export default function RenderNotification({
             {body}
           </Text>
 
-          {/* Optional Pet Info / Reservar Button */}
-          <View row centerV spread>
+          {/* Pet Info + Reservar Button */}
+          <View row centerV spread marginT-4>
             <View row centerV>
-              {image ? (
-                <AnimatedImage source={{ uri: image }} style={styles.petImage} />
+              {(petPicture || image) ? (
+                <AnimatedImage
+                  source={{ uri: petPicture || image }}
+                  style={styles.petImage}
+                />
               ) : (
                 <View style={styles.petImagePlaceholder}>
-                  <Icon name="paw" size={12} color="#9E9E9E" />
+                  <Icon name="paw" size={14} color="#9E9E9E" />
                 </View>
               )}
+              {petName ? (
+                <Text text80 black marginL-8>{petName}</Text>
+              ) : null}
             </View>
 
-            {/*label !== "RECORDATORIO" ? (
+            {label !== "RECORDATORIO" ? (
               <Button
                 label="Reservar ahora"
                 size={Button.sizes.xSmall}
@@ -98,9 +111,10 @@ export default function RenderNotification({
                 outline={false}
                 br10
                 paddingH-12
-                style={{ height: 24 }}
+                style={{ height: 26 }}
+                onPress={onPress}
               />
-            ) : null*/}
+            ) : null}
           </View>
         </View>
       </View>
@@ -120,16 +134,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF9F9',
   },
   petImage: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
   petImagePlaceholder: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EF3E36',
   }
 });

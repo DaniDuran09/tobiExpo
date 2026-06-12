@@ -359,9 +359,10 @@ class ApiFetcher {
   async getNotifications() {
     return await this._get("/v1/portal_client/notifications");
   }
-  /*async updateNotificationStatus(){
-    return await this._put("/notifications")
-  }*/
+
+  async markNotificationAsRead(id) {
+    return await this._put(`/v1/portal_client/notifications/${id}/mark_as_read`, {});
+  }
 }
 
 export default ApiFetcher;

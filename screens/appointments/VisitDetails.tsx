@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Platform } from "react-native";
+import { ScrollView, StyleSheet, Platform, RefreshControl } from "react-native";
 import { Text, View, Avatar, TouchableOpacity, Modal } from "react-native-ui-lib";
 import MapView, { Marker } from 'react-native-maps';
 import ApiFetcher from "../../modules/ApiFetcher";
@@ -33,11 +33,13 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
     const [currentTime, setCurrentTime] = useState(moment());
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [checkingIn, setCheckingIn] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const apiFetcher = new ApiFetcher();
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (isRefresh = false) => {
+        if (isRefresh) setIsRefreshing(true);
+        else setLoading(true);
         try {
             const response = await apiFetcher.getVisitById(id);
             if (response.status) {
@@ -47,6 +49,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
             console.log("error", error);
         } finally {
             setLoading(false);
+            setIsRefreshing(false);
         }
     };
 
@@ -59,18 +62,22 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
     }, [id]);
 
     const openMap = () => {
-        const partner = visit?.partner;
+        const partner = visit?.partner
+            || visit?.appointments?.[0]?.partner
+            || visit?.appointments?.[0]?.appointment_pet_services?.[0]?.service?.service_ownered;
         if (!partner) return;
 
         const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
-        const latLng: string = `${partner.latitude},${partner.longitude}`;
-        const label = 'Ubicación de la cita';
+        const lat = partner?.latitude || partner?.addresses?.[0]?.latitude;
+        const lng = partner?.longitude || partner?.addresses?.[0]?.longitude;
+        const latLng: string = `${lat},${lng}`;
+        const label = partner?.name || 'Ubicación de la cita';
         const url: string | undefined = Platform.select({
             ios: `${scheme}${label}@${latLng}`,
             android: `${scheme}${latLng}(${label})`
         });
 
-        if (url) {
+        if (url && lat && lng) {
             Linking.openURL(url);
         }
     };
@@ -136,7 +143,7 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                             role: aps.user?.role || "Especialista",
                             startTime: moment(aps.appointment_time?.start_time).format("hh:mm a"),
                             endTime: moment(aps.appointment_time?.end_time).format("hh:mm a"),
-                            status: aps.status
+                            status: (aps.status === 'pending' || !aps.status) ? visit.status : aps.status
                         });
                     }
                 });
@@ -145,10 +152,24 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
     }
 
     const petsList = Array.from(petsMap.values());
-    const partner = visit.partner;
-    const address = partner?.address || (partner?.addresses && partner.addresses.length > 0
-        ? `${partner.addresses[0].street} ${partner.addresses[0].number}, ${partner.addresses[0].city}`
-        : "Dirección no disponible");
+
+    const partner = visit?.partner
+        || visit?.appointments?.[0]?.partner
+        || visit?.appointments?.[0]?.appointment_pet_services?.[0]?.service?.service_ownered;
+    console.log(partner?.addresses)
+
+    const buildAddress = (p: any): string => {
+        if (!p) return "Dirección no disponible";
+        if (p.address) return p.address;
+        const a = p.addresses?.[0];
+        if (a) {
+            const parts = [a.street, a.number, a.city, a.state].filter(Boolean);
+            return parts.join(', ');
+        }
+        return "Dirección no disponible";
+    };
+    const address = buildAddress(partner);
+    const partnerPhone = partner?.phone || null;
 
     const capitalizeWords = (str: string) => str.replace(/\b\w/g, char => char.toUpperCase());
     const dateStr = capitalizeWords(moment(visit.expected_start_time).format("dddd, D [de] MMMM YYYY."));
@@ -166,36 +187,18 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
 
     return (
         <>
-            <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+            <ScrollView
+                style={{ flex: 1, backgroundColor: 'white' }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={() => fetchData(true)}
+                        colors={[Colors.primaryColor]}
+                        tintColor={Colors.primaryColor}
+                    />
+                }
+            >
                 <View padding-20>
-                    {/* Top General Info */}
-                    <View marginB-20>
-                        <View row centerV marginT-5 marginB-10>
-                            <MaterialCommunityIcons name="calendar-range-outline" size={20} color={Colors.black} />
-                            <Text text80L marginL-10>
-                                {dateStr}
-                            </Text>
-                        </View>
-                        <View row centerV marginT-5 marginB-10>
-                            <MaterialCommunityIcons name="clock-outline" size={20} color={Colors.black} />
-                            <Text text80L marginL-10>
-                                {`${moment(visit.expected_start_time).format("hh:mm a")} - ${moment(visit.expected_end_time).format("hh:mm a")} (GMT-6)`}
-                            </Text>
-                        </View>
-                        <View row centerV marginT-5 marginB-10>
-                            <MaterialCommunityIcons name="pin-outline" size={20} color={Colors.black} />
-                            <Text text80L marginL-10>
-                                {address}
-                            </Text>
-                        </View>
-                        <View row centerV marginT-5 marginB-10>
-                            <MaterialCommunityIcons name="home-outline" size={20} color={Colors.black} />
-                            <Text text80L marginL-10>
-                                {partner?.name}
-                            </Text>
-                        </View>
-                    </View>
-
                     {/* Estado de la Visita Tracker */}
                     {isCheckedInAtAll && !isNoShow && (
                         <View marginB-20 padding-15 style={{ borderWidth: 1, borderColor: Colors.secondGray, borderRadius: 8 }}>
@@ -222,9 +225,9 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                         </View>
                     )}
 
-                    {/* Pets Cards */}
+                    {/* Pets Cards in new layout */}
                     {petsList.map((petGroup, index) => (
-                        <View key={index} marginB-20 padding-15 style={{ borderWidth: 1, borderColor: Colors.secondGray, borderRadius: 8 }}>
+                        <View key={index} marginB-30>
                             <View row centerV marginB-15>
                                 <Avatar source={{ uri: petGroup.pet.picture }} size={45} />
                                 <Text text60 marginL-15 style={{ fontWeight: '600' }}>
@@ -232,13 +235,15 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                                 </Text>
                             </View>
 
+                            <View height={1} bg-grey60 marginB-15 />
+
                             {petGroup.services.map((service, sIdx) => {
                                 const badgeInfo = getServiceBadgeInfo(service.status);
 
                                 return (
-                                    <View key={sIdx} marginB-10>
+                                    <View key={sIdx} marginB-20>
                                         <View row centerV spread>
-                                            <Text text70BO color={Colors.blueLight} flex marginR-10>
+                                            <Text text70BL color={Colors.blueLight} flex marginR-10>
                                                 {service.name}
                                             </Text>
                                             <Text text80 color={Colors.gray}>
@@ -246,18 +251,48 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                                             </Text>
                                         </View>
 
-                                        {badgeInfo ? (
-                                            <View marginT-5 style={{ backgroundColor: badgeInfo.bg, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}>
+                                        <Text text90L color={Colors.gray} marginV-2>
+                                            {service.role}
+                                        </Text>
+
+                                        <View row centerV marginT-10>
+                                            <MaterialCommunityIcons name="home-outline" size={20} color={Colors.black} />
+                                            <Text text80L marginL-10>
+                                                {partner?.name || service.provider}
+                                            </Text>
+                                        </View>
+
+                                        <View row centerV marginT-5>
+                                            <MaterialCommunityIcons name="calendar-range-outline" size={20} color={Colors.black} />
+                                            <Text text80L marginL-10>
+                                                {dateStr}
+                                            </Text>
+                                        </View>
+
+                                        <View row centerV marginT-5>
+                                            <MaterialCommunityIcons name="pin-outline" size={20} color={Colors.black} />
+                                            <Text text80L marginL-10>
+                                                {address}
+                                            </Text>
+                                        </View>
+
+                                        {partnerPhone && (
+                                            <View row centerV marginT-5>
+                                                <MaterialCommunityIcons name="phone-outline" size={20} color={Colors.black} />
+                                                <Text text80L marginL-10>
+                                                    {partnerPhone}
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {badgeInfo && (
+                                            <View marginT-10 style={{ backgroundColor: badgeInfo.bg, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}>
                                                 <Text text90 color={badgeInfo.text} style={{ fontWeight: '600' }}>{badgeInfo.label}</Text>
                                             </View>
-                                        ) : (
-                                            <Text text90L color={Colors.gray} marginT-2>
-                                                {service.role}
-                                            </Text>
                                         )}
 
                                         {sIdx < petGroup.services.length - 1 && (
-                                            <View height={1} bg-grey60 marginT-10 marginB-5 />
+                                            <View height={1} bg-grey60 marginT-15 marginB-15 />
                                         )}
                                     </View>
                                 );
@@ -266,32 +301,39 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                     ))}
 
                     {/* Map Fragment */}
-                    {partner?.latitude && partner?.longitude && (
-                        <View marginT-10 style={{ borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: Colors.secondGray, height: 150 }}>
-                            <MapView
-                                style={{ flex: 1 }}
-                                region={{
-                                    latitude: Number(partner.latitude),
-                                    longitude: Number(partner.longitude),
-                                    latitudeDelta: 0.005,
-                                    longitudeDelta: 0.005,
-                                }}
-                                scrollEnabled={false}
-                                zoomEnabled={false}
-                                pitchEnabled={false}
-                                rotateEnabled={false}
-                                onPress={openMap}
-                            >
-                                <Marker
-                                    coordinate={{
-                                        latitude: Number(partner.latitude),
-                                        longitude: Number(partner.longitude),
-                                    }}
-                                    title={partner.name}
-                                />
-                            </MapView>
-                        </View>
-                    )}
+                    {(() => {
+                        const lat = Number(partner?.latitude || partner?.addresses?.[0]?.latitude);
+                        const lng = Number(partner?.longitude || partner?.addresses?.[0]?.longitude);
+                        if (lat && lng) {
+                            return (
+                                <View marginT-10 style={{ borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: Colors.secondGray, height: 150 }}>
+                                    <MapView
+                                        style={{ width: '100%', height: 150 }}
+                                        region={{
+                                            latitude: Number(lat),
+                                            longitude: Number(lng),
+                                            latitudeDelta: 0.005,
+                                            longitudeDelta: 0.005,
+                                        }}
+                                        scrollEnabled={false}
+                                        zoomEnabled={false}
+                                        pitchEnabled={false}
+                                        rotateEnabled={false}
+                                        onPress={openMap}
+                                    >
+                                        <Marker
+                                            coordinate={{
+                                                latitude: Number(lat),
+                                                longitude: Number(lng),
+                                            }}
+                                            title={partner?.name}
+                                        />
+                                    </MapView>
+                                </View>
+                            );
+                        }
+                        return null;
+                    })()}
                 </View>
 
                 {/* Bottom Banners */}

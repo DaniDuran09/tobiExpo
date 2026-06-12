@@ -6,43 +6,43 @@ import { AnimatedImage, Modal, Text, TouchableOpacity, View } from 'react-native
 import ApiFetcher from "../../../modules/ApiFetcher";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getCards } from '../../../services';
-import WebView from 'react-native-webview';
+import Pdf from 'react-native-pdf';
 import ModalNoPicture from '../../../components/atoms/ModalNoPicture';
 
 export default function PetPdf() {
 
   const apiFetcher = new ApiFetcher();
 
-type Certificate = {
-  certificate_pet: string;
-  certificate_deworming:string;
-  certificate_vaccine:string;
-};
+  type Certificate = {
+    certificate_pet: string;
+    certificate_deworming: string;
+    certificate_vaccine: string;
+  };
 
   const [certificates, setCertificates] = useState<Certificate | null>(null);
   const route = useRoute();
-  const { pet }:any = route.params;
+  const { pet }: any = route.params;
   console.log(pet)
   const navigation = useNavigation();
-  const [visible,setVisible] = useState(false);
-  const [dialog,setDialog] = useState<boolean>(false);
-  const [picture,setPicture] = useState<string>("");
+  const [visible, setVisible] = useState(false);
+  const [dialog, setDialog] = useState<boolean>(false);
+  const [picture, setPicture] = useState<string>("");
+  const [pdfError, setPdfError] = useState<boolean>(false);
+
   useEffect(() => {
     getCertificates();
   }, [])
 
-  const openImage = (url: any,tipe:string) => {
+  const openImage = (url: any, tipe: string) => {
     const urlImage = url
-
-    console.log(certificates)
     if (urlImage !== null) {
       Linking.openURL(urlImage)
-    }else{
+    } else {
       setVisible(true)
       setPicture(tipe);
     }
   }
-  const onRequestClose = () =>{
+  const onRequestClose = () => {
     setVisible(false)
   }
 
@@ -54,20 +54,21 @@ type Certificate = {
       console.log("error", error);
     }
   }
-  useEffect(()=>{
-    console.log("imagen",picture);
-  },[picture])
-  
+
+  useEffect(() => {
+    console.log("imagen", picture);
+  }, [picture])
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View width={'100%'} height={50} row paddingR-10 centerV>
-        <TouchableOpacity br100 style={{ width: 100, height: 50 }} row centerV onPress={() =>  navigation.goBack() }>
+        <TouchableOpacity br100 style={{ width: 100, height: 50 }} row centerV onPress={() => navigation.goBack()}>
           <Icon name="chevron-left" size={45} color="black" />
           <AnimatedImage source={{ uri: pet.picture }} style={{ width: 40, height: 40, borderRadius: 100 }} />
         </TouchableOpacity>
         <View flex />
-        <TouchableOpacity style={{ width: 50, height: 50 }} center onPress={() =>  openImage(certificates?.certificate_pet,"")}>
+        <TouchableOpacity style={{ width: 50, height: 50 }} center onPress={() => openImage(certificates?.certificate_pet, "")}>
           <Image
             source={require("./../../../assets/share.png")}
             style={{ height: 25, width: 25 }}
@@ -76,30 +77,39 @@ type Certificate = {
       </View>
       <View style={styles.pdfContainer}>
         {certificates?.certificate_pet ? (
-  <WebView
-    source={{
-      uri: `https://docs.google.com/viewer?embedded=true&url=${encodeURIComponent(certificates?.certificate_pet)}`
-    }}
-    style={styles.pdf}
-    javaScriptEnabled={true}
-    domStorageEnabled={true}
-    startInLoadingState={true}
-    originWhitelist={['*']}
-    mixedContentMode="always"
-  />
-) : (
-  <Text black>Cargando PDF...</Text>
-)}
+          pdfError ? (
+            <View center flex>
+              <Text black marginB-10>No se pudo cargar el PDF.</Text>
+              <TouchableOpacity onPress={() => Linking.openURL(certificates.certificate_pet)}>
+                <Text style={{ color: '#1565C0', textDecorationLine: 'underline' }}>Abrir en navegador</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Pdf
+              source={{ uri: certificates.certificate_pet, cache: true }}
+              style={styles.pdf}
+              trustAllCerts={false}
+              onError={(error) => {
+                console.log("Error loading PDF:", error);
+                setPdfError(true);
+              }}
+            />
+          )
+        ) : (
+          <View center flex>
+            <Text black>Cargando PDF...</Text>
+          </View>
+        )}
       </View>
-      <View paddingH-10 paddingV-10>
-        <TouchableOpacity row centerV onPress={() =>  openImage(certificates?.certificate_deworming,"desparasitaciones")}>
+      <View paddingH-10 paddingV-5>
+        <TouchableOpacity row centerV onPress={() => openImage(certificates?.certificate_deworming, "desparasitaciones")}>
           <Image
             source={require("./../../../assets/jpgLogo.png")}
             style={{ height: 25, width: 25 }}
           />
           <Text grey40 >desp.jpg</Text>
         </TouchableOpacity>
-        <TouchableOpacity row centerV marginT-5 onPress={() => openImage(certificates?.certificate_vaccine,"vacunas")}>
+        <TouchableOpacity row centerV marginT-5 onPress={() => openImage(certificates?.certificate_vaccine, "vacunas")}>
           <Image
             source={require("./../../../assets/jpgLogo.png")}
             style={{ height: 25, width: 25 }}
@@ -108,9 +118,9 @@ type Certificate = {
         </TouchableOpacity>
       </View>
       <ModalNoPicture
-      visible={visible}
-      onRequestClose={onRequestClose}
-      picture={picture}
+        visible={visible}
+        onRequestClose={onRequestClose}
+        picture={picture}
       />
     </SafeAreaView>
   )
@@ -124,13 +134,15 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   pdfContainer: {
-    backgroundColor:'#313131',
-    paddingVertical:'10%',
+    backgroundColor: '#313131',
+    paddingVertical: '5%',
     width: '100%',
     height: '70%',
   },
   pdf: {
+    flex: 1,
     width: '100%',
-    borderRadius: 10,
+    height: '100%',
+    borderRadius: 5,
   },
 });

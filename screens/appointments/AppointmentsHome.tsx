@@ -257,7 +257,7 @@ export default function AppointmentsHome() {
                                 center
                                 onPress={() => { }}
                             >
-                                <Text white text70BO>Guardar cartilla médica</Text>
+                                <Text white text70BO>Guardar cartilla de vacunación</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

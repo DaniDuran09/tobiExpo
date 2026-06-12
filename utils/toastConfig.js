@@ -1,9 +1,10 @@
-import {Platform} from 'react-native';
-import {Colors} from '../styles/Colors';
+import { Platform } from 'react-native';
+import { Colors } from '../styles/Colors';
 import {
   ErrorToast,
   InfoToast,
   SuccessToast,
+  BaseToast,
 } from 'react-native-toast-message';
 export const toastConfig = {
   success: props => (
@@ -33,7 +34,6 @@ export const toastConfig = {
         minHeight: 80,
         marginTop: Platform.OS != 'android' && '5%',
       }}
-      // contentContainerStyle={{ paddingVertical: 15 }}
       text1Style={{
         fontSize: 16,
         color: Colors.red,
@@ -60,6 +60,26 @@ export const toastConfig = {
       text2Style={{
         fontSize: 14,
         color: Colors.secondaryColor,
+      }}
+      text2NumberOfLines={5}
+    />
+  ),
+  warning: props => (
+    <BaseToast
+      {...props}
+      style={{
+        borderLeftColor: '#F59E0B',
+        minHeight: 80,
+        marginTop: Platform.OS != 'android' && '5%',
+      }}
+      text1Style={{
+        fontSize: 16,
+        color: '#92400E',
+        fontWeight: 'bold',
+      }}
+      text2Style={{
+        fontSize: 14,
+        color: '#92400E',
       }}
       text2NumberOfLines={5}
     />

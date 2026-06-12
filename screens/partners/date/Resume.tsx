@@ -86,31 +86,31 @@ const Resume = ({ route }: any) => {
     );
   }
 
-  const generalStart = formatDateTimeMX(data.data.datetime_start);
-  const generalEnd = formatDateTimeMX(data.data.datetime_end);
+
+  // Calcular subtotal (suma de price_subtotal de cada ítem)
+  const subtotal = data.data.items.reduce(
+    (acc: number, item: any) => acc + parseFloat(item.price_subtotal || 0),
+    0
+  );
+  // Tarifa de servicio = total - subtotal
+  const serviceFee = parseFloat(data.data.price_total) - subtotal;
 
   return (
-    <ScrollView style={{ padding: 20, backgroundColor: "white", paddingBottom: 50 }}>
-      <View bg-white paddingB-30>
-        <Text
-          text70BL
-          style={{ color: data.data.status === "active" ? "green" : "red" }}
+    <ScrollView style={{ backgroundColor: "white" }} contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
+      <View bg-white>
+        {/* Encabezado partner */}
+        <Text text60BL>{data.data.partner.name}</Text>
+        <Text text90 color="#888" marginT-2>{data.data.partner.address}</Text>
+
+        {/* Contador de servicios */}
+        <View row spread centerV marginV-16 paddingV-12
+          style={{ borderTopWidth: 1, borderBottomWidth: 1, borderColor: "#EAEAEA" }}
         >
-          {data.data.status === "active" ? "Activo" : "Expirado"}
-        </Text>
-
-        <Text text60>{data.data.partner.name}</Text>
-
-        <View row spread marginV-20>
-          <Text text60BL>Servicios: {data.data.items_count}</Text>
-          <Text text60BL>Total: ${data.data.price_total}</Text>
+          <Text text70BL>{data.data.items_count} {data.data.items_count === 1 ? "servicio" : "servicios"}</Text>
+          <Text text70BL>${parseFloat(data.data.price_total).toFixed(2)}</Text>
         </View>
 
-        <Text>{generalStart.date}</Text>
-        <Text>
-          {generalStart.time} - {generalEnd.time} (GMT-6)
-        </Text>
-
+        {/* Cards de servicios */}
         {data.data.items.map((item: any) => {
           const itemStart = formatDateTimeMX(item.datetime_range.start);
           const itemEnd = formatDateTimeMX(item.datetime_range.end);
@@ -119,47 +119,81 @@ const Resume = ({ route }: any) => {
             <View
               key={item.id}
               style={{
-                marginTop: 16,
-                padding: 12,
+                marginBottom: 12,
+                padding: 14,
                 borderWidth: 1,
-                borderColor: "#8c8c8c",
-                borderRadius: 8,
+                borderColor: "#DADADA",
+                borderRadius: 10,
               }}
             >
-              <View row spread>
-                <Text text60>{item.service.name}</Text>
-                <Text text60>Total: ${item.price_total}</Text>
+              {/* Nombre + precio */}
+              <View row spread centerV marginB-4>
+                <Text text70BL style={{ flex: 1, paddingRight: 8 }}>
+                  {item.service.name}
+                </Text>
+                <Text text70BL>${parseFloat(item.price_total).toFixed(2)}</Text>
               </View>
 
-              <Text>{item.pet.display_name}</Text>
-              <Text>Duración: {item.duration_minutes} min</Text>
+              {/* Mascota */}
+              {item.pet?.display_name && (
+                <Text text70BL marginB-8>
+                  {item.pet.display_name}
+                </Text>
+              )}
 
-              <Text>{itemStart.date}</Text>
-              <Text>
-                {itemStart.time} - {itemEnd.time} (GMT-6)
+              {/* Fecha */}
+              <View row centerV marginB-4>
+                <Text text80 style={{ marginRight: 6 }}>📅</Text>
+                <Text text80>{itemStart.date.charAt(0).toUpperCase() + itemStart.date.slice(1)}.</Text>
+              </View>
+
+              {/* Hora */}
+              <View row centerV marginB-10>
+                <Text text80 style={{ marginRight: 6 }}>🕐</Text>
+                <Text text80>{itemStart.time} - {itemEnd.time} (GMT-6)</Text>
+              </View>
+
+              {/* Divisor */}
+              <View height={0.5} style={{ backgroundColor: "#DADADA" }} marginB-8 />
+
+              {/* Categoría */}
+              <Text text80 color="#888">
+                {item.service?.service_category?.name || "Servicio"}
               </Text>
-
-              <Text>Subtotal: ${item.price_subtotal}</Text>
-              <Text>Impuesto: ${item.tax_amount}</Text>
-
-              <View width={"100%"} bg-black height={0.5} />
-
-              <Text text70L>{item.service?.service_category?.name || "Servicio"}</Text>
             </View>
           );
         })}
+        {/* Sección de totales */}
+        <View marginT-8 style={{ borderTopWidth: 1, borderColor: "#EAEAEA", paddingTop: 16 }}>
+          <View row spread marginB-8>
+            <Text text70>Subtotal servicios</Text>
+            <Text text70>${subtotal.toFixed(2)}</Text>
+          </View>
+
+          <View row spread marginB-12>
+            <Text text70>Tarifa de servicio</Text>
+            <Text text70>${serviceFee.toFixed(2)}</Text>
+          </View>
+
+          <View row spread>
+            <Text text70BL>Total a pagar</Text>
+            <Text text70BL>${parseFloat(data.data.price_total).toFixed(2)}</Text>
+          </View>
+        </View>
       </View>
+
+      {/* Botón de pago */}
       <TouchableOpacity
         bg-red30
         br100
         center
         disabled={isConfirming}
-        style={{ height: 50, marginBottom: 50 }}
+        style={{ height: 50, marginTop: 24, marginBottom: 30 }}
         onPress={() => { confirmCart() }}
       >
         <Text white text60L>Continuar y pagar</Text>
       </TouchableOpacity>
-    </ScrollView >
+    </ScrollView>
   );
 };
 

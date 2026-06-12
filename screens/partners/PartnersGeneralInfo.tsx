@@ -42,6 +42,7 @@ const PartnersGeneralInfo = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [calendarOffset, setCalendarOffset] = useState(0); // días de avance desde hoy
   const CALENDAR_WINDOW = 3; // días que se muestran por página
+  const [isLoadingCalendar, setIsLoadingCalendar] = useState(false);
 
   const addDays = (date: Date, days: number) => {
     const d = new Date(date);
@@ -185,28 +186,33 @@ const PartnersGeneralInfo = () => {
   };
 
   const getCalendar = async (offset = 0) => {
-    const today = new Date();
-    const from = new Date(today);
-    from.setDate(from.getDate() + offset);
-    const date = from.toISOString().slice(0, 10);
-    const date_to = addDays(from, CALENDAR_WINDOW - 1);
+    setIsLoadingCalendar(true);
+    try {
+      const today = new Date();
+      const from = new Date(today);
+      from.setDate(from.getDate() + offset);
+      const date = from.toISOString().slice(0, 10);
+      const date_to = addDays(from, CALENDAR_WINDOW - 1);
 
-    const payload = {
-      service_id: currentService.id,
-      pet_id: selectedPet.id,
-      cart_id: cart,
-      date,
-      date_to,
-    };
+      const payload = {
+        service_id: currentService.id,
+        pet_id: selectedPet.id,
+        cart_id: cart,
+        date,
+        date_to,
+      };
 
-    const res = await apiFetcher.getAvailabilityAgenda(
-      item.partner.id,
-      payload,
-      timezone
-    );
+      const res = await apiFetcher.getAvailabilityAgenda(
+        item.partner.id,
+        payload,
+        timezone
+      );
 
-    console.log("AGENDA", res.data);
-    setAvailableDays(res.data);
+      console.log("AGENDA", res.data);
+      setAvailableDays(res.data);
+    } finally {
+      setIsLoadingCalendar(false);
+    }
   };
 
   const handleNextDays = () => {
@@ -348,23 +354,70 @@ const PartnersGeneralInfo = () => {
           />
         )}
 
-        {selectedPet && currentService && (
-          <CalendarComponent
-            agenda={availableDays}
-            selectedSlot={selectedSlot}
-            onSelect={setSelectedSlot}
-            onLoadMore={handleNextDays}
-            onLoadPrev={handlePrevDays}
-            canGoPrev={calendarOffset > 0}
-            onCancel={() => {
-              setCurrentService(null);
-              setSelectedSlot(null);
-              setShowServices(true);
-            }}
-          />
+        {!selectedPet && globalCart.length === 0 && (
+          <View center marginT-40 marginB-20>
+            <Text text40 >🐾</Text>
+            <Text text70BO marginT-12 style={{ color: '#333', textAlign: 'center' }}>
+              Selecciona una mascota
+            </Text>
+            <Text text80 marginT-6 style={{ color: '#999', textAlign: 'center', paddingHorizontal: 30 }}>
+              Elige a tu mascota para ver los servicios disponibles y agendar una cita
+            </Text>
+          </View>
         )}
 
-        {(selectedPet && currentService && selectedSlot || globalCart.length >= 0) && (
+
+        {selectedPet && currentService && (
+          <View>
+            <View
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.secondGray,
+                backgroundColor: Colors.mediumWhite,
+                borderRadius: 8,
+              }}
+              padding-15
+              marginB-30
+            >
+              <View row spread marginB-5>
+                <Text text70BO>{currentService.name}</Text>
+                <Text text70BO>{currentService.price_total || currentService.price}</Text>
+              </View>
+
+              <View row spread marginB-15 style={{ alignItems: 'flex-start' }}>
+                <Text text90 style={{ color: Colors.gray, flex: 1, paddingRight: 10 }}>
+                  {currentService.description || `Servicio de ${currentService.name}`}
+                </Text>
+                <Text text90 style={{ color: Colors.gray }}>
+                  Seleccionar horario
+                </Text>
+              </View>
+
+              <View width={'100%'} height={1} marginB-10 style={{ backgroundColor: Colors.secondGray }} />
+
+              <Text text80>
+                {currentService.service_category?.name || (type === 2 ? 'Veterinario' : 'Grooming')}
+              </Text>
+            </View>
+
+            <CalendarComponent
+              agenda={availableDays}
+              selectedSlot={selectedSlot}
+              onSelect={setSelectedSlot}
+              onLoadMore={handleNextDays}
+              onLoadPrev={handlePrevDays}
+              canGoPrev={calendarOffset > 0}
+              isLoading={isLoadingCalendar}
+              onCancel={() => {
+                setCurrentService(null);
+                setSelectedSlot(null);
+                setShowServices(true);
+              }}
+            />
+          </View>
+        )}
+
+        {(selectedPet && currentService && selectedSlot || globalCart.length > 0) && (
           <>
             <TouchableOpacity
               disabled={isAdding}
@@ -395,10 +448,9 @@ const PartnersGeneralInfo = () => {
               br100
               center
               disabled={isAdding}
-              style={{ height: 50, marginTop: 20 }}
+              style={{ height: 50, marginVertical: 20 }}
               onPress={async () => {
                 try {
-                  // Si el usuario está agregando un servicio nuevo
                   if (currentService && selectedSlot) {
                     await addItemToCart();
                     navigation.setParams({

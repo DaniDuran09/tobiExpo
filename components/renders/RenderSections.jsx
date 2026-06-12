@@ -16,13 +16,13 @@ const RenderSections = ({ item }) => {
   const navigateToService = (query, serviceId, vaccineId, catalogCode, serviceCatalogId) => {
     navigation.navigate("Explore", {
       screen: "SelectService",
-      params: { 
-        q: query || null, 
-        petId: item.id || null, 
-        serviceId: serviceId || null, 
-        vaccine_id: vaccineId || null, 
-        catalog_code: catalogCode || null, 
-        service_catalog_id: serviceCatalogId || null 
+      params: {
+        q: query || null,
+        petId: item.id || null,
+        serviceId: serviceId || null,
+        vaccine_id: vaccineId || null,
+        catalog_code: catalogCode || null,
+        service_catalog_id: serviceCatalogId || null
       },
     });
   };
@@ -57,6 +57,18 @@ const RenderSections = ({ item }) => {
   }, []);
 
   const vaccinesData = vaccinesResponse?.data;
+  useEffect(() => {
+    console.log(`\n=== [${item?.name}] HAS_APPOINTMENT DEBUG ===`);
+    console.log(`[${item?.name}] PESO - realWeight:`, JSON.stringify({
+      current: parseFloat(item?.weight || item?.weight_status?.weight || 0) / 1000,
+      rangeFrom: (item?.ideal_weight?.from || item?.weight_status?.ideal_weight?.from || 0) / 1000,
+      rangeTo: (item?.ideal_weight?.to || item?.weight_status?.ideal_weight?.to || 0) / 1000,
+    }));
+    console.log(`[${item?.name}] PESO - has_appointment:`, item?.has_appointment);
+    console.log(`[${item?.name}] VACUNAS - hasAppointment (state):`, vaccineState.hasAppointment);
+    console.log(`[${item?.name}] DESP - hasAppointment (state):`, dewormerState.hasAppointment);
+    console.log(`=== FIN DEBUG [${item?.name}] ===\n`);
+  }, [vaccineState, dewormerState, item]);
 
   useEffect(() => {
     if (vaccinesData) {
@@ -96,7 +108,6 @@ const RenderSections = ({ item }) => {
           const firstExp = actualExpired[0];
           vName = firstExp.name || firstExp.vaccine_name || firstExp.brand || 'Vacuna';
           vId = firstExp.vaccine_id || firstExp.id;
-          // Revisar si ALGUNA vacuna vencida ya tiene cita
           vHasAppt = actualExpired.some(v => !!v.has_existing_appointment);
         } else if (hasToExpire) {
           const sortedToExpire = [...actualToExpire].sort((a, b) => a.days_remaining - b.days_remaining);
@@ -104,7 +115,6 @@ const RenderSections = ({ item }) => {
           vName = nextV.name || nextV.vaccine_name || nextV.brand || 'Vacuna';
           vId = nextV.vaccine_id || nextV.id;
           vDays = nextV.days_remaining;
-          // Revisar si ALGUNA vacuna por vencer ya tiene cita
           vHasAppt = actualToExpire.some(v => !!v.has_existing_appointment);
           if (vDays <= 0) vIsExpired = true;
         } else {
@@ -118,7 +128,6 @@ const RenderSections = ({ item }) => {
       }
       setVaccineState({ present: vPresent, name: vName, id: vId, days: vDays, isExpired: vIsExpired, cannotCalc: vCannotCalc, hasAppointment: vHasAppt });
 
-      // DEWORMERS LOGIC
       const validDewormers = vaccinesData.dewormers_records || [];
       const hasDewormerRecords = validDewormers.length > 0;
 
@@ -159,7 +168,6 @@ const RenderSections = ({ item }) => {
           const firstExp = actualDewormersExpired[0];
           dName = firstExp.deworming_type || firstExp.description || firstExp.name || firstExp.brand || 'Desparasitante';
           dId = firstExp.vaccine_id || firstExp.id;
-          // Revisar si ALGÚN desparasitante vencido ya tiene cita
           dHasAppt = actualDewormersExpired.some(d => !!d.has_existing_appointment);
         } else if (hasDewormersToExpire) {
           const sortedToExpire = [...actualDewormersToExpire].sort((a, b) => a.days_remaining - b.days_remaining);
@@ -167,7 +175,6 @@ const RenderSections = ({ item }) => {
           dName = nextD.deworming_type || nextD.description || nextD.name || nextD.brand || 'Desparasitante';
           dId = nextD.vaccine_id || nextD.id;
           dDays = nextD.days_remaining;
-          // Revisar si ALGÚN desparasitante por vencer ya tiene cita
           dHasAppt = actualDewormersToExpire.some(d => !!d.has_existing_appointment);
           if (dDays <= 0) dIsExpired = true;
         } else {
@@ -539,12 +546,12 @@ const RenderSections = ({ item }) => {
                 >{`${currentWeight.toFixed(1)} Kg`}</Text>
               </View>
               {!realWeight?.ideal && (
-                item.has_health_appointment ? (
+                item.has_appointment ? (
                   <View marginT-10>
                     <View row centerV>
                       <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.red, marginRight: 6 }} />
                       <Text text90 color={Colors.gray} adjustsFontSizeToFit numberOfLines={1}>
-                        Ya tienes una cita programada
+                        Ya tienes cita programada
                       </Text>
                     </View>
                     <Button

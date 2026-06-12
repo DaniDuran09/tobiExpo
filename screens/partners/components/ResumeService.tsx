@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { Text, View } from 'react-native-ui-lib'
+import { Text, View, TouchableOpacity } from 'react-native-ui-lib'
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 import momentTZ from '../../../utils/moment'
 import { Colors } from '../../../styles/Colors'
 
@@ -22,63 +22,48 @@ const ResumeService = ({ type, item, onRemove }: Props) => {
 
   return (
     <View
-      br-1
-      style={{ borderColor: '#a2a2a2', borderWidth: 0.6, position: 'relative' }}
-      paddingV-10
-      marginT-10
-      paddingH-10
+      style={{
+        borderWidth: 1,
+        borderColor: Colors.secondGray,
+        backgroundColor: Colors.mediumWhite,
+        borderRadius: 8,
+      }}
+      padding-15
+      marginB-15
     >
-      <TouchableOpacity
-        onPress={() => onRemove(item.id)}
-        style={{
-          position: 'absolute',
-          top: -20,
-          right: -10,
-          width: 20,
-          height: 20,
-          borderRadius: 10,
-          backgroundColor: '#909090',
-          zIndex: 10,
-          elevation: 10,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Text white>X</Text>
-      </TouchableOpacity>
-
-      <View row spread>
+      <View row spread marginB-5 style={{ alignItems: 'flex-start' }}>
         <View style={{ flex: 1, paddingRight: 10 }}>
-          <Text text80BO>
-            {item.name}
-          </Text>
+          <Text text70BO>{item.name}</Text>
           {item.pet_name && (
             <Text text90M color={Colors.primaryColor} marginT-2>
               Para: {item.pet_name}
             </Text>
           )}
         </View>
-        <Text text80BO>
-          {item.price}
-        </Text>
+        <View style={{ alignItems: 'flex-end' }}>
+          <TouchableOpacity
+            onPress={() => onRemove(item.id)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={{ marginBottom: 4 }}
+          >
+            <MaterialCommunityIcons name="close-circle" size={24} color={Colors.danger} />
+          </TouchableOpacity>
+          <Text text70BO>{item.price}</Text>
+        </View>
       </View>
 
-      <View row spread marginT-5>
-        <Text
-          text90L
-          numberOfLines={1}
-        >
+      <View row spread marginB-15 style={{ alignItems: 'flex-start' }}>
+        <Text text90 style={{ color: Colors.gray, flex: 1, paddingRight: 10 }}>
+          {capitalizedDate || 'Sin fecha asignada'}
+        </Text>
+        <Text text90 style={{ color: Colors.gray }}>
           {item.duration_minutes} min
         </Text>
-
-        <Text text90L style={{ flex: 1, textAlign: 'right' }}>
-          {capitalizedDate}
-        </Text>
       </View>
 
-      <View width={'100%'} marginV-10 height={0.5} style={{ backgroundColor: '#b4b4b4' }} />
+      <View width={'100%'} height={1} marginB-10 style={{ backgroundColor: Colors.secondGray }} />
 
-      <Text text80BO>
+      <Text text80>
         {(item as any).category_name || (type === 2 ? 'Veterinario' : 'Grooming')}
       </Text>
     </View>

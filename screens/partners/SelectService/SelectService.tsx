@@ -10,6 +10,7 @@ import { Colors } from "../../../styles/Colors";
 import * as ExpoLocation from 'expo-location';
 import { SelectServiceProps, Partner, NavigationService } from "./types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { RenderPets } from "../../../components/renders/RenderPets";
 
 const SelectService = ({ route }: SelectServiceProps) => {
   const params = route?.params || {};
@@ -34,6 +35,8 @@ const SelectService = ({ route }: SelectServiceProps) => {
   const [categories, setCategories] = useState<any[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [pets, setPets] = useState<any[]>([]);
+  const [selectedPet, setSelectedPet] = useState<any>(null);
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
@@ -65,6 +68,18 @@ const SelectService = ({ route }: SelectServiceProps) => {
         .catch(err => console.log("Error categories:", err));
     }
   }, [hasParams]);
+
+  useEffect(() => {
+    apiFetcher.getPets().then(res => {
+      if (res && res.data) {
+        setPets(res.data);
+        if (petId) {
+          const p = res.data.find((pet: any) => pet.id == petId);
+          if (p) setSelectedPet(p);
+        }
+      }
+    }).catch(err => console.log("Error fetching pets:", err));
+  }, [petId]);
 
   useEffect(() => {
     (async () => {
@@ -118,7 +133,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
     navigation.navigate("PartnersGeneralInfo", {
       id: item.id,
       type: item.type_partner.id,
-      petId,
+      petId: selectedPet?.id || petId,
       serviceId,
       q,
       service_catalog_id,
@@ -165,6 +180,23 @@ const SelectService = ({ route }: SelectServiceProps) => {
 
   return (
     <View flex bg-white>
+      {hasParams && pets.length > 0 && (
+        <FlatList
+          data={pets}
+          horizontal
+          renderItem={({ item }) => (
+            <RenderPets
+              pet={item}
+              selectedPet={selectedPet}
+              handleSelectPet={setSelectedPet}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 15, paddingHorizontal: 15, flexGrow: 0 }}
+        />
+      )}
+
       {!hasParams && (
         <View paddingH-20 paddingT-20 paddingB-10>
           <View row spread centerV>

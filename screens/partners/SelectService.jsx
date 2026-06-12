@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AnimatedImage, LoaderScreen, TextField } from "react-native-ui-lib";
 import * as Location from "expo-location";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { RenderPets } from "../../components/renders/RenderPets";
 
 const SelectService = ({ route }) => {
   const { type, serviceId, petId, q } = route.params || {};
@@ -26,6 +27,8 @@ const SelectService = ({ route }) => {
   const [categories, setCategories] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [pets, setPets] = useState([]);
+  const [selectedPet, setSelectedPet] = useState(null);
   const [activeMode, setActiveMode] = useState(
     !!(type || serviceId || petId || q)
   );
@@ -88,6 +91,18 @@ const SelectService = ({ route }) => {
       }
     }
   }, [route?.params?.q, route?.params?.vaccine_id, route?.params?.serviceId]);
+
+  useEffect(() => {
+    apiFetcher.getPets().then(res => {
+      if (res && res.data) {
+        setPets(res.data);
+        if (route?.params?.petId) {
+          const p = res.data.find(pet => pet.id == route.params.petId);
+          if (p) setSelectedPet(p);
+        }
+      }
+    }).catch(err => console.log("Error fetching pets:", err));
+  }, [route?.params?.petId]);
 
   // ─── Permisos de ubicación ─────────────────────────────────────────────────
   useEffect(() => {
@@ -177,7 +192,7 @@ const SelectService = ({ route }) => {
     navigation.navigate("PartnersGeneralInfo", {
       id: item.id,
       type,
-      petId,
+      petId: selectedPet?.id || petId,
       serviceId,
       q: localQ,
       vaccine_id,
@@ -232,7 +247,16 @@ const SelectService = ({ route }) => {
       <View style={styles.item2}>
         <View style={styles.leftSection}>
           <AnimatedImage
-            source={{ uri: item?.picture }}
+            source={{
+              uri:
+                item?.picture ||
+                item?.services?.find(
+                  service => service?.service_ownered?.picture
+                )?.service_ownered?.picture ||
+                item?.partner?.picture ||
+                item?.users?.[0]?.picture ||
+                "https://public-gym.s3.amazonaws.com/defaults/gym_missing.png"
+            }}
             style={styles.imageItem}
             loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
             animationDuration={500}
@@ -282,6 +306,23 @@ const SelectService = ({ route }) => {
           />
           <Text style={styles.backButtonText}>Explorar servicios</Text>
         </TouchableOpacity>
+      )}
+
+      {hasParams && pets.length > 0 && (
+        <FlatList
+          data={pets}
+          horizontal
+          renderItem={({ item }) => (
+            <RenderPets
+              pet={item}
+              selectedPet={selectedPet}
+              handleSelectPet={setSelectedPet}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 15, paddingHorizontal: 15 }}
+        />
       )}
 
       {/* ── HEADER DE EXPLORACIÓN: siempre visible si no viene de notificacion ── */}
@@ -364,12 +405,16 @@ const SelectService = ({ route }) => {
           </Text>
           <View style={styles.notificationCardInside}>
             <View style={styles.serviceContent}>
-              <Text style={styles.serviceTitle}>{serviceData.name}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={styles.serviceTitle}>{serviceData.name}</Text>
+              </View>
               {!!serviceData.description && (
                 <Text style={styles.serviceDescription}>
                   {serviceData.description}
                 </Text>
               )}
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               {!!serviceData.status && (
                 <View style={styles.statusRow}>
                   <View style={styles.redDot} />
@@ -377,8 +422,6 @@ const SelectService = ({ route }) => {
                 </View>
               )}
             </View>
-            <View style={styles.divider} />
-            <Text style={styles.serviceFooter}>{serviceData.category}</Text>
           </View>
         </View>
       )}
@@ -470,15 +513,15 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   itemTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "600",
   },
   leftSection: {
     marginRight: 20,
   },
   imageItem: {
-    height: 90,
-    width: 90,
+    height: 60,
+    width: 60,
     borderRadius: 11,
   },
   RightSection: {
@@ -508,11 +551,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   notificationCardInside: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.mediumWhite,
     paddingVertical: 15,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "#EAEAEA",
+    borderColor: Colors.secondGray,
+    borderRadius: 8,
   },
   serviceContent: {
     marginBottom: 5,
