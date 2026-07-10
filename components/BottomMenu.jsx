@@ -43,7 +43,7 @@ const BottomMenu = () => {
           MI ACTIVIDAD
         </Text>
       </View>
-      <TouchableOpacity onPress={() => {
+      {/*<TouchableOpacity onPress={() => {
         navigation.navigate("NotificationsTab", { screen: "NotificationsHome" })
       }}>
         <View
@@ -63,9 +63,9 @@ const BottomMenu = () => {
             <Icon name="chevron-right" size={25} color={Colors.red} />
           </View>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity>*/}
       <TouchableOpacity onPress={() => {
-        navigation.navigate("AppointmentsHome")
+        navigation.push("AppointmentsHome")
       }}>
         <View
           row
@@ -84,7 +84,7 @@ const BottomMenu = () => {
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("ProfileEditUserMenu")}>
+      <TouchableOpacity onPress={() => navigation.push("ProfileEditUserMenu")}>
         <View
           row
           spread

@@ -11,7 +11,8 @@ import Toast from "react-native-toast-message";
 import OtherPartner from "../../../components/modals/OtherPartner";
 
 const SelectPartner = ({ route }) => {
-  const { action, vaccine } = route.params;
+  // route.params puede ser undefined cuando se llega desde la tab de Health sin parámetros
+  const { action, vaccine } = route?.params ?? {};
   const [listPartners, setListPartners] = useState([]);
   const [visible, setVisible] = useState(false);
   const apiFetcher = new ApiFetcher();
@@ -27,8 +28,8 @@ const SelectPartner = ({ route }) => {
       onPress={() =>
         navigation.navigate("ListPartners", {
           partners: item.users,
-          action: action,
-          vaccine: vaccine,
+          action: action ?? null,
+          vaccine: vaccine ?? null,
         })
       }
     >
@@ -72,9 +73,9 @@ const SelectPartner = ({ route }) => {
       <View paddingH-10>
         <OtherPartner
           close={() => setVisible(false)}
-          action={action}
+          action={action ?? null}
           visible={visible}
-          vaccine={vaccine}
+          vaccine={vaccine ?? null}
         />
         <TouchableOpacity onPress={() => setVisible(true)}>
           <Text text60BO color={Colors.primaryColor}>
@@ -82,7 +83,7 @@ const SelectPartner = ({ route }) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => action("Desconocido", vaccine)}
+          onPress={() => action && action("Desconocido", vaccine)}
           style={{ marginTop: 10 }}
         >
           <Text text60BO color={Colors.primaryColor}>

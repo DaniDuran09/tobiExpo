@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { AnimatedImage, LoaderScreen, TextField } from "react-native-ui-lib";
 import * as Location from "expo-location";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -133,11 +133,7 @@ const SelectService = ({ route }) => {
   }, [hasParams, activeMode]);
 
   // ─── Carga de partners ─────────────────────────────────────────────────────
-  useEffect(() => {
-    fetchData();
-  }, [localQ, location, activeCategoryId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const { vaccine_id, catalog_code, service_catalog_id } = route?.params || {};
@@ -151,15 +147,23 @@ const SelectService = ({ route }) => {
         catalog_code,
         category_id: activeCategoryId || undefined,
       });
-      if (partners.code === 200 || partners.code === 201)
+      if (partners.code === 200 || partners.code === 201) {
         setListPartners(partners.data);
+      }
     } catch (error) {
       console.log("Error: ", error);
       Alert.alert("Ha ocurrido un error", "Inténtelo de nuevo más tarde");
     } finally {
       setLoading(false);
     }
-  };
+  }, [localQ, location, activeCategoryId, route?.params]);
+
+  // ─── Recarga cuando la pantalla recibe foco (ej: al regresar de partner) ───
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -265,7 +269,13 @@ const SelectService = ({ route }) => {
         </View>
         <View style={styles.RightSection}>
           <Text style={styles.itemTitle}>{item.name}</Text>
-          <ExpandableText text={item.description} />
+          <ExpandableText text={
+            item.description ||
+            item?.services?.find(s => s?.description)?.description ||
+            item?.services?.find(s => s?.service_ownered?.description)?.service_ownered?.description ||
+            item?.partner?.description ||
+            ""
+          } />
           <View style={styles.rating}>
             {Array.from({ length: 5 }).map((_, i) => (
               <Text key={i}>{i < item.rating ? "⭐" : "☆"}</Text>

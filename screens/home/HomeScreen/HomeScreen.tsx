@@ -15,6 +15,8 @@ import { View, Text, TouchableOpacity } from "react-native-ui-lib";
 import useNotificationsPermissions from "../../../hooks/useNotificationsPermission";
 import { useNotificationsContext } from "../../../context/NotificationContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ActionCard from "../../../components/home/ActionCard";
+import Banner from "../../../components/home/Banner";
 
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -23,6 +25,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [userData, setUserData] = useState<any>({});
+  const [homeFeed, setHomeFeed] = useState<any>({ banner: null, cards: [] });
 
   const apiFetcher = new ApiFetcher();
 
@@ -55,6 +58,16 @@ const HomeScreen = ({ navigation }: any) => {
       const user = await apiFetcher.getProfile();
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
+      
+      try {
+        const feedResponse = await apiFetcher.getHomeFeed();
+        if (feedResponse && feedResponse.data) {
+          setHomeFeed(feedResponse.data);
+        }
+      } catch (feedError) {
+        console.log("Error fetching home feed: ", feedError);
+      }
+
       const petsWithAppointments = await Promise.all(
         list.data.map(async (pet: any) => {
           const response = await fetchInfoAppointmentPet(pet.id);
@@ -137,6 +150,84 @@ const HomeScreen = ({ navigation }: any) => {
     };
   }, []);
 
+  const handleAction = (action: string, data: any) => {
+    console.log("Action pressed:", action, data);
+    switch (action) {
+      case "view_appointment":
+        navigation.navigate("AppointmentsHome");
+        break;
+      case "view_vaccines":
+      case "view_deworming":
+        navigation.navigate("SelectPetVaccines");
+        break;
+      case "book_consultation":
+        navigation.navigate("Explore", {
+          screen: "SelectService",
+          params: {
+            q: null,
+            petId: data?.pet_id ?? null,
+            serviceId: null,
+            vaccine_id: null,
+            catalog_code: null,
+            service_catalog_id: null,
+          },
+        });
+        break;
+      case "view_summary":
+        if (data?.visit_id) {
+          navigation.navigate("VisitDetails", { id: data.visit_id });
+        } else {
+          navigation.navigate("AppointmentsHome");
+        }
+        break;
+      case "view_recommendation":
+        navigation.navigate("HomeProfileDetails", { petId: data?.pet_id });
+        break;
+      case "edit_profile":
+        navigation.navigate("ProfileStack", { screen: "ProfileEditUser" });
+        break;
+      case "add_pet":
+        navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" });
+        break;
+      default:
+        console.warn("[HomeScreen] Sin navegación para action:", action);
+    }
+  };
+
+  const renderHomeFeed = () => {
+    let bannersToShow = [];
+    let cardsToShow = [];
+
+    if (homeFeed.banner) {
+      bannersToShow.push(homeFeed.banner);
+    }
+
+    if (homeFeed.cards && homeFeed.cards.length > 0) {
+      cardsToShow = homeFeed.cards.slice(0, 2);
+    }
+
+    if (bannersToShow.length === 0 && cardsToShow.length === 0) return null;
+
+    return (
+      <View>
+        {bannersToShow.map((banner, idx) => (
+          <Banner key={`banner-${idx}`} banner={banner} onPress={handleAction} />
+        ))}
+        {cardsToShow.length > 0 && (
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 8 }}>
+            <Text text70BL color={Colors.primaryColor}>Cuidados pendientes</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("PendingCare")}>
+              <Text text80 color={Colors.primaryColor}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {cardsToShow.map((card, idx) => (
+          <ActionCard key={`card-${idx}`} card={card} onPress={handleAction} />
+        ))}
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={{ backgroundColor: Colors.white, flex: 1 }}>
       <NotificationPermissionDialog />
@@ -173,6 +264,7 @@ const HomeScreen = ({ navigation }: any) => {
           }
           renderItem={({ item }) => <RenderSections item={item} />}
           contentContainerStyle={{ flexGrow: 1 }}
+          ListHeaderComponent={renderHomeFeed}
           ListEmptyComponent={<NoPetsHome onPress={() => navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" })} />}
           ListFooterComponent={
             <View marginB-30>
