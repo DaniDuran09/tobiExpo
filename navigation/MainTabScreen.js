@@ -63,6 +63,7 @@ import { useNavigation } from "@react-navigation/native";
 import AppointmentsHome from "../screens/appointments/AppointmentsHome";
 import AppointmentDetails from "../screens/appointments/AppointmentDetails";
 import VisitDetails from "../screens/appointments/VisitDetails";
+import PendingCareScreen from "../screens/home/PendingCareScreen";
 
 
 const HomeStack = createStackNavigator();
@@ -123,56 +124,6 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
         }}
       />
       <Tab.Screen
-        name="ProfileStack"
-        component={ProfileStackScreen}
-        options={{
-          headerShown: false,
-          tabBarLabel: "",
-          tabBarColor: "#fff",
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require("../assets/pet.png")}
-              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-              resizeMode="contain"
-            />
-          ),
-        }}
-      />
-      {/*
-      <Tab.Screen
-      name="Notifications2"
-      component={DetailsStackScreen}
-      options={{
-        headerShown: false,
-        tabBarLabel: "",
-        tabBarColor: "#fff",
-        tabBarIcon: ({ color }) => (
-          <Image
-            source={require("../assets/social.png")}
-            style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-            resizeMode="contain"
-          />
-        ),
-      }}
-    />
-    */}
-      <Tab.Screen
-        name="PetParent"
-        component={DetailsStackScreen}
-        options={{
-          headerShown: false,
-          tabBarLabel: "",
-          tabBarColor: "#fff",
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require("../assets/social.png")}
-              style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
-              resizeMode="contain"
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Explore"
         component={PartnersStack}
         listeners={({ navigation }) => ({
@@ -205,35 +156,34 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
           ),
         }}
       />
-      {/* <Tab.Screen
-        name="NotificationsTab"
-        component={NotificationsStack}
+      <Tab.Screen
+        name="Health"
+        component={HealthStackScreens}
+        options={{
+          headerShown: false,
+          tabBarLabel: '',
+          tabBarColor: '#fff',
+          tabBarIcon: ({ color }) => (
+            <Image source={require('../assets/heart.png')} style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }} resizeMode='contain' />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProfileStack"
+        component={ProfileStackScreen}
         options={{
           headerShown: false,
           tabBarLabel: "",
           tabBarColor: "#fff",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require("../assets/notifications.png")}
+              source={require("../assets/pet.png")}
               style={{ height: 25, width: 25, tintColor: color, marginTop: 15 }}
               resizeMode="contain"
             />
           ),
         }}
-      /> */}
-
-
-      {/* <Tab.Screen
-      name="Heart"
-      component={HeartStackScreen}
-      options={{
-        tabBarLabel: '',
-        tabBarColor: '#fff',
-        tabBarIcon: ({ color }) => (
-          <Image source={require('../assets/heart.png')} style={{ height: 25, width: 25 }} resizeMode='contain' />
-        ),
-      }}
-    /> */}
+      />
     </Tab.Navigator>)
 };
 
@@ -349,6 +299,13 @@ const HomeStackScreen = ({ navigation }) => (
         headerTintColor: "black",
       }}
     />
+    <HomeStack.Screen
+      name="PendingCare"
+      component={PendingCareScreen}
+      options={{
+        headerShown: false,
+      }}
+    />
   </HomeStack.Navigator>
 );
 
@@ -366,6 +323,15 @@ const HealthStackScreens = ({ navigation }) => (
     }}
   >
     <HealthStack.Screen
+      name="CareCenter"
+      component={PendingCareScreen}
+      options={{
+        headerShown: false,
+        title: "Care Center",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
       name="SelectPartner"
       component={SelectPartner}
       options={{
@@ -378,7 +344,57 @@ const HealthStackScreens = ({ navigation }) => (
       options={{
         headerShown: true,
         headerBackTitleVisible: false,
-        title: "Seleccioanr especialista",
+        title: "Seleccionar especialista",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
+      name="AppointmentsHome"
+      component={AppointmentsHome}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Mis citas",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
+      name="SelectPetVaccines"
+      component={SelectPetVaccines}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Cartillas",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
+      name="PetVaccinesRecord"
+      component={PetVaccinesRecord}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Cartilla",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
+      name="VisitDetails"
+      component={VisitDetails}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Detalles de cita",
+        headerTintColor: "black",
+      }}
+    />
+    <HealthStack.Screen
+      name="HomeProfileDetails"
+      component={PetHealth}
+      options={{
+        headerShown: true,
+        headerBackTitleVisible: false,
+        title: "Salud",
         headerTintColor: "black",
       }}
     />

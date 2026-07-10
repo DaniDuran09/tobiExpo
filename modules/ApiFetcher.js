@@ -363,6 +363,20 @@ class ApiFetcher {
   async markNotificationAsRead(id) {
     return await this._put(`/v1/portal_client/notifications/${id}/mark_as_read`, {});
   }
+
+  // home feed
+  async getHomeFeed() {
+    return await this._get("/v2/portal_client/home");
+  }
+
+  // pending care cards
+  async getPendingCards() {
+    return await this._get("/v2/portal_client/home/pending");
+  }
+
+  async markVisitSummaryOpened(id) {
+    return await this._patch(`/v2/portal_client/visit_summaries/${id}/open`, {}, true);
+  }
 }
 
 export default ApiFetcher;
