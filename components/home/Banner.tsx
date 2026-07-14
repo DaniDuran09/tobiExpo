@@ -5,13 +5,13 @@ import { getThemeForCard, getIconForType } from "./ThemeMapping";
 
 interface BannerProps {
   banner: any;
-  onPress: (action: string, data: any) => void;
+  onPress: (action: string, data: any, fingerprint?: string) => void;
   onClose?: () => void;
 }
 
 const Banner = ({ banner, onPress, onClose }: BannerProps) => {
   const { title, body, priority, type, action, data } = banner;
-  const theme = getThemeForCard(priority, type);
+  const theme = getThemeForCard(banner);
   const iconName = getIconForType(type);
 
   // The red badge logic (assuming critical/high priority gets a badge)
@@ -20,7 +20,7 @@ const Banner = ({ banner, onPress, onClose }: BannerProps) => {
   return (
     <TouchableOpacity 
       style={[styles.container, { backgroundColor: theme.fill, borderColor: theme.stroke }]}
-      onPress={() => onPress(action, data)}
+      onPress={() => onPress(action, data, banner.entity_fingerprint)}
       activeOpacity={0.8}
     >
       <View style={styles.content}>

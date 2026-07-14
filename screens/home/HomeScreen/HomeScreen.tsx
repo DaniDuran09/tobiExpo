@@ -150,31 +150,50 @@ const HomeScreen = ({ navigation }: any) => {
     };
   }, []);
 
-  const handleAction = (action: string, data: any) => {
-    console.log("Action pressed:", action, data);
+  const handleAction = async (action: string, data: any, fingerprint?: string) => {
+    console.log("Action pressed:", action, data, fingerprint);
+    
+    if (fingerprint) {
+      await apiFetcher.markHomeCardAsRead(fingerprint);
+    }
+
+    const serviceName = data?.service_catalog?.name || data?.service_name || data?.vaccine_name || data?.vaccine?.name || data?.deworming_name || data?.name || null;
+
     switch (action) {
       case "view_appointment":
         navigation.navigate("AppointmentsHome");
         break;
       case "view_vaccines":
       case "view_deworming":
-        navigation.navigate("SelectPetVaccines");
-        break;
-      case "book_consultation":
         navigation.navigate("Explore", {
           screen: "SelectService",
           params: {
-            q: null,
+            q: serviceName,
             petId: data?.pet_id ?? null,
             serviceId: null,
-            vaccine_id: null,
+            vaccine_id: data?.vaccine_id ?? null,
             catalog_code: null,
-            service_catalog_id: null,
+            service_catalog_id: data?.service_catalog_id ?? null,
+          },
+        });
+        break;
+      case "book_consultation":
+      case "book_appointment":
+        navigation.navigate("Explore", {
+          screen: "SelectService",
+          params: {
+            q: serviceName,
+            petId: data?.pet_id ?? null,
+            serviceId: null,
+            vaccine_id: data?.vaccine_id ?? null,
+            catalog_code: null,
+            service_catalog_id: data?.service_catalog_id ?? null,
           },
         });
         break;
       case "view_summary":
         if (data?.visit_id) {
+          apiFetcher.markVisitSummaryOpened(data.visit_id).catch(e => console.warn(e));
           navigation.navigate("VisitDetails", { id: data.visit_id });
         } else {
           navigation.navigate("AppointmentsHome");

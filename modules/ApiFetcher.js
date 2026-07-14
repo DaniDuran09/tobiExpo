@@ -377,6 +377,16 @@ class ApiFetcher {
   async markVisitSummaryOpened(id) {
     return await this._patch(`/v2/portal_client/visit_summaries/${id}/open`, {}, true);
   }
+
+  // Marcar card de home / care center como leída
+  async markHomeCardAsRead(fingerprint) {
+    // Asumimos un endpoint para marcar como leída basado en el fingerprint
+    try {
+      return await this._patch(`/v2/portal_client/home/cards/read`, { fingerprint }, true);
+    } catch (e) {
+      console.warn("No se pudo marcar la card como leída", e);
+    }
+  }
 }
 
 export default ApiFetcher;

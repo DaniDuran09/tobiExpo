@@ -69,51 +69,53 @@ const ctaLabel = (action: string): string => {
   }
 };
 
-const handleNavAction = (action: string, data: any, nav: any, serviceTitle?: string) => {
-  // Extrae IDs de servicio que puedan venir del backend en data
-  const vaccine_id = data?.vaccine_id ?? null;
-  const catalog_code = data?.catalog_code ?? data?.service_catalog?.code ?? null;
-  const service_catalog_id = data?.service_catalog_id ?? data?.service_catalog?.id ?? null;
-  // Limpia emojis del título para usarlo como query
-  const cleanTitle = serviceTitle?.replace(/[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim() || null;
+const handleNavAction = async (action: string, data: any, fingerprint: string | undefined, nav: any) => {
+  if (fingerprint) {
+    try {
+      await apiFetcher.markHomeCardAsRead(fingerprint);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+  const serviceName = data?.service_catalog?.name || data?.service_name || data?.vaccine_name || data?.vaccine?.name || data?.deworming_name || data?.name || null;
 
   switch (action) {
     case "view_appointment":
-      // Navegar al tab Health → AppointmentsHome (flujo activo de citas)
-      nav.navigate("Health", { screen: "AppointmentsHome" });
+      nav.navigate("AppointmentsHome");
       break;
     case "view_vaccines":
     case "view_deworming":
-      // Flujo activo de citas en el tab Explore, con nombre del servicio para la tarjeta
       nav.navigate("Explore", {
         screen: "SelectService",
         params: {
+          q: serviceName,
           petId: data?.pet_id ?? null,
-          q: cleanTitle,
           serviceId: null,
-          vaccine_id,
-          catalog_code,
-          service_catalog_id,
+          vaccine_id: data?.vaccine_id ?? null,
+          catalog_code: null,
+          service_catalog_id: data?.service_catalog_id ?? null,
         },
       });
       break;
     case "book_consultation":
-      // Flujo activo de citas en el tab Explore, con nombre del servicio para la tarjeta
+    case "book_appointment":
       nav.navigate("Explore", {
         screen: "SelectService",
-        params: {
-          petId: data?.pet_id ?? null,
-          q: cleanTitle,
-          serviceId: null,
-          vaccine_id,
-          catalog_code,
-          service_catalog_id,
+        params: { 
+          q: serviceName,
+          petId: data?.pet_id ?? null, 
+          service_catalog_id: data?.service_catalog_id ?? null 
         },
       });
       break;
     case "view_summary":
-      if (data?.visit_id) nav.navigate("Health", { screen: "VisitDetails", params: { id: data.visit_id } });
-      else nav.navigate("Health", { screen: "AppointmentsHome" });
+      if (data?.visit_id) {
+        apiFetcher.markVisitSummaryOpened(data.visit_id).catch(e => console.warn(e));
+        nav.navigate("Health", { screen: "VisitDetails", params: { id: data.visit_id } });
+      } else {
+        nav.navigate("Health", { screen: "AppointmentsHome" });
+      }
       break;
     case "view_recommendation":
       nav.navigate("HomeProfileDetails", { petId: data?.pet_id });
@@ -285,18 +287,7 @@ const PendingCareScreen = () => {
                   key={idx}
                   card={card}
                   sectionKey={key}
-                  onAction={() => handleNavAction(
-                    card.action,
-                    card.data,
-                    navigation,
-                    // Nombre específico en orden de prioridad; card.title es genérico ("Vacuna vencida")
-                    card.data?.service_catalog?.name
-                      || card.data?.service_name
-                      || card.data?.vaccine_name
-                      || card.data?.deworming_name
-                      || card.data?.name
-                      || card.title
-                  )}
+                  onAction={() => handleNavAction(card.action, card.data, card.entity_fingerprint, navigation)}
                 />
               ))}
             </View>

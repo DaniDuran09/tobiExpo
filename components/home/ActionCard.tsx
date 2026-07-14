@@ -1,41 +1,75 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { getThemeForCard, getIconForType } from "./ThemeMapping";
+import { getThemeForCard } from "./ThemeMapping";
 import { Avatar } from "react-native-paper";
 
 interface ActionCardProps {
   card: any;
-  onPress: (action: string, data: any) => void;
+  onPress: (action: string, data: any, fingerprint?: string) => void;
+  onClose?: () => void;
 }
 
-const ActionCard = ({ card, onPress }: ActionCardProps) => {
-  const { title, body, priority, type, action, data } = card;
-  const theme = getThemeForCard(priority, type);
-  const iconName = getIconForType(type);
+const ctaLabel = (action: string): string => {
+  switch (action) {
+    case "view_appointment":
+    case "book_consultation":
+      return "Agendar cita";
+    case "view_vaccines":
+    case "view_deworming":
+      return "Agendar";
+    case "view_summary":
+      return "Ver actualización";
+    case "view_recommendation":
+      return "Ver recomendación";
+    case "edit_profile":
+      return "Completar perfil";
+    case "add_pet":
+      return "Continuar registro";
+    default:
+      return "Continuar";
+  }
+};
+
+const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
+  const { title, body, action, data } = card;
+  const theme = getThemeForCard(card);
   const petPicture = data?.pet_picture_url || null;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.fill, borderColor: theme.stroke }]}>
-      <View style={styles.header}>
+      {/* Botón de cerrar (X) arriba a la derecha */}
+      {onClose && (
+        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <Icon name="close" size={20} color="#000" />
+        </TouchableOpacity>
+      )}
+
+      {/* Avatar arriba al centro */}
+      <View style={styles.avatarContainer}>
         {petPicture ? (
-          <Avatar.Image source={{ uri: petPicture }} size={40} style={styles.avatar} />
+          <Avatar.Image source={{ uri: petPicture }} size={48} />
         ) : (
-          <View style={styles.iconContainer}>
-            <Icon name={iconName} size={24} color="#333" />
+          <View style={styles.avatarPlaceholder}>
+            <Icon name="paw" size={24} color="#999" />
           </View>
         )}
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.body}>{body}</Text>
-        </View>
+      </View>
+
+      {/* Título y descripción centrados */}
+      <View style={styles.textContainer}>
+        <Text style={styles.title} textAlign="center">{title}</Text>
+        {body ? (
+          <Text style={styles.body} textAlign="center">{body}</Text>
+        ) : null}
       </View>
       
+      {/* Botón de ancho completo */}
       <TouchableOpacity 
         style={[styles.button, { backgroundColor: theme.cta }]} 
-        onPress={() => onPress(action, data)}
+        onPress={() => onPress(action, data, card.entity_fingerprint)}
       >
-        <Text style={styles.buttonText}>Continuar</Text>
+        <Text style={styles.buttonText}>{ctaLabel(action)}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -45,58 +79,68 @@ const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
     borderRadius: 16,
-    padding: 16,
-    marginVertical: 8,
+    padding: 20,
+    marginVertical: 10,
     marginHorizontal: 16,
+    position: "relative",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  header: {
-    flexDirection: "row",
+  closeButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    padding: 4,
+    zIndex: 10,
+  },
+  avatarContainer: {
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatarPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  textContainer: {
     alignItems: "center",
     marginBottom: 16,
   },
-  avatar: {
-    marginRight: 12,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  textContainer: {
-    flex: 1,
-  },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
-    lineHeight: 24,
-    color: "#333",
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000",
+    marginBottom: 6,
+    textAlign: "center",
   },
   body: {
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-    color: "#666",
+    fontSize: 13,
+    color: "#444",
+    textAlign: "center",
+    lineHeight: 18,
   },
   button: {
-    height: 40,
+    height: 44,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
   },
   buttonText: {
     color: "#FFF",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "700",
   }
 });
 

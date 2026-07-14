@@ -21,19 +21,19 @@ export const ThemeMapping = {
   },
 };
 
-export const getThemeForCard = (priority, type) => {
-  if (type === "scheme_completed" || type === "appointment_created") return ThemeMapping.green;
-  if (priority === "critical") return ThemeMapping.red;
-  if (priority === "high") return ThemeMapping.yellow;
-  if (priority === "medium") return ThemeMapping.yellow;
-  if (priority === "low") return ThemeMapping.blue;
+export const getThemeForCard = (card: any) => {
+  const { priority, type, color_level } = card;
+  if (type === "scheme_completed" || type === "appointment_created" || color_level === "green") return ThemeMapping.green;
+  if (priority === "critical" || color_level === "red") return ThemeMapping.red;
+  if (priority === "high" || priority === "medium" || color_level === "yellow") return ThemeMapping.yellow;
+  if (priority === "low" || color_level === "blue") return ThemeMapping.blue;
   return ThemeMapping.blue; // default
 };
 
-export const getIconForType = (type) => {
-  if (type.includes("vaccine") || type.includes("syringe")) return "medkit-outline"; 
-  if (type.includes("deworming")) return "shield-checkmark-outline"; 
-  if (type.includes("weight")) return "scale-outline"; 
+export const getIconForType = (type: string) => {
+  if (type.includes("vaccine") || type.includes("syringe")) return "medkit-outline";
+  if (type.includes("deworming")) return "shield-checkmark-outline";
+  if (type.includes("weight")) return "scale-outline";
   if (type.includes("appointment") || type.includes("date")) return "calendar-outline";
   if (type.includes("visit") || type.includes("summary")) return "document-text-outline";
   if (type.includes("recommendation")) return "list-outline";
