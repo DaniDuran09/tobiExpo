@@ -3,7 +3,8 @@ import * as Notifications from "expo-notifications"
 import Constants from "expo-constants"
 import { Alert, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigate } from "../hooks/navigationRef";
+import { handleGlobalAction } from "../utils/ActionHandler";
+import AppStorage from "../modules/AppStorage";
 
 const Context = createContext({
     notifications: [],
@@ -57,6 +58,9 @@ export default function NotificationContext({ children }: { children: ReactNode 
                 })
             ).data;
             console.log("token", pushTokenString);
+            // Guardar en storage para usarlo al hacer logout
+            const appStorage = new AppStorage();
+            await appStorage.saveExpoPushToken(pushTokenString);
         } catch (e: unknown) {
             Alert.alert(`${e}`);
         }
@@ -92,38 +96,18 @@ export default function NotificationContext({ children }: { children: ReactNode 
 
         const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
             const data = response.notification.request.content.data;
-            const metadata = data?.metadata || data;
-            const body = response.notification.request.content.body || "";
+            
+            // Extraer del nuevo payload estructurado
+            const action = data?.action;
+            const entity_fingerprint = data?.entity_fingerprint;
+            // card_data contiene todos los IDs y metadata extra, si no viene fallback a data (por retrocompatibilidad)
+            const card_data = data?.card_data || data;
 
-            let q = data?.q || metadata?.service_name || metadata?.vaccine_name || metadata?.deworming_type;
-            const type = metadata?.type;
-
-            if (!q) {
-                if (type === "weight") {
-                    q = "Consulta General";
-                } else if (type === "deworming") {
-                    q = "Desparasitación";
-                } else if (type === "vaccine") {
-                    const match = body.match(/vacuna de ([^ ,.]+)/i);
-                    q = match ? match[1] : "Vacuna";
-                }
-            }
-
-            const serviceId = metadata?.service_id || metadata?.vaccine_id || null;
-            const petId = data?.pet_id || metadata?.pet_id;
-
-            if (q || metadata?.vaccine_id || metadata?.service_id || type) {
-                navigate("Explore", {
-                    screen: "SelectService",
-                    params: {
-                        serviceId: serviceId || null,
-                        petId: petId || null,
-                        q: q || null,
-                        service_catalog_id: metadata?.service_catalog_id || null,
-                        catalog_code: metadata?.service_catalog_code || metadata?.catalog_code || (type === "weight" ? "SC-CONSULTA-GENERAL" : null),
-                        vaccine_id: metadata?.vaccine_id || null
-                    }
-                });
+            if (action) {
+                // Usamos el handler centralizado
+                handleGlobalAction(action, card_data, entity_fingerprint);
+            } else {
+                console.warn("Notificación sin action, no se pudo redirigir:", data);
             }
         });
 

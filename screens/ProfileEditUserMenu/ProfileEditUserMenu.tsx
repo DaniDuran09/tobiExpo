@@ -47,6 +47,16 @@ const ProfileEditUserMenu: React.FC = () => {
   const logout = async () => {
     setLoading(true);
     try {
+      // Leer el token de Expo guardado y notificar al backend
+      const expotoken = await appStorage.getExpoPushToken();
+      if (expotoken) {
+        try {
+          await apiFetcher.logout(expotoken);
+        } catch (e) {
+          // Si falla el endpoint no bloqueamos el logout local
+          console.warn("Error al notificar logout al servidor:", e);
+        }
+      }
       await appStorage.clearStorage();
       dispatch(clearUser());
       dispatch(clearPetInfo());

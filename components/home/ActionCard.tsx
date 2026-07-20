@@ -67,7 +67,7 @@ const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
       {/* Botón de ancho completo */}
       <TouchableOpacity 
         style={[styles.button, { backgroundColor: theme.cta }]} 
-        onPress={() => onPress(action, data, card.entity_fingerprint)}
+        onPress={() => onPress(action, data, card.id)}
       >
         <Text style={styles.buttonText}>{ctaLabel(action)}</Text>
       </TouchableOpacity>

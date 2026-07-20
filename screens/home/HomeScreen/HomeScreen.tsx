@@ -17,6 +17,7 @@ import { useNotificationsContext } from "../../../context/NotificationContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionCard from "../../../components/home/ActionCard";
 import Banner from "../../../components/home/Banner";
+import { handleGlobalAction } from "../../../utils/ActionHandler";
 
 const HomeScreen = ({ navigation }: any) => {
   const user = useSelector((state: any) => state.user.userInfo);
@@ -151,66 +152,7 @@ const HomeScreen = ({ navigation }: any) => {
   }, []);
 
   const handleAction = async (action: string, data: any, fingerprint?: string) => {
-    console.log("Action pressed:", action, data, fingerprint);
-    
-    if (fingerprint) {
-      await apiFetcher.markHomeCardAsRead(fingerprint);
-    }
-
-    const serviceName = data?.service_catalog?.name || data?.service_name || data?.vaccine_name || data?.vaccine?.name || data?.deworming_name || data?.name || null;
-
-    switch (action) {
-      case "view_appointment":
-        navigation.navigate("AppointmentsHome");
-        break;
-      case "view_vaccines":
-      case "view_deworming":
-        navigation.navigate("Explore", {
-          screen: "SelectService",
-          params: {
-            q: serviceName,
-            petId: data?.pet_id ?? null,
-            serviceId: null,
-            vaccine_id: data?.vaccine_id ?? null,
-            catalog_code: null,
-            service_catalog_id: data?.service_catalog_id ?? null,
-          },
-        });
-        break;
-      case "book_consultation":
-      case "book_appointment":
-        navigation.navigate("Explore", {
-          screen: "SelectService",
-          params: {
-            q: serviceName,
-            petId: data?.pet_id ?? null,
-            serviceId: null,
-            vaccine_id: data?.vaccine_id ?? null,
-            catalog_code: null,
-            service_catalog_id: data?.service_catalog_id ?? null,
-          },
-        });
-        break;
-      case "view_summary":
-        if (data?.visit_id) {
-          apiFetcher.markVisitSummaryOpened(data.visit_id).catch(e => console.warn(e));
-          navigation.navigate("VisitDetails", { id: data.visit_id });
-        } else {
-          navigation.navigate("AppointmentsHome");
-        }
-        break;
-      case "view_recommendation":
-        navigation.navigate("HomeProfileDetails", { petId: data?.pet_id });
-        break;
-      case "edit_profile":
-        navigation.navigate("ProfileStack", { screen: "ProfileEditUser" });
-        break;
-      case "add_pet":
-        navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" });
-        break;
-      default:
-        console.warn("[HomeScreen] Sin navegación para action:", action);
-    }
+    await handleGlobalAction(action, data, fingerprint);
   };
 
   const renderHomeFeed = () => {

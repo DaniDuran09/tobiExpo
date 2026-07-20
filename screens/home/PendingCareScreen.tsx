@@ -14,6 +14,7 @@ import { Avatar } from "react-native-paper";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Colors } from "../../styles/Colors";
 import Icon from "react-native-vector-icons/Ionicons";
+import { handleGlobalAction } from "../../utils/ActionHandler";
 
 const apiFetcher = new ApiFetcher();
 
@@ -69,66 +70,8 @@ const ctaLabel = (action: string): string => {
   }
 };
 
-const handleNavAction = async (action: string, data: any, fingerprint: string | undefined, nav: any) => {
-  if (fingerprint) {
-    try {
-      await apiFetcher.markHomeCardAsRead(fingerprint);
-    } catch (e) {
-      console.warn(e);
-    }
-  }
-
-  const serviceName = data?.service_catalog?.name || data?.service_name || data?.vaccine_name || data?.vaccine?.name || data?.deworming_name || data?.name || null;
-
-  switch (action) {
-    case "view_appointment":
-      nav.navigate("AppointmentsHome");
-      break;
-    case "view_vaccines":
-    case "view_deworming":
-      nav.navigate("Explore", {
-        screen: "SelectService",
-        params: {
-          q: serviceName,
-          petId: data?.pet_id ?? null,
-          serviceId: null,
-          vaccine_id: data?.vaccine_id ?? null,
-          catalog_code: null,
-          service_catalog_id: data?.service_catalog_id ?? null,
-        },
-      });
-      break;
-    case "book_consultation":
-    case "book_appointment":
-      nav.navigate("Explore", {
-        screen: "SelectService",
-        params: { 
-          q: serviceName,
-          petId: data?.pet_id ?? null, 
-          service_catalog_id: data?.service_catalog_id ?? null 
-        },
-      });
-      break;
-    case "view_summary":
-      if (data?.visit_id) {
-        apiFetcher.markVisitSummaryOpened(data.visit_id).catch(e => console.warn(e));
-        nav.navigate("Health", { screen: "VisitDetails", params: { id: data.visit_id } });
-      } else {
-        nav.navigate("Health", { screen: "AppointmentsHome" });
-      }
-      break;
-    case "view_recommendation":
-      nav.navigate("HomeProfileDetails", { petId: data?.pet_id });
-      break;
-    case "edit_profile":
-      nav.navigate("ProfileStack", { screen: "ProfileEditUser" });
-      break;
-    case "add_pet":
-      nav.navigate("RegisterNewPet", { returnTo: "HomeScreen" });
-      break;
-    default:
-      console.warn("No action mapped for", action);
-  }
+const handleNavAction = async (action: string, data: any, fingerprint: string | undefined) => {
+  await handleGlobalAction(action, data, fingerprint);
 };
 
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
@@ -287,7 +230,7 @@ const PendingCareScreen = () => {
                   key={idx}
                   card={card}
                   sectionKey={key}
-                  onAction={() => handleNavAction(card.action, card.data, card.entity_fingerprint, navigation)}
+                  onAction={() => handleNavAction(card.action, card.data, card.id)}
                 />
               ))}
             </View>

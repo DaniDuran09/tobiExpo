@@ -3,7 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const STORAGE_KEYS = {
   USER: "USER",
   APP_TOKEN: "APP_TOKEN",
-  NOTIFICATIONS:"NOTIFICATIONS"
+  NOTIFICATIONS: "NOTIFICATIONS",
+  EXPO_PUSH_TOKEN: "EXPO_PUSH_TOKEN",
 };
 
 class AppStorage {
@@ -53,6 +54,14 @@ class AppStorage {
 
   getAppToken() {
     return this._getStringItem(STORAGE_KEYS.APP_TOKEN);
+  }
+
+  saveExpoPushToken(token) {
+    return AsyncStorage.setItem(STORAGE_KEYS.EXPO_PUSH_TOKEN, token);
+  }
+
+  getExpoPushToken() {
+    return this._getStringItem(STORAGE_KEYS.EXPO_PUSH_TOKEN);
   }
 
   clearStorage(){
