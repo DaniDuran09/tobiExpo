@@ -4,6 +4,7 @@ import Constants from "expo-constants"
 import { Alert, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { handleGlobalAction } from "../utils/ActionHandler";
+import { navigationRef } from "../hooks/navigationRef";
 import AppStorage from "../modules/AppStorage";
 
 const Context = createContext({
@@ -94,7 +95,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
             setNotifications(notifications)
         });
 
-        const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+        const processNotificationResponse = (response: Notifications.NotificationResponse) => {
             const data = response.notification.request.content.data;
             
             // Extraer del nuevo payload estructurado
@@ -104,11 +105,29 @@ export default function NotificationContext({ children }: { children: ReactNode 
             const card_data = data?.card_data || data;
 
             if (action) {
-                // Usamos el handler centralizado
-                handleGlobalAction(action, card_data, entity_fingerprint);
+                // Esperar a que la navegación esté lista en caso de cold start
+                const tryNavigate = () => {
+                    if (navigationRef.isReady()) {
+                        handleGlobalAction(action, card_data, entity_fingerprint);
+                    } else {
+                        setTimeout(tryNavigate, 100);
+                    }
+                };
+                tryNavigate();
             } else {
                 console.warn("Notificación sin action, no se pudo redirigir:", data);
             }
+        };
+
+        // Handle app opened from a completely dead state
+        Notifications.getLastNotificationResponseAsync().then(response => {
+            if (response) {
+                processNotificationResponse(response);
+            }
+        });
+
+        const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+            processNotificationResponse(response);
         });
 
         return () => {

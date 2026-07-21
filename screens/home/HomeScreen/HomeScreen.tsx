@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { BackHandler, FlatList, Platform, RefreshControl } from "react-native";
+import { BackHandler, FlatList, Platform, RefreshControl, Modal } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
 import { Colors } from "../../../styles/Colors";
 import ApiFetcher from "../../../modules/ApiFetcher";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 import momentTZ from "../../../utils/moment";
 import { setUserInfo } from "../../../redux/slice/userSlice";
@@ -19,7 +19,10 @@ import ActionCard from "../../../components/home/ActionCard";
 import Banner from "../../../components/home/Banner";
 import { handleGlobalAction } from "../../../utils/ActionHandler";
 
+let dismissedFeedItems = new Set<string>();
+
 const HomeScreen = ({ navigation }: any) => {
+  const isFocused = useIsFocused();
   const user = useSelector((state: any) => state.user.userInfo);
   const dispatch = useDispatch();
 
@@ -155,37 +158,89 @@ const HomeScreen = ({ navigation }: any) => {
     await handleGlobalAction(action, data, fingerprint);
   };
 
-  const renderHomeFeed = () => {
+  const [localDismissedItems, setLocalDismissedItems] = useState<Set<string>>(new Set(dismissedFeedItems));
+
+  const dismissItem = (id: string) => {
+    dismissedFeedItems.add(id);
+    setLocalDismissedItems(new Set(dismissedFeedItems));
+  };
+
+  const renderFeedOverlay = () => {
     let bannersToShow = [];
     let cardsToShow = [];
 
-    if (homeFeed.banner) {
+    if (homeFeed.banner && !localDismissedItems.has("banner")) {
       bannersToShow.push(homeFeed.banner);
     }
 
     if (homeFeed.cards && homeFeed.cards.length > 0) {
-      cardsToShow = homeFeed.cards.slice(0, 2);
+      cardsToShow = homeFeed.cards.slice(0, 2).filter((card: any) => !localDismissedItems.has(card.id));
     }
 
     if (bannersToShow.length === 0 && cardsToShow.length === 0) return null;
 
+    if (!isFocused) return null;
+
     return (
-      <View>
-        {bannersToShow.map((banner, idx) => (
-          <Banner key={`banner-${idx}`} banner={banner} onPress={handleAction} />
-        ))}
-        {cardsToShow.length > 0 && (
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 8 }}>
-            <Text text70BL color={Colors.primaryColor}>Cuidados pendientes</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("PendingCare")}>
-              <Text text80 color={Colors.primaryColor}>Ver todos</Text>
-            </TouchableOpacity>
+      <Modal transparent={true} visible={isFocused} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            paddingTop: 90,
+          }}
+        >
+          <View style={{ width: "100%", paddingHorizontal: 16 }}>
+            {bannersToShow.map((banner, idx) => (
+              <Banner
+                key={`banner-${idx}`}
+                banner={banner}
+                onPress={(action, data, fingerprint) => {
+                  handleAction(action, data, fingerprint);
+                }}
+                onClose={() => dismissItem("banner")}
+              />
+            ))}
+            {cardsToShow.length > 0 && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 16,
+                  marginTop: 8,
+                  marginBottom: 8,
+                }}
+              >
+                <Text text70BL color={Colors.white}>
+                  Cuidados pendientes
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("PendingCare");
+                  }}
+                >
+                  <Text text80 color={Colors.white}>
+                    Ver todos
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            {cardsToShow.map((card, idx) => (
+              <ActionCard
+                key={`card-${idx}`}
+                card={card}
+                onPress={(action, data, fingerprint) => {
+                  handleAction(action, data, fingerprint);
+                }}
+                onClose={() => dismissItem(card.id)}
+              />
+            ))}
           </View>
-        )}
-        {cardsToShow.map((card, idx) => (
-          <ActionCard key={`card-${idx}`} card={card} onPress={handleAction} />
-        ))}
-      </View>
+        </View>
+      </Modal>
     );
   };
 
@@ -225,7 +280,6 @@ const HomeScreen = ({ navigation }: any) => {
           }
           renderItem={({ item }) => <RenderSections item={item} />}
           contentContainerStyle={{ flexGrow: 1 }}
-          ListHeaderComponent={renderHomeFeed}
           ListEmptyComponent={<NoPetsHome onPress={() => navigation.navigate("RegisterNewPet", { returnTo: "HomeScreen" })} />}
           ListFooterComponent={
             <View marginB-30>
@@ -241,6 +295,7 @@ const HomeScreen = ({ navigation }: any) => {
           }
         />
       </View>
+      {renderFeedOverlay()}
     </SafeAreaView>
   );
 };

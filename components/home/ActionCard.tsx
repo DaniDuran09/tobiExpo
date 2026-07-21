@@ -13,6 +13,7 @@ interface ActionCardProps {
 const ctaLabel = (action: string): string => {
   switch (action) {
     case "view_appointment":
+      return "Ver cita";
     case "book_consultation":
       return "Agendar cita";
     case "view_vaccines":
@@ -34,7 +35,7 @@ const ctaLabel = (action: string): string => {
 const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
   const { title, body, action, data } = card;
   const theme = getThemeForCard(card);
-  const petPicture = data?.pet_picture_url || null;
+  const petPicture = data?.pet_picture_url || data?.pet?.picture || data?.pet_picture || null;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.fill, borderColor: theme.stroke }]}>
