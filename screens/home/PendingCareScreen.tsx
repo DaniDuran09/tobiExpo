@@ -52,6 +52,7 @@ const SECTIONS = {
 const ctaLabel = (action: string): string => {
   switch (action) {
     case "view_appointment":
+      return "Ver cita";
     case "book_consultation":
       return "Reservar ahora";
     case "view_vaccines":
@@ -78,7 +79,7 @@ const handleNavAction = async (action: string, data: any, fingerprint: string | 
 
 const CareCard = ({ card, sectionKey, onAction }: any) => {
   const section = SECTIONS[sectionKey as keyof typeof SECTIONS];
-  const petPicture = card.data?.pet_picture_url ?? null;
+  const petPicture = card.data?.pet_picture_url || card.data?.pet?.picture || card.data?.pet_picture || null;
   const petName = card.data?.pet_name ?? "";
   
   // Clean emoji from title if any, as we use specific icons
@@ -160,7 +161,7 @@ const PendingCareScreen = () => {
     );
   }
 
-  const canGoBack = navigation.canGoBack();
+
 
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
@@ -171,11 +172,7 @@ const PendingCareScreen = () => {
         {/* Header personalizado */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            {canGoBack && (
-              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                <Icon name="chevron-back" size={28} color="#111" />
-              </TouchableOpacity>
-            )}
+
             <View>
               <Text style={styles.headerTitle}>Care Center</Text>
               <Text style={styles.headerSubtitle}>Revisa y da seguimiento a su salud</Text>
