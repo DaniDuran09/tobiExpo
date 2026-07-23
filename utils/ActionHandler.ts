@@ -82,7 +82,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       break;
 
     case "view_recommendation":
-      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
+      navigate("Health", { screen: "HomeProfileDetails", params: { idSelectedPet: data?.pet_id } });
       break;
 
     case "edit_profile":
@@ -96,7 +96,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     case "view_scheme":
     case "view_health_record":
     case "view_pet_profile":
-      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
+      navigate("Health", { screen: "HomeProfileDetails", params: { idSelectedPet: data?.pet_id } });
       break;
 
     case "scheme_incomplete":

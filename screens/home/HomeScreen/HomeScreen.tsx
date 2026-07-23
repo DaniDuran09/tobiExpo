@@ -19,7 +19,6 @@ import ActionCard from "../../../components/home/ActionCard";
 import Banner from "../../../components/home/Banner";
 import { handleGlobalAction } from "../../../utils/ActionHandler";
 
-let dismissedFeedItems = new Set<string>();
 
 const HomeScreen = ({ navigation }: any) => {
   const isFocused = useIsFocused();
@@ -158,11 +157,17 @@ const HomeScreen = ({ navigation }: any) => {
     await handleGlobalAction(action, data, fingerprint);
   };
 
-  const [localDismissedItems, setLocalDismissedItems] = useState<Set<string>>(new Set(dismissedFeedItems));
+  const [localDismissedItems, setLocalDismissedItems] = useState<Set<string>>(new Set());
 
-  const dismissItem = (id: string) => {
-    dismissedFeedItems.add(id);
-    setLocalDismissedItems(new Set(dismissedFeedItems));
+  const dismissItem = async (id: string) => {
+    setLocalDismissedItems((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+    try {
+      await apiFetcher.markHomeCardAsRead(id);
+    } catch (e) {}
   };
 
   const renderFeedOverlay = () => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 import { View, Text, AnimatedImage, LoaderScreen } from "react-native-ui-lib";
 
@@ -23,10 +24,11 @@ import momentTZ from "../../../utils/moment";
 
 const PetHealth = () => {
   const route = useRoute();
-  const { idSelectedPet, tabIndex } = route.params as {
-    idSelectedPet: number;
-    tabIndex: number;
+  const params = (route.params || {}) as {
+    idSelectedPet?: number;
+    tabIndex?: number;
   };
+  const { idSelectedPet, tabIndex } = params;
 
   const [selectedPet, setSelectedPet] = useState<Pet>({} as Pet);
   const [allVaccines, setAllVaccines] = useState<any[]>([]);
@@ -38,16 +40,17 @@ const PetHealth = () => {
   const { data: userResponse, isLoading: isLoadingUser } = useGetProfileQuery();
   const user = userResponse?.data || ({ picture: "", name: "" } as User);
 
+  const queryId = selectedPet.id || idSelectedPet;
   const {
     data: vaccinesResponse,
     refetch: refetchVaccines,
     isLoading: isLoadingVaccines,
     isFetching: isFetchingVaccines,
-  } = useGetVaccinationRecordsQuery(selectedPet.id || idSelectedPet);
+  } = useGetVaccinationRecordsQuery(queryId ? queryId : skipToken);
   const vaccines = vaccinesResponse?.data || [];
 
   const { data: vaccineBrandsResponse, isLoading: isLoadingVaccineBrands } =
-    useGetVaccinesQuery(selectedPet.id || idSelectedPet);
+    useGetVaccinesQuery(queryId ? queryId : skipToken);
   const vaccineBrands = vaccineBrandsResponse?.data.vaccine_brands || [];
   const dewormersBrands = vaccineBrandsResponse?.data.dewormer_brands || [];
 
@@ -163,7 +166,7 @@ const PetHealth = () => {
           />
         }
       >
-        {isLoadingPets || isLoadingUser || isLoadingVaccines ? (
+        {isLoadingPets || isLoadingUser || (isLoadingVaccines && !!queryId) ? (
           <Loading
             backgroundColor={Colors.white}
             textColor={Colors.primaryColor}
@@ -201,7 +204,7 @@ const PetHealth = () => {
                   <VaccinesPage
                     refreshData={refetchVaccines}
                     isLoading={
-                      isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands || isFetchingVaccines
+                      isLoadingPets || (isLoadingVaccines && !!queryId) || (isLoadingVaccineBrands && !!queryId) || isFetchingVaccines
                     }
                     vaccineBrands={vaccineBrands}
                     selectedPet={selectedPet}
@@ -212,7 +215,7 @@ const PetHealth = () => {
                   <DerwomersPage
                     refreshData={refetchVaccines}
                     isLoading={
-                      isLoadingPets || isLoadingVaccines || isLoadingVaccineBrands || isFetchingVaccines
+                      isLoadingPets || (isLoadingVaccines && !!queryId) || (isLoadingVaccineBrands && !!queryId) || isFetchingVaccines
                     }
                     derwomersBrands={dewormersBrands}
                     dewormersFrequency={vaccinesResponse?.data?.dewormers_frequency}

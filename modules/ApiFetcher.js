@@ -384,9 +384,9 @@ class ApiFetcher {
 
   // Marcar card de home / care center como leída
   async markHomeCardAsRead(id) {
-    // Asumimos un endpoint para marcar como leída basado en el id
+    // POST /api/v2/portal_client/cards/{id}/read
     try {
-      return await this._patch(`/v2/portal_client/home/cards/read`, { card_id: id }, true);
+      return await this._post(`/v2/portal_client/cards/${id}/read`, {}, true);
     } catch (e) {
       console.warn("No se pudo marcar la card como leída", e);
     }
