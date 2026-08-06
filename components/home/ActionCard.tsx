@@ -18,7 +18,7 @@ const ctaLabel = (action: string): string => {
       return "Agendar cita";
     case "view_vaccines":
     case "view_deworming":
-      return "Agendar";
+      return (type?.includes("expired") || type?.includes("due")) ? "Agendar" : "Ver detalles";
     case "view_summary":
       return "Ver actualización";
     case "view_recommendation":
@@ -47,15 +47,11 @@ const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
       )}
 
       {/* Avatar arriba al centro */}
-      <View style={styles.avatarContainer}>
-        {petPicture ? (
+      {petPicture && petPicture !== "null" && petPicture !== "" ? (
+        <View style={styles.avatarContainer}>
           <Avatar.Image source={{ uri: petPicture }} size={48} />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Icon name="paw" size={24} color="#999" />
-          </View>
-        )}
-      </View>
+        </View>
+      ) : null}
 
       {/* Título y descripción centrados */}
       <View style={styles.textContainer}>
@@ -70,7 +66,7 @@ const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
         style={[styles.button, { backgroundColor: theme.cta }]} 
         onPress={() => onPress(action, data, card.id)}
       >
-        <Text style={styles.buttonText}>{ctaLabel(action)}</Text>
+        <Text style={styles.buttonText}>{ctaLabel(action, card.type)}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -100,19 +96,6 @@ const styles = StyleSheet.create({
   avatarContainer: {
     alignItems: "center",
     marginBottom: 12,
-  },
-  avatarPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
   },
   textContainer: {
     alignItems: "center",

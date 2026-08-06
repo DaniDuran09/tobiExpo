@@ -55,8 +55,6 @@ const PetHealth = () => {
   const dewormersBrands = vaccineBrandsResponse?.data.dewormer_brands || [];
 
   useEffect(() => {
-    refetchVaccines();
-
     console.log(`\n\n=== REPORTE PARA BACKEND ===`);
     console.log(`Endpoint: /v1/portal_client/pets/${selectedPet.id || idSelectedPet}/vaccination_records`);
     console.log(`Mascota: ${selectedPet.name || "Desconocida"} (Pet ID: ${selectedPet.id || idSelectedPet})`);
@@ -141,7 +139,7 @@ const PetHealth = () => {
 
     setAllVaccines(processedVaccines);
     setAllDewormers(processedDewormers);
-  }, [vaccines, selectedPet]);
+  }, [vaccinesResponse?.data, selectedPet]);
 
   useEffect(() => {
     if (idSelectedPet && pets.length > 0) {
@@ -150,7 +148,7 @@ const PetHealth = () => {
         setSelectedPet(selected);
       }
     }
-  }, [pets]);
+  }, [petsResponse?.data]);
 
   return (
     <View flex bg-white>

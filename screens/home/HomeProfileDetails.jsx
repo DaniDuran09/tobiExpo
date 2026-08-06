@@ -29,14 +29,16 @@ const HomeProfileDetails = ({ route }) => {
   }, []);
 
   const renderScene = SceneMap({
-    first: () => <Health pet={item} />,
-    second:  () => <Welfare pet={item} />,
-    three: () => <Weight item={item} />,
+    first: () => <Health pet={pet || item} />,
+    second:  () => <Welfare pet={pet || item} />,
+    three: () => <Weight item={pet || item} />,
   });
 
   const fetchPet = async () => {
     const response = await apiFetcher.getPetById(item.id);
-    // console.log("response: ", response)
+    if (response && response.data) {
+      setPet(response.data);
+    }
   };
 
  
@@ -63,9 +65,9 @@ const HomeProfileDetails = ({ route }) => {
   return (
     <View flex padding-5 backgroundColor={Colors.white}>
       <View center marginT-5>
-        {item.picture ? (
+        {item?.picture || pet?.picture ? (
           <Image
-            source={{ uri: item.picture }}
+            source={{ uri: item?.picture || pet?.picture }}
             style={{
               width: 100,
               height: 100,
@@ -77,10 +79,10 @@ const HomeProfileDetails = ({ route }) => {
         )}
       </View>
       <View padding-10>
-        <Text text50BO>{item.name}</Text>
-        <Text text80BO>{`${item.age} años | ${
-          item?.pet_breed?.life_stages[0]?.gender === "male" ? "Macho" : "Hembra"
-        } | ${item.pet_breed.name}`}</Text>
+        <Text text50BO>{pet?.name || item?.name || "Cargando..."}</Text>
+        <Text text80BO>{pet ? `${pet.age} años | ${
+          pet?.pet_breed?.life_stages?.[0]?.gender === "male" ? "Macho" : "Hembra"
+        } | ${pet.pet_breed?.name}` : ""}</Text>
       </View>
       <TabView
         navigationState={{ index, routes }}

@@ -22,7 +22,11 @@ export const ThemeMapping = {
 };
 
 export const getThemeForCard = (card: any) => {
-  const { priority, type, color_level } = card;
+  const { priority, type, color_level, section } = card;
+  if (section === "atencion_requerida") return ThemeMapping.red;
+  if (section === "proximos_cuidados") return ThemeMapping.yellow;
+  if (section === "seguimiento") return ThemeMapping.blue;
+
   if (type === "scheme_completed" || type === "appointment_created" || color_level === "green") return ThemeMapping.green;
   if (priority === "critical" || color_level === "red") return ThemeMapping.red;
   if (priority === "high" || priority === "medium" || color_level === "yellow") return ThemeMapping.yellow;

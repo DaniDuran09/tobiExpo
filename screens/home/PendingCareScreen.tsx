@@ -21,6 +21,11 @@ const apiFetcher = new ApiFetcher();
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const getSectionKey = (card: any): "critical" | "upcoming" | "followup" => {
+  const section = card.section;
+  if (section === "atencion_requerida") return "critical";
+  if (section === "proximos_cuidados") return "upcoming";
+  if (section === "seguimiento") return "followup";
+
   const priority = card.priority ?? "";
   const colorLevel = card.color_level ?? "";
   if (priority === "critical" || colorLevel === "red") return "critical";
@@ -49,7 +54,8 @@ const SECTIONS = {
   },
 };
 
-const ctaLabel = (action: string): string => {
+const ctaLabel = (action: string, type: string = ""): string => {
+  if (type.startsWith("scheme_")) return "Ver detalles";
   switch (action) {
     case "view_appointment":
       return "Ver cita";
@@ -57,7 +63,7 @@ const ctaLabel = (action: string): string => {
       return "Reservar ahora";
     case "view_vaccines":
     case "view_deworming":
-      return "Agendar";
+      return (type.includes("expired") || type.includes("due")) ? "Agendar" : "Ver detalles";
     case "view_summary":
       return "Ver resumen";
     case "view_recommendation":
@@ -88,15 +94,11 @@ const CareCard = ({ card, sectionKey, onAction }: any) => {
   return (
     <View style={[styles.card, { backgroundColor: section.bg }]}>
       <View style={styles.cardRow}>
-        <View style={styles.avatarCol}>
-          {petPicture ? (
+        {petPicture && petPicture !== "null" && petPicture !== "" ? (
+          <View style={styles.avatarCol}>
             <Avatar.Image source={{ uri: petPicture }} size={44} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Icon name="paw" size={24} color="#999" />
-            </View>
-          )}
-        </View>
+          </View>
+        ) : null}
         
         <View style={styles.contentCol}>
           <View style={styles.cardTitleRow}>
@@ -111,7 +113,7 @@ const CareCard = ({ card, sectionKey, onAction }: any) => {
               style={[styles.cardBtn, { backgroundColor: section.color }]} 
               onPress={onAction}
             >
-              <Text style={styles.cardBtnText}>{ctaLabel(card.action)}</Text>
+              <Text style={styles.cardBtnText}>{ctaLabel(card.action, card.type)}</Text>
               <Icon name="chevron-forward" size={14} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -292,10 +294,6 @@ const styles = StyleSheet.create({
   },
   cardRow: { flexDirection: "row" },
   avatarCol: { marginRight: 12 },
-  avatarPlaceholder: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: "#E5E7EB",
-    justifyContent: "center", alignItems: "center"
-  },
   contentCol: { flex: 1 },
   cardTitleRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
   cardTitle: { fontSize: 16, fontWeight: "700", color: "#111" },

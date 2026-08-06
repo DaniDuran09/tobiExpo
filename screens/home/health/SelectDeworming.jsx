@@ -32,12 +32,13 @@ const SelectDeworming = ({ petId, action }) => {
   const [dewormingTypeValue, setDewormingTypeValue] = useState([]);
 
   const [frequencies, setFrequencies] = useState([
-    { id: 1, value: "Anual", isChecked: false },
-    { id: 2, value: "Semestral", isChecked: false },
-    { id: 3, value: "Trimestral", isChecked: false },
-    { id: 4, value: "Mensual", isChecked: false },
+    { id: 1, value: "anual", isChecked: false },
+    { id: 2, value: "semestral", isChecked: false },
+    { id: 3, value: "trimestral", isChecked: false },
+    { id: 4, value: "bimestral", isChecked: false },
+    { id: 5, value: "mensual", isChecked: false },
     {
-      id: 5,
+      id: 6,
       value: "No lo he desparacitado",
       isChecked: false,
     },

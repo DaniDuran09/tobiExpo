@@ -153,33 +153,32 @@ const HomeScreen = ({ navigation }: any) => {
     };
   }, []);
 
-  const handleAction = async (action: string, data: any, fingerprint?: string) => {
-    await handleGlobalAction(action, data, fingerprint);
+  const handleAction = async (action: string, data: any, fingerprint?: string, type?: string) => {
+    await handleGlobalAction(action, data, fingerprint, type);
   };
 
-  const [localDismissedItems, setLocalDismissedItems] = useState<Set<string>>(new Set());
-
-  const dismissItem = async (id: string) => {
-    setLocalDismissedItems((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(id);
-      return newSet;
-    });
+  const dismissItem = async (id: string, type?: string) => {
     try {
-      await apiFetcher.markHomeCardAsRead(id);
-    } catch (e) {}
+      await apiFetcher.markHomeCardAsRead(id, type);
+      const feedResponse = await apiFetcher.getHomeFeed();
+      if (feedResponse && feedResponse.data) {
+        setHomeFeed(feedResponse.data);
+      }
+    } catch (e) {
+      console.log("Error dismissing item", e);
+    }
   };
 
   const renderFeedOverlay = () => {
     let bannersToShow = [];
     let cardsToShow = [];
 
-    if (homeFeed.banner && !localDismissedItems.has("banner")) {
+    if (homeFeed.banner) {
       bannersToShow.push(homeFeed.banner);
     }
 
     if (homeFeed.cards && homeFeed.cards.length > 0) {
-      cardsToShow = homeFeed.cards.slice(0, 2).filter((card: any) => !localDismissedItems.has(card.id));
+      cardsToShow = homeFeed.cards.slice(0, 2);
     }
 
     if (bannersToShow.length === 0 && cardsToShow.length === 0) return null;
@@ -203,9 +202,10 @@ const HomeScreen = ({ navigation }: any) => {
                 key={`banner-${idx}`}
                 banner={banner}
                 onPress={(action, data, fingerprint) => {
-                  handleAction(action, data, fingerprint);
+                  dismissItem(banner.entity_fingerprint || banner.id || "banner", banner.type);
+                  handleAction(action, data, fingerprint, banner.type);
                 }}
-                onClose={() => dismissItem("banner")}
+                onClose={() => dismissItem(banner.entity_fingerprint || banner.id || "banner", banner.type)}
               />
             ))}
             {cardsToShow.length > 0 && (
@@ -238,9 +238,10 @@ const HomeScreen = ({ navigation }: any) => {
                 key={`card-${idx}`}
                 card={card}
                 onPress={(action, data, fingerprint) => {
-                  handleAction(action, data, fingerprint);
+                  dismissItem(card.id || card.entity_fingerprint, card.type);
+                  handleAction(action, data, fingerprint, card.type);
                 }}
-                onClose={() => dismissItem(card.id)}
+                onClose={() => dismissItem(card.id || card.entity_fingerprint, card.type)}
               />
             ))}
           </View>

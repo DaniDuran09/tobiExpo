@@ -44,13 +44,13 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
   const [updateDewormer] = useUpdateDewormerMutation();
 
   const frequencies = dewormersFrequency.length > 0
-    ? dewormersFrequency.map(f => ({ label: f.text, value: f.text }))
+    ? dewormersFrequency.map(f => ({ label: f.text, value: f.text.toLowerCase() }))
     : [
-      { label: "Anual", value: "Anual" },
-      { label: "Semestral", value: "Semestral" },
-      { label: "Trimestral", value: "Trimestral" },
-      { label: "Bimestral", value: "Bimestral" },
-      { label: "Mensual", value: "Mensual" },
+      { label: "Anual", value: "anual" },
+      { label: "Semestral", value: "semestral" },
+      { label: "Trimestral", value: "trimestral" },
+      { label: "Bimestral", value: "bimestral" },
+      { label: "Mensual", value: "mensual" },
     ];
 
   const formattedBrands = vaccineBrands?.map((brand) => ({
@@ -60,7 +60,7 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
 
   const formatFrequency = (freq: any) => {
     if (!freq || typeof freq !== 'string') return "";
-    return freq.charAt(0).toUpperCase() + freq.slice(1).toLowerCase();
+    return freq.toLowerCase();
   };
 
   const computedFrequencyValue = selectedFrequency || formatFrequency(item.deworming_frequency) || formatFrequency(item.frequency);

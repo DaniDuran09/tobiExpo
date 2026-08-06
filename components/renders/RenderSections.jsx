@@ -64,7 +64,7 @@ const RenderSections = ({ item }) => {
       rangeFrom: (item?.ideal_weight?.from || item?.weight_status?.ideal_weight?.from || 0) / 1000,
       rangeTo: (item?.ideal_weight?.to || item?.weight_status?.ideal_weight?.to || 0) / 1000,
     }));
-    console.log(`[${item?.name}] PESO - has_appointment:`, item?.has_appointment);
+    console.log(`[${item?.name}] PESO - has_appointment:`, item?.has_health_appointment);
     console.log(`[${item?.name}] VACUNAS - hasAppointment (state):`, vaccineState.hasAppointment);
     console.log(`[${item?.name}] DESP - hasAppointment (state):`, dewormerState.hasAppointment);
     console.log(`=== FIN DEBUG [${item?.name}] ===\n`);
@@ -546,7 +546,7 @@ const RenderSections = ({ item }) => {
                 >{`${currentWeight.toFixed(1)} Kg`}</Text>
               </View>
               {!realWeight?.ideal && (
-                item.has_appointment ? (
+                item.has_health_appointment ? (
                   <View marginT-10>
                     <View row centerV>
                       <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.red, marginRight: 6 }} />

@@ -3,12 +3,12 @@ import ApiFetcher from "../modules/ApiFetcher";
 
 const apiFetcher = new ApiFetcher();
 
-export const handleGlobalAction = async (action: string, data: any, id?: string | number) => {
+export const handleGlobalAction = async (action: string, data: any, id?: string | number, type?: string) => {
   console.log("Global Action triggered:", action, data, id);
 
   if (id) {
     try {
-      await apiFetcher.markHomeCardAsRead(id);
+      await apiFetcher.markHomeCardAsRead(id, type);
     } catch (e) {
       console.warn("Failed to mark card as read", e);
     }
@@ -82,7 +82,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       break;
 
     case "view_recommendation":
-      navigate("Health", { screen: "HomeProfileDetails", params: { idSelectedPet: data?.pet_id } });
+      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
       break;
 
     case "edit_profile":
@@ -96,12 +96,12 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     case "view_scheme":
     case "view_health_record":
     case "view_pet_profile":
-      navigate("Health", { screen: "HomeProfileDetails", params: { idSelectedPet: data?.pet_id } });
+      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
       break;
 
     case "scheme_incomplete":
     case "scheme_completed":
-      navigate("Health", { screen: "PetVaccinesRecord", params: { id: data?.pet_id } });
+      navigate("PetVaccinesRecord", { id: data?.pet_id });
       break;
 
     default:
