@@ -10,7 +10,7 @@ const RenderPartners = ({
   item: Partner;
   goToMoreInfo: (item: Partner) => void;
 }) => {
-  const { name, type_partner, picture } = item;
+  const { name, type_partner, picture, description, address } = item;
 
   return (
     <TouchableOpacity onPress={() => goToMoreInfo(item)}>
@@ -30,11 +30,21 @@ const RenderPartners = ({
           elevation: 5,
         }}
       >
-        <View width="50%">
+        <View width="65%">
           <Text text60BO>{name}</Text>
           <Text text80 marginT-5 color={Colors.gray}>
-            {type_partner.name}
+            {type_partner?.name}
           </Text>
+          {description ? (
+            <Text text90 marginT-5 color={Colors.gray} numberOfLines={2}>
+              {description}
+            </Text>
+          ) : null}
+          {address ? (
+            <Text text90 marginT-5 color={Colors.primaryColor} numberOfLines={2}>
+              {address}
+            </Text>
+          ) : null}
         </View>
         <View>
           <AnimatedImage

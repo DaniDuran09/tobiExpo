@@ -183,6 +183,51 @@ const ProfileEditUserMenu: React.FC = () => {
           >
             <Text color={Colors.primaryColor}>Cerrar sesión</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            row
+            marginV-10
+            style={{
+              width: "90%",
+            }}
+            onPress={() => {
+              import("react-native").then(({ Alert }) => {
+                Alert.alert(
+                  "Eliminar cuenta",
+                  "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se perderán todos tus datos.",
+                  [
+                    { text: "Cancelar", style: "cancel" },
+                    {
+                      text: "Eliminar cuenta",
+                      style: "destructive",
+                      onPress: async () => {
+                        setLoading(true);
+                        try {
+                          if (userData?.id) {
+                            console.log("Intentando borrar cuenta con ID:", userData.id);
+                            await apiFetcher.deleteAccount(userData.id);
+                            logout();
+                          } else {
+                            console.log("No se encontró el ID en userData", userData);
+                          }
+                        } catch (e: any) {
+                          console.log("Error al eliminar cuenta. Status:", e.response?.status);
+                          console.log("Respuesta del back:", e.response?.data);
+                          Toast.show({
+                            type: "error",
+                            text1: "Error",
+                            text2: "No se pudo eliminar la cuenta",
+                          });
+                          setLoading(false);
+                        }
+                      }
+                    }
+                  ]
+                );
+              });
+            }}
+          >
+            <Text color={Colors.red}>Eliminar cuenta</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </>

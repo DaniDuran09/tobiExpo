@@ -66,9 +66,9 @@ const StepsRegister = ({ route }) => {
     try {
       const formData = new FormData();
       formData.append("picture", {
-        uri: picturePet.uri,
+        uri: imageSource.uri,
         type: "image/jpeg",
-        name: picturePet.fileName,
+        name: imageSource.fileName || imageSource.uri.split("/").pop() || "photo.jpg",
       });
       const response = await apiFetcher.updatePicturePet(idPet, formData);
     } catch (error) {
@@ -165,7 +165,7 @@ const StepsRegister = ({ route }) => {
         />
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
-          disabled={loading}
+            disabled={loading}
             style={styles.buttonNext}
             onPress={() => nextStep(currentPosition)}
           >

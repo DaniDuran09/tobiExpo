@@ -6,9 +6,9 @@ import CardVaccine from "../CardVaccine";
 import Loading from "../../../Loading";
 import Button from "../../../atoms/Button";
 import Icon from "react-native-vector-icons/AntDesign";
-import UploadImage from "../../../atoms/UploadImage";
+import ModalNoPicture from "../../../atoms/ModalNoPicture";
 import ApiFetcher from "../../../../modules/ApiFetcher";
-import { Platform } from "react-native";
+import { Platform, Linking } from "react-native";
 import Toast from "react-native-toast-message";
 
 const VaccinesPage: React.FC<VaccinesPageProps> = ({
@@ -126,7 +126,13 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
               <TouchableOpacity
                 disabled={isLoading || idEditPet != null}
                 marginB-25
-                onPress={() => setVisible(true)}
+                onPress={() => {
+                  if (certificates?.certificate_vaccine) {
+                    Linking.openURL(certificates.certificate_vaccine).catch(e => console.log("Error opening url:", e));
+                  } else {
+                    setVisible(true);
+                  }
+                }}
                 backgroundColor={Colors.mediumGray}
                 paddingH-20
                 paddingV-10
@@ -134,21 +140,18 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
                 row
                 center
               >
-                <Icon name="upload" size={20} color={Colors.white} />
-                <Text color={Colors.white}>Certificado</Text>
+                <Icon name="filetext1" size={20} color={Colors.white} />
+                <Text color={Colors.white} marginL-5>Certificado</Text>
               </TouchableOpacity>
             </View>
             //)
           }
         </View>
       </View>
-      <UploadImage
-        loading={loadingUpload}
-        type="vacunación"
-        defaultImage={certificates?.certificate_vaccine}
+      <ModalNoPicture
         visible={visible}
         onRequestClose={() => setVisible(false)}
-        onUpload={saveCertificateVaccine}
+        picture="vacunas"
       />
     </View>
   );

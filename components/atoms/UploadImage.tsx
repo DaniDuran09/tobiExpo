@@ -1,12 +1,11 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   AnimatedImage,
   LoaderScreen,
 } from "react-native-ui-lib";
 import React, { useState } from "react";
-import { ActivityIndicator, Dimensions, Modal } from "react-native";
+import { ActivityIndicator, Dimensions, Modal, TouchableOpacity } from "react-native";
 import { UploadImageProps } from "./types";
 import { Feather, MaterialIcons, Octicons } from "react-native-vector-icons";
 import { Colors } from "../../styles/Colors";
@@ -47,6 +46,7 @@ const UploadImage: React.FC<UploadImageProps> = ({
   };
 
   const handlePicture = async (type: "take" | "select") => {
+    console.log("--> handlePicture triggered: ", type);
     try {
       const result = await (type === "take" ? takePicture() : selectImage());
       if (!result.success || result.error) {
@@ -146,22 +146,23 @@ const UploadImage: React.FC<UploadImageProps> = ({
                   </TouchableOpacity>
                   {loading ? (
                     <View margin-10>
-                    <ActivityIndicator size="small" color={Colors.primaryColor} />
+                      <ActivityIndicator size="small" color={Colors.primaryColor} />
                     </View>
                   ) : (
                     <TouchableOpacity
                       disabled={!(imageUrl || libraryImageUrl)}
                       style={{
                         opacity: !(imageUrl || libraryImageUrl) ? 0.5 : 1,
+                        backgroundColor: Colors.primaryColor,
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
+                        borderRadius: 20,
+                        marginTop: 25,
+                        alignItems: 'center'
                       }}
-                      marginT-25
                       onPress={handleUpload}
-                      backgroundColor={Colors.mediumGray}
-                      paddingH-20
-                      paddingV-10
-                      br20
                     >
-                      <Text color={Colors.white}>Subir</Text>
+                      <Text color={Colors.white} style={{ fontWeight: '600' }}>Subir foto</Text>
                     </TouchableOpacity>
                   )}
                 </View>

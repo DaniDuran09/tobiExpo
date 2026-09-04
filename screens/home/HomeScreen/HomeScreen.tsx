@@ -71,22 +71,9 @@ const HomeScreen = ({ navigation }: any) => {
         console.log("Error fetching home feed: ", feedError);
       }
 
-      const petsWithAppointments = await Promise.all(
-        list.data.map(async (pet: any) => {
-          const response = await fetchInfoAppointmentPet(pet.id);
-          const hasUpcomingAppointment = !!response?.appointment_status;
-          return {
-            ...pet,
-            service_date: response?.appointment_pet_services
-              ? response?.appointment_pet_services[0]?.appointment_time
-                  ?.start_time
-              : null,
-            status: response.appointment_status,
-            has_appointment: hasUpcomingAppointment,
-          };
-        })
-      );
-      setData(petsWithAppointments);
+      if (list && list.data) {
+        setData(list.data);
+      }
     } catch (error) {
       console.log("Error: ", error);
       Toast.show({
@@ -99,40 +86,7 @@ const HomeScreen = ({ navigation }: any) => {
     }
   };
 
-  const fetchInfoAppointmentPet = async (id: string) => {
-    const response = await apiFetcher.getAppointmentsByPet(id);
-
-    if (response.data.length === 0) return {};
-
-    const today = momentTZ().tz("America/Mexico_City").startOf("day");
-
-    const futureAppointments = response.data.filter((appointment: any) => {
-      const appointmentDate = momentTZ(appointment.date_service)
-        .tz("America/Mexico_City")
-        .startOf("day");
-      return appointmentDate.isSameOrAfter(today);
-    });
-
-    if (futureAppointments.length === 0) return {};
-
-    const closestAppointment = futureAppointments.reduce(
-      (closest: any, current: any) => {
-        const currentDate = momentTZ(current.date_service).tz(
-          "America/Mexico_City"
-        );
-        const closestDate = momentTZ(closest.date_service).tz(
-          "America/Mexico_City"
-        );
-
-        const currentDiff = Math.abs(currentDate.diff(today, "days"));
-        const closestDiff = Math.abs(closestDate.diff(today, "days"));
-
-        return currentDiff < closestDiff ? current : closest;
-      }
-    );
-
-    return closestAppointment;
-  };
+  // fetchInfoAppointmentPet removed because it used deprecated V1 endpoints.
 
   useEffect(() => {
     const backAction = () => {
@@ -203,17 +157,21 @@ const HomeScreen = ({ navigation }: any) => {
           }}
         >
           <View style={{ width: "100%", paddingHorizontal: 16 }}>
-            {bannersToShow.map((banner, idx) => (
-              <Banner
-                key={`banner-${idx}`}
-                banner={banner}
-                onPress={(action, data, fingerprint) => {
-                  dismissItem(banner.entity_fingerprint || banner.id || "banner", banner.type);
-                  handleAction(action, data, fingerprint, banner.type);
-                }}
-                onClose={() => dismissItem(banner.entity_fingerprint || banner.id || "banner", banner.type)}
-              />
-            ))}
+            {bannersToShow.map((banner, idx) => {
+              console.log("Banner recibido:", JSON.stringify(banner, null, 2));
+              const bannerId = banner.entity_fingerprint || banner.fingerprint || banner.id || banner.uid || "banner";
+              return (
+                <Banner
+                  key={`banner-${idx}`}
+                  banner={banner}
+                  onPress={(action, data, fingerprint) => {
+                    dismissItem(bannerId, banner.type);
+                    handleAction(action, data, fingerprint, banner.type);
+                  }}
+                  onClose={() => dismissItem(bannerId, banner.type)}
+                />
+              );
+            })}
             {cardsToShow.length > 0 && (
               <View
                 style={{

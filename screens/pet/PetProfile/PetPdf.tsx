@@ -34,14 +34,13 @@ export default function PetPdf() {
   }, [])
 
   const openImage = (url: any, tipe: string) => {
-    const urlImage = url
-    if (urlImage !== null) {
-      Linking.openURL(urlImage)
+    if (url) {
+      Linking.openURL(url).catch(err => console.log("Error opening URL:", err));
     } else {
-      setVisible(true)
+      setVisible(true);
       setPicture(tipe);
     }
-  }
+  };
   const onRequestClose = () => {
     setVisible(false)
   }

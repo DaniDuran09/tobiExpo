@@ -131,13 +131,15 @@ const CardVaccine: React.FC<CardVaccineProps> = ({
           console.log("SAVE VACCINE RESP:", debugRes);
         }
       } else {
+        const capFreq = selectedFrequency ? selectedFrequency.charAt(0).toUpperCase() + selectedFrequency.slice(1) : "";
         const data = {
           pet_id: idPet,
           record_id: item.deworming_record_id || item.vaccination_record_id || item.id,
           application_day: formattedDate,
           brand: selectedBrand,
           deworming_type: item.deworming_type_toRegister || item.deworming_type || "Interna",
-          deworming_frequency: selectedFrequency,
+          deworming_frequency: capFreq,
+          frequency: capFreq,
           last_deworming: formattedDate,
         };
         if (item.deworming_record_id || item.vaccination_record_id || item.applied || item.application_day) {

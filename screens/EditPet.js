@@ -49,7 +49,7 @@ const EditPet = ({ route, navigation }) => {
       name: user.name,
       last_name: user.last_name,
       age: parseInt(user.age),
-      weight: parseInt(user.weight),
+      weight: user.weight ? parseInt(parseFloat(user.weight) * 1000) : 0,
     };
     //console.log('json', json)
     if (

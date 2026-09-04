@@ -206,6 +206,23 @@ const SelectService = ({ route }) => {
     });
   };
 
+  const searchTimeoutRef = useRef(null);
+
+  const handleTextChange = (text) => {
+    setSearchInput(text);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => {
+      setLocalQ(text);
+      if (text) {
+        setActiveMode(true);
+      } else if (!activeCategoryId) {
+        setActiveMode(false);
+      }
+    }, 500);
+  };
+
   const handleSearch = () => {
     setLocalQ(searchInput);
     if (searchInput) setActiveMode(true);
@@ -245,7 +262,7 @@ const SelectService = ({ route }) => {
 
   const ExpandableLocationText = ({ text }) => {
     const [expanded, setExpanded] = useState(false);
-    
+
     if (!text) return <Text style={{ color: Colors.gray }}>📍 Ubicación no disponible</Text>;
 
     const handlePress = () => {
@@ -271,59 +288,59 @@ const SelectService = ({ route }) => {
 
   const renderPartners = ({ item, index }) => {
     return (
-    <TouchableOpacity
-      onPress={() => goToMoreInfo(item, item.type_partner?.id || 2)}
-      style={styles.item}
-    >
-      <View style={styles.item2}>
-        <View style={styles.leftSection}>
-          <AnimatedImage
-            source={{
-              uri:
-                item?.picture ||
-                item?.services?.find(
-                  service => service?.service_ownered?.picture
-                )?.service_ownered?.picture ||
-                item?.partner?.picture ||
-                item?.users?.[0]?.picture ||
-                "https://public-gym.s3.amazonaws.com/defaults/gym_missing.png"
-            }}
-            style={styles.imageItem}
-            loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
-            animationDuration={500}
-            resizeMode="contain"
-          />
-        </View>
-        <View style={styles.RightSection}>
-          <Text style={styles.itemTitle}>{item.name}</Text>
-          <ExpandableText text={
-            item.description ||
-            item?.services?.find(s => s?.description)?.description ||
-            item?.services?.find(s => s?.service_ownered?.description)?.service_ownered?.description ||
-            item?.partner?.description ||
-            ""
-          } />
-          <View style={styles.rating}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Text key={i}>{i < item.rating ? "⭐" : "☆"}</Text>
-            ))}
-            <Text> {item.rating}</Text>
+      <TouchableOpacity
+        onPress={() => goToMoreInfo(item, item.type_partner?.id || 2)}
+        style={styles.item}
+      >
+        <View style={styles.item2}>
+          <View style={styles.leftSection}>
+            <AnimatedImage
+              source={{
+                uri:
+                  item?.picture ||
+                  item?.services?.find(
+                    service => service?.service_ownered?.picture
+                  )?.service_ownered?.picture ||
+                  item?.partner?.picture ||
+                  item?.users?.[0]?.picture ||
+                  "https://public-gym.s3.amazonaws.com/defaults/gym_missing.png"
+              }}
+              style={styles.imageItem}
+              loader={<LoaderScreen color={Colors.primaryColor} size={35} />}
+              animationDuration={500}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.RightSection}>
+            <Text style={styles.itemTitle}>{item.name}</Text>
+            <ExpandableText text={
+              item.description ||
+              item?.services?.find(s => s?.description)?.description ||
+              item?.services?.find(s => s?.service_ownered?.description)?.service_ownered?.description ||
+              item?.partner?.description ||
+              ""
+            } />
+            <View style={styles.rating}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Text key={i}>{i < item.rating ? "⭐" : "☆"}</Text>
+              ))}
+              <Text> {item.rating}</Text>
+            </View>
           </View>
         </View>
-      </View>
-      <View style={styles.footer}>
-        <ExpandableLocationText 
-          text={
-            item?.address || 
-            item?.partner?.address || 
-            item?.location || 
-            item?.partner?.location || 
-            ""
-          } 
-        />
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.footer}>
+          <ExpandableLocationText
+            text={
+              item?.address ||
+              item?.partner?.address ||
+              item?.location ||
+              item?.partner?.location ||
+              ""
+            }
+          />
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   const renderEmptyComponent = () => {
@@ -393,7 +410,7 @@ const SelectService = ({ route }) => {
             <TextField
               placeholder="Explora, reserva y cuida de tu compañero."
               value={searchInput}
-              onChangeText={setSearchInput}
+              onChangeText={handleTextChange}
               onSubmitEditing={handleSearch}
               hideUnderline
               style={{ flex: 1, fontSize: 14 }}

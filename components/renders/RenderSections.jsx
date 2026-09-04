@@ -73,27 +73,85 @@ const RenderSections = ({ item }) => {
   useEffect(() => {
     if (vaccinesData) {
       // VACCINES LOGIC
-      const validRecords = vaccinesData.vaccines_records || [];
-      const hasRecords = validRecords.length > 0;
-
-      const isVaccineApplied = (v) => {
-        if (v.applied || v.application_day) return true;
-        if (!validRecords.length) return false;
-        const vName = v.name || v.vaccine_name || v.brand || '';
-        const lowerName = vName.trim().toLowerCase();
-        return validRecords.some(rec => {
-          const rName = rec.name || rec.vaccine_name || rec.brand || '';
-          return rName.trim().toLowerCase() === lowerName;
+      const computeDaysRemaining = (records) => {
+        return records.map(r => {
+          if (r.days_remaining != null) return r;
+          let computedDays = null;
+          if (r.next_dose) {
+             const parsed = momentTZ(r.next_dose, ["YYYY-MM-DD", "DD/MM/YYYY", "DD-MM-YYYY"]);
+             if (parsed.isValid()) {
+                computedDays = parsed.diff(momentTZ().startOf('day'), 'days');
+             }
+          }
+          return { ...r, days_remaining: computedDays };
         });
       };
 
-      const actualExpired = (vaccinesData.vaccines_expired || []).filter(isVaccineApplied);
-      const actualToExpire = (vaccinesData.vaccines_toexpire || []).filter(isVaccineApplied);
+      const validRecords = computeDaysRemaining(vaccinesData.vaccines_records || []);
+      const hasRecords = validRecords.length > 0;
+
+      console.log('[VAC] vaccines_expired raw:', JSON.stringify(vaccinesData.vaccines_expired));
+      console.log('[VAC] vaccines_toexpire raw:', JSON.stringify(vaccinesData.vaccines_toexpire));
+      console.log('[VAC] vaccines_records raw:', JSON.stringify(validRecords));
+
+      const getLatestRecordDays = (itemName, records, isDewormer) => {
+        const lowerName = itemName.trim().toLowerCase();
+        const matching = records.filter(rec => {
+          const rName = isDewormer 
+            ? (rec.deworming_type || rec.description || rec.name || rec.brand || '').replace("Desparasitación ", "").trim().toLowerCase()
+            : (rec.name || rec.vaccine_name || rec.brand || '').trim().toLowerCase();
+          return rName === lowerName;
+        });
+        console.log(`[VAC DEBUG] getLatestRecordDays for ${itemName}. Matching count: ${matching.length}`);
+        if (matching.length === 0) return null;
+        const maxDays = Math.max(...matching.map(r => r.days_remaining != null ? r.days_remaining : -Infinity));
+        console.log(`[VAC DEBUG] getLatestRecordDays maxDays for ${itemName}: ${maxDays}`);
+        return maxDays;
+      };
+
+      const getComputedDays = (item) => {
+        if (item.days_remaining != null) return item.days_remaining;
+        if (item.next_dose) {
+           const parsed = momentTZ(item.next_dose, ["YYYY-MM-DD", "DD/MM/YYYY", "DD-MM-YYYY"]);
+           if (parsed.isValid()) return parsed.diff(momentTZ().startOf('day'), 'days');
+        }
+        return -Infinity;
+      };
+
+      const actualExpired = (vaccinesData.vaccines_expired || [])
+        .map(v => {
+          const vName = v.name || v.vaccine_name || v.brand || '';
+          const maxDays = getLatestRecordDays(vName, validRecords, false);
+          return { ...v, _maxDays: maxDays !== null ? maxDays : (v.applied || v.application_day ? getComputedDays(v) : null) };
+        })
+        .filter(v => {
+          if (v._maxDays !== null) return v._maxDays <= 0;
+          return false;
+        })
+        .map(v => (v._maxDays !== null ? { ...v, days_remaining: v._maxDays } : v));
+
+      const actualToExpire = (vaccinesData.vaccines_toexpire || [])
+        .map(v => {
+          const vName = v.name || v.vaccine_name || v.brand || '';
+          const maxDays = getLatestRecordDays(vName, validRecords, false);
+          return { ...v, _maxDays: maxDays !== null ? maxDays : (v.applied || v.application_day ? getComputedDays(v) : null) };
+        })
+        .filter(v => {
+          if (v._maxDays !== null) return v._maxDays > 0 && v._maxDays <= 50;
+          return false;
+        })
+        .map(v => (v._maxDays !== null ? { ...v, days_remaining: v._maxDays } : v));
+
+      console.log('[VAC] actualExpired filtered:', JSON.stringify(actualExpired));
+      console.log('[VAC] actualToExpire filtered:', JSON.stringify(actualToExpire));
 
       const hasExpired = actualExpired.length > 0;
       const hasToExpire = actualToExpire.length > 0;
 
-      const vPresent = hasRecords || actualExpired.some(v => v.applied || v.application_day);
+      const rawExpired = vaccinesData.vaccines_expired || [];
+      const rawToExpire = vaccinesData.vaccines_toexpire || [];
+      const vPresent = hasRecords || rawExpired.some(v => v.applied || v.application_day) || rawToExpire.some(v => v.applied || v.application_day);
+      
       let vName = '';
       let vDays = null;
       let vIsExpired = false;
@@ -119,41 +177,69 @@ const RenderSections = ({ item }) => {
           if (vDays <= 0) vIsExpired = true;
         } else {
           vCannotCalc = true;
-          if (hasRecords) {
-            const lastRec = validRecords[validRecords.length - 1];
-            vName = lastRec.name || lastRec.vaccine_name || lastRec.brand || 'Vacuna';
-            vId = lastRec.vaccine_id || lastRec.id;
+          const allRaw = [
+            ...validRecords, 
+            ...rawExpired.map(v => ({...v, days_remaining: getComputedDays(v)})),
+            ...rawToExpire.map(v => ({...v, days_remaining: getComputedDays(v)}))
+          ];
+          const validFuture = allRaw.filter(r => r.days_remaining != null && r.days_remaining > 0);
+
+          if (validFuture.length > 0) {
+            const refRec = validFuture.sort((a, b) => a.days_remaining - b.days_remaining)[0];
+            vName = refRec.name || refRec.vaccine_name || refRec.brand || 'Vacuna';
+            vId = refRec.vaccine_id || refRec.id;
+            vDays = refRec.days_remaining;
+            vCannotCalc = false;
+          } else if (hasRecords) {
+            const refRec = validRecords[validRecords.length - 1];
+            vName = refRec.name || refRec.vaccine_name || refRec.brand || 'Vacuna';
+            vId = refRec.vaccine_id || refRec.id;
           }
         }
       }
+      console.log('[VAC] Final vaccine state:', JSON.stringify({ present: vPresent, name: vName, id: vId, days: vDays, isExpired: vIsExpired, cannotCalc: vCannotCalc, hasAppointment: vHasAppt }));
       setVaccineState({ present: vPresent, name: vName, id: vId, days: vDays, isExpired: vIsExpired, cannotCalc: vCannotCalc, hasAppointment: vHasAppt });
 
-      const validDewormers = vaccinesData.dewormers_records || [];
+      const validDewormers = computeDaysRemaining(vaccinesData.dewormers_records || []);
       const hasDewormerRecords = validDewormers.length > 0;
 
       console.log('[DEW] dewormers_expired raw:', JSON.stringify(vaccinesData.dewormers_expired || vaccinesData.expired_dewormers));
       console.log('[DEW] dewormers_toexpire raw:', JSON.stringify(vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers));
       console.log('[DEW] dewormers_records raw:', JSON.stringify(validDewormers));
 
-      const isDewormerApplied = (d) => {
-        if (d.applied || d.application_day) return true;
-        if (!validDewormers.length) return false;
-        const dName = (d.deworming_type || d.description || d.name || d.brand || '').replace("Desparasitación ", "").trim().toLowerCase();
-        return validDewormers.some(rec => {
-          const rName = (rec.deworming_type || rec.description || rec.name || rec.brand || '').replace("Desparasitación ", "").trim().toLowerCase();
-          return rName.trim().toLowerCase() === dName;
-        });
-      };
+      const actualDewormersExpired = (vaccinesData.dewormers_expired || vaccinesData.expired_dewormers || [])
+        .map(d => {
+          const dName = (d.deworming_type || d.description || d.name || d.brand || '').replace("Desparasitación ", "");
+          const maxDays = getLatestRecordDays(dName, validDewormers, true);
+          return { ...d, _maxDays: maxDays !== null ? maxDays : (d.applied || d.application_day ? getComputedDays(d) : null) };
+        })
+        .filter(d => {
+          if (d._maxDays !== null) return d._maxDays <= 0;
+          return false;
+        })
+        .map(d => (d._maxDays !== null ? { ...d, days_remaining: d._maxDays } : d));
 
-      const actualDewormersExpired = (vaccinesData.dewormers_expired || vaccinesData.expired_dewormers || []).filter(isDewormerApplied);
-      const actualDewormersToExpire = (vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers || []).filter(isDewormerApplied);
+      const actualDewormersToExpire = (vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers || [])
+        .map(d => {
+          const dName = (d.deworming_type || d.description || d.name || d.brand || '').replace("Desparasitación ", "");
+          const maxDays = getLatestRecordDays(dName, validDewormers, true);
+          return { ...d, _maxDays: maxDays !== null ? maxDays : (d.applied || d.application_day ? getComputedDays(d) : null) };
+        })
+        .filter(d => {
+          if (d._maxDays !== null) return d._maxDays > 0 && d._maxDays <= 50;
+          return false;
+        })
+        .map(d => (d._maxDays !== null ? { ...d, days_remaining: d._maxDays } : d));
       console.log('[DEW] actualDewormersExpired (filtered):', JSON.stringify(actualDewormersExpired));
       console.log('[DEW] actualDewormersToExpire (filtered):', JSON.stringify(actualDewormersToExpire));
 
       const hasDewormersExpired = actualDewormersExpired.length > 0;
       const hasDewormersToExpire = actualDewormersToExpire.length > 0;
 
-      const dPresent = hasDewormerRecords || actualDewormersExpired.some(d => d.applied || d.application_day);
+      const rawDewormersExpired = vaccinesData.dewormers_expired || vaccinesData.expired_dewormers || [];
+      const rawDewormersToExpire = vaccinesData.dewormers_toexpire || vaccinesData.toexpire_dewormers || [];
+      const dPresent = hasDewormerRecords || rawDewormersExpired.some(d => d.applied || d.application_day) || rawDewormersToExpire.some(d => d.applied || d.application_day);
+      
       let dName = '';
       let dDays = null;
       let dIsExpired = false;

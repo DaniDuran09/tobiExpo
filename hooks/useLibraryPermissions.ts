@@ -22,7 +22,9 @@ export const useLibraryPermissions = () => {
   };
 
   const selectImage = async () => {
+    console.log("--> selectImage START");
     try {
+      console.log("--> requesting library permissions...");
       const permissionResult = await requestLibraryPermissions();
 
       if (!permissionResult.success) {
@@ -34,8 +36,7 @@ export const useLibraryPermissions = () => {
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 4],
+        allowsEditing: false,
         quality: 1
       });
 

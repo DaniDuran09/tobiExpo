@@ -6,8 +6,9 @@ import CardVaccine from "../CardVaccine";
 import Loading from "../../../Loading";
 import Button from "../../../atoms/Button";
 import Icon from "react-native-vector-icons/AntDesign";
-import UploadImage from "../../../atoms/UploadImage";
+import ModalNoPicture from "../../../atoms/ModalNoPicture";
 import ApiFetcher from "../../../../modules/ApiFetcher";
+import { Platform, Linking } from "react-native";
 import Toast from "react-native-toast-message";
 
 const DerwomersPage: React.FC<DerwomersPageProps> = ({
@@ -168,7 +169,13 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
               <TouchableOpacity
                 disabled={isLoading || idEditPet != null}
                 marginB-25
-                onPress={() => setVisible(true)}
+                onPress={() => {
+                  if (certificates?.certificate_deworming) {
+                    Linking.openURL(certificates.certificate_deworming).catch(e => console.log("Error opening url:", e));
+                  } else {
+                    setVisible(true);
+                  }
+                }}
                 backgroundColor={Colors.mediumGray}
                 paddingH-20
                 paddingV-10
@@ -176,20 +183,17 @@ const DerwomersPage: React.FC<DerwomersPageProps> = ({
                 row
                 center
               >
-                <Icon name="upload" size={20} color={Colors.white} />
-                <Text color={Colors.white}>Certificado</Text>
+                <Icon name="filetext1" size={20} color={Colors.white} />
+                <Text color={Colors.white} marginL-5>Certificado</Text>
               </TouchableOpacity>
             </View>
           )}
         </View>
       </View>
-      <UploadImage
-        loading={loadingUpload}
-        type="desparasitación"
-        defaultImage={certificates?.certificate_deworming}
+      <ModalNoPicture
         visible={visible}
         onRequestClose={() => setVisible(false)}
-        onUpload={saveCertificateDeworming}
+        picture="desparasitaciones"
       />
     </View>
   );

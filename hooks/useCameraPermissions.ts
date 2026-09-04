@@ -22,7 +22,10 @@ export const useCameraPermissions = () => {
   };
 
   const takePicture = async () => {
+    console.log("--> takePicture START");
     try {
+      console.log("--> requesting camera permissions...");
+
       const permissionResult = await requestCameraPermissions();
 
       if (!permissionResult.success) {
@@ -33,8 +36,7 @@ export const useCameraPermissions = () => {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [4, 4],
+        allowsEditing: false,
         quality: 1
       });
 

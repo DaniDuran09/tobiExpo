@@ -191,11 +191,21 @@ const UserStepsRegister = ({route}) => {
     await appStorage.saveAppToken(data.token);
   };
 
-  const nextStep = (step) => {
+  const nextStep = async (step) => {
     let valid;
     switch (step) {
       case 0:
         valid = validFirsScreen();
+        if (valid) {
+          try {
+            const expoToken = await appStorage.getExpoPushToken();
+            if (expoToken) {
+              await apiFetcher.updateOnboardingSession(expoToken, "pet_data");
+            }
+          } catch (e) {
+            console.log("Error actualizando onboarding session", e);
+          }
+        }
         break;
       case 1:
         valid = validSecondScreen();

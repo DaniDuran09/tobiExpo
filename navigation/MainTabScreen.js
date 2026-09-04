@@ -311,7 +311,7 @@ const HomeStackScreen = ({ navigation }) => (
 
 const HealthStackScreens = ({ navigation }) => (
   <HealthStack.Navigator
-    screenOptions={{
+    screenOptions={({ navigation }) => ({
       headerStyle: {
         backgroundColor: "#fff",
       },
@@ -320,7 +320,15 @@ const HealthStackScreens = ({ navigation }) => (
         fontWeight: "600",
       },
       headerTitleAlign: "center",
-    }}
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ paddingHorizontal: 15 }}
+        >
+          <Icon name="arrow-back" size={26} color="#000" />
+        </TouchableOpacity>
+      ),
+    })}
   >
     <HealthStack.Screen
       name="CareCenter"

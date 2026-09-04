@@ -89,45 +89,31 @@ const FinalScreenRegisterPet = (props) => {
     }
   };
   const getPermissionsCamera = async () => {
-    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    closeModal();
+    let { status } = await ImagePicker.getCameraPermissionsAsync();
+    
     if (status !== "granted") {
-      if (!permissionsRequested.camera) {
-        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
-        await requestPermissionsCamera();
-      }
+      const req = await ImagePicker.requestCameraPermissionsAsync();
+      status = req.status;
+    }
+    
+    if (status === "granted") {
+      takePhoto();
+    } else {
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else {
-      takePhoto();
     }
   };
+
   const requestPermissionsCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      closeModal();
-      Toast.show({
-        type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la cámara.`,
-      });
-    } else {
-      getPermissionsCamera();
-    }
+    // Unused
+    getPermissionsCamera();
   };
 
   const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permisos insuficientes",
-        "Se necesitan permisos para acceder a la cámara."
-      );
-      return;
-    }
-
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,

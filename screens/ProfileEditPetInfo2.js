@@ -87,7 +87,7 @@ const ProfileEditPetInfo2 = ({ route, navigation }) => {
             "activity_level_id": info.activity_level_id,
             "gender": pet.gender,
             "birthday": pet.birthday.toString(),
-            "weight": parseInt(peso),
+            "weight": peso ? parseInt(parseFloat(peso) * 1000) : 0,
             "sterilized": info.sterilized
         }
         //console.log('::::::::JSON::::::::::::', json)

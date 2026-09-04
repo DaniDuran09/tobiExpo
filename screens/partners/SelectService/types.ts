@@ -2,6 +2,7 @@ export interface Partner {
     id: string | number;
     name: string;
     description?: string;
+    address?: string;
     picture: string | null;
     latitude: string;
     longitude: string;

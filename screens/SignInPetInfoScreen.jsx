@@ -56,7 +56,7 @@ const SignInPetInfoScreen = props => {
       pet:
         {
           ...pet,
-          weight: weight,
+          weight: weight ? parseInt(parseFloat(weight) * 1000) : 0,
           activity_level_id: selectedActivity,
           pet_breed_id: selectedBrand.id,
           sterilized: check,

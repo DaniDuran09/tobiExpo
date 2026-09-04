@@ -137,6 +137,7 @@ const PendingCareScreen = () => {
       else setLoading(true);
 
       const response = await apiFetcher.getPendingCards();
+      console.log("CARE CENTER CARDS RECIBIDAS:", JSON.stringify(response?.data?.cards, null, 2));
       setAllCards(response?.data?.cards ?? []);
     } catch (err) {
       console.error(err);

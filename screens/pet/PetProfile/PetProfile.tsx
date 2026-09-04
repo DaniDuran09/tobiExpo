@@ -132,19 +132,22 @@ const PetProfile = () => {
   };
 
   const getPermissionsCamera = async () => {
-    const { status } = await ImagePicker.getCameraPermissionsAsync();
+    closeModal();
+    let { status } = await ImagePicker.getCameraPermissionsAsync();
+    
     if (status !== "granted") {
-      if (!permissionsRequested.camera) {
-        setPermissionsRequested((prev) => ({ ...prev, camera: true }));
-        await requestPermissionsCamera();
-      }
+      const req = await ImagePicker.requestCameraPermissionsAsync();
+      status = req.status;
+    }
+    
+    if (status === "granted") {
+      takePhoto();
+    } else {
       Toast.show({
         type: "error",
         text2: `Permisos insuficientes.`,
         text1: `Se necesitan permisos para acceder a la cámara.`,
       });
-    } else {
-      takePhoto();
     }
   };
 
@@ -197,17 +200,8 @@ const PetProfile = () => {
   const closeModal = () => setModalVisible(false);
 
   const requestPermissionsCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      closeModal();
-      Toast.show({
-        type: "error",
-        text2: `Permisos insuficientes.`,
-        text1: `Se necesitan permisos para acceder a la cámara.`,
-      });
-    } else {
-      getPermissionsCamera();
-    }
+    // Unused now, but kept to prevent breaking other calls
+    getPermissionsCamera();
   };
 
   const savePhoto = async () => {
@@ -216,7 +210,7 @@ const PetProfile = () => {
       formData.append("picture", {
         uri: imageSource.uri,
         type: "image/jpeg",
-        name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
+        name: imageSource.fileName || imageSource.uri.split("/").pop() || "photo.jpg",
       });
 
       const response = await apiFetcher.updatePicturePet(

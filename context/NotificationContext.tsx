@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { handleGlobalAction } from "../utils/ActionHandler";
 import { navigationRef } from "../hooks/navigationRef";
 import AppStorage from "../modules/AppStorage";
+import ApiFetcher from "../modules/ApiFetcher";
 
 const Context = createContext({
     notifications: [],
@@ -62,6 +63,14 @@ export default function NotificationContext({ children }: { children: ReactNode 
             // Guardar en storage para usarlo al hacer logout
             const appStorage = new AppStorage();
             await appStorage.saveExpoPushToken(pushTokenString);
+
+            // Crear sesión de onboarding en el backend
+            try {
+                const apiFetcher = new ApiFetcher();
+                await apiFetcher.createOnboardingSession(pushTokenString);
+            } catch (sessionErr) {
+                console.log("Error creando onboarding session:", sessionErr);
+            }
         } catch (e: unknown) {
             Alert.alert(`${e}`);
         }

@@ -145,6 +145,16 @@ class ApiFetcher {
     return await this._post("/v2/auth/login", data, false);
   }
 
+  // Onboarding Sessions
+  async createOnboardingSession(expo_token) {
+    return await this._post("/v1/portal_client/onboarding_sessions", { expo_token }, false);
+  }
+
+  async updateOnboardingSession(expo_token, step) {
+    // El backend permite pasar cualquier id en la url, y extraerá del expo_token
+    return await this._patch("/v1/portal_client/onboarding_sessions/update", { expo_token, step }, false);
+  }
+
   async registerUser(data) {
     return await this._post("/v1/portal_client/registers", data, false);
   }
@@ -173,6 +183,10 @@ class ApiFetcher {
 
   async getProfile() {
     return await this._get("/v1/portal_client/profile");
+  }
+
+  async deleteAccount() {
+    return await this._delete("/v1/portal_client/profile");
   }
 
   async getBlogs() {
@@ -350,16 +364,36 @@ class ApiFetcher {
     return this._post(`/v2/portal_client/carts/${id}/confirm`)
   }
   // appointments
-  async getAppointments() {
-    return await this._get("/v1/portal_client/appointments");
+  async getAppointments(params = {}) {
+    let url = "/v1/portal_client/appointments";
+    const queryParts = [];
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+      }
+    }
+    if (queryParts.length > 0) {
+      url += `?${queryParts.join("&")}`;
+    }
+    return await this._get(url);
   }
   async getAppointmentsById(id) {
     return await this._get(`/v1/portal_client/appointments/${id}`);
   }
 
   // visits
-  async getVisits() {
-    return await this._get("/v2/portal_client/visits");
+  async getVisits(params = {}) {
+    let url = "/v2/portal_client/visits";
+    const queryParts = [];
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+      }
+    }
+    if (queryParts.length > 0) {
+      url += `?${queryParts.join("&")}`;
+    }
+    return await this._get(url);
   }
 
   async getVisitById(id) {

@@ -10,26 +10,41 @@ interface ActionCardProps {
   onClose?: () => void;
 }
 
-const ctaLabel = (action: string): string => {
-  switch (action) {
-    case "view_appointment":
-      return "Ver cita";
-    case "book_consultation":
-      return "Agendar cita";
-    case "view_vaccines":
-    case "view_deworming":
-      return (type?.includes("expired") || type?.includes("due")) ? "Agendar" : "Ver detalles";
-    case "view_summary":
-      return "Ver actualización";
-    case "view_recommendation":
-      return "Ver recomendación";
-    case "edit_profile":
-      return "Completar perfil";
-    case "add_pet":
-      return "Continuar registro";
-    default:
-      return "Continuar";
+const ctaLabel = (action: string, type?: string, cardData?: any): string => {
+  // En caso de que el backend empiece a mandar un cta_label explícito
+  if (cardData && cardData.cta_label) return cardData.cta_label;
+  if (cardData && cardData.button_text) return cardData.button_text;
+
+  const str = (action || type || "").toLowerCase();
+  
+  if (str.includes("vaccine") || str.includes("deworming")) {
+    return (str.includes("expired") || str.includes("due")) ? "Agendar" : "Ver detalles";
   }
+  if (str.includes("appointment") || str.includes("booking") || str.includes("book")) {
+    if (str.includes("book_consultation")) return "Agendar cita";
+    return "Ver cita";
+  }
+  if (str.includes("weight")) {
+    return "Ver detalles";
+  }
+  if (str.includes("summary") || str.includes("recommendation") || str.includes("clinical") || str.includes("visit")) {
+    return "Ver actualización";
+  }
+  if (str.includes("pet") || str.includes("scheme") || str.includes("onboarding")) {
+    if (str.includes("completed")) return "Ver detalles";
+    if (str.includes("started")) return "Continuar";
+    return "Completar perfil";
+  }
+  if (str.includes("follow_up")) {
+    return "Agendar";
+  }
+  if (str.includes("multiple")) {
+    return "Revisar tareas";
+  }
+  if (str.includes("user_inactive")) {
+    return "Retomar camino";
+  }
+  return "Continuar";
 };
 
 const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
@@ -60,13 +75,13 @@ const ActionCard = ({ card, onPress, onClose }: ActionCardProps) => {
           <Text style={styles.body} textAlign="center">{body}</Text>
         ) : null}
       </View>
-      
+
       {/* Botón de ancho completo */}
-      <TouchableOpacity 
-        style={[styles.button, { backgroundColor: theme.cta }]} 
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: theme.cta }]}
         onPress={() => onPress(action, data, card.id)}
       >
-        <Text style={styles.buttonText}>{ctaLabel(action, card.type)}</Text>
+        <Text style={styles.buttonText}>{ctaLabel(action, card.type, card)}</Text>
       </TouchableOpacity>
     </View>
   );
