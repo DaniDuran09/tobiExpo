@@ -99,6 +99,17 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
       break;
 
+    // TODO: Acciones pendientes por definir destino con el equipo
+    case "complete_profile":
+    case "view_plan":
+    case "view_weight_detail":
+      console.log(`Acción temporalmente sin destino: ${action}`);
+      break;
+
+    case "view_care_center":
+      navigate("Health", { screen: "CareCenter" });
+      break;
+
     case "scheme_incomplete":
     case "scheme_completed":
       navigate("PetVaccinesRecord", { id: data?.pet_id });

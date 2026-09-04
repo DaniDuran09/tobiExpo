@@ -158,12 +158,18 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const dismissItem = async (id: string, type?: string) => {
+    // Restaurando la lógica para forzar el cierre local
+    setHomeFeed(prev => {
+      const isBanner = prev.banner && (prev.banner.entity_fingerprint === id || prev.banner.id === id || id === "banner");
+      return {
+        ...prev,
+        banner: isBanner ? null : prev.banner,
+        cards: prev.cards ? prev.cards.filter(c => c.id !== id && c.entity_fingerprint !== id) : []
+      };
+    });
+
     try {
       await apiFetcher.markHomeCardAsRead(id, type);
-      const feedResponse = await apiFetcher.getHomeFeed();
-      if (feedResponse && feedResponse.data) {
-        setHomeFeed(feedResponse.data);
-      }
     } catch (e) {
       console.log("Error dismissing item", e);
     }

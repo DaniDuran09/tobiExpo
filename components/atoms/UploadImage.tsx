@@ -58,7 +58,9 @@ const UploadImage: React.FC<UploadImageProps> = ({
           text2: "Por favor, intenta nuevamente más tarde",
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log("Error in handlePicture:", error);
+    }
   };
 
   const handleUpload = async () => {

@@ -171,7 +171,7 @@ const Resume = ({ route }: any) => {
           </View>
 
           <View row spread marginB-12>
-            <Text text70>Tarifa de servicio</Text>
+            <Text text70>Impuesto</Text>
             <Text text70>${serviceFee.toFixed(2)}</Text>
           </View>
 

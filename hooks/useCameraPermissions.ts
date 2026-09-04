@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import { Platform } from 'react-native';
 
 export const useCameraPermissions = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);

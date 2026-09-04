@@ -8,6 +8,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import "moment/locale/es";
+import UploadImage from "../../components/atoms/UploadImage";
 
 moment.locale("es");
 
@@ -16,6 +17,10 @@ export default function AppointmentsHome() {
     const [selected, setSelected] = useState(route.params?.initialTab || 1);
     const [visits, setVisits] = useState<Visit[]>([]);
     const [loading, setLoading] = useState(false);
+    const [uploadModalVisible, setUploadModalVisible] = useState(false);
+    const [uploadingPetId, setUploadingPetId] = useState<number | null>(null);
+    const [uploadingCertificate, setUploadingCertificate] = useState(false);
+    const [currentCertificate, setCurrentCertificate] = useState<string | null>(null);
     const navigation = useNavigation();
 
     const apiFetcher = new ApiFetcher();
@@ -45,6 +50,40 @@ export default function AppointmentsHome() {
         });
         return unsubscribe;
     }, [navigation]);
+
+    const handleOpenUpload = async (petId: number) => {
+        setUploadingPetId(petId);
+        setCurrentCertificate(null);
+        setUploadModalVisible(true);
+        try {
+            const response = await apiFetcher.getCertificates(petId);
+            setCurrentCertificate(response?.data?.certificate_vaccine || null);
+        } catch (e) {}
+    };
+
+    const saveCertificateVaccine = async (uri: any, filename: any) => {
+        if (!uploadingPetId) return;
+        setUploadingCertificate(true);
+        try {
+            const formData = new FormData();
+            formData.append("certificate_vaccine", {
+                uri: uri,
+                type: "image/jpeg",
+                name: filename,
+            } as any);
+            await apiFetcher.saveCertificate(uploadingPetId, formData);
+            setUploadModalVisible(false);
+            Toast.show({
+                type: "success",
+                text1: "Certificado subido correctamente",
+                text2: "El certificado de vacunación se ha subido correctamente",
+            });
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setUploadingCertificate(false);
+        }
+    };
 
     const isVisitInHistory = (visit: Visit) => {
         if (visit.status === "completed" || visit.status === "cancelled" || visit.status === "no_show") return true;
@@ -255,7 +294,7 @@ export default function AppointmentsHome() {
                                 backgroundColor={Colors.red}
                                 style={{ height: 45, borderRadius: 25, width: '100%' }}
                                 center
-                                onPress={() => { }}
+                                onPress={() => handleOpenUpload(petGroup.pet.id)}
                             >
                                 <Text white text70BO>Guardar cartilla de vacunación</Text>
                             </TouchableOpacity>
@@ -298,6 +337,14 @@ export default function AppointmentsHome() {
                         <Text text70 color={Colors.gray}>{loading ? "Cargando..." : (selected === 1 ? "No hay visitas programadas" : "No hay visitas en el historial")}</Text>
                     </View>
                 }
+            />
+            <UploadImage
+                loading={uploadingCertificate}
+                type="vacunación"
+                defaultImage={currentCertificate}
+                visible={uploadModalVisible}
+                onRequestClose={() => setUploadModalVisible(false)}
+                onUpload={saveCertificateVaccine}
             />
         </View>
     );

@@ -87,7 +87,13 @@ class ApiFetcher {
       console.log("url: ", url);
       console.log("headers: ", headers);
       console.log("data: ", data);
-      const response = await axios.put(url, data, { headers, timeout: 30000 });
+      
+      const config = { headers, timeout: 30000 };
+      if (isMultipart) {
+        config.transformRequest = (data, headers) => data;
+      }
+      
+      const response = await axios.put(url, data, config);
       console.log("response: ", response);
       return this.handleErrors(response);
     } catch (error) {
@@ -112,7 +118,13 @@ class ApiFetcher {
     try {
       const url = this.buildUrl(endpoint);
       const headers = await this.getHeaders(tokenRequired, isMultipart);
-      const response = await axios.patch(url, data, { headers, timeout: 30000 });
+      
+      const config = { headers, timeout: 30000 };
+      if (isMultipart) {
+        config.transformRequest = (data, headers) => data;
+      }
+      
+      const response = await axios.patch(url, data, config);
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in PATCH request:", error);

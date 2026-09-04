@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   RefreshControl,
+  Linking,
 } from "react-native";
 import { Colors } from "../../styles/Colors";
 import ApiFetcher from "../../modules/ApiFetcher";
@@ -242,8 +243,34 @@ const SelectService = ({ route }) => {
     );
   };
 
-  // ─── Card de cada partner ─────────────────────────────────────────────────
-  const renderPartners = ({ item }) => (
+  const ExpandableLocationText = ({ text }) => {
+    const [expanded, setExpanded] = useState(false);
+    
+    if (!text) return <Text style={{ color: Colors.gray }}>📍 Ubicación no disponible</Text>;
+
+    const handlePress = () => {
+      if (!expanded) {
+        setExpanded(true);
+      } else {
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
+        Linking.openURL(url);
+      }
+    };
+
+    return (
+      <TouchableOpacity onPress={handlePress}>
+        <Text
+          numberOfLines={expanded ? undefined : 1}
+          style={{ color: Colors.gray }}
+        >
+          📍 {text}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderPartners = ({ item, index }) => {
+    return (
     <TouchableOpacity
       onPress={() => goToMoreInfo(item, item.type_partner?.id || 2)}
       style={styles.item}
@@ -285,10 +312,19 @@ const SelectService = ({ route }) => {
         </View>
       </View>
       <View style={styles.footer}>
-        <Text>📍 Circuito Misioneros 4-A, Naucalpan de Juá...</Text>
+        <ExpandableLocationText 
+          text={
+            item?.address || 
+            item?.partner?.address || 
+            item?.location || 
+            item?.partner?.location || 
+            ""
+          } 
+        />
       </View>
     </TouchableOpacity>
   );
+  };
 
   const renderEmptyComponent = () => {
     if (loading) return <LoaderScreen color={Colors.primaryColor} />;
