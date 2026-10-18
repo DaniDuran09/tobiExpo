@@ -40,10 +40,17 @@ const StepsRegister = ({ route }) => {
     setLoading(true);
     try {
       const response = await apiFetcher.registerPet(petInfo);
-      if (response.code == 200) {
-        setIdPet(response.data.id);
+      let newPetId = null;
+      if (response?.data?.id) {
+        newPetId = response.data.id;
+      } else if (response?.id) {
+        newPetId = response.id;
+      }
+      
+      if (newPetId) {
+        setIdPet(newPetId);
       } else {
-        console.log("Algo malo paso");
+        console.log("Algo malo paso, no se encontró el id de la mascota", response);
       }
     } catch (error) {
       console.log("Ocurrió un error: ", error);

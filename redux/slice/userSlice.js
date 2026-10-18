@@ -33,7 +33,7 @@ const userSlice = createSlice({
       state.userInfo = action.payload;
     },
     clearUser(state) {
-      state.userInfo = initialState;
+      state.userInfo = initialState.userInfo;
     },
   },
 });

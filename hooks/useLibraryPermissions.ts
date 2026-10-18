@@ -7,24 +7,25 @@ export const useLibraryPermissions = () => {
   const [fileName, setFileName] = useState<string | null>(null);
 
   const requestLibraryPermissions = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    let { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
     
+    if (status !== 'granted') {
+      const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      status = req.status;
+    }
+
     if (status !== 'granted') {
       return {
         success: false,
-        error: 'Se requieren permisos de galería para seleccionar fotos'
+        error: 'Se requieren permisos de galería para seleccionar fotos. Habilítalos en la configuración de tu dispositivo.'
       };
     }
 
-    return {
-      success: true
-    };
+    return { success: true };
   };
 
-  const selectImage = async () => {
-    console.log("--> selectImage START");
+  const selectImage = async (options?: ImagePicker.ImagePickerOptions) => {
     try {
-      console.log("--> requesting library permissions...");
       const permissionResult = await requestLibraryPermissions();
 
       if (!permissionResult.success) {
@@ -37,7 +38,8 @@ export const useLibraryPermissions = () => {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: false,
-        quality: 1
+        quality: 1,
+        ...options
       });
 
       if (result.canceled) {
@@ -49,12 +51,13 @@ export const useLibraryPermissions = () => {
 
       setImageUrl(result.assets[0].uri);
       const fileName = Platform.OS == "android" ? result.assets[0].fileName : result.assets[0].uri.split("ImagePicker/")[1];
-      console.log("fileName: ", fileName);
       setFileName(fileName || null);
+      
       return {
         success: true,
         imageUrl: result.assets[0].uri,
-        fileName: fileName
+        fileName: fileName,
+        asset: result.assets[0]
       };
 
     } catch (error) {

@@ -20,51 +20,54 @@ import {setUserInfo} from '../redux/slice/userSlice';
 import * as Notifications from 'expo-notifications';
 
 const SignInPetInfoScreen = props => {
-  const [selectedBrand, setSelectedBrand] = useState({});
+  const {pet, user, setData} = props;
+  const [selectedBrand, setSelectedBrand] = useState(pet?.pet_breed || {});
   const [selectedActivity, setSelectedActivity] = useState(1);
   const dispatch = useDispatch();
 
-  const {pet, user, setData} = props;
-  console.log('props: ',pet)
-
-  const [check, setCheck] = useState(false);
-  const [weight, setWeight] = useState(false);
+  const [check, setCheck] = useState(pet?.sterilized || false);
+  const initialWeight = pet?.weight ? (pet.weight > 100 ? String(pet.weight / 1000) : String(pet.weight)) : "";
+  const [weight, setWeight] = useState(initialWeight);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const [token,setToken] = useState(" ");
+  const [token, setToken] = useState(" ");
 
   const userInfo = useSelector(store => store.user.userInfo);
 
-  console.log('Lo que debo de llevar hasta ahora: ', userInfo);
-
   useEffect(() => {
-      getPushToken();
+    getPushToken();
   }, []);
     
-    const getPushToken = async () => {
-      const data2 = (await Notifications.getExpoPushTokenAsync({projectId:"f65ecfcd-2965-4845-874e-f1581e444da1"})).data;
-      setToken(data2)
-      console.log("si está entrando")
-      console.log("eltoken ",token)
+  const getPushToken = async () => {
+    const data2 = (await Notifications.getExpoPushTokenAsync({projectId:"f65ecfcd-2965-4845-874e-f1581e444da1"})).data;
+    setToken(data2);
   };
 
   useEffect(() => {
     if (!token || token.trim() === "") return;
+    const breedId = selectedBrand?.id || pet?.pet_breed_id || 0;
+    const calcWeight = weight ? parseInt(parseFloat(weight) * 1000) : 0;
     const updatedInfo = {
       ...userInfo,
-      expotoken:token,
+      expotoken: token,
       pet:
         {
           ...pet,
-          weight: weight ? parseInt(parseFloat(weight) * 1000) : 0,
+          weight: calcWeight,
           activity_level_id: selectedActivity,
-          pet_breed_id: selectedBrand.id,
+          pet_breed_id: breedId,
           sterilized: check,
         },
     };
     dispatch(setUserInfo(updatedInfo));
-    setData({...pet, weight: weight})
-  }, [check, selectedBrand, weight,token]);
+    setData(prev => ({
+      ...prev,
+      weight: calcWeight,
+      pet_breed_id: breedId,
+      pet_breed: selectedBrand?.id ? selectedBrand : prev?.pet_breed,
+      sterilized: check,
+    }));
+  }, [check, selectedBrand, weight, token]);
 
   const goToSearchItem = async type => {
     navigation.navigate('SearchItem', {
@@ -77,7 +80,8 @@ const SignInPetInfoScreen = props => {
 
   const setValue = value => {
     setSelectedBrand(value);
-    pet.pet_breed_id = value
+    const breedId = value?.id || value;
+    setData(prev => ({ ...prev, pet_breed_id: breedId, pet_breed: value }));
     navigation.goBack();
   };
 
@@ -106,7 +110,7 @@ const SignInPetInfoScreen = props => {
               }}>
               <Image
                 source={require('../assets/frame.png')}
-                style={{height: 80, width: 150, marginTop: 50}}
+                style={{height: 80, width: 150, marginTop: 10}}
                 resizeMode={'contain'}
               />
               <Text
@@ -181,12 +185,14 @@ const SignInPetInfoScreen = props => {
                 style={styles.textInput}
                 autoCapitalize="none"
                 keyboardType="numeric"
+                value={weight}
                 onChangeText={val => setWeight(val)}
               />
 
               <View style={[styles.textInput]}>
                 <View style={{flexDirection: 'row'}}>
                   <BouncyCheckbox
+                    isChecked={check}
                     size={20}
                     fillColor="#EF4136"
                     iconStyle={{borderColor: 'red'}}

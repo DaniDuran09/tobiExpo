@@ -108,21 +108,52 @@ export default function NotificationContext({ children }: { children: ReactNode 
             const data = response.notification.request.content.data;
             
             // Extraer del nuevo payload estructurado
-            const action = data?.action;
+            let action = data?.action;
             const entity_fingerprint = data?.entity_fingerprint;
             // card_data contiene todos los IDs y metadata extra, si no viene fallback a data (por retrocompatibilidad)
             const card_data = data?.card_data || data;
+
+            // Soporte para Comunicación 004 en notificaciones push
+            if (!action && (
+                data?.trigger === "004" ||
+                data?.communication === "004" ||
+                data?.trigger_id === "004" ||
+                data?.trigger_id === 4 ||
+                data?.communication_id === "004" ||
+                data?.communication_id === 4 ||
+                card_data?.trigger === "004" ||
+                card_data?.communication === "004"
+            )) {
+                action = "complete_scheme";
+            }
+
+            // Soporte para no_show en notificaciones push
+            const notifType = data?.type || card_data?.type || "";
+            const isNoShow = 
+                (action || "").toLowerCase().includes("no_show") ||
+                (notifType || "").toLowerCase().includes("no_show") ||
+                (action || "").toLowerCase().includes("reagendar") ||
+                card_data?.status === "no_show" ||
+                card_data?.appointment_status === "no_show" ||
+                data?.status === "no_show";
+
+            if (isNoShow) {
+                action = "no_show";
+            }
 
             if (action) {
                 // Esperar a que la navegación esté lista en caso de cold start
                 const tryNavigate = () => {
                     if (navigationRef.isReady()) {
-                        handleGlobalAction(action, card_data, entity_fingerprint);
+                        handleGlobalAction(action, card_data, entity_fingerprint, notifType);
                     } else {
                         setTimeout(tryNavigate, 100);
                     }
                 };
                 tryNavigate();
+            } else if (data?.url || data?.link || data?.deep_link) {
+                const url = data?.url || data?.link || data?.deep_link;
+                Linking.openURL(url).catch(e => console.warn("Error abriendo deep link de notificación:", e));
             } else {
                 console.warn("Notificación sin action, no se pudo redirigir:", data);
             }

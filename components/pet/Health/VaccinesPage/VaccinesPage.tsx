@@ -6,7 +6,7 @@ import CardVaccine from "../CardVaccine";
 import Loading from "../../../Loading";
 import Button from "../../../atoms/Button";
 import Icon from "react-native-vector-icons/AntDesign";
-import ModalNoPicture from "../../../atoms/ModalNoPicture";
+import UploadImage from "../../../atoms/UploadImage";
 import ApiFetcher from "../../../../modules/ApiFetcher";
 import { Platform, Linking } from "react-native";
 import Toast from "react-native-toast-message";
@@ -148,10 +148,13 @@ const VaccinesPage: React.FC<VaccinesPageProps> = ({
           }
         </View>
       </View>
-      <ModalNoPicture
+      <UploadImage
+        loading={loadingUpload}
+        type="vacunación"
+        defaultImage={certificates?.certificate_vaccine}
         visible={visible}
         onRequestClose={() => setVisible(false)}
-        picture="vacunas"
+        onUpload={saveCertificateVaccine}
       />
     </View>
   );

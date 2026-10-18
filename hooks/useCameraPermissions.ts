@@ -7,25 +7,25 @@ export const useCameraPermissions = () => {
   const [fileName, setFileName] = useState<string | null>(null);
 
   const requestCameraPermissions = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    let { status } = await ImagePicker.getCameraPermissionsAsync();
+    
+    if (status !== 'granted') {
+      const req = await ImagePicker.requestCameraPermissionsAsync();
+      status = req.status;
+    }
 
     if (status !== 'granted') {
       return {
         success: false,
-        error: 'Se requieren permisos de cámara para tomar fotos'
+        error: 'Se requieren permisos de cámara para tomar fotos. Habilítalos en la configuración de tu dispositivo.'
       };
     }
 
-    return {
-      success: true
-    };
+    return { success: true };
   };
 
-  const takePicture = async () => {
-    console.log("--> takePicture START");
+  const takePicture = async (options?: ImagePicker.ImagePickerOptions) => {
     try {
-      console.log("--> requesting camera permissions...");
-
       const permissionResult = await requestCameraPermissions();
 
       if (!permissionResult.success) {
@@ -37,7 +37,8 @@ export const useCameraPermissions = () => {
 
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: false,
-        quality: 1
+        quality: 1,
+        ...options
       });
 
       if (result.canceled) {
@@ -54,7 +55,8 @@ export const useCameraPermissions = () => {
       return {
         success: true,
         imageUrl: result.assets[0].uri,
-        fileName: fileName
+        fileName: fileName,
+        asset: result.assets[0]
       };
 
     } catch (error) {

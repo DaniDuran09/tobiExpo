@@ -8,6 +8,7 @@ import HealthTabController from "../../../components/pet/Health/HealthTabControl
 import ListSelectPet from "../../../components/pet/Health/ListSelectPet/ListSelectPet";
 import Loading from "../../../components/Loading";
 import VaccinesPage from "../../../components/pet/Health/VaccinesPage";
+import Banner from "../../../components/home/Banner";
 
 import { useGetPetsQuery } from "../../../services/api/pets.api";
 import { useGetProfileQuery } from "../../../services/api/user.api";
@@ -39,6 +40,9 @@ const PetHealth = () => {
 
   const { data: userResponse, isLoading: isLoadingUser } = useGetProfileQuery();
   const user = userResponse?.data || ({ picture: "", name: "" } as User);
+
+  const [showStartedBanner, setShowStartedBanner] = useState(false);
+  const initialCountRef = React.useRef<number | null>(null);
 
   const queryId = selectedPet.id || idSelectedPet;
   const {
@@ -137,18 +141,34 @@ const PetHealth = () => {
     console.log("Mapped Vaccines:", JSON.stringify(processedVaccines, null, 2));
     console.log("Mapped Dewormers:", JSON.stringify(processedDewormers, null, 2));
 
+    const appliedCount = 
+      processedVaccines.filter((v: any) => v.applied || v.application_day).length + 
+      processedDewormers.filter((d: any) => d.applied || d.application_day).length;
+
+    if (initialCountRef.current === null && !isLoadingVaccines && !isFetchingVaccines) {
+       initialCountRef.current = appliedCount;
+    } else if (initialCountRef.current === 0 && appliedCount > 0) {
+       setShowStartedBanner(true);
+    }
+
     setAllVaccines(processedVaccines);
     setAllDewormers(processedDewormers);
   }, [vaccinesResponse?.data, selectedPet]);
 
   useEffect(() => {
-    if (idSelectedPet && pets.length > 0) {
-      const selected = pets.find((pet: Pet) => pet.id === idSelectedPet);
-      if (selected) {
-        setSelectedPet(selected);
+    if (pets.length > 0) {
+      if (idSelectedPet) {
+        const selected = pets.find((pet: Pet) => pet.id == idSelectedPet);
+        if (selected) {
+          setSelectedPet(selected);
+          return;
+        }
+      }
+      if (!selectedPet?.id) {
+        setSelectedPet(pets[0]);
       }
     }
-  }, [petsResponse?.data]);
+  }, [petsResponse?.data, idSelectedPet]);
 
   return (
     <View flex bg-white>
@@ -195,6 +215,18 @@ const PetHealth = () => {
               selectedPet={selectedPet}
               setSelectedPet={setSelectedPet}
             />
+            {showStartedBanner && (
+              <View marginB-10 marginT-10>
+                <Banner
+                  banner={{
+                    title: "Vamos muy bien",
+                    body: "Cada dato que agregas nos ayuda a darte recomendaciones más útiles.",
+                    type: "scheme_started",
+                  }}
+                  onPress={() => {}}
+                />
+              </View>
+            )}
             <View marginT-10>
               <HealthTabController
                 initialIndex={tabIndex}

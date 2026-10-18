@@ -64,16 +64,25 @@ class AppStorage {
     return this._getStringItem(STORAGE_KEYS.EXPO_PUSH_TOKEN);
   }
 
-  clearStorage(){
-    return AsyncStorage.clear();
+  async clearStorage() {
+    try {
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.USER,
+        STORAGE_KEYS.APP_TOKEN,
+        STORAGE_KEYS.EXPO_PUSH_TOKEN,
+      ]);
+      await AsyncStorage.setItem("hasSeenOnboarding", "true");
+    } catch (e) {
+      console.error("Error al limpiar AppStorage:", e);
+    }
   }
 
-  saveNotifications(notifications){
-    return this._saveJSONItem(STORAGE_KEYS.USER, user);
+  saveNotifications(notifications) {
+    return this._saveJSONItem(STORAGE_KEYS.NOTIFICATIONS, notifications);
   }
 
-  getNotifications(){
-    return this._getJSONItem(STORAGE_KEYS.APP_TOKEN);
+  getNotifications() {
+    return this._getJSONItem(STORAGE_KEYS.NOTIFICATIONS);
   }
 }
 

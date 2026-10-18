@@ -89,7 +89,7 @@ const SignInScreen = (props) => {
               style={{
                 alignItems: "flex-start",
                 paddingLeft: 20,
-                marginTop: 50,
+                marginTop: 10,
               }}
             >
               <Image
@@ -127,6 +127,7 @@ const SignInScreen = (props) => {
                 elevation={5}
                 style={styles.textInput}
                 autoCapitalize="none"
+                value={user.name}
                 onChangeText={(val) => setUser({ ...user, name: val })}
               />
               <TextInput
@@ -135,6 +136,7 @@ const SignInScreen = (props) => {
                 elevation={5}
                 style={styles.textInput}
                 autoCapitalize="none"
+                value={user.last_name}
                 onChangeText={(val) => setUser({ ...user, last_name: val })}
               />
               <TextInput
@@ -155,6 +157,7 @@ const SignInScreen = (props) => {
                 maxLength={10}
                 style={styles.textInput}
                 autoCapitalize="none"
+                value={user.phone}
                 onChangeText={(val) => setUser({ ...user, phone: val })}
               />
               {/* <TextInput
@@ -243,9 +246,11 @@ const SignInScreen = (props) => {
                   ]}
                   title={"Select date"}
                   placeholder={
-                    user?.birthday === ""
+                    !user?.birthday || user?.birthday === ""
                       ? "Fecha de nacimiento"
-                      : `${user?.birthday?.toLocaleDateString("es-us")}`
+                      : typeof user.birthday?.toLocaleDateString === "function"
+                      ? `${user.birthday.toLocaleDateString("es-ES")}`
+                      : `${user.birthday}`
                   }
                   mode={"date"}
                   onChange={(selectedDate) => {
@@ -271,6 +276,7 @@ const SignInScreen = (props) => {
                   placeholderTextColor="#000"
                   style={styles.passwordStyles}
                   autoCapitalize="none"
+                  value={user.password}
                   onChangeText={(val) => setUser({ ...user, password: val })}
                 />
                 <TouchableOpacity onPress={() => setVisible(!visible)}>

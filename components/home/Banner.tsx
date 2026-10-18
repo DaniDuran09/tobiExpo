@@ -12,10 +12,37 @@ interface BannerProps {
 const Banner = ({ banner, onPress, onClose }: BannerProps) => {
   const { title, body, priority, type, action, data } = banner;
   const theme = getThemeForCard(banner);
-  const iconName = getIconForType(type);
+  const iconName = getIconForType(type || action);
+
+  const isNoShow = 
+    (type || "").toLowerCase().includes("no_show") ||
+    (action || "").toLowerCase().includes("no_show") ||
+    (type || "").toLowerCase().includes("no_se_presento") ||
+    (action || "").toLowerCase().includes("no_se_presento") ||
+    banner.status === "no_show" ||
+    data?.status === "no_show" ||
+    data?.appointment_status === "no_show" ||
+    (typeof title === "string" && (
+      title.toLowerCase().includes("no se presentó") ||
+      title.toLowerCase().includes("no se presento") ||
+      title.toLowerCase().includes("no show")
+    ));
+
+  const petName = data?.pet_name || data?.pet?.name || data?.pet?.display_name || "";
+  let displayTitle = title;
+  let displayBody = body;
+
+  if (isNoShow) {
+    if (!displayTitle || displayTitle.trim().toLowerCase() === "no se presentó" || displayTitle.trim().toLowerCase() === "no se presento" || displayTitle.trim().toLowerCase() === "no_show") {
+      displayTitle = petName ? `¿Quieres reagendar la cita de ${petName}?` : "¿Quieres reagendar la cita?";
+    }
+    if (!displayBody) {
+      displayBody = "La consulta no pudo realizarse. Escríbenos y te ayudamos a encontrar un nuevo horario.";
+    }
+  }
 
   // The red badge logic (assuming critical/high priority gets a badge)
-  const showBadge = priority === "critical" || priority === "high" || type.includes("expired") || type.includes("due");
+  const showBadge = priority === "critical" || priority === "high" || isNoShow || type?.includes("expired") || type?.includes("due");
 
   return (
     <TouchableOpacity 
@@ -25,8 +52,8 @@ const Banner = ({ banner, onPress, onClose }: BannerProps) => {
     >
       <View style={styles.content}>
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
-          {body ? <Text style={styles.body}>{body}</Text> : null}
+          <Text style={styles.title}>{displayTitle}</Text>
+          {displayBody ? <Text style={styles.body}>{displayBody}</Text> : null}
         </View>
 
         <View style={styles.rightSection}>

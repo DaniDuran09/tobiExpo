@@ -16,6 +16,10 @@ import { AnimatedImage, LoaderScreen, TextField } from "react-native-ui-lib";
 import * as Location from "expo-location";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RenderPets } from "../../components/renders/RenderPets";
+import moment from "moment";
+import "moment/locale/es";
+
+moment.locale("es");
 
 const SelectService = ({ route }) => {
   const { type, serviceId, petId, q } = route.params || {};
@@ -246,15 +250,49 @@ const SelectService = ({ route }) => {
     }
   };
 
+  const formatLocation = (loc) => {
+    if (!loc) return "";
+    if (typeof loc === "string") return loc;
+    if (Array.isArray(loc)) {
+      if (loc.length === 0) return "";
+      return formatLocation(loc[0]);
+    }
+    if (typeof loc === "object") {
+      const streetPart = [
+        loc.street,
+        loc.number ? `#${loc.number}` : null,
+        loc.interior_number ? `Int. ${loc.interior_number}` : null,
+      ].filter(Boolean).join(" ");
+
+      const areaPart = [
+        loc.neighborhood,
+        loc.municipality || loc.city,
+        loc.state,
+        loc.postal_code ? `C.P. ${loc.postal_code}` : null,
+      ].filter(Boolean).join(", ");
+
+      const formatted = [streetPart, areaPart].filter(Boolean).join(", ");
+      return (
+        formatted ||
+        loc.name ||
+        (typeof loc.address === "string" ? loc.address : formatLocation(loc.address)) ||
+        loc.formatted_address ||
+        ""
+      );
+    }
+    return String(loc);
+  };
+
   const ExpandableText = ({ text }) => {
     const [expanded, setExpanded] = useState(false);
+    const content = typeof text === "string" ? text : "";
     return (
       <TouchableOpacity onPress={() => setExpanded(!expanded)}>
         <Text
           numberOfLines={expanded ? undefined : 1}
           style={styles.itemDescription}
         >
-          {text}
+          {content}
         </Text>
       </TouchableOpacity>
     );
@@ -262,14 +300,17 @@ const SelectService = ({ route }) => {
 
   const ExpandableLocationText = ({ text }) => {
     const [expanded, setExpanded] = useState(false);
+    const locationString = typeof text === "string" ? text : formatLocation(text);
 
-    if (!text) return <Text style={{ color: Colors.gray }}>📍 Ubicación no disponible</Text>;
+    if (!locationString || !locationString.trim()) {
+      return <Text style={{ color: Colors.gray }}>📍 Ubicación no disponible</Text>;
+    }
 
     const handlePress = () => {
       if (!expanded) {
         setExpanded(true);
       } else {
-        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(text)}`;
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationString.trim())}`;
         Linking.openURL(url);
       }
     };
@@ -280,7 +321,7 @@ const SelectService = ({ route }) => {
           numberOfLines={expanded ? undefined : 1}
           style={{ color: Colors.gray }}
         >
-          📍 {text}
+          📍 {locationString}
         </Text>
       </TouchableOpacity>
     );
@@ -332,13 +373,45 @@ const SelectService = ({ route }) => {
           <ExpandableLocationText
             text={
               item?.address ||
+              item?.addresses ||
               item?.partner?.address ||
+              item?.partner?.addresses ||
               item?.location ||
               item?.partner?.location ||
               ""
             }
           />
         </View>
+        {item.next_availability_snippet && (
+          <View style={styles.snippetContainer}>
+            <View style={styles.snippetHeader}>
+              <MaterialCommunityIcons name="calendar-blank-outline" size={16} color={Colors.black} />
+              <Text style={styles.snippetHeaderText}>
+                Próxima fecha: {moment(item.next_availability_snippet.date).calendar(null, {
+                  sameDay: '[Hoy] D [de] MMMM',
+                  nextDay: '[Mañana] D [de] MMMM',
+                  nextWeek: 'D [de] MMMM',
+                  lastDay: '[Ayer] D [de] MMMM',
+                  lastWeek: 'D [de] MMMM',
+                  sameElse: 'D [de] MMMM'
+                })}
+              </Text>
+            </View>
+            <View style={styles.snippetSlotsContainer}>
+              {item.next_availability_snippet.slots?.map((slot, idx) => (
+                <View key={idx} style={styles.snippetSlot}>
+                  <Text style={styles.snippetSlotText}>{slot}</Text>
+                </View>
+              ))}
+              {item.next_availability_snippet.has_more && (
+                <View style={styles.snippetMoreBtn}>
+                  <Text style={styles.snippetMoreBtnText}>ver más</Text>
+                  <MaterialCommunityIcons name="chevron-right" size={14} color="#000" />
+                </View>
+              )}
+            </View>
+          </View>
+        )}
       </TouchableOpacity>
     );
   };
@@ -719,5 +792,54 @@ const styles = StyleSheet.create({
   pillText: {
     fontSize: 14,
     color: "#1A2D3A",
+  },
+  snippetContainer: {
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 15,
+    marginBottom: 15,
+    marginTop: 5,
+  },
+  snippetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  snippetHeaderText: {
+    fontSize: 14,
+    marginLeft: 5,
+    color: Colors.gray,
+  },
+  snippetSlotsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  snippetSlot: {
+    backgroundColor: "#DDF1FF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 5,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  snippetSlotText: {
+    fontSize: 14,
+    color: "#000",
+  },
+  snippetMoreBtn: {
+    backgroundColor: "#DDF1FF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  snippetMoreBtnText: {
+    fontSize: 14,
+    color: "#000",
+    marginRight: 4,
   },
 });

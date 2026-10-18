@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { KeyboardAvoidingView, SafeAreaView, Platform } from "react-native";
+import { KeyboardAvoidingView, SafeAreaView, Platform, Alert } from "react-native";
 import { Text, View, Image, TouchableOpacity } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import Toast from "react-native-toast-message";
@@ -190,40 +190,34 @@ const ProfileEditUserMenu: React.FC = () => {
               width: "90%",
             }}
             onPress={() => {
-              import("react-native").then(({ Alert }) => {
-                Alert.alert(
-                  "Eliminar cuenta",
-                  "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se perderán todos tus datos.",
-                  [
-                    { text: "Cancelar", style: "cancel" },
-                    {
-                      text: "Eliminar cuenta",
-                      style: "destructive",
-                      onPress: async () => {
-                        setLoading(true);
-                        try {
-                          if (userData?.id) {
-                            console.log("Intentando borrar cuenta con ID:", userData.id);
-                            await apiFetcher.deleteAccount(userData.id);
-                            logout();
-                          } else {
-                            console.log("No se encontró el ID en userData", userData);
-                          }
-                        } catch (e: any) {
-                          console.log("Error al eliminar cuenta. Status:", e.response?.status);
-                          console.log("Respuesta del back:", e.response?.data);
-                          Toast.show({
-                            type: "error",
-                            text1: "Error",
-                            text2: "No se pudo eliminar la cuenta",
-                          });
-                          setLoading(false);
-                        }
+              Alert.alert(
+                "Eliminar cuenta",
+                "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y se perderán todos tus datos.",
+                [
+                  { text: "Cancelar", style: "cancel" },
+                  {
+                    text: "Eliminar cuenta",
+                    style: "destructive",
+                    onPress: async () => {
+                      setLoading(true);
+                      try {
+                        console.log("Intentando borrar cuenta");
+                        await apiFetcher.deleteAccount();
+                        logout();
+                      } catch (e: any) {
+                        console.log("Error al eliminar cuenta. Status:", e.response?.status);
+                        console.log("Respuesta del back:", e.response?.data);
+                        Toast.show({
+                          type: "error",
+                          text1: "Error",
+                          text2: "No se pudo eliminar la cuenta",
+                        });
+                        setLoading(false);
                       }
                     }
-                  ]
-                );
-              });
+                  }
+                ]
+              );
             }}
           >
             <Text color={Colors.red}>Eliminar cuenta</Text>

@@ -34,15 +34,14 @@ const SignInPetScreen = props => {
   const [date, setDate] = React.useState(new Date());
   const [open, setOpen] = React.useState(false);
 
-  const [pet, setPet] = React.useState(1);
-  const [gender, setGender] = React.useState('male');
+  const [pet, setPet] = React.useState(data.typePet || 1);
+  const [gender, setGender] = React.useState(data.gender || 'male');
 
   const userInfo = useSelector(store => store.user.userInfo);
 
   const dispatch = useDispatch();
 
   const selectPet = val => {
-    console.log('----------')
     setPet(val);
     setData({ ...data, typePet: val });
   };
@@ -53,12 +52,19 @@ const SignInPetScreen = props => {
   };
 
   useEffect(() => {
-    console.log('first')
+    if (data.typePet) setPet(data.typePet);
+  }, [data.typePet]);
+
+  useEffect(() => {
+    if (data.gender) setGender(data.gender);
+  }, [data.gender]);
+
+  useEffect(() => {
     const updatedInfo = {
       ...userInfo,
       pet:
         {
-          name: data.namePet,
+          name: data.namePet || data.name || '',
           last_name: '',
           gender: gender,
           //age: formatDateToDDMMYYYY(date),
@@ -66,15 +72,15 @@ const SignInPetScreen = props => {
         },
     };
     dispatch(setUserInfo(updatedInfo));
-  }, [data, gender,date]);
+  }, [data, gender, date]);
 
   useEffect(() => {
-    setData({ ...data, gender: gender })
-  }, [gender])
+    setData(prev => ({ ...prev, gender: gender }));
+  }, [gender]);
 
   useEffect(() => {
-    setData({ ...data, typePet: pet })
-  }, [pet])
+    setData(prev => ({ ...prev, typePet: pet }));
+  }, [pet]);
 
   return (
     <View style={styles.container}>
@@ -87,11 +93,10 @@ const SignInPetScreen = props => {
             style={{
               alignItems: 'flex-start',
               paddingLeft: 20,
-
             }}>
             <Image
               source={require('../assets/frame.png')}
-              style={{ height: 80, width: 150, marginTop: 25 }}
+              style={{ height: 80, width: 150, marginTop: 10 }}
               resizeMode={'contain'}
             />
             <Text
@@ -106,7 +111,6 @@ const SignInPetScreen = props => {
             </Text>
             <Text
               style={{
-                fontSize: 24,
                 fontSize: 20,
                 fontWeight: '500',
                 textAlign: 'center',
@@ -127,8 +131,8 @@ const SignInPetScreen = props => {
               elevation={5}
               style={styles.textInput}
               autoCapitalize="none"
-              value={data.name}
-              onChangeText={val => setData({ ...data, name: val , gender:gender })}
+              value={data.namePet || data.name || ""}
+              onChangeText={val => setData({ ...data, name: val, namePet: val, gender: gender, typePet: pet })}
             />
             <View
               style={{
@@ -303,9 +307,9 @@ const SignInPetScreen = props => {
                 ]}
                 title={"Cumpleaños"}
                 placeholder={
-                  data.birthday === ""
+                  !data?.birthday || data?.birthday === ""
                     ? "Fecha de nacimiento"
-                    : `${data?.birthday}`
+                    : `${data.birthday}`
                 }
                 mode={"date"}
                 onChange={(selectedDate) => {

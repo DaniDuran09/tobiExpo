@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Linking, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, getStateFromPath } from "@react-navigation/native";
 import RootStackScreen from "./navigation/RootStackScreen";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "./utils/toastConfig";
@@ -29,22 +29,55 @@ export default function App(): React.JSX.Element {
     fetchPublishableKey();
   }, []);
   const linkingConfig = {
-  prefixes: ['tobi://', 'exp+tobi://'],
-  config: {
-    screens: {
-      Home: {
-        screens: {
-          Explore: {
-            screens: {
-              SelectService: 'servicios/:serviceId/:petId',
-              PaymentScreen: 'payment',
+    prefixes: ['tobi://', 'exp+tobi://'],
+    config: {
+      screens: {
+        Home: {
+          screens: {
+            HomeStack: {
+              screens: {
+                HomeProfileDetails: 'esquema/:idSelectedPet?',
+              },
+            },
+            Explore: {
+              screens: {
+                SelectService: 'servicios/:serviceId/:petId',
+                PaymentScreen: 'payment',
+              },
+            },
+            Health: {
+              screens: {
+                HomeProfileDetails: 'salud/:idSelectedPet?',
+                CareCenter: 'care-center',
+                PetVaccinesRecord: 'cartilla/:id?',
+              },
             },
           },
         },
       },
     },
-  },
-};
+    getStateFromPath: (path: string, options: any) => {
+      const cleanPath = path.replace(/^\//, '');
+      const [pathWithoutQuery, queryString] = cleanPath.split('?');
+      const segments = pathWithoutQuery.split('/');
+      const firstSegment = segments[0]?.toLowerCase();
+
+      // Deep links para Esquema de Salud (comunicación 004 y accesos directos al esquema)
+      if (['esquema', 'esquema-salud', 'salud', 'scheme', 'health'].includes(firstSegment)) {
+        let petId = segments[1];
+        if (!petId && queryString) {
+          const match = queryString.match(/(?:petId|pet_id|idSelectedPet|id)=([^&]+)/i);
+          if (match) {
+            petId = match[1];
+          }
+        }
+        const normalizedPath = `esquema${petId ? `/${petId}` : ''}`;
+        return getStateFromPath(normalizedPath, options);
+      }
+
+      return getStateFromPath(path, options);
+    },
+  };
 
 
 

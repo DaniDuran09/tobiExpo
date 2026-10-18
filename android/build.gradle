@@ -52,3 +52,30 @@ configurations.all {
     resolutionStrategy.force "org.jetbrains.kotlin:kotlin-reflect:1.9.22"
 }
 
+subprojects { subproject ->
+    def configureSubproject = {
+        if (subproject.hasProperty("android")) {
+            subproject.android {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384", "-DCMAKE_EXE_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+                        }
+                        ndkBuild {
+                            arguments "LOCAL_LDFLAGS+=-Wl,-z,max-page-size=16384"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (subproject.state.executed) {
+        configureSubproject()
+    } else {
+        subproject.afterEvaluate {
+            configureSubproject()
+        }
+    }
+}
+
+

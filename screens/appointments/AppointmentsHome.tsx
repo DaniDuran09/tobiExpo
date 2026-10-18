@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import "moment/locale/es";
 import UploadImage from "../../components/atoms/UploadImage";
+import { openWhatsAppTobi } from "../../utils/openWhatsApp";
 
 moment.locale("es");
 
@@ -127,17 +128,24 @@ export default function AppointmentsHome() {
     const getStatusInfo = (status: string) => {
         switch (status) {
             case "pending":
-                return { label: "Pendiente", color: Colors.gray, icon: "clock-outline", bg: '#b0b0b0' };
             case "confirmed":
-            case "actived":
+                return { label: "Pendiente", color: Colors.blueLight, icon: "clock-outline", bg: '#2196F3' };
             case "checked_in":
-                return { label: "Confirmada", color: Colors.green, icon: "check-circle-outline", bg: '#4caf50' };
+            case "arrived":
+            case "in_queue":
+            case "in_progress":
+            case "actived":
+                return { label: "En fila", color: "#FFF", icon: "account-clock-outline", bg: '#FFA000' };
             case "completed":
-                return { label: "Completada", color: Colors.green, icon: "check-circle", bg: '#4caf50' };
+                return { label: "Completada", color: Colors.white, icon: "check-circle", bg: '#6A1B9A' };
             case "cancelled":
-                return { label: "Cancelada", color: Colors.red, icon: "close-circle-outline", bg: '#f44336' };
+                return { label: "Cancelada", color: Colors.white, icon: "close-circle-outline", bg: '#EF4136' };
+            case "no_show":
+                return { label: "No se presentó", color: Colors.white, icon: "account-cancel-outline", bg: '#EF4136' };
+            case "archived":
+                return { label: "Archivada", color: Colors.white, icon: "archive-outline", bg: '#b0b0b0' };
             default:
-                return { label: status, color: Colors.gray, icon: "information-outline", bg: '#b0b0b0' };
+                return { label: status, color: Colors.white, icon: "information-outline", bg: '#b0b0b0' };
         }
     };
 
@@ -179,9 +187,6 @@ export default function AppointmentsHome() {
 
                             <View row centerV spread marginB-5 marginL-2>
                                 <Text text70BO color={Colors.blueLight} flex marginR-10>{aps.service.name}</Text>
-                                <Text text80 color={Colors.gray}>
-                                    {aps.appointment_time ? moment(aps.appointment_time.start_time).format("hh:mm a") : moment(appointment.date_service).format("hh:mm a")}
-                                </Text>
                             </View>
                             <Text text80 color={Colors.gray} marginL-2 marginB-5>{aps.user?.display_name || aps.user?.name}</Text>
                         </View>
@@ -222,6 +227,8 @@ export default function AppointmentsHome() {
 
         if (!appointment.appointment_pet_services || appointment.appointment_pet_services.length === 0) return null;
 
+        const statusInfo = getStatusInfo(appointment.appointment_status);
+
         return (
             <View marginH-20 marginB-30>
                 {appointment.appointment_pet_services.map((aps: any, sIndex: number) => {
@@ -236,7 +243,7 @@ export default function AppointmentsHome() {
                         <View style={{ backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3, borderRadius: 8, padding: 15, marginBottom: 15, borderWidth: 1, borderColor: '#eee' }}>
                             <View row spread centerV>
                                 <Text text70BO color={Colors.black}>{aps.service.name}</Text>
-                                <MaterialCommunityIcons name="check-circle-outline" size={20} color={Colors.green} />
+                                <MaterialCommunityIcons name={statusInfo.icon as any} size={20} color={statusInfo.color} />
                             </View>
                             <Text text90 color={Colors.gray} marginB-10 style={{ textTransform: 'uppercase' }}>SALUD</Text>
 
@@ -244,20 +251,50 @@ export default function AppointmentsHome() {
                             <Text text80 color={Colors.gray} numberOfLines={2}>{address}</Text>
                             <Text text80 color={Colors.black}>{dateStr}</Text>
                             <Text text80 color={Colors.black}>{timeFormatted} (GMT-6)</Text>
+                            
+                            <View row marginT-15>
+                                <View row centerV paddingH-10 paddingV-6 style={{ backgroundColor: statusInfo.bg, borderRadius: 6 }}>
+                                    <MaterialCommunityIcons name={statusInfo.icon as any} size={16} color={Colors.white} />
+                                    <Text white marginL-4 text80 style={{ fontWeight: '600' }}>{statusInfo.label}</Text>
+                                </View>
+                            </View>
                         </View>
 
-                        <View center marginT-10 marginB-20>
-                            <Text text80 color={Colors.black} center marginB-5>El esquema de salud de {aps.pet.display_name || aps.pet.name} ya está actualizado.</Text>
-                            <Text text80 color={Colors.black} center marginB-15>Guárdala en Tobi para que no se te pierda.</Text>
-                            <TouchableOpacity
-                                backgroundColor={Colors.red}
-                                style={{ height: 45, borderRadius: 25, width: '100%' }}
-                                center
-                                onPress={() => handleOpenUpload(aps.pet.id)}
-                            >
-                                <Text white text70BO>Guardar cartilla de vacunación</Text>
-                            </TouchableOpacity>
-                        </View>
+                        {appointment.appointment_status === "no_show" || aps.status === "no_show" ? (
+                            <View center marginT-10 marginB-20>
+                                <Text text70BO color={Colors.black} center marginB-5>
+                                    ¿Quieres reagendar la cita de {aps.pet.display_name || aps.pet.name}?
+                                </Text>
+                                <Text text80 color={Colors.gray} center marginB-15>
+                                    Escríbenos y te ayudamos a encontrar un nuevo horario.
+                                </Text>
+                                <TouchableOpacity
+                                    backgroundColor={Colors.primaryColor}
+                                    style={{ height: 45, borderRadius: 25, width: '100%' }}
+                                    center
+                                    onPress={() => openWhatsAppTobi({
+                                        pet_name: aps.pet.display_name || aps.pet.name,
+                                        appointment_id: appointment.id,
+                                        date: appointment.date_service,
+                                    })}
+                                >
+                                    <Text white text70BO>Contactar a Tobi para reagendar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <View center marginT-10 marginB-20>
+                                <Text text80 color={Colors.black} center marginB-5>El esquema de salud de {aps.pet.display_name || aps.pet.name} ya está actualizado.</Text>
+                                <Text text80 color={Colors.black} center marginB-15>Guárdala en Tobi para que no se te pierda.</Text>
+                                <TouchableOpacity
+                                    backgroundColor={Colors.red}
+                                    style={{ height: 45, borderRadius: 25, width: '100%' }}
+                                    center
+                                    onPress={() => handleOpenUpload(aps.pet.id)}
+                                >
+                                    <Text white text70BO>Guardar cartilla de vacunación</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </View>
                 )})}
             </View>

@@ -1,6 +1,5 @@
 import { View, KeyboardAvoidingView, Platform, ScrollView, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { TextInput } from 'react-native-gesture-handler';
 import { Text, TouchableOpacity } from 'react-native-ui-lib';
 import { Colors } from '../../../styles/Colors';
 import PinValidate from '../../../components/atoms/PinValidate';

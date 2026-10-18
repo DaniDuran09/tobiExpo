@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
 import "moment/locale/es";
 import { Linking } from 'react-native';
+import { openWhatsAppTobi } from "../../utils/openWhatsApp";
 
 moment.locale("es");
 
@@ -339,9 +340,29 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                 {/* Bottom Banners */}
                 {isNoShow ? (
                     <View padding-20 marginB-20>
-                        <View row centerV>
-                            <MaterialCommunityIcons name="close-circle" size={20} color={Colors.red} />
+                        <View row centerV marginB-15>
+                            <MaterialCommunityIcons name="alert-circle-outline" size={20} color={Colors.red} />
                             <Text text80 marginL-10 color={Colors.black}>Esta cita pasó y no registraste llegada.</Text>
+                        </View>
+                        <View center marginT-10 marginB-10>
+                            <Text text70BO color={Colors.black} center marginB-5>
+                                ¿Quieres reagendar la cita de {petsList.map(p => p.pet.display_name || p.pet.name).join(', ') || "tu mascota"}?
+                            </Text>
+                            <Text text80 color={Colors.gray} center marginB-15>
+                                Escríbenos y te ayudamos a encontrar un nuevo horario.
+                            </Text>
+                            <TouchableOpacity
+                                backgroundColor={Colors.primaryColor}
+                                style={{ height: 45, borderRadius: 25, width: '100%' }}
+                                center
+                                onPress={() => openWhatsAppTobi({
+                                    pet_name: petsList.map(p => p.pet.display_name || p.pet.name).join(', '),
+                                    appointment_id: visit.id,
+                                    date: visit.expected_start_time,
+                                })}
+                            >
+                                <Text white text70BO>Contactar a Tobi para reagendar</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ) : allServicesCompleted ? (

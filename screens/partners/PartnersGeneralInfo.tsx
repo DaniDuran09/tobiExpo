@@ -35,6 +35,7 @@ const PartnersGeneralInfo = () => {
   const [availableDays, setAvailableDays] = useState<any>({});
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [globalCart, setGlobalCart] = useState<any[]>([]);
+  const [mandatoryServiceId, setMandatoryServiceId] = useState<number | null>(null);
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -165,6 +166,9 @@ const PartnersGeneralInfo = () => {
       if (s) {
         setCurrentService(s);
         setShowServices(false);
+        if (params.service_catalog_id || params.vaccine_id || params.catalog_code || params.serviceId || params.q) {
+          setMandatoryServiceId(s.id);
+        }
       }
     } catch {
       Toast.show({
@@ -236,6 +240,7 @@ const PartnersGeneralInfo = () => {
     const normalized = res.data.items.map((it: any) => ({
       uuid: it.id.toString(),
       id: it.id,
+      service_id: it.service?.id,
       name: it.service?.name,
       price: it.price_total,
       duration_minutes: it.duration_minutes,
@@ -329,11 +334,14 @@ const PartnersGeneralInfo = () => {
             <ResumeService
               item={item}
               type={type}
+              isMandatory={item.service_id === mandatoryServiceId && mandatoryServiceId !== null}
               onRemove={id => {
+                if (item.service_id === mandatoryServiceId) {
+                  return;
+                }
                 console.log("CART ID:", cart, "ITEM ID:", id);
                 removeGlobalItem(cart, id);
               }}
-
             />
           )}
           keyExtractor={item => item.id.toString()}
@@ -408,6 +416,7 @@ const PartnersGeneralInfo = () => {
               onLoadPrev={handlePrevDays}
               canGoPrev={calendarOffset > 0}
               isLoading={isLoadingCalendar}
+              calendarOffset={calendarOffset}
               onCancel={() => {
                 setCurrentService(null);
                 setSelectedSlot(null);

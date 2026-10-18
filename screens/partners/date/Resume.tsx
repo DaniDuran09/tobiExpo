@@ -92,8 +92,8 @@ const Resume = ({ route }: any) => {
     (acc: number, item: any) => acc + parseFloat(item.price_subtotal || 0),
     0
   );
-  // Tarifa de servicio
-  const serviceFee = parseFloat(data.data.service_fee || 0);
+  // Tarifa de servicio / Impuesto (IVA)
+  const serviceFee = parseFloat(data.data.tax_total || 0);
 
   return (
     <ScrollView style={{ backgroundColor: "white" }} contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>

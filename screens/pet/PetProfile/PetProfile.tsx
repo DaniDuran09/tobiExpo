@@ -100,12 +100,12 @@ const PetProfile = () => {
   };
 
   const getPermissionsLibrary = async () => {
-    const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
+    let { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      if (!permissionsRequested.library) {
-        setPermissionsRequested((prev) => ({ ...prev, library: true }));
-        await requestLibraryPermissions();
-      }
+      const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      status = req.status;
+    }
+    if (status !== "granted") {
       closeModal();
       Toast.show({
         type: "error",
@@ -117,22 +117,7 @@ const PetProfile = () => {
     }
   };
 
-  const requestLibraryPermissions = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      closeModal();
-      Toast.show({
-        type: "error",
-        text2: `Se necesitan permisos para acceder a la biblioteca de imágenes.`,
-        text1: `Habilita los permisos desde la configuración.`,
-      });
-    } else {
-      getPermissionsLibrary();
-    }
-  };
-
   const getPermissionsCamera = async () => {
-    closeModal();
     let { status } = await ImagePicker.getCameraPermissionsAsync();
     
     if (status !== "granted") {
@@ -211,7 +196,7 @@ const PetProfile = () => {
         uri: imageSource.uri,
         type: "image/jpeg",
         name: imageSource.fileName || imageSource.uri.split("/").pop() || "photo.jpg",
-      });
+      } as any);
 
       const response = await apiFetcher.updatePicturePet(
         selectedPet.id,
@@ -324,7 +309,6 @@ const PetProfile = () => {
           <TextInput
             placeholder="Nombre"
             placeholderTextColor="#000"
-            elevation={5}
             value={petInfo.name}
             onChangeText={(text) => setPetInfo({ ...petInfo, name: text })}
             style={{
@@ -346,7 +330,6 @@ const PetProfile = () => {
             placeholder="Peso en Kg"
             keyboardType="numeric"
             placeholderTextColor="#000"
-            elevation={5}
             value={weightInput}
             onChangeText={(text) => {
               setWeightInput(text);

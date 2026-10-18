@@ -1,6 +1,7 @@
-import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import StepIndicator from "react-native-step-indicator";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { Colors } from "../../../styles/Colors";
 import { customStyles } from "../../../styles/GlobalStyles";
 
@@ -16,6 +17,7 @@ import AppStorage from "../../../modules/AppStorage";
 import Toast from "react-native-toast-message";
 import { clearPetInfo } from "../../../redux/slice/petSlice";
 import { useRegisterMutation } from "../../../api/auth/auth";
+import { formatDateToDDMMYYYY } from "../../../utils/scripts";
 
 const UserStepsRegister = ({route}) => {
   const { email } = route.params;
@@ -38,10 +40,11 @@ const UserStepsRegister = ({route}) => {
   }, [email]);
   const [data, setData] = useState({
     name: "",
+    namePet: "",
     birthday: "",
     weight: 0,
-    typePet: 0,
-    gender: "",
+    typePet: 1,
+    gender: "male",
     pet_breed_id: 0,
     sterilized: false,
   });
@@ -55,6 +58,42 @@ const UserStepsRegister = ({route}) => {
     dispatch(clearUser());
     dispatch(clearPetInfo());
   }, []);
+
+  const handleBack = () => {
+    if (currentPosition > 0) {
+      setCurrentPosition((prev) => prev - 1);
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  useEffect(() => {
+    const onBackPress = () => {
+      if (currentPosition > 0) {
+        setCurrentPosition((prev) => prev - 1);
+        return true;
+      }
+      return false;
+    };
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress
+    );
+
+    return () => subscription.remove();
+  }, [currentPosition]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      if (currentPosition > 0) {
+        e.preventDefault();
+        setCurrentPosition((prev) => prev - 1);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, currentPosition]);
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -101,7 +140,8 @@ const UserStepsRegister = ({route}) => {
   };
 
   const validSecondScreen = () => {
-    if (data.namePet != "" && data.birthday != "" && data.typePet != 0) {
+    const petName = data.namePet || data.name || "";
+    if (petName !== "" && data.birthday !== "" && data.typePet !== 0) {
       return true;
     } else {
       Toast.show({
@@ -129,45 +169,76 @@ const UserStepsRegister = ({route}) => {
 
   const doRegister = async () => {
     try {
-      const { userInfo: nestedUserInfo, ...newUserInfo } = userInfo;
+      const expoToken = (await appStorage.getExpoPushToken()) || "";
 
-      const { data: response, error } = await registerUser(userInfo);
+      let userBirthday = user.birthday;
+      if (userBirthday instanceof Date) {
+        userBirthday = formatDateToDDMMYYYY(userBirthday);
+      } else if (typeof userBirthday === "string" && userBirthday.includes("T")) {
+        userBirthday = formatDateToDDMMYYYY(new Date(userBirthday));
+      }
+
+      const rawWeight = parseFloat(data.weight) || 0;
+      const calcWeight = rawWeight > 100 ? parseInt(rawWeight) : parseInt(rawWeight * 1000);
+
+      const registerPayload = {
+        name: user.name,
+        last_name: user.last_name,
+        email: user.email,
+        phone: user.phone,
+        birthday: userBirthday,
+        password: user.password,
+        expotoken: expoToken,
+        pet: {
+          name: data.namePet || data.name || "",
+          last_name: "",
+          birthday: data.birthday,
+          gender: data.gender || "male",
+          weight: calcWeight,
+          activity_level_id: 1,
+          pet_breed_id: Number(data.pet_breed_id) || 0,
+          sterilized: Boolean(data.sterilized),
+        },
+      };
+
+      console.log("Enviando registro con payload:", JSON.stringify({
+        ...registerPayload,
+        password: "[PROTECTED]"
+      }));
+
+      const { data: response, error } = await registerUser(registerPayload);
 
       if (error) {
+        console.log("Error en registerUser:", error);
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: `${error.data.errors}`,
+          text2: `${error.data?.errors || error.message || "Error al realizar el registro"}`,
         });
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "LoginScreen" }],
-        });
+        return false;
       } else {
         await saveInfoUser(response.data);
+        return true;
       }
     } catch (error) {
+      console.log("Error en el registro catch: ", error);
       Toast.show({
         type: "error",
         text1: "Ocurrió un error al hacer el registro",
         text2: `Intente de nuevo más tarde`,
       });
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "LoginScreen" }],
-      });
-      console.log("Error en el registro: ", error);
+      return false;
     }
   };
 
   const savePhoto = async () => {
+    if (!imageSource || !imageSource.uri) return;
     try {
       const formData = new FormData();
       formData.append("picture", {
         uri: imageSource.uri,
         type: "image/jpeg",
-        name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
+        name: Platform.OS == "android" ? (imageSource.fileName || "photo.jpg") : (imageSource.uri.split("ImagePicker/")[1] || "photo.jpg"),
       });
 
       const response = await apiFetcher.updatePictureProfile(formData);
@@ -175,11 +246,12 @@ const UserStepsRegister = ({route}) => {
       if (response.code == 200) {
         const user = await apiFetcher.getProfile();
         await appStorage.saveUser(user.data);
-      } else
+      } else {
         Alert.alert(
           "Ocurrió un error al guardar la foto",
-          "Intente de neuvo más tarde"
+          "Intente de nuevo más tarde"
         );
+      }
     } catch (error) {
       console.log("Ocurrió un error: ", error);
     }
@@ -212,17 +284,25 @@ const UserStepsRegister = ({route}) => {
         break;
       case 2:
         valid = validThirdScreen();
-        valid && doRegister();
+        if (valid) {
+          const success = await doRegister();
+          if (!success) {
+            return;
+          }
+        }
         break;
       case 3:
-        savePhoto();
+        if (imageSource) {
+          await savePhoto();
+        }
         navigation.replace("Home");
-        break;
+        return;
       default:
         break;
     }
-    valid &&
+    if (valid) {
       setCurrentPosition((prev) => Math.min(prev + 1, labels.length - 1));
+    }
   };
 
   const renderStepContent = () => {
@@ -249,12 +329,26 @@ const UserStepsRegister = ({route}) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerNavigation}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBack}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Icon name="chevron-left" size={45} color="black" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.stepContent}>{renderStepContent()}</View>
       <StepIndicator
         customStyles={customStyles}
         currentPosition={currentPosition}
         labels={labels}
         stepCount={4}
+        onPress={(position) => {
+          if (position < currentPosition) {
+            setCurrentPosition(position);
+          }
+        }}
       />
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
@@ -265,18 +359,6 @@ const UserStepsRegister = ({route}) => {
             {currentPosition != 3 ? "Siguiente" : "Finalizar"}
           </Text>
         </TouchableOpacity>
-        {/* <Text
-            style={styles.button}
-            onPress={() => setCurrentPosition(prev => Math.max(prev - 1, 0))}>
-            Previous
-          </Text>
-          <Text
-            style={styles.button}
-            onPress={() =>
-              setCurrentPosition(prev => Math.min(prev + 1, labels.length - 1))
-            }>
-            Next
-          </Text> */}
       </View>
     </View>
   );
@@ -288,11 +370,26 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.secondaryColor,
     flex: 1,
-    padding: 15,
+    paddingHorizontal: 15,
+    paddingTop: Platform.OS === "ios" ? 45 : 25,
+    paddingBottom: 20,
+  },
+  headerNavigation: {
+    width: "100%",
+    height: 45,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    marginBottom: 5,
+  },
+  backButton: {
+    width: 60,
+    height: 45,
+    justifyContent: "center",
+    alignItems: "flex-start",
   },
   stepContent: {
     width: "100%",
-    height: "75%",
+    flex: 1,
     marginBottom: 10,
   },
   buttonsContainer: {},
@@ -301,7 +398,7 @@ const styles = StyleSheet.create({
     color: "#007bff",
   },
   buttonNext: {
-    marginTop: 30,
+    marginTop: 20,
     height: 60,
     width: "90%",
     alignSelf: "center",

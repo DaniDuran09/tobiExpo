@@ -195,7 +195,7 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
         uri: imageSource.uri,
         type: "image/jpeg",
         name: Platform.OS == "android" ? imageSource.fileName : imageSource.uri.split("ImagePicker/")[1],
-      });
+      } as any);
 
       const response = await apiFetcher.updatePictureProfile(formData);
       if (response.code === 200) {
@@ -305,7 +305,6 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
                 <TextInput
                   placeholder="Nombre"
                   placeholderTextColor="#000"
-                  elevation={5}
                   value={userData.name}
                   style={[
                     {
@@ -329,7 +328,6 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
 
                 <TextInput
                   placeholder="Correo electronico"
-                  elevation={5}
                   value={userData.email}
                   placeholderTextColor="#000"
                   style={[
@@ -354,7 +352,6 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
                 <TextInput
                   keyboardType="numeric"
                   placeholder="Telefono"
-                  elevation={5}
                   value={userData.phone}
                   placeholderTextColor="#000"
                   maxLength={10}
@@ -380,7 +377,6 @@ const ProfileEditUser: React.FC<ProfileEditUserProps> = ({ navigation }) => {
                 <TextInput
                   keyboardType="numeric"
                   placeholder="Código postal"
-                  elevation={5}
                   value={userData.cp}
                   placeholderTextColor="#000"
                   maxLength={10}

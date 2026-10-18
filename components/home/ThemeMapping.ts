@@ -27,6 +27,23 @@ export const getThemeForCard = (card: any) => {
   if (section === "proximos_cuidados") return ThemeMapping.yellow;
   if (section === "seguimiento") return ThemeMapping.blue;
 
+  const typeStr = (type || "").toLowerCase();
+  const actionStr = (card.action || "").toLowerCase();
+  const titleStr = (card.title || "").toLowerCase();
+  if (
+    typeStr.includes("no_show") ||
+    typeStr.includes("no_se_presento") ||
+    actionStr.includes("no_show") ||
+    actionStr.includes("no_se_presento") ||
+    card.status === "no_show" ||
+    card.data?.status === "no_show" ||
+    card.data?.appointment_status === "no_show" ||
+    titleStr.includes("no se presentó") ||
+    titleStr.includes("no se presento")
+  ) {
+    return ThemeMapping.red;
+  }
+
   if (type === "scheme_completed" || type === "appointment_created" || color_level === "green") return ThemeMapping.green;
   if (priority === "critical" || color_level === "red") return ThemeMapping.red;
   if (priority === "high" || priority === "medium" || color_level === "yellow") return ThemeMapping.yellow;
@@ -34,13 +51,15 @@ export const getThemeForCard = (card: any) => {
   return ThemeMapping.blue; // default
 };
 
-export const getIconForType = (type: string) => {
-  if (type.includes("vaccine") || type.includes("syringe")) return "medkit-outline";
-  if (type.includes("deworming")) return "shield-checkmark-outline";
-  if (type.includes("weight")) return "scale-outline";
-  if (type.includes("appointment") || type.includes("date")) return "calendar-outline";
-  if (type.includes("visit") || type.includes("summary")) return "document-text-outline";
-  if (type.includes("recommendation")) return "list-outline";
-  if (type.includes("scheme")) return "checkmark-circle-outline";
+export const getIconForType = (type: string = "") => {
+  const str = type.toLowerCase();
+  if (str.includes("no_show") || str.includes("no_se_presento") || str.includes("no se presentó")) return "alert-circle-outline";
+  if (str.includes("vaccine") || str.includes("syringe")) return "medkit-outline";
+  if (str.includes("deworming")) return "shield-checkmark-outline";
+  if (str.includes("weight")) return "scale-outline";
+  if (str.includes("appointment") || str.includes("date")) return "calendar-outline";
+  if (str.includes("visit") || str.includes("summary")) return "document-text-outline";
+  if (str.includes("recommendation")) return "list-outline";
+  if (str.includes("scheme")) return "checkmark-circle-outline";
   return "notifications-outline"; // hourglass? maybe time-outline
 };

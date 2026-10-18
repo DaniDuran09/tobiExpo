@@ -138,7 +138,9 @@ const HomeScreen = ({ navigation }: any) => {
     }
 
     if (homeFeed.cards && homeFeed.cards.length > 0) {
-      cardsToShow = homeFeed.cards.slice(0, 2);
+      cardsToShow = homeFeed.cards.filter(
+        c => c.action !== "scheme_started" && c.type !== "scheme_started"
+      ).slice(0, 2);
     }
 
     if (bannersToShow.length === 0 && cardsToShow.length === 0) return null;

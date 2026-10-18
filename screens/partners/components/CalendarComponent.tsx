@@ -53,6 +53,7 @@ interface Props {
   canGoPrev?: boolean;
   onCancel?: () => void;
   isLoading?: boolean;
+  calendarOffset?: number;
 }
 
 const CalendarComponent = ({
@@ -64,41 +65,53 @@ const CalendarComponent = ({
   canGoPrev = false,
   onCancel,
   isLoading = false,
+  calendarOffset = 0,
 }: Props) => {
-  const days = Object.entries(agenda);
+  // Calcular la fecha de inicio del bloque actual
+  const today = new Date();
+  const startDateObj = new Date(today);
+  startDateObj.setDate(startDateObj.getDate() + calendarOffset);
+  const startDateStr = startDateObj.toISOString().slice(0, 10);
+
+  // Filtrar los días para que comiencen desde startDateStr y tomar solo los 3 primeros
+  const allDays = Object.entries(agenda)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .filter(([dateStr]) => dateStr >= startDateStr);
+    
+  const days = allDays.slice(0, 3);
   const hasAnySlot = days.some(([, info]) => (info.available?.length ?? 0) > 0);
 
   return (
-    <View >
-      {/* ── Paginador ── */}
-      <View row spread centerV paddingH-8 marginB-4>
-        <TouchableOpacity
-          onPress={onLoadPrev}
-          disabled={!canGoPrev}
-          style={{ opacity: canGoPrev ? 1 : 0.3, padding: 8 }}
-        >
-          <Icon name="chevron-left" size={28} color={Colors.primaryColor} />
-        </TouchableOpacity>
-
-        <Text text80BO>Selecciona fecha y hora</Text>
-
-        <TouchableOpacity
-          onPress={onLoadMore}
-          style={{ padding: 8 }}
-        >
-          <Icon name="chevron-right" size={28} color={Colors.primaryColor} />
-        </TouchableOpacity>
-      </View>
-
-      {/* ── Cargando ── */}
-      {isLoading ? (
+    <View style={{ minHeight: 150 }}>
+      {/* ── Cargando Inicial (cuando aún no hay días) ── */}
+      {isLoading && days.length === 0 ? (
         <View center padding-32>
           <ActivityIndicator size="large" color={Colors.primaryColor} />
           <Text text80 color="#888" marginT-12>Cargando horarios...</Text>
         </View>
       ) : days.length === 0 || !hasAnySlot ? (
         <View center padding-24 style={{ gap: 16 }}>
-          <Icon name="calendar-remove-outline" size={52} color="#BBBBBB" />
+          <View row spread centerV width="100%">
+            {canGoPrev ? (
+              <TouchableOpacity
+                onPress={onLoadPrev}
+                style={{ backgroundColor: "#D8EEFF", borderRadius: 15, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Icon name="chevron-left" size={20} color="#000" />
+              </TouchableOpacity>
+            ) : (
+              <View style={{ width: 30, height: 30 }} />
+            )}
+
+            <Icon name="calendar-remove-outline" size={52} color="#BBBBBB" />
+
+            <TouchableOpacity
+              onPress={onLoadMore}
+              style={{ padding: 8, backgroundColor: "#D8EEFF", borderRadius: 15, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Icon name="chevron-right" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
           <Text text70 color="#888" style={{ textAlign: "center" }}>
             No hay horarios disponibles en estas fechas.{"\n"}Intenta avanzar o regresar.
           </Text>
@@ -121,78 +134,121 @@ const CalendarComponent = ({
           )}
         </View>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View row padding-8>
-            {days.map(([date, info]) => {
-              const slots = buildSlots(info.available, info.blocked);
-              const header = formatDayHeader(date);
+        <View style={{ position: 'relative' }}>
+          {/* Overlay de carga cuando ya hay días mostrándose */}
+          {isLoading && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={Colors.primaryColor} />
+            </View>
+          )}
 
-              return (
-                <View key={date} width={90} marginR-12>
-                  <View center marginB-12>
-                    <Text text80BO>{header.day}</Text>
-                    <Text text90 color="#888">{header.date}</Text>
-                  </View>
+          <View style={{ opacity: isLoading ? 0.3 : 1 }} pointerEvents={isLoading ? "none" : "auto"}>
+            {/* Fila de encabezados de fechas con flechas */}
+            <View row centerV spread marginB-10>
+              {canGoPrev ? (
+                <TouchableOpacity
+                  onPress={onLoadPrev}
+                  style={{ backgroundColor: "#D8EEFF", borderRadius: 15, width: 26, height: 26, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Icon name="chevron-left" size={18} color="#000" />
+                </TouchableOpacity>
+              ) : (
+                <View style={{ width: 26, height: 26 }} />
+              )}
 
-                  {slots.length === 0 ? (
-                    <Text text90 color="#CCC" style={{ textAlign: "center" }}>
-                      Sin turnos
-                    </Text>
-                  ) : (
-                    slots.map(slot => {
-                      const isSelected =
-                        selectedSlot?.date === date &&
-                        selectedSlot?.value === slot.value;
+              <View row flex spread paddingH-10>
+                {days.map(([date]) => {
+                  const header = formatDayHeader(date);
+                  return (
+                    <View key={`header-${date}`} flex center>
+                      <Text text80 style={{ color: "#000", fontSize: 13 }}>{header.day}</Text>
+                      <Text text90 color="#888" style={{ fontSize: 11 }}>{header.date}</Text>
+                    </View>
+                  );
+                })}
+              </View>
 
-                      if (slot.status === "blocked") {
-                        return (
-                          <Text
-                            key={`${date}-${slot.value}`}
-                            marginV-8
-                            style={{
-                              textDecorationLine: "line-through",
-                              color: "#AAA",
-                              textAlign: "center",
-                            }}
-                          >
-                            {slot.label}
-                          </Text>
-                        );
-                      }
+              <TouchableOpacity
+                onPress={onLoadMore}
+                style={{ backgroundColor: "#D8EEFF", borderRadius: 15, width: 26, height: 26, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Icon name="chevron-right" size={18} color="#000" />
+              </TouchableOpacity>
+            </View>
 
-                      return (
-                        <TouchableOpacity
-                          key={`${date}-${slot.value}`}
-                          onPress={() =>
-                            onSelect({
-                              date,
-                              label: slot.label,
-                              value: slot.value,
-                            })
-                          }
-                        >
-                          <View
-                            height={36}
-                            center
-                            br-8
-                            marginV-6
-                            style={{
-                              backgroundColor: "#D8EEFF",
-                            }}
-                          >
-                            <Text style={{ color: "#222", fontWeight: isSelected ? "900" : "300" }}>
+            {/* Fila de los slots */}
+            <View row paddingH-36 spread>
+              {days.map(([date, info]) => {
+                const slots = buildSlots(info.available, info.blocked);
+
+                return (
+                  <View key={`slots-${date}`} flex centerH paddingH-4>
+                    {slots.length === 0 ? (
+                      <Text text90 color="#000" style={{ textAlign: "center", marginTop: 10 }}>
+                        -
+                      </Text>
+                    ) : (
+                      slots.map(slot => {
+                        const isSelected =
+                          selectedSlot?.date === date &&
+                          selectedSlot?.value === slot.value;
+
+                        if (slot.status === "blocked") {
+                          return (
+                            <Text
+                              key={`${date}-${slot.value}`}
+                              marginV-8
+                              style={{
+                                textDecorationLine: "line-through",
+                                color: "#AAA",
+                                textAlign: "center",
+                                fontSize: 12
+                              }}
+                            >
                               {slot.label}
                             </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })
-                  )}
-                </View>
-              );
-            })}
+                          );
+                        }
+
+                        return (
+                          <TouchableOpacity
+                            key={`${date}-${slot.value}`}
+                            onPress={() =>
+                              onSelect({
+                                date,
+                                label: slot.label,
+                                value: slot.value,
+                              })
+                            }
+                            style={{ width: '100%', alignItems: 'center' }}
+                          >
+                            <View
+                              height={32}
+                              center
+                              br-8
+                              marginV-6
+                              style={{
+                                backgroundColor: isSelected ? "#FFF" : "#DDF1FF",
+                                borderColor: isSelected ? Colors.red : "transparent",
+                                borderWidth: isSelected ? 1 : 0,
+                                width: '100%',
+                                maxWidth: 70
+                              }}
+                            >
+                              <Text style={{ color: "#222", fontWeight: isSelected ? "900" : "500", fontSize: 12 }}>
+                                {slot.label}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })
+                    )}
+                  </View>
+                );
+              })}
+            </View>
           </View>
-        </ScrollView>
+        </View>
       )}
     </View>
   );

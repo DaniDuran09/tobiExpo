@@ -1,6 +1,31 @@
 import AppStorage from "./AppStorage.js";
 import axios from "axios";
 import { URL } from "@env"
+import {
+  handleAutomaticLogout,
+  isSessionInvalidError,
+  isSessionInvalidResponse,
+} from "../utils/authSession";
+
+// Interceptor global para detectar respuestas con sesión inválida o cuenta eliminada
+axios.interceptors.response.use(
+  (response) => {
+    if (isSessionInvalidResponse(response)) {
+      handleAutomaticLogout();
+      const err = new Error("user.make_login");
+      err.isSessionInvalid = true;
+      return Promise.reject(err);
+    }
+    return response;
+  },
+  (error) => {
+    if (isSessionInvalidError(error)) {
+      error.isSessionInvalid = true;
+      handleAutomaticLogout();
+    }
+    return Promise.reject(error);
+  }
+);
 
 class ApiFetcher {
   constructor() {
@@ -26,7 +51,12 @@ class ApiFetcher {
   }
 
   handleErrors(response) {
-    //console.log("a ver la respueseta", response)
+    if (isSessionInvalidResponse(response)) {
+      handleAutomaticLogout();
+      const err = new Error("user.make_login");
+      err.isSessionInvalid = true;
+      throw err;
+    }
     if (response.status < 200 || response.status >= 300) {
       if (response.data === "email.verification_already_done") {
         return response.data;
@@ -55,6 +85,10 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in GET request:", error);
+      if (isSessionInvalidError(error)) {
+        error.isSessionInvalid = true;
+        handleAutomaticLogout();
+      }
       throw error;
     }
   }
@@ -72,9 +106,20 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.log("ERROR EN POST", error.response?.data || error.message);
+      if (isSessionInvalidError(error)) {
+        handleAutomaticLogout();
+        const customErr = new Error("Sesión inválida o cuenta inexistente");
+        customErr.isSessionInvalid = true;
+        customErr.status = error.response?.status;
+        customErr.response = error.response;
+        throw customErr;
+      }
       if (error.response) {
         const { status, data } = error.response;
-        throw new Error(data?.error || data?.message || "Error desconocido");
+        const customErr = new Error(data?.error || data?.message || "Error desconocido");
+        customErr.status = status;
+        customErr.response = error.response;
+        throw customErr;
       }
       throw new Error("Error de red o servidor no disponible");
     }
@@ -98,6 +143,10 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in PUT request:", error);
+      if (isSessionInvalidError(error)) {
+        error.isSessionInvalid = true;
+        handleAutomaticLogout();
+      }
       throw error;
     }
   }
@@ -110,6 +159,10 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in DELETE request:", error);
+      if (isSessionInvalidError(error)) {
+        error.isSessionInvalid = true;
+        handleAutomaticLogout();
+      }
       throw error;
     }
   }
@@ -128,6 +181,10 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.error("Error in PATCH request:", error);
+      if (isSessionInvalidError(error)) {
+        error.isSessionInvalid = true;
+        handleAutomaticLogout();
+      }
       throw error;
     }
   }
@@ -348,9 +405,20 @@ class ApiFetcher {
       return this.handleErrors(response);
     } catch (error) {
       console.log("ERROR EN ADD ITEM TO CART", error.response?.data || error.message);
+      if (isSessionInvalidError(error)) {
+        handleAutomaticLogout();
+        const customErr = new Error("Sesión inválida o cuenta inexistente");
+        customErr.isSessionInvalid = true;
+        customErr.status = error.response?.status;
+        customErr.response = error.response;
+        throw customErr;
+      }
       if (error.response) {
         const { status, data } = error.response;
-        throw new Error(data?.error || data?.message || "Error desconocido");
+        const customErr = new Error(data?.error || data?.message || "Error desconocido");
+        customErr.status = status;
+        customErr.response = error.response;
+        throw customErr;
       }
       throw new Error("Error de red o servidor no disponible");
     }
@@ -379,6 +447,10 @@ class ApiFetcher {
   }
   async getAppointmentsById(id) {
     return await this._get(`/v1/portal_client/appointments/${id}`);
+  }
+
+  async checkinAppointment(id) {
+    return await this._post(`/v1/portal_client/appointments/${id}/check_in`, {}, true);
   }
 
   // visits
