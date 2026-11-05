@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Platform, ScrollView, TextInput } from "react-native";
 import { View, Text, Button, TouchableOpacity } from "react-native-ui-lib";
 import { Avatar, RadioButton } from "react-native-paper";
@@ -14,11 +14,28 @@ import ApiFetcher from "../../../modules/ApiFetcher";
 import { useGetPetByIdQuery } from "../../../services/api/pets.api";
 import DeleteModal from "../../../components/DeleteModal";
 import ImageOption from "../../../components/ImageOption";
+import { navigateBack, NavSource } from "../../../utils/navigateBack";
 
 const PetProfile = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const route = useRoute();
-  const { item } = route.params as { item: Pet };
+  const { item, source } = (route.params || {}) as { item: Pet; source?: NavSource };
+
+  // ── Botón de regreso contextual en el encabezado ──────────────────────────
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: "",
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigateBack(source, navigation)}
+          style={{ marginLeft: 12, padding: 4 }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, source]);
 
   const [selectedPet, setSelectedPet] = useState<Pet>(item);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);

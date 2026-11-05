@@ -32,7 +32,7 @@ const InfoServiceByPartner = ({ route }) => {
   useEffect(() => {
     fetchPets()
   }, [])
-  
+
 
   const navigation = useNavigation();
 
@@ -105,61 +105,61 @@ const InfoServiceByPartner = ({ route }) => {
         </Text>
       </View>
       <View>
-      <View padding-16>
-            <FlatList
-              data={pets}
-              horizontal={true}
-              renderItem={({ item }) => (
-                <RenderPets
-                  pet={item}
-                  selectedPet={selectedPet}
-                  handleSelectPet={handleSelectPet}
-                />
-              )}
-              keyExtractor={(item) => item.id.toString()}
-              showsHorizontalScrollIndicator={false}
-            />
-          </View>
+        <View padding-16>
+          <FlatList
+            data={pets}
+            horizontal={true}
+            renderItem={({ item }) => (
+              <RenderPets
+                pet={item}
+                selectedPet={selectedPet}
+                handleSelectPet={handleSelectPet}
+              />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
         <Text style={styles.mainTitle}>Agendar cita</Text>
       </View>
       <View marginT-10 style={styles.servicesContainer}>
-            <FlatList
-              keyExtractor={(item, index) => `item-${index}`}
-              data={services}
-              renderItem={({ item }) => (
-                <RenderServices
-                  item={item}
-                  selectedServices={selectedServices}
-                  toggleServiceSelection={toggleServiceSelection}
-                />
-              )}
+        <FlatList
+          keyExtractor={(item, index) => `item-${index}`}
+          data={services}
+          renderItem={({ item }) => (
+            <RenderServices
+              item={item}
+              selectedServices={selectedServices}
+              toggleServiceSelection={toggleServiceSelection}
+            />
+          )}
+        />
+      </View>
+      <View style={styles.dateContainer}>
+        <View marginT-20 marginB-20>
+          <Text text70BO>Fecha y hora</Text>
+          <View>
+            <TouchableOpacity
+              disabled={disabledSelectDate}
+              onPress={getCalendar}
+            >
+              <View row spread style={styles.textInput}>
+                <Text>Selecciona una fecha</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <CustomCalendar
+              showCalendar={showCalendar}
+              closeModal={closeModal}
+              setInfoDate={setInfoDate}
+              infoDate={infoDate}
+              availabilityDays={availabilityDays}
+              specialistId={1}
+              selectedServices={selectedServices}
             />
           </View>
-      <View style={styles.dateContainer}>
-      <View marginT-20 marginB-20>
-            <Text text70BO>Fecha y hora</Text>
-            <View>
-              <TouchableOpacity
-                disabled={disabledSelectDate}
-                onPress={getCalendar}
-              >
-                <View row spread style={styles.textInput}>
-                  <Text>Selecciona una fecha</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            <View>
-              <CustomCalendar
-                showCalendar={showCalendar}
-                closeModal={closeModal}
-                setInfoDate={setInfoDate}
-                infoDate={infoDate}
-                availabilityDays={availabilityDays}
-                specialistId={1}
-                selectedServices={selectedServices}
-              />
-            </View>
-          </View>
+        </View>
         {/* <View style={styles.endContainer}>
           <TouchableOpacity onPress={() => setOpen(true)}>
             <View elevation={5} style={styles.textInput}>

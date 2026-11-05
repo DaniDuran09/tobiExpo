@@ -4,7 +4,7 @@ import { openWhatsAppTobi } from "./openWhatsApp";
 
 const apiFetcher = new ApiFetcher();
 
-export const handleGlobalAction = async (action: string, data: any, id?: string | number, type?: string) => {
+export const handleGlobalAction = async (action: string, data: any, id?: string | number, type?: string, source?: string) => {
   console.log("Global Action triggered:", action, data, id);
 
   if (id) {
@@ -71,7 +71,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     (typeof id === "string" && (id.includes("scheme_started") || id.includes("scheme_incomplete") || id.includes("pet_created")));
 
   if (isCommunication004 || isSchemeTrigger) {
-    navigate("HomeProfileDetails", { idSelectedPet: petTargetId });
+    navigate("HomeProfileDetails", { idSelectedPet: petTargetId, source });
     return;
   }
 
@@ -97,7 +97,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
         }
       }
       if (data?.visit_id) {
-        navigate("Health", { screen: "VisitDetails", params: { id: data.visit_id } });
+        navigate("Health", { screen: "VisitDetails", params: { id: data.visit_id, source } });
       } else {
         navigate("Health", { screen: "AppointmentsHome" });
       }
@@ -129,7 +129,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       if (data?.partner_id) {
         navigate("Explore", {
           screen: "PartnersGeneralInfo",
-          params: { partner_id: data.partner_id },
+          params: { partner_id: data.partner_id, source },
         });
       } else {
         const catalogCode = actionKey === "no_booking" ? "SC-CONSULTA-GENERAL" : null;
@@ -142,6 +142,7 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
             vaccine_id: data?.vaccine_id ?? null,
             catalog_code: catalogCode,
             service_catalog_id: data?.service_catalog_id ?? null,
+            source,
           },
         });
       }
@@ -155,14 +156,14 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     case "view_weight_detail":
     case "complete_profile":
       if (typeof id === "string" && id.includes("scheme_incomplete")) {
-        navigate("HomeProfileDetails", { idSelectedPet: petTargetId });
+        navigate("HomeProfileDetails", { idSelectedPet: petTargetId, source });
         break;
       }
       if (data?.pet_id) {
         try {
           const petResponse = await apiFetcher.getPetById(data.pet_id);
           if (petResponse?.data) {
-            navigate("ProfileStack", { screen: "PetProfile", params: { item: petResponse.data } });
+            navigate("ProfileStack", { screen: "PetProfile", params: { item: petResponse.data, source } });
           }
         } catch (error) {
           console.error("Error fetching pet for navigation:", error);
@@ -171,11 +172,11 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       break;
 
     case "view_recommendation":
-      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id });
+      navigate("HomeProfileDetails", { idSelectedPet: data?.pet_id, source });
       break;
 
     case "edit_profile":
-      navigate("ProfileStack", { screen: "ProfileEditUser" });
+      navigate("ProfileStack", { screen: "ProfileEditUser", params: { source } });
       break;
 
     case "add_pet":
@@ -205,15 +206,15 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     case "continuar_esquema":
     case "view_scheme":
     case "view_health_record":
-      navigate("HomeProfileDetails", { idSelectedPet: petTargetId });
+      navigate("HomeProfileDetails", { idSelectedPet: petTargetId, source });
       break;
 
     case "scheme_completed":
-      navigate("PetVaccinesRecord", { id: petTargetId });
+      navigate("PetVaccinesRecord", { id: petTargetId, source });
       break;
 
     case "view_pet_profile":
-      navigate("HomeProfileDetails", { idSelectedPet: petTargetId });
+      navigate("HomeProfileDetails", { idSelectedPet: petTargetId, source });
       break;
 
     case "preventive_due_no_booking":

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { skipToken } from "@reduxjs/toolkit/query";
 
-import { View, Text, AnimatedImage, LoaderScreen } from "react-native-ui-lib";
+import { View, Text, AnimatedImage, LoaderScreen, TouchableOpacity } from "react-native-ui-lib";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import HealthTabController from "../../../components/pet/Health/HealthTabController/HealthTabController";
 import ListSelectPet from "../../../components/pet/Health/ListSelectPet/ListSelectPet";
@@ -19,17 +20,34 @@ import {
 
 import { Colors } from "../../../styles/Colors";
 
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import DerwomersPage from "../../../components/pet/Health/DerwomersPage";
 import momentTZ from "../../../utils/moment";
+import { navigateBack, NavSource } from "../../../utils/navigateBack";
 
 const PetHealth = () => {
   const route = useRoute();
+  const navigation = useNavigation<any>();
   const params = (route.params || {}) as {
     idSelectedPet?: number;
     tabIndex?: number;
+    source?: NavSource;
   };
-  const { idSelectedPet, tabIndex } = params;
+  const { idSelectedPet, tabIndex, source } = params;
+
+  // ── Botón de regreso contextual en el encabezado ──────────────────────────
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigateBack(source, navigation)}
+          style={{ marginLeft: 12, padding: 4 }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, source]);
 
   const [selectedPet, setSelectedPet] = useState<Pet>({} as Pet);
   const [allVaccines, setAllVaccines] = useState<any[]>([]);

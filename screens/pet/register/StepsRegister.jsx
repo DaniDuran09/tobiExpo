@@ -46,7 +46,7 @@ const StepsRegister = ({ route }) => {
       } else if (response?.id) {
         newPetId = response.id;
       }
-      
+
       if (newPetId) {
         setIdPet(newPetId);
       } else {

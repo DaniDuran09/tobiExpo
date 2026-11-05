@@ -1,5 +1,5 @@
 import { ScrollView, FlatList } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
@@ -13,14 +13,34 @@ import { RenderPets } from "../../components/renders/RenderPets";
 import ResumeService from "./components/ResumeService";
 import Service from "./components/Service";
 import CalendarComponent from "./components/CalendarComponent";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { navigateBack, NavSource } from "../../utils/navigateBack";
 
 const PartnersGeneralInfo = () => {
   const { params } = useRoute<any>();
-  const { id, type } = params;
+  const { id, type, source } = params as any;
 
   const navigation = useNavigation<any>();
   const dispatch = useDispatch();
   const apiFetcher = new ApiFetcher();
+
+  // ── Botón de regreso contextual cuando viene de otra tab ─────────────────
+  useLayoutEffect(() => {
+    if (source) {
+      navigation.setOptions({
+        headerShown: true,
+        headerTitle: "",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigateBack(source as NavSource, navigation)}
+            style={{ marginLeft: 12, padding: 4 }}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, source]);
 
   const [isLoading, setIsLoading] = useState(true);
 

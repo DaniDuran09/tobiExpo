@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Platform, RefreshControl } from "react-native";
 import { Text, View, Avatar, TouchableOpacity, Modal } from "react-native-ui-lib";
 import MapView, { Marker } from 'react-native-maps';
@@ -9,6 +9,7 @@ import moment from "moment";
 import "moment/locale/es";
 import { Linking } from 'react-native';
 import { openWhatsAppTobi } from "../../utils/openWhatsApp";
+import { navigateBack, NavSource } from "../../utils/navigateBack";
 
 moment.locale("es");
 
@@ -28,7 +29,7 @@ const getServiceBadgeInfo = (status: string) => {
 };
 
 export default function VisitDetails({ route, navigation }: { route: any, navigation: any }) {
-    const { id } = route.params;
+    const { id, source } = route.params as { id: any; source?: NavSource };
     const [visit, setVisit] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState(moment());
@@ -37,6 +38,22 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const apiFetcher = new ApiFetcher();
+
+    // ── Botón de regreso contextual en el header ──────────────────────────────
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: true,
+            headerTitle: "Detalle de visita",
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => navigateBack(source, navigation)}
+                    style={{ marginLeft: 12, padding: 4 }}
+                >
+                    <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, source]);
 
     const fetchData = async (isRefresh = false) => {
         if (isRefresh) setIsRefreshing(true);

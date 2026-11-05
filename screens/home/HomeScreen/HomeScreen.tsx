@@ -108,7 +108,7 @@ const HomeScreen = ({ navigation }: any) => {
   }, []);
 
   const handleAction = async (action: string, data: any, fingerprint?: string, type?: string) => {
-    await handleGlobalAction(action, data, fingerprint, type);
+    await handleGlobalAction(action, data, fingerprint, type, "Home");
   };
 
   const dismissItem = async (id: string, type?: string) => {

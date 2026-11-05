@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { ScrollView, StyleSheet, Platform } from "react-native";
 import { Text, View, Avatar, TouchableOpacity, Modal } from "react-native-ui-lib";
 import MapView, { Marker } from 'react-native-maps';
@@ -10,6 +10,7 @@ import moment from "moment";
 import "moment/locale/es";
 import { Linking } from 'react-native';
 import { openWhatsAppTobi } from "../../utils/openWhatsApp";
+import { navigateBack, NavSource } from "../../utils/navigateBack";
 
 moment.locale("es");
 
@@ -34,13 +35,29 @@ const getServiceBadgeInfo = (status: string) => {
 };
 
 export default function AppointmentDetails({ route, navigation }: { route: any, navigation: any }) {
-    const { id } = route.params;
+    const { id, source } = route.params as { id: string; source?: NavSource };
     const [appointment, setAppointment] = useState<Appointment | null>(null);
     const [loading, setLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState(moment());
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const apiFetcher = new ApiFetcher();
+
+    // ── Botón de regreso contextual en el header ──────────────────────────────
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: true,
+            headerTitle: "Detalle de cita",
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => navigateBack(source, navigation)}
+                    style={{ marginLeft: 12, padding: 4 }}
+                >
+                    <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, source]);
 
     const fetchData = async () => {
         setLoading(true);

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { Colors, gradientColors } from "../../styles/Colors";
 import WithoutPhoto from "../../components/WithoutPhoto";
 import ApiFetcher from "../../modules/ApiFetcher";
@@ -17,9 +17,27 @@ import VaccineCard from "../../components/VaccineCard";
 import EmptyVaccines from "../../components/vaccines/EmptyVaccines";
 import Loading from "../../components/Loading";
 import Recomendation from "../../components/Recomendation";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { navigateBack } from "../../utils/navigateBack";
 
 const PetVaccinesRecord = ({ route }) => {
-  const { id } = route.params;
+  const navigation = useNavigation();
+  const { id, source } = route.params || {};
+
+  // ── Botón de regreso contextual en el encabezado ──────────────────────────
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigateBack(source, navigation)}
+          style={{ marginLeft: 12, padding: 4 }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, source]);
 
   const [option, setOption] = useState(1);
   const [loadData, setLoadData] = useState(false);

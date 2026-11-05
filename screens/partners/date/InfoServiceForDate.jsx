@@ -49,7 +49,7 @@ const InfoServiceForDate = ({ route }) => {
     const formattedDate = momentTZ(dateTime).locale("es").format("dddd D [de] MMMM [de] YYYY, h:mm A");
     return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
   }, [infoDate]);
-  
+
 
   const scrollViewRef = useRef(null);
   const navigation = useNavigation();

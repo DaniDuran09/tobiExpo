@@ -145,7 +145,7 @@ export default function NotificationContext({ children }: { children: ReactNode 
                 // Esperar a que la navegación esté lista en caso de cold start
                 const tryNavigate = () => {
                     if (navigationRef.isReady()) {
-                        handleGlobalAction(action, card_data, entity_fingerprint, notifType);
+                        handleGlobalAction(action, card_data, entity_fingerprint, notifType, "Push");
                     } else {
                         setTimeout(tryNavigate, 100);
                     }

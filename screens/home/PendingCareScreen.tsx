@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import {
   RefreshControl,
   StyleSheet,
@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { Avatar } from "react-native-paper";
 import ApiFetcher from "../../modules/ApiFetcher";
 import { Colors } from "../../styles/Colors";
@@ -156,8 +157,8 @@ const ctaLabel = (action: string, type: string = "", card?: any): string => {
   }
 };
 
-const handleNavAction = async (action: string, data: any, fingerprint: string | undefined, type?: string) => {
-  await handleGlobalAction(action, data, fingerprint, type);
+const handleNavAction = async (action: string, data: any, fingerprint: string | undefined, type?: string, source?: string) => {
+  await handleGlobalAction(action, data, fingerprint, type, source);
 };
 
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
@@ -230,9 +231,60 @@ const CareCard = ({ card, sectionKey, onAction }: any) => {
 
 const PendingCareScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  // Detecta si está montado como "CareCenter" (tab Health) o "PendingCare" (HomeStack)
+  const source: string = route.name === "CareCenter" ? "CareCenter" : "Home";
   const [allCards, setAllCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const hideTooltip = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowTooltip(false);
+    });
+  }, [fadeAnim]);
+
+  const handleHelpPress = useCallback(() => {
+    if (showTooltip) {
+      hideTooltip();
+      return;
+    }
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    setShowTooltip(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    // Auto-cierre temporal tras 5 segundos
+    timerRef.current = setTimeout(() => {
+      hideTooltip();
+    }, 5000);
+  }, [showTooltip, fadeAnim, hideTooltip]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const fetchCards = async (isRefresh = false) => {
     try {
@@ -351,6 +403,7 @@ const PendingCareScreen = () => {
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
+        onScrollBeginDrag={hideTooltip}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => fetchCards(true)} />}
       >
         {/* Header personalizado */}
@@ -362,8 +415,17 @@ const PendingCareScreen = () => {
               <Text style={styles.headerSubtitle}>Revisa y da seguimiento a su salud</Text>
             </View>
           </View>
-          <TouchableOpacity>
-            <Icon name="help-circle-outline" size={28} color="#666" />
+          <TouchableOpacity
+            onPress={handleHelpPress}
+            accessibilityRole="button"
+            accessibilityLabel="Ayuda de Care Center"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Icon
+              name="help-circle-outline"
+              size={28}
+              color={showTooltip ? Colors.primaryColor : "#666"}
+            />
           </TouchableOpacity>
         </View>
 
@@ -411,13 +473,33 @@ const PendingCareScreen = () => {
                   key={idx}
                   card={card}
                   sectionKey={key}
-                  onAction={() => handleNavAction(card.action, card.data, card.id, card.type)}
+                  onAction={() => handleNavAction(card.action, card.data, card.id, card.type, source)}
                 />
               ))}
             </View>
           );
         })}
       </ScrollView>
+
+      {/* Tooltip flotante temporal encima de todo */}
+      {showTooltip && (
+        <Animated.View
+          style={[styles.tooltipContainer, { opacity: fadeAnim }]}
+          pointerEvents="box-none"
+        >
+          <TouchableOpacity
+            activeOpacity={0.95}
+            onPress={hideTooltip}
+            style={styles.tooltipCard}
+          >
+            <View style={styles.tooltipArrowBorder} />
+            <View style={styles.tooltipArrow} />
+            <Text style={styles.tooltipText}>
+              Aquí encontrarás los cuidados pendientes, las próximas recomendaciones y el seguimiento de la salud de tus mascotas para saber qué necesitan y cuándo es momento de actuar.
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 };
@@ -487,6 +569,61 @@ const styles = StyleSheet.create({
     paddingVertical: 8, paddingHorizontal: 14, borderRadius: 8, gap: 4
   },
   cardBtnText: { color: "#fff", fontSize: 13, fontWeight: "600" },
+
+  // Tooltip temporal flotante
+  tooltipContainer: {
+    position: "absolute",
+    top: 78,
+    left: 16,
+    right: 16,
+    zIndex: 9999,
+    elevation: 10,
+  },
+  tooltipCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  tooltipArrowBorder: {
+    position: "absolute",
+    top: -9,
+    right: 17,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 9,
+    borderRightWidth: 9,
+    borderBottomWidth: 9,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "#E5E7EB",
+  },
+  tooltipArrow: {
+    position: "absolute",
+    top: -8,
+    right: 18,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderBottomWidth: 8,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "#FFFFFF",
+  },
+  tooltipText: {
+    fontSize: 13.5,
+    color: "#4B5563",
+    lineHeight: 20,
+    fontWeight: "400",
+  },
 });
 
 export default PendingCareScreen;

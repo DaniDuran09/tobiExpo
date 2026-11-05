@@ -22,15 +22,12 @@ export const openWhatsAppTobi = async (data?: any) => {
   const message = data?.message || defaultText;
   const encodedText = encodeURIComponent(message);
 
-  const phone = data?.phone || data?.whatsapp_phone || data?.tobi_phone;
-  const phoneClean = phone ? String(phone).replace(/[^0-9]/g, "") : "";
+  const TOBI_PHONE = "5215533321784"; // +52 1 55 3332 1784
+  const phone = data?.phone || data?.whatsapp_phone || data?.tobi_phone || TOBI_PHONE;
+  const phoneClean = phone ? String(phone).replace(/[^0-9]/g, "") : TOBI_PHONE;
 
-  const appScheme = phoneClean
-    ? `whatsapp://send?phone=${phoneClean}&text=${encodedText}`
-    : `whatsapp://send?text=${encodedText}`;
-  const webUrl = phoneClean
-    ? `https://wa.me/${phoneClean}?text=${encodedText}`
-    : `https://wa.me/?text=${encodedText}`;
+  const appScheme = `whatsapp://send?phone=${phoneClean}&text=${encodedText}`;
+  const webUrl = `https://wa.me/${phoneClean}?text=${encodedText}`;
 
   try {
     const supported = await Linking.canOpenURL(appScheme);

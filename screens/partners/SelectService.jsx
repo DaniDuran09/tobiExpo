@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -18,11 +18,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RenderPets } from "../../components/renders/RenderPets";
 import moment from "moment";
 import "moment/locale/es";
+import { navigateBack } from "../../utils/navigateBack";
 
 moment.locale("es");
 
 const SelectService = ({ route }) => {
-  const { type, serviceId, petId, q } = route.params || {};
+  const { type, serviceId, petId, q, source } = route.params || {};
 
   const [listPartners, setListPartners] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,24 @@ const SelectService = ({ route }) => {
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
+
+  // ── Botón de regreso contextual cuando viene desde otra tab ───────────────
+  useLayoutEffect(() => {
+    if (source) {
+      navigation.setOptions?.({
+        headerShown: true,
+        headerTitle: "Buscar servicio",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigateBack(source, navigation)}
+            style={{ marginLeft: 12, padding: 4 }}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, source]);
 
   const hasParams =
     (type !== undefined && type !== null) ||

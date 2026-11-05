@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useLayoutEffect } from "react";
 import { FlatList, RefreshControl } from "react-native";
 import { View, Text, TouchableOpacity, TextField } from "react-native-ui-lib";
 import { ScrollView } from "react-native-gesture-handler";
@@ -11,10 +11,11 @@ import * as ExpoLocation from 'expo-location';
 import { SelectServiceProps, Partner, NavigationService } from "./types";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RenderPets } from "../../../components/renders/RenderPets";
+import { navigateBack, NavSource } from "../../../utils/navigateBack";
 
 const SelectService = ({ route }: SelectServiceProps) => {
   const params = route?.params || {};
-  const { type, serviceId, petId, q: initialQ, service_catalog_id, catalog_code, vaccine_id } = params;
+  const { type, serviceId, petId, q: initialQ, service_catalog_id, catalog_code, vaccine_id, source } = params as any;
 
   console.log("SelectService params recibidos:", params);
 
@@ -40,6 +41,25 @@ const SelectService = ({ route }: SelectServiceProps) => {
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
+
+  // ── Botón de regreso contextual cuando viene desde otra tab ───────────────
+  useLayoutEffect(() => {
+    // Solo mostramos el back si hay un source explícito (venimos de otra tab)
+    if (source) {
+      (navigation as any).setOptions?.({
+        headerShown: true,
+        headerTitle: "Buscar servicio",
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigateBack(source as NavSource, navigation)}
+            style={{ marginLeft: 12, padding: 4 }}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, source]);
 
   // Sincronizar estado cuando los params cambian (navegar desde Home con diferente servicio)
   useFocusEffect(
