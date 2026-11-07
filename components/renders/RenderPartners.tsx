@@ -11,9 +11,11 @@ moment.locale("es");
 const RenderPartners = ({
   item,
   goToMoreInfo,
+  onSelectSlot,
 }: {
   item: any;
   goToMoreInfo: (item: any) => void;
+  onSelectSlot?: (item: any, slot: string, date: string) => void;
 }) => {
   const { name, type_partner, picture, description, address, next_availability_snippet } = item;
 
@@ -80,15 +82,32 @@ const RenderPartners = ({
             </View>
             <View row centerV>
               {next_availability_snippet.slots?.map((slot: string, idx: number) => (
-                <View key={idx} style={{ backgroundColor: "#DDF1FF", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5, marginRight: 8 }}>
+                <TouchableOpacity
+                  key={idx}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (onSelectSlot) {
+                      onSelectSlot(item, slot, next_availability_snippet.date);
+                    } else {
+                      goToMoreInfo(item);
+                    }
+                  }}
+                  style={{ backgroundColor: "#DDF1FF", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5, marginRight: 8 }}
+                >
                   <Text text90 style={{ color: "#000" }}>{slot}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
               {next_availability_snippet.has_more && (
-                <View row centerV style={{ backgroundColor: "#DDF1FF", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5 }}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => goToMoreInfo(item)}
+                  row
+                  centerV
+                  style={{ backgroundColor: "#DDF1FF", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 5 }}
+                >
                   <Text text90 style={{ color: "#000", marginRight: 4 }}>ver más</Text>
                   <MaterialCommunityIcons name="chevron-right" size={14} color="#000" />
-                </View>
+                </TouchableOpacity>
               )}
             </View>
           </View>

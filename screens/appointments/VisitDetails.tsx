@@ -46,7 +46,17 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
             headerTitle: "Detalle de visita",
             headerLeft: () => (
                 <TouchableOpacity
-                    onPress={() => navigateBack(source, navigation)}
+                    onPress={() => {
+                        const s = source;
+                        navigation.setParams?.({ source: undefined });
+                        if (s) {
+                            navigateBack(s, navigation);
+                        } else if (navigation.canGoBack && navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigateBack(undefined, navigation);
+                        }
+                    }}
                     style={{ marginLeft: 12, padding: 4 }}
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
@@ -393,7 +403,13 @@ export default function VisitDetails({ route, navigation }: { route: any, naviga
                         <TouchableOpacity
                             backgroundColor={Colors.primaryColor}
                             onPress={() => {
-
+                                const targetPet = petsList[0]?.pet;
+                                if (targetPet) {
+                                    navigation.navigate("ProfileStack", {
+                                        screen: "PetPdf",
+                                        params: { pet: targetPet, petId: targetPet.id, source: source || "CareCenter" }
+                                    });
+                                }
                             }}
                             style={{ height: 50, borderRadius: 25, width: '100%' }}
                             center

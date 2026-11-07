@@ -49,17 +49,18 @@ export const toastConfig = {
     <InfoToast
       {...props}
       style={{
-        borderLeftColor: Colors.secondaryColor,
+        borderLeftColor: '#3B82F6',
         minHeight: 80,
         marginTop: Platform.OS != 'android' && '5%',
       }}
       text1Style={{
         fontSize: 16,
-        color: Colors.secondaryColor,
+        color: '#1E3A8A',
+        fontWeight: 'bold',
       }}
       text2Style={{
         fontSize: 14,
-        color: Colors.secondaryColor,
+        color: '#1F2937',
       }}
       text2NumberOfLines={5}
     />

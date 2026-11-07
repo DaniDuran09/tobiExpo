@@ -18,6 +18,12 @@ export type NavSource =
  * @param navigationRef  Objeto navigation local del componente (necesario para goBack).
  */
 export const navigateBack = (source: NavSource, navigation: any) => {
+  if (navigation?.setParams) {
+    try {
+      navigation.setParams({ source: undefined });
+    } catch {}
+  }
+
   if (source === "CareCenter") {
     navigate("Health", { screen: "CareCenter" } as never);
     return;
@@ -31,14 +37,14 @@ export const navigateBack = (source: NavSource, navigation: any) => {
     return;
   }
   if (source === "Home" || source === "Push") {
-    navigate("HomeStack", {} as never);
+    navigate("HomeStack", { screen: "HomeScreen" } as never);
     return;
   }
   // Fallback si no hay source definido o es navegación estándar
   if (navigation?.canGoBack && navigation.canGoBack()) {
     navigation.goBack();
   } else {
-    navigate("HomeStack", {} as never);
+    navigate("HomeStack", { screen: "HomeScreen" } as never);
   }
 };
 

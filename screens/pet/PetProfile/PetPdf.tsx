@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Dimensions, Image, Linking } from 'react-native';
+import { StyleSheet, Dimensions, Image, Linking, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AnimatedImage, Modal, Text, TouchableOpacity, View } from 'react-native-ui-lib';
 import ApiFetcher from "../../../modules/ApiFetcher";
@@ -8,6 +8,8 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { getCards } from '../../../services';
 import Pdf from 'react-native-pdf';
 import ModalNoPicture from '../../../components/atoms/ModalNoPicture';
+import { Colors } from "../../../styles/Colors";
+import { navigateBack, NavSource } from "../../../utils/navigateBack";
 
 export default function PetPdf() {
 
@@ -21,17 +23,79 @@ export default function PetPdf() {
 
   const [certificates, setCertificates] = useState<Certificate | null>(null);
   const route = useRoute();
-  const { pet }: any = route.params;
-  console.log(pet)
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const params = (route.params || {}) as any;
+  const source = params.source as NavSource | undefined;
+
+  const [petData, setPetData] = useState<any>(params.pet || null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [visible, setVisible] = useState(false);
   const [dialog, setDialog] = useState<boolean>(false);
   const [picture, setPicture] = useState<string>("");
   const [pdfError, setPdfError] = useState<boolean>(false);
 
   useEffect(() => {
-    getCertificates();
-  }, [])
+    resolvePetAndCertificates();
+  }, [params.pet, params.petId, params.id, params.pet_id]);
+
+  const resolvePetAndCertificates = async () => {
+    setLoading(true);
+    setPdfError(false);
+    try {
+      let currentPet = params.pet;
+      let targetPetId =
+        (typeof currentPet === 'object' && currentPet?.id ? currentPet.id : null) ||
+        (typeof currentPet === 'number' || typeof currentPet === 'string' ? currentPet : null) ||
+        params.petId ||
+        params.pet_id ||
+        params.id ||
+        params.idSelectedPet;
+
+      // Si no tenemos ID, buscar las mascotas del usuario
+      if (!targetPetId) {
+        try {
+          const petsRes = await apiFetcher.getPets();
+          if (petsRes?.data && petsRes.data.length > 0) {
+            targetPetId = petsRes.data[0].id;
+            if (!currentPet) {
+              currentPet = petsRes.data[0];
+            }
+          }
+        } catch (e) {
+          console.warn("Error fetching pets in PetPdf:", e);
+        }
+      }
+
+      // Si tenemos targetPetId pero falta información completa de la mascota
+      if (targetPetId && (!currentPet || typeof currentPet !== 'object' || !currentPet.name)) {
+        try {
+          const petRes = await apiFetcher.getPetById(targetPetId);
+          if (petRes?.data) {
+            currentPet = petRes.data;
+          }
+        } catch (e) {
+          console.warn("Error fetching pet details in PetPdf:", e);
+        }
+      }
+
+      if (currentPet && typeof currentPet === 'object') {
+        setPetData(currentPet);
+      } else if (targetPetId) {
+        setPetData({ id: targetPetId, name: "Mascota" });
+      }
+
+      if (targetPetId) {
+        const res = await apiFetcher.getCertificates(targetPetId);
+        if (res && res.data) {
+          setCertificates(res.data);
+        }
+      }
+    } catch (error) {
+      console.log("Error loading certificates in PetPdf:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openImage = (url: any, tipe: string) => {
     if (url) {
@@ -42,29 +106,36 @@ export default function PetPdf() {
     }
   };
   const onRequestClose = () => {
-    setVisible(false)
-  }
-
-  const getCertificates = async () => {
-    try {
-      const res = await apiFetcher.getCertificates(pet.id);
-      setCertificates(res.data)
-    } catch (error) {
-      console.log("error", error);
-    }
-  }
+    setVisible(false);
+  };
 
   useEffect(() => {
     console.log("imagen", picture);
-  }, [picture])
-
+  }, [picture]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View width={'100%'} height={50} row paddingR-10 centerV>
-        <TouchableOpacity br100 style={{ width: 100, height: 50 }} row centerV onPress={() => navigation.goBack()}>
-          <Icon name="chevron-left" size={45} color="black" />
-          <AnimatedImage source={{ uri: pet.picture }} style={{ width: 40, height: 40, borderRadius: 100 }} />
+      <View width={'100%'} height={55} row paddingH-10 centerV style={{ borderBottomWidth: 1, borderBottomColor: Colors.secondGray }}>
+        <TouchableOpacity
+          br100
+          style={{ height: 50, paddingRight: 10 }}
+          row
+          centerV
+          onPress={() => navigateBack(source, navigation)}
+        >
+          <Icon name="chevron-left" size={38} color="black" />
+          {petData?.picture ? (
+            <AnimatedImage source={{ uri: petData.picture }} style={{ width: 38, height: 38, borderRadius: 100 }} />
+          ) : (
+            <View style={{ width: 38, height: 38, borderRadius: 100, backgroundColor: Colors.secondGray }} center>
+              <Icon name="paw" size={20} color={Colors.gray} />
+            </View>
+          )}
+          {petData?.name ? (
+            <Text text70BL marginL-10 color={Colors.black}>
+              {petData.name}
+            </Text>
+          ) : null}
         </TouchableOpacity>
         <View flex />
         <TouchableOpacity style={{ width: 50, height: 50 }} center onPress={() => openImage(certificates?.certificate_pet, "")}>

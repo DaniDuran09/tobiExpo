@@ -11,15 +11,26 @@ export interface Partner {
         id: number;
         name: string;
     };
+    next_availability_snippet?: {
+        date: string;
+        slots: string[];
+        has_more: boolean;
+    };
 }
 
 export interface SelectServiceProps {
     route: {
-        params: {
+        params?: {
             serviceId?: number;
             petId?: number;
-            type: number;
+            type?: number;
             q?: string;
+            service_catalog_id?: number;
+            catalog_code?: string;
+            vaccine_id?: number;
+            source?: string;
+            preselectedDate?: string;
+            preselectedTime?: string;
         };
     };
 }

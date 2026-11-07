@@ -40,7 +40,17 @@ const PetHealth = () => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigateBack(source, navigation)}
+          onPress={() => {
+            const s = source;
+            navigation.setParams?.({ source: undefined });
+            if (s) {
+              navigateBack(s, navigation);
+            } else if (navigation.canGoBack && navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigateBack(undefined, navigation);
+            }
+          }}
           style={{ marginLeft: 12, padding: 4 }}
         >
           <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
@@ -98,13 +108,13 @@ const PetHealth = () => {
     // IGNORAR nextstep y toexpire
     const unappliedVaccines = vaccines?.vaccines_expired || vaccines?.expired_vaccines || [];
     const baseVaccinesRaw = [
-      ...(vaccines?.vaccines_records || []), 
+      ...(vaccines?.vaccines_records || []),
       ...unappliedVaccines
     ];
 
     const unappliedDewormers = vaccines?.dewormers_expired || vaccines?.expired_dewormers || [];
     const baseDewormersRaw = [
-      ...(vaccines?.dewormers_records || []), 
+      ...(vaccines?.dewormers_records || []),
       ...unappliedDewormers
     ];
 
@@ -113,14 +123,14 @@ const PetHealth = () => {
       const map = new Map();
       arr.forEach((item) => {
         const isApplied = item.applied || item.application_day;
-        
+
         let name = "";
         if (type === "vaccine") {
           name = item.name?.trim().toLowerCase() || "";
         } else {
           name = (item.deworming_type || item.description || item.name || "").replace("Desparasitación ", "").trim().toLowerCase();
         }
-        
+
         if (!map.has(name)) {
           map.set(name, item);
         } else {
@@ -159,14 +169,14 @@ const PetHealth = () => {
     console.log("Mapped Vaccines:", JSON.stringify(processedVaccines, null, 2));
     console.log("Mapped Dewormers:", JSON.stringify(processedDewormers, null, 2));
 
-    const appliedCount = 
-      processedVaccines.filter((v: any) => v.applied || v.application_day).length + 
+    const appliedCount =
+      processedVaccines.filter((v: any) => v.applied || v.application_day).length +
       processedDewormers.filter((d: any) => d.applied || d.application_day).length;
 
     if (initialCountRef.current === null && !isLoadingVaccines && !isFetchingVaccines) {
-       initialCountRef.current = appliedCount;
+      initialCountRef.current = appliedCount;
     } else if (initialCountRef.current === 0 && appliedCount > 0) {
-       setShowStartedBanner(true);
+      setShowStartedBanner(true);
     }
 
     setAllVaccines(processedVaccines);
@@ -241,7 +251,7 @@ const PetHealth = () => {
                     body: "Cada dato que agregas nos ayuda a darte recomendaciones más útiles.",
                     type: "scheme_started",
                   }}
-                  onPress={() => {}}
+                  onPress={() => { }}
                 />
               </View>
             )}

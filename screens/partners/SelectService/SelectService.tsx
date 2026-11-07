@@ -38,25 +38,65 @@ const SelectService = ({ route }: SelectServiceProps) => {
   const [refreshing, setRefreshing] = useState(false);
   const [pets, setPets] = useState<any[]>([]);
   const [selectedPet, setSelectedPet] = useState<any>(null);
+  const originPetId = petId || null;
+  const isServicePreselected = !!originPetId && !!(vaccine_id || service_catalog_id || catalog_code || serviceId || q);
+  const isOriginPet = !originPetId || (selectedPet && selectedPet.id == originPetId);
+
+  const handleSelectPet = (pet: any) => {
+    if (isServicePreselected && pet.id != originPetId) {
+      Toast.show({
+        type: "info",
+        text1: "Mascota fijada",
+        text2: `Este agendamiento corresponde al seguimiento de ${selectedPet?.name || 'tu mascota'}.`,
+      });
+      return;
+    }
+    setSelectedPet(pet);
+  };
 
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation<NavigationService>();
 
+  const handleBackPress = () => {
+    (navigation as any).setParams?.({
+      source: undefined,
+      q: undefined,
+      petId: undefined,
+      serviceId: undefined,
+      vaccine_id: undefined,
+      catalog_code: undefined,
+      service_catalog_id: undefined,
+      preselectedDate: undefined,
+      preselectedTime: undefined,
+    });
+    (navigation as any).setOptions?.({
+      headerShown: true,
+      headerTitle: "Servicios",
+      headerLeft: () => null,
+    });
+    navigateBack(source as NavSource, navigation);
+  };
+
   // ── Botón de regreso contextual cuando viene desde otra tab ───────────────
   useLayoutEffect(() => {
-    // Solo mostramos el back si hay un source explícito (venimos de otra tab)
     if (source) {
       (navigation as any).setOptions?.({
         headerShown: true,
         headerTitle: "Buscar servicio",
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => navigateBack(source as NavSource, navigation)}
+            onPress={handleBackPress}
             style={{ marginLeft: 12, padding: 4 }}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
           </TouchableOpacity>
         ),
+      });
+    } else {
+      (navigation as any).setOptions?.({
+        headerShown: true,
+        headerTitle: "Servicios",
+        headerLeft: () => null,
       });
     }
   }, [navigation, source]);
@@ -64,11 +104,19 @@ const SelectService = ({ route }: SelectServiceProps) => {
   // Sincronizar estado cuando los params cambian (navegar desde Home con diferente servicio)
   useFocusEffect(
     useCallback(() => {
+      const currentSource = route?.params?.source;
+      if (!currentSource) {
+        (navigation as any).setOptions?.({
+          headerShown: true,
+          headerTitle: "Servicios",
+          headerLeft: () => null,
+        });
+      }
       const newQ = route?.params?.q || '';
       setQ(newQ);
       setSearchInput(newQ);
       setListPartners([]);
-    }, [route?.params?.q, route?.params?.serviceId, route?.params?.petId])
+    }, [route?.params?.source, route?.params?.q, route?.params?.serviceId, route?.params?.petId])
   );
 
   // Synchronize route.params changes to state when receiving new params
@@ -96,6 +144,8 @@ const SelectService = ({ route }: SelectServiceProps) => {
         if (petId) {
           const p = res.data.find((pet: any) => pet.id == petId);
           if (p) setSelectedPet(p);
+        } else {
+          setSelectedPet(null);
         }
       }
     }).catch(err => console.log("Error fetching pets:", err));
@@ -117,13 +167,14 @@ const SelectService = ({ route }: SelectServiceProps) => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const isOrigin = !originPetId || !selectedPet || (selectedPet.id == originPetId);
       const partners = await apiFetcher.getPartners({
-        q: q || undefined,
+        q: isOrigin ? (q || undefined) : undefined,
         //lat: location?.latitude,
         //lng: location?.longitude,
-        service_catalog_id,
-        catalog_code,
-        vaccine_id,
+        service_catalog_id: isOrigin ? service_catalog_id : undefined,
+        catalog_code: isOrigin ? catalog_code : undefined,
+        vaccine_id: isOrigin ? vaccine_id : undefined,
         category_id: activeCategoryId || undefined
       });
       setListPartners(partners.data);
@@ -143,22 +194,41 @@ const SelectService = ({ route }: SelectServiceProps) => {
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);
-  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId]);
+  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId, selectedPet]);
 
   useEffect(() => {
     fetchData();
-  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId]);
+  }, [q, location, service_catalog_id, catalog_code, vaccine_id, activeCategoryId, selectedPet]);
 
   const goToMoreInfo = (item: Partner) => {
+    const isOrigin = !originPetId || !selectedPet || (selectedPet.id == originPetId);
     navigation.navigate("PartnersGeneralInfo", {
       id: item.id,
       type: item.type_partner.id,
       petId: selectedPet?.id || petId,
-      serviceId,
-      q,
-      service_catalog_id,
-      catalog_code,
-      vaccine_id
+      serviceId: isOrigin ? serviceId : null,
+      q: isOrigin ? q : null,
+      service_catalog_id: isOrigin ? service_catalog_id : null,
+      catalog_code: isOrigin ? catalog_code : null,
+      vaccine_id: isOrigin ? vaccine_id : null,
+      source,
+    });
+  };
+
+  const handleSelectSlot = (item: Partner, slot: string, date: string) => {
+    const isOrigin = !originPetId || !selectedPet || (selectedPet.id == originPetId);
+    navigation.navigate("PartnersGeneralInfo", {
+      id: item.id,
+      type: item.type_partner.id,
+      petId: selectedPet?.id || petId,
+      serviceId: isOrigin ? serviceId : null,
+      q: isOrigin ? q : null,
+      service_catalog_id: isOrigin ? service_catalog_id : null,
+      catalog_code: isOrigin ? catalog_code : null,
+      vaccine_id: isOrigin ? vaccine_id : null,
+      source,
+      preselectedDate: date,
+      preselectedTime: slot,
     });
   };
 
@@ -177,7 +247,7 @@ const SelectService = ({ route }: SelectServiceProps) => {
   };
 
 
-  const isFromNotification = !!(service_catalog_id || catalog_code || vaccine_id || q);
+  const isFromNotification = isOriginPet && !!(service_catalog_id || catalog_code || vaccine_id || q);
   const serviceName = q || initialQ || "";
 
   let serviceDescription = "Te sugerimos agendar este servicio para mantener la salud de tu mascota.";
@@ -202,13 +272,13 @@ const SelectService = ({ route }: SelectServiceProps) => {
     <View flex bg-white>
       {hasParams && pets.length > 0 && (
         <FlatList
-          data={pets}
+          data={isServicePreselected ? pets.filter(p => p.id == originPetId) : pets}
           horizontal
           renderItem={({ item }) => (
             <RenderPets
               pet={item}
               selectedPet={selectedPet}
-              handleSelectPet={setSelectedPet}
+              handleSelectPet={handleSelectPet}
             />
           )}
           keyExtractor={(item) => item.id.toString()}
@@ -346,7 +416,11 @@ const SelectService = ({ route }: SelectServiceProps) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primaryColor]} />
         }
         renderItem={({ item }) => (
-          <RenderPartners item={item} goToMoreInfo={goToMoreInfo} />
+          <RenderPartners
+            item={item}
+            goToMoreInfo={goToMoreInfo}
+            onSelectSlot={handleSelectSlot}
+          />
         )}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 100 }}

@@ -42,20 +42,13 @@ const ResumeService = ({ type, item, onRemove, isMandatory = false }: Props) => 
           )}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          {isMandatory ? (
-            <View style={{ marginBottom: 4, flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialCommunityIcons name="shield-check" size={16} color={Colors.primaryColor} />
-              <Text text90 color={Colors.primaryColor} marginL-4>Requerido</Text>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={() => onRemove(item.id)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              style={{ marginBottom: 4 }}
-            >
-              <MaterialCommunityIcons name="close-circle" size={24} color={Colors.danger} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={() => onRemove(item.id)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={{ marginBottom: 4 }}
+          >
+            <MaterialCommunityIcons name="close-circle" size={24} color={Colors.danger} />
+          </TouchableOpacity>
           <Text text70BO>{item.price}</Text>
         </View>
       </View>

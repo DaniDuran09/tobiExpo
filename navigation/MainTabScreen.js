@@ -127,20 +127,21 @@ const MainTabScreen = ({ pendingLink, clearPendingLink }) => {
         name="Explore"
         component={PartnersStack}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            if (navigation.isFocused()) {
-              navigation.navigate("Explore", {
-                screen: "SelectService",
-                params: {
-                  q: null,
-                  petId: null,
-                  serviceId: null,
-                  vaccine_id: null,
-                  catalog_code: null,
-                  service_catalog_id: null
-                }
-              });
-            }
+          tabPress: () => {
+            navigation.navigate("Explore", {
+              screen: "SelectService",
+              params: {
+                q: undefined,
+                petId: undefined,
+                serviceId: undefined,
+                vaccine_id: undefined,
+                catalog_code: undefined,
+                service_catalog_id: undefined,
+                source: undefined,
+                preselectedDate: undefined,
+                preselectedTime: undefined,
+              },
+            });
           },
         })}
         options={{

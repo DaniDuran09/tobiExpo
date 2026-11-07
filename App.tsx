@@ -52,6 +52,11 @@ export default function App(): React.JSX.Element {
                 PetVaccinesRecord: 'cartilla/:id?',
               },
             },
+            ProfileStack: {
+              screens: {
+                PetPdf: 'estatus-salud/:id?',
+              },
+            },
           },
         },
       },
@@ -73,6 +78,75 @@ export default function App(): React.JSX.Element {
         }
         const normalizedPath = `esquema${petId ? `/${petId}` : ''}`;
         return getStateFromPath(normalizedPath, options);
+      }
+
+      // Deep links para Estatus de Salud Preventiva / Resumen PDF (Push 018, visit_completed, etc.)
+      const isPdfSegment = [
+        'estatus-salud',
+        'estatus_salud',
+        'estatus',
+        'salud-preventiva',
+        'salud_preventiva',
+        'estatus-salud-preventiva',
+        'estatus_salud_preventiva',
+        'resumen',
+        'resumen-pdf',
+        'resumen_pdf',
+        'pdf',
+        'pet-pdf',
+        'pet_pdf',
+        'visit-completed',
+        'visit_completed',
+        'visit-summary',
+        'visit_summary',
+        '018',
+        'trigger_018',
+        'communication_018',
+        'certificate',
+        'certificates',
+        'certificado',
+        'certificados',
+        'plan-preventivo',
+        'plan_preventivo',
+        'preventive-plan',
+        'preventive_plan',
+      ].includes(firstSegment);
+
+      if (isPdfSegment) {
+        let petId = segments[1];
+        if (!petId && queryString) {
+          const match = queryString.match(/(?:petId|pet_id|idSelectedPet|id)=([^&]+)/i);
+          if (match) {
+            petId = match[1];
+          }
+        }
+        return {
+          routes: [
+            {
+              name: 'Home',
+              state: {
+                routes: [
+                  {
+                    name: 'ProfileStack',
+                    state: {
+                      routes: [
+                        {
+                          name: 'PetPdf',
+                          params: {
+                            pet: petId ? { id: petId } : undefined,
+                            petId: petId || undefined,
+                            id: petId || undefined,
+                            source: 'Push',
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        };
       }
 
       return getStateFromPath(path, options);

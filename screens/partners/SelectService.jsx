@@ -19,6 +19,7 @@ import { RenderPets } from "../../components/renders/RenderPets";
 import moment from "moment";
 import "moment/locale/es";
 import { navigateBack } from "../../utils/navigateBack";
+import Toast from "react-native-toast-message";
 
 moment.locale("es");
 
@@ -48,6 +49,26 @@ const SelectService = ({ route }) => {
   const apiFetcher = new ApiFetcher();
   const navigation = useNavigation();
 
+  const handleBackPress = () => {
+    navigation.setParams?.({
+      source: undefined,
+      q: undefined,
+      petId: undefined,
+      serviceId: undefined,
+      vaccine_id: undefined,
+      catalog_code: undefined,
+      service_catalog_id: undefined,
+      preselectedDate: undefined,
+      preselectedTime: undefined,
+    });
+    navigation.setOptions?.({
+      headerShown: true,
+      headerTitle: "Servicios",
+      headerLeft: () => null,
+    });
+    navigateBack(source, navigation);
+  };
+
   // ── Botón de regreso contextual cuando viene desde otra tab ───────────────
   useLayoutEffect(() => {
     if (source) {
@@ -56,15 +77,33 @@ const SelectService = ({ route }) => {
         headerTitle: "Buscar servicio",
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => navigateBack(source, navigation)}
+            onPress={handleBackPress}
             style={{ marginLeft: 12, padding: 4 }}
           >
             <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
           </TouchableOpacity>
         ),
       });
+    } else {
+      navigation.setOptions?.({
+        headerShown: true,
+        headerTitle: "Servicios",
+        headerLeft: () => null,
+      });
     }
   }, [navigation, source]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!route?.params?.source) {
+        navigation.setOptions?.({
+          headerShown: true,
+          headerTitle: "Servicios",
+          headerLeft: () => null,
+        });
+      }
+    }, [route?.params?.source])
+  );
 
   const hasParams =
     (type !== undefined && type !== null) ||
@@ -72,7 +111,22 @@ const SelectService = ({ route }) => {
     (petId !== undefined && petId !== null) ||
     (q !== undefined && q !== null && q !== "");
 
-  const isFromNotification = !!q;
+  const originPetId = route?.params?.petId;
+  const isServicePreselected = !!originPetId && !!(route?.params?.vaccine_id || route?.params?.service_catalog_id || route?.params?.catalog_code || route?.params?.serviceId || q);
+  const isOriginPet = !originPetId || (selectedPet && selectedPet.id == originPetId);
+  const isFromNotification = isOriginPet && !!q;
+
+  const handleSelectPet = (pet) => {
+    if (isServicePreselected && pet.id != originPetId) {
+      Toast.show({
+        type: "info",
+        text1: "Mascota fijada",
+        text2: `Este agendamiento corresponde al seguimiento de ${selectedPet?.name || 'tu mascota'}.`,
+      });
+      return;
+    }
+    setSelectedPet(pet);
+  };
 
   // ─── Sincroniza params solo cuando cambian realmente ───────────────────────
   const prevParamsRef = useRef({
@@ -123,6 +177,8 @@ const SelectService = ({ route }) => {
         if (route?.params?.petId) {
           const p = res.data.find(pet => pet.id == route.params.petId);
           if (p) setSelectedPet(p);
+        } else {
+          setSelectedPet(null);
         }
       }
     }).catch(err => console.log("Error fetching pets:", err));
@@ -161,14 +217,16 @@ const SelectService = ({ route }) => {
     setLoading(true);
     try {
       const { vaccine_id, catalog_code, service_catalog_id } = route?.params || {};
+      // isOrigin = true si: no hay mascota de origen, aún no cargó la mascota (null), o la mascota actual coincide
+      const isOrigin = !originPetId || !selectedPet || (selectedPet.id == originPetId);
 
       const partners = await apiFetcher.getPartners({
-        q: localQ || undefined,
+        q: isOrigin ? (localQ || undefined) : undefined,
         lat: location?.latitude,
         lng: location?.longitude,
-        service_catalog_id,
-        vaccine_id,
-        catalog_code,
+        service_catalog_id: isOrigin ? service_catalog_id : undefined,
+        vaccine_id: isOrigin ? vaccine_id : undefined,
+        catalog_code: isOrigin ? catalog_code : undefined,
         category_id: activeCategoryId || undefined,
       });
       if (partners.code === 200 || partners.code === 201) {
@@ -180,7 +238,7 @@ const SelectService = ({ route }) => {
     } finally {
       setLoading(false);
     }
-  }, [localQ, location, activeCategoryId, route?.params]);
+  }, [localQ, location, activeCategoryId, route?.params, selectedPet]);
 
   // ─── Recarga cuando la pantalla recibe foco (ej: al regresar de partner) ───
   useFocusEffect(
@@ -214,18 +272,22 @@ const SelectService = ({ route }) => {
     });
   };
 
-  const goToMoreInfo = (item, type) => {
+  const goToMoreInfo = (item, type, preselectedDate = null, preselectedTime = null) => {
     const { vaccine_id, catalog_code, service_catalog_id } =
       route?.params || {};
+    const isOrigin = !originPetId || !selectedPet || (selectedPet.id == originPetId);
     navigation.navigate("PartnersGeneralInfo", {
       id: item.id,
       type,
       petId: selectedPet?.id || petId,
-      serviceId,
-      q: localQ,
-      vaccine_id,
-      catalog_code,
-      service_catalog_id,
+      serviceId: isOrigin ? serviceId : null,
+      q: isOrigin ? localQ : "",
+      vaccine_id: isOrigin ? vaccine_id : null,
+      catalog_code: isOrigin ? catalog_code : null,
+      service_catalog_id: isOrigin ? service_catalog_id : null,
+      source,
+      preselectedDate,
+      preselectedTime,
     });
   };
 
@@ -418,15 +480,31 @@ const SelectService = ({ route }) => {
             </View>
             <View style={styles.snippetSlotsContainer}>
               {item.next_availability_snippet.slots?.map((slot, idx) => (
-                <View key={idx} style={styles.snippetSlot}>
+                <TouchableOpacity
+                  key={idx}
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    goToMoreInfo(
+                      item,
+                      item.type_partner.id,
+                      item.next_availability_snippet.date,
+                      slot
+                    )
+                  }
+                  style={styles.snippetSlot}
+                >
                   <Text style={styles.snippetSlotText}>{slot}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
               {item.next_availability_snippet.has_more && (
-                <View style={styles.snippetMoreBtn}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => goToMoreInfo(item, item.type_partner.id)}
+                  style={styles.snippetMoreBtn}
+                >
                   <Text style={styles.snippetMoreBtnText}>ver más</Text>
                   <MaterialCommunityIcons name="chevron-right" size={14} color="#000" />
-                </View>
+                </TouchableOpacity>
               )}
             </View>
           </View>
@@ -451,8 +529,8 @@ const SelectService = ({ route }) => {
   // ─── Header de la lista ───────────────────────────────────────────────────
   const headerComponent = (
     <View>
-      {/* ── BOTÓN REGRESO: aparece cuando hay servicio activo por notificacion ── */}
-      {hasParams && (
+      {/* ── BOTÓN REGRESO: solo cuando el usuario buscó manualmente (sin source externo) ── */}
+      {hasParams && !source && (
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <MaterialCommunityIcons
             name="arrow-left"
@@ -465,13 +543,13 @@ const SelectService = ({ route }) => {
 
       {hasParams && pets.length > 0 && (
         <FlatList
-          data={pets}
+          data={isServicePreselected ? pets.filter(p => p.id == originPetId) : pets}
           horizontal
           renderItem={({ item }) => (
             <RenderPets
               pet={item}
               selectedPet={selectedPet}
-              handleSelectPet={setSelectedPet}
+              handleSelectPet={handleSelectPet}
             />
           )}
           keyExtractor={(item) => item.id.toString()}

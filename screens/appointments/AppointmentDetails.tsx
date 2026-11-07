@@ -50,7 +50,17 @@ export default function AppointmentDetails({ route, navigation }: { route: any, 
             headerTitle: "Detalle de cita",
             headerLeft: () => (
                 <TouchableOpacity
-                    onPress={() => navigateBack(source, navigation)}
+                    onPress={() => {
+                        const s = source;
+                        navigation.setParams?.({ source: undefined });
+                        if (s) {
+                            navigateBack(s, navigation);
+                        } else if (navigation.canGoBack && navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigateBack(undefined, navigation);
+                        }
+                    }}
                     style={{ marginLeft: 12, padding: 4 }}
                 >
                     <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
@@ -326,7 +336,13 @@ export default function AppointmentDetails({ route, navigation }: { route: any, 
                     <TouchableOpacity
                         backgroundColor={Colors.primaryColor}
                         onPress={() => {
-                            // Logic to navigate to health history if needed in the future
+                            const targetPet = appointment.appointment_pet_services?.[0]?.pet;
+                            if (targetPet) {
+                                navigation.navigate("ProfileStack", {
+                                    screen: "PetPdf",
+                                    params: { pet: targetPet, petId: targetPet.id, source: source || "AppointmentsHome" }
+                                });
+                            }
                         }}
                         style={{ height: 50, borderRadius: 25, width: '100%' }}
                         center

@@ -28,7 +28,17 @@ const PetProfile = () => {
       headerTitle: "",
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigateBack(source, navigation)}
+          onPress={() => {
+            const s = source;
+            navigation.setParams?.({ source: undefined });
+            if (s) {
+              navigateBack(s, navigation);
+            } else if (navigation.canGoBack && navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigateBack(undefined, navigation);
+            }
+          }}
           style={{ marginLeft: 12, padding: 4 }}
         >
           <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />

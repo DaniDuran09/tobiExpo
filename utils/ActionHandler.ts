@@ -75,6 +75,74 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     return;
   }
 
+  // Detección directa de Comunicación 018 (Trigger 018: visit_completed -> Ver estatus de salud / Resumen PDF)
+  const isCommunication018 =
+    actionKey === "018" ||
+    actionKey === "trigger_018" ||
+    actionKey === "communication_018" ||
+    actionKey === "view_health_status_pdf" ||
+    actionKey === "view_health_status" ||
+    actionKey === "health_status" ||
+    actionKey === "estatus_salud" ||
+    actionKey === "estatus_salud_preventiva" ||
+    actionKey === "view_pdf" ||
+    actionKey === "pet_pdf" ||
+    data?.trigger === "018" ||
+    data?.trigger === "18" ||
+    data?.trigger === 18 ||
+    data?.trigger_id === "018" ||
+    data?.trigger_id === "18" ||
+    data?.trigger_id === 18 ||
+    data?.communication === "018" ||
+    data?.communication === "18" ||
+    data?.communication === 18 ||
+    data?.communication_id === "018" ||
+    data?.communication_id === "18" ||
+    data?.communication_id === 18 ||
+    type === "018" ||
+    type === "trigger_018" ||
+    type === "communication_018" ||
+    ((actionKey === "visit_completed" || type === "visit_completed") && (
+      (typeof data?.cta_label === "string" && data.cta_label.toLowerCase().includes("estatus")) ||
+      (typeof data?.button_text === "string" && data.button_text.toLowerCase().includes("estatus")) ||
+      (typeof data?.cta === "string" && data.cta.toLowerCase().includes("estatus")) ||
+      (typeof data?.title === "string" && data.title.toLowerCase().includes("estatus")) ||
+      (typeof data?.body === "string" && data.body.toLowerCase().includes("estatus")) ||
+      (typeof data?.deep_link === "string" && (data.deep_link.includes("pdf") || data.deep_link.includes("estatus") || data.deep_link.includes("resumen") || data.deep_link.includes("plan-preventivo"))) ||
+      (typeof data?.url === "string" && (data.url.includes("pdf") || data.url.includes("estatus") || data.url.includes("resumen") || data.url.includes("plan-preventivo")))
+    )) ||
+    (typeof data?.cta_label === "string" && data.cta_label.toLowerCase().includes("estatus de salud")) ||
+    (typeof data?.button_text === "string" && data.button_text.toLowerCase().includes("estatus de salud")) ||
+    (typeof data?.title === "string" && data.title.toLowerCase().includes("estatus de salud")) ||
+    (typeof data?.body === "string" && data.body.toLowerCase().includes("estatus de salud"));
+
+  if (isCommunication018) {
+    if (data?.visit_summary_id) {
+      apiFetcher.markVisitSummaryOpened(data.visit_summary_id).catch(e => console.warn(e));
+    }
+
+    let petObj = data?.pet || null;
+    if (!petObj && petTargetId) {
+      try {
+        const petRes = await apiFetcher.getPetById(petTargetId);
+        if (petRes?.data) {
+          petObj = petRes.data;
+        }
+      } catch (e) {
+        console.warn("Error fetching pet for PetPdf:", e);
+      }
+    }
+    if (!petObj && petTargetId) {
+      petObj = { id: petTargetId };
+    }
+
+    navigate("ProfileStack", {
+      screen: "PetPdf",
+      params: { pet: petObj, petId: petTargetId, id: petTargetId, source: source || "Push" },
+    });
+    return;
+  }
+
   switch (actionKey) {
     case "view_home":
     case "view_plan":

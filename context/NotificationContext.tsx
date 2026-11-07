@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react"
 import * as Notifications from "expo-notifications"
 import Constants from "expo-constants"
-import { Alert, Platform } from "react-native";
+import { Alert, Platform, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { handleGlobalAction } from "../utils/ActionHandler";
 import { navigationRef } from "../hooks/navigationRef";
@@ -125,6 +125,37 @@ export default function NotificationContext({ children }: { children: ReactNode 
                 card_data?.communication === "004"
             )) {
                 action = "complete_scheme";
+            }
+
+            // Soporte para Comunicación 018 (visit_completed / Ver estatus de salud -> Resumen PDF)
+            const isPush018 =
+                data?.trigger === "018" ||
+                data?.trigger === "18" ||
+                data?.trigger === 18 ||
+                data?.communication === "018" ||
+                data?.communication === "18" ||
+                data?.communication === 18 ||
+                data?.trigger_id === "018" ||
+                data?.trigger_id === "18" ||
+                data?.trigger_id === 18 ||
+                data?.communication_id === "018" ||
+                data?.communication_id === "18" ||
+                data?.communication_id === 18 ||
+                card_data?.trigger === "018" ||
+                card_data?.communication === "018" ||
+                card_data?.trigger_id === "018" ||
+                card_data?.trigger_id === 18 ||
+                card_data?.communication_id === "018" ||
+                card_data?.communication_id === 18 ||
+                (typeof data?.cta_label === "string" && data.cta_label.toLowerCase().includes("estatus")) ||
+                (typeof card_data?.cta_label === "string" && card_data.cta_label.toLowerCase().includes("estatus")) ||
+                (typeof data?.button_text === "string" && data.button_text.toLowerCase().includes("estatus")) ||
+                (typeof card_data?.button_text === "string" && card_data.button_text.toLowerCase().includes("estatus")) ||
+                (typeof data?.title === "string" && data.title.toLowerCase().includes("estatus")) ||
+                (typeof data?.body === "string" && data.body.toLowerCase().includes("estatus"));
+
+            if (isPush018) {
+                action = "view_health_status_pdf";
             }
 
             // Soporte para no_show en notificaciones push

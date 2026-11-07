@@ -1,5 +1,5 @@
 import { ScrollView, FlatList } from "react-native";
-import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Colors } from "../../styles/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
@@ -15,6 +15,7 @@ import Service from "./components/Service";
 import CalendarComponent from "./components/CalendarComponent";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { navigateBack, NavSource } from "../../utils/navigateBack";
+import moment from "moment";
 
 const PartnersGeneralInfo = () => {
   const { params } = useRoute<any>();
@@ -26,20 +27,24 @@ const PartnersGeneralInfo = () => {
 
   // ── Botón de regreso contextual cuando viene de otra tab ─────────────────
   useLayoutEffect(() => {
-    if (source) {
-      navigation.setOptions({
-        headerShown: true,
-        headerTitle: "",
-        headerLeft: () => (
-          <TouchableOpacity
-            onPress={() => navigateBack(source as NavSource, navigation)}
-            style={{ marginLeft: 12, padding: 4 }}
-          >
-            <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
-          </TouchableOpacity>
-        ),
-      });
-    }
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: "",
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation.canGoBack && navigation.canGoBack()) {
+              navigation.goBack();
+            } else if (source) {
+              navigateBack(source as NavSource, navigation);
+            }
+          }}
+          style={{ marginLeft: 12, padding: 4 }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.black} />
+        </TouchableOpacity>
+      ),
+    });
   }, [navigation, source]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +52,9 @@ const PartnersGeneralInfo = () => {
   const [item, setItem] = useState<any>(null);
   const [pets, setPets] = useState<any[]>([]);
   const [selectedPet, setSelectedPet] = useState<any>(null);
+  const [originPetId, setOriginPetId] = useState<any>(params.petId || null);
+  const [originService, setOriginService] = useState<any>(null);
+  const [isInitialHandled, setIsInitialHandled] = useState(false);
 
   const [cart, setCart] = useState<number | null>(null);
   const [localCart, setLocalCart] = useState<any[]>([]);
@@ -55,7 +63,6 @@ const PartnersGeneralInfo = () => {
   const [availableDays, setAvailableDays] = useState<any>({});
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [globalCart, setGlobalCart] = useState<any[]>([]);
-  const [mandatoryServiceId, setMandatoryServiceId] = useState<number | null>(null);
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -84,12 +91,17 @@ const PartnersGeneralInfo = () => {
 
 
 
+  const pendingSlotSelectionRef = useRef<{ date: string; time: string } | null>(null);
+
   useFocusEffect(
     useCallback(() => {
       // Resetear estado al navegar con nuevos params
       setItem(null);
       setPets([]);
       setSelectedPet(null);
+      setOriginPetId(params.petId || null);
+      setOriginService(null);
+      setIsInitialHandled(false);
       setCart(null);
       setLocalCart([]);
       setCurrentService(null);
@@ -97,11 +109,41 @@ const PartnersGeneralInfo = () => {
       setGlobalCart([]);
       setAvailableDays({});
       setShowServices(true);
-      setCalendarOffset(0);
+
+      let initialOffset = 0;
+      if (params.preselectedDate) {
+        const today = moment().startOf("day");
+        const targetDate = moment(params.preselectedDate, "YYYY-MM-DD").startOf("day");
+        const diffDays = targetDate.diff(today, "days");
+        if (diffDays > 0) {
+          initialOffset = Math.floor(diffDays / CALENDAR_WINDOW) * CALENDAR_WINDOW;
+        }
+      }
+      setCalendarOffset(initialOffset);
+
+      if (params.preselectedDate && params.preselectedTime) {
+        pendingSlotSelectionRef.current = {
+          date: params.preselectedDate,
+          time: params.preselectedTime,
+        };
+      } else {
+        pendingSlotSelectionRef.current = null;
+      }
+
       setIsLoading(true);
       dispatch(clearAppointments());
       loadInitialData();
-    }, [params.id, params.serviceId, params.petId, params.q])
+    }, [
+      params.id,
+      params.serviceId,
+      params.petId,
+      params.q,
+      params.vaccine_id,
+      params.service_catalog_id,
+      params.catalog_code,
+      params.preselectedDate,
+      params.preselectedTime,
+    ])
   );
 
   useEffect(() => {
@@ -185,10 +227,8 @@ const PartnersGeneralInfo = () => {
 
       if (s) {
         setCurrentService(s);
+        setOriginService(s);
         setShowServices(false);
-        if (params.service_catalog_id || params.vaccine_id || params.catalog_code || params.serviceId || params.q) {
-          setMandatoryServiceId(s.id);
-        }
       }
     } catch {
       Toast.show({
@@ -234,6 +274,36 @@ const PartnersGeneralInfo = () => {
 
       console.log("AGENDA", res.data);
       setAvailableDays(res.data);
+
+      if (pendingSlotSelectionRef.current && res.data) {
+        const { date, time } = pendingSlotSelectionRef.current;
+        const dayData = res.data[date];
+        if (dayData && Array.isArray(dayData.available)) {
+          const normalizeTime = (t: string) => {
+            const [h, m] = t.trim().split(":");
+            return `${parseInt(h, 10)}:${m}`;
+          };
+          const targetNorm = normalizeTime(time);
+
+          const matchedSlot = dayData.available.find((slotVal: string) => {
+            const [start] = slotVal.split("...");
+            const [, slotTime] = (start || "").trim().split(" ");
+            if (!slotTime) return false;
+            const [sh, sm] = slotTime.split(":");
+            const slotNorm = `${parseInt(sh, 10)}:${sm}`;
+            return slotNorm === targetNorm;
+          });
+
+          if (matchedSlot) {
+            setSelectedSlot({
+              date,
+              label: time,
+              value: matchedSlot,
+            });
+            pendingSlotSelectionRef.current = null;
+          }
+        }
+      }
     } finally {
       setIsLoadingCalendar(false);
     }
@@ -265,6 +335,7 @@ const PartnersGeneralInfo = () => {
       price: it.price_total,
       duration_minutes: it.duration_minutes,
       start_datetime: it.datetime_range?.start,
+      pet_id: it.pet?.id,
       pet_name: it.pet?.name || "Sin mascota",
       category_name: it.service?.service_category?.name,
     }));
@@ -289,8 +360,28 @@ const PartnersGeneralInfo = () => {
   };
 
 
+  const isPreselectedFlow = !!originPetId && !!(params.vaccine_id || params.service_catalog_id || params.catalog_code || params.serviceId || params.q);
+  const isPetLocked = isPreselectedFlow && !isInitialHandled && !!currentService;
+
+  const handleSelectPet = (pet: any) => {
+    if (isPetLocked && pet?.id != originPetId) {
+      Toast.show({
+        type: "info",
+        text1: "Selecciona el horario primero",
+        text2: `Primero agenda el servicio para ${selectedPet?.name || "tu mascota"}. Después podrás agregar servicios para otras mascotas.`,
+      });
+      return;
+    }
+
+    setSelectedPet(pet);
+    setSelectedSlot(null);
+    setCurrentService(null);
+    setShowServices(true);
+  };
+
   const addItemToCart = async () => {
     if (!selectedSlot || !selectedPet || !currentService || !cart) return;
+
     setIsAdding(true);
 
     const start_datetime = toRFC3339(selectedSlot.value);
@@ -305,6 +396,8 @@ const PartnersGeneralInfo = () => {
         },
         Intl.DateTimeFormat().resolvedOptions().timeZone
       );
+      setIsInitialHandled(true);
+      setOriginService(null);
       await getGlobalCart();
       setCurrentService(null);
       setSelectedSlot(null);
@@ -337,7 +430,7 @@ const PartnersGeneralInfo = () => {
             <RenderPets
               pet={item}
               selectedPet={selectedPet}
-              handleSelectPet={setSelectedPet}
+              handleSelectPet={handleSelectPet}
             />
           )}
           keyExtractor={item => item.id.toString()}
@@ -354,11 +447,7 @@ const PartnersGeneralInfo = () => {
             <ResumeService
               item={item}
               type={type}
-              isMandatory={item.service_id === mandatoryServiceId && mandatoryServiceId !== null}
               onRemove={id => {
-                if (item.service_id === mandatoryServiceId) {
-                  return;
-                }
                 console.log("CART ID:", cart, "ITEM ID:", id);
                 removeGlobalItem(cart, id);
               }}
@@ -448,29 +537,31 @@ const PartnersGeneralInfo = () => {
 
         {(selectedPet && currentService && selectedSlot || globalCart.length > 0) && (
           <>
-            <TouchableOpacity
-              disabled={isAdding}
-              onPress={async () => {
-                try {
-                  if (!selectedPet) {
-                    Toast.show({
-                      type: "error",
-                      text1: "Error",
-                      text2: "Selecciona una mascota",
-                    });
-                    return;
-                  }
+            {currentService && selectedSlot && (
+              <TouchableOpacity
+                disabled={isAdding}
+                onPress={async () => {
+                  try {
+                    if (!selectedPet) {
+                      Toast.show({
+                        type: "error",
+                        text1: "Error",
+                        text2: "Selecciona una mascota",
+                      });
+                      return;
+                    }
 
-                  await addItemToCart();
-                } catch (error) {
-                  console.log(error);
-                }
-              }}
-            >
-              <Text text70BL style={{ color: Colors.primaryColor }}>
-                + Añadir otro servicio
-              </Text>
-            </TouchableOpacity>
+                    await addItemToCart();
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+              >
+                <Text text70BL style={{ color: Colors.primaryColor }}>
+                  + Añadir otro servicio
+                </Text>
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               bg-red30
