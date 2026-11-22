@@ -281,7 +281,7 @@ export default function AppointmentsHome() {
                                     <Text white text70BO>Contactar a Tobi para reagendar</Text>
                                 </TouchableOpacity>
                             </View>
-                        ) : (
+                        ) : (appointment.appointment_status === "completed" || aps.status === "completed") ? (
                             <View center marginT-10 marginB-20>
                                 <Text text80 color={Colors.black} center marginB-5>El esquema de salud de {aps.pet.display_name || aps.pet.name} ya está actualizado.</Text>
                                 <Text text80 color={Colors.black} center marginB-15>Guárdala en Tobi para que no se te pierda.</Text>
@@ -294,7 +294,7 @@ export default function AppointmentsHome() {
                                     <Text white text70BO>Guardar cartilla de vacunación</Text>
                                 </TouchableOpacity>
                             </View>
-                        )}
+                        ) : null}
                     </View>
                 )})}
             </View>

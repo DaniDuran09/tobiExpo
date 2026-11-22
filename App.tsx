@@ -120,33 +120,8 @@ export default function App(): React.JSX.Element {
             petId = match[1];
           }
         }
-        return {
-          routes: [
-            {
-              name: 'Home',
-              state: {
-                routes: [
-                  {
-                    name: 'ProfileStack',
-                    state: {
-                      routes: [
-                        {
-                          name: 'PetPdf',
-                          params: {
-                            pet: petId ? { id: petId } : undefined,
-                            petId: petId || undefined,
-                            id: petId || undefined,
-                            source: 'Push',
-                          },
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        };
+        const normalizedPath = `estatus-salud${petId ? `/${petId}` : ''}`;
+        return getStateFromPath(normalizedPath, options);
       }
 
       return getStateFromPath(path, options);
@@ -168,7 +143,7 @@ export default function App(): React.JSX.Element {
       <Provider store={store}>
         <NavigationContainer
           linking={linkingConfig}
-            ref={navigationRef}
+          ref={navigationRef}
         >
           <NotificationContext>
             <RootStackScreen />

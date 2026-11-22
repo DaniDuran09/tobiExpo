@@ -1,13 +1,20 @@
 import { Linking } from "react-native";
 
 export const openWhatsAppTobi = async (data?: any) => {
-  // If backend provided an explicit direct URL or deep link:
-  const directUrl = data?.whatsapp_url || data?.deep_link || data?.url || data?.link;
-  if (directUrl && typeof directUrl === "string" && (directUrl.startsWith("http") || directUrl.startsWith("whatsapp:"))) {
+  // Solo abrir URL directa si explícitamente es un enlace de WhatsApp
+  const potentialUrl = data?.whatsapp_url || data?.deep_link || data?.url || data?.link;
+  const isWhatsAppUrl =
+    typeof potentialUrl === "string" &&
+    (potentialUrl.startsWith("whatsapp:") ||
+      potentialUrl.includes("wa.me") ||
+      potentialUrl.includes("whatsapp.com") ||
+      potentialUrl.includes("api.whatsapp.com"));
+
+  if (isWhatsAppUrl) {
     try {
-      const canOpen = await Linking.canOpenURL(directUrl);
+      const canOpen = await Linking.canOpenURL(potentialUrl);
       if (canOpen) {
-        await Linking.openURL(directUrl);
+        await Linking.openURL(potentialUrl);
         return;
       }
     } catch (e) {

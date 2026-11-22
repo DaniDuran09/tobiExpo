@@ -156,7 +156,6 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
     case "appointment_24h":
     case "appointment_2h":
     case "no_checkin_detected":
-    case "visit_completed":
     case "view_summary":
     case "summary_unopened":
       if (actionKey === "view_summary" || actionKey === "summary_unopened") {
@@ -169,6 +168,13 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       } else {
         navigate("Health", { screen: "AppointmentsHome" });
       }
+      break;
+
+    case "visit_completed":
+      navigate("ProfileStack", {
+        screen: "PetPdf",
+        params: { pet: data?.pet, petId: petTargetId, id: petTargetId, source },
+      });
       break;
 
     case "view_vaccines":
@@ -304,13 +310,13 @@ export const handleGlobalAction = async (action: string, data: any, id?: string 
       break;
 
     default:
-      if (
+      const isExplicitNoShow =
         actionKey.includes("no_show") ||
         actionKey.includes("no_se_presento") ||
-        (type && (type.includes("no_show") || type.includes("no_se_presento"))) ||
-        data?.appointment_status === "no_show" ||
-        data?.status === "no_show"
-      ) {
+        actionKey.includes("reagendar") ||
+        (type && (type.includes("no_show") || type.includes("no_se_presento") || type.includes("reagendar")));
+
+      if (isExplicitNoShow) {
         await openWhatsAppTobi(data);
         break;
       }

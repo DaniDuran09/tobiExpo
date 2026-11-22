@@ -32,6 +32,8 @@ export default function NotificationContext({ children }: { children: ReactNode 
     const [notifications, setNotifications] = useState<(Notifications.Notification & { readed: boolean })[]>([])
     const notificationListener = useRef<Notifications.Subscription>();
 
+    const handledResponseIds = useRef<Set<string>>(new Set());
+
     const clearNotifications = async () => {
         await AsyncStorage.removeItem("notifications")
         setNotifications([])
@@ -104,8 +106,36 @@ export default function NotificationContext({ children }: { children: ReactNode 
             setNotifications(notifications)
         });
 
-        const processNotificationResponse = (response: Notifications.NotificationResponse) => {
-            const data = response.notification.request.content.data;
+        const processNotificationResponse = async (response: Notifications.NotificationResponse) => {
+            if (!response || !response.notification) return;
+
+            // Extraer identificador único de la notificación para evitar procesarla más de una vez
+            const notifId =
+                response.notification.request.identifier ||
+                `${response.notification.date}_${response.actionIdentifier || "default"}`;
+
+            if (handledResponseIds.current.has(notifId)) {
+                console.log("Notificación ya procesada en memoria:", notifId);
+                return;
+            }
+            handledResponseIds.current.add(notifId);
+
+            // Verificar en AsyncStorage si ya fue procesada en una apertura anterior (evita loop infinito de getLastNotificationResponseAsync)
+            try {
+                const storedRaw = await AsyncStorage.getItem("@tobi:handled_notification_ids");
+                const handledList: string[] = storedRaw ? JSON.parse(storedRaw) : [];
+                if (handledList.includes(notifId)) {
+                    console.log("Notificación ya fue procesada previamente (evitando re-disparo):", notifId);
+                    return;
+                }
+                const updatedList = [notifId, ...handledList].slice(0, 50);
+                await AsyncStorage.setItem("@tobi:handled_notification_ids", JSON.stringify(updatedList));
+            } catch (storageErr) {
+                console.warn("Error leyendo/guardando handled_notification_ids:", storageErr);
+            }
+
+            const content = response.notification.request.content;
+            const data = (content.data || {}) as any;
             
             // Extraer del nuevo payload estructurado
             let action = data?.action;
@@ -113,69 +143,79 @@ export default function NotificationContext({ children }: { children: ReactNode 
             // card_data contiene todos los IDs y metadata extra, si no viene fallback a data (por retrocompatibilidad)
             const card_data = data?.card_data || data;
 
+            const notifType = (data?.type || card_data?.type || "").toLowerCase();
+            const rawAction = (action || card_data?.action || "").toLowerCase();
+            const title = (content.title || data?.title || card_data?.title || "").toLowerCase();
+            const body = (content.body || data?.body || card_data?.body || "").toLowerCase();
+            const deepLink = (data?.deep_link || data?.url || data?.link || card_data?.deep_link || card_data?.url || "").toLowerCase();
+            const trigger = String(data?.trigger || data?.trigger_id || data?.communication || data?.communication_id || card_data?.trigger || card_data?.trigger_id || card_data?.communication || card_data?.communication_id || "").toLowerCase();
+            const ctaLabel = String(data?.cta_label || data?.button_text || card_data?.cta_label || card_data?.button_text || "").toLowerCase();
+
             // Soporte para Comunicación 004 en notificaciones push
             if (!action && (
-                data?.trigger === "004" ||
-                data?.communication === "004" ||
-                data?.trigger_id === "004" ||
-                data?.trigger_id === 4 ||
-                data?.communication_id === "004" ||
-                data?.communication_id === 4 ||
-                card_data?.trigger === "004" ||
-                card_data?.communication === "004"
+                trigger === "004" ||
+                trigger === "4" ||
+                title.includes("perfil creado") ||
+                body.includes("completemos su esquema")
             )) {
                 action = "complete_scheme";
             }
 
-            // Soporte para Comunicación 018 (visit_completed / Ver estatus de salud -> Resumen PDF)
+            // Soporte para Comunicación 018 (visit_completed / Ver estatus de salud -> PetPdf)
             const isPush018 =
-                data?.trigger === "018" ||
-                data?.trigger === "18" ||
-                data?.trigger === 18 ||
-                data?.communication === "018" ||
-                data?.communication === "18" ||
-                data?.communication === 18 ||
-                data?.trigger_id === "018" ||
-                data?.trigger_id === "18" ||
-                data?.trigger_id === 18 ||
-                data?.communication_id === "018" ||
-                data?.communication_id === "18" ||
-                data?.communication_id === 18 ||
-                card_data?.trigger === "018" ||
-                card_data?.communication === "018" ||
-                card_data?.trigger_id === "018" ||
-                card_data?.trigger_id === 18 ||
-                card_data?.communication_id === "018" ||
-                card_data?.communication_id === 18 ||
-                (typeof data?.cta_label === "string" && data.cta_label.toLowerCase().includes("estatus")) ||
-                (typeof card_data?.cta_label === "string" && card_data.cta_label.toLowerCase().includes("estatus")) ||
-                (typeof data?.button_text === "string" && data.button_text.toLowerCase().includes("estatus")) ||
-                (typeof card_data?.button_text === "string" && card_data.button_text.toLowerCase().includes("estatus")) ||
-                (typeof data?.title === "string" && data.title.toLowerCase().includes("estatus")) ||
-                (typeof data?.body === "string" && data.body.toLowerCase().includes("estatus"));
+                trigger === "018" ||
+                trigger === "18" ||
+                trigger === "visit_completed" ||
+                notifType === "visit_completed" ||
+                rawAction === "visit_completed" ||
+                rawAction === "view_health_status" ||
+                rawAction === "view_health_status_pdf" ||
+                rawAction === "health_status" ||
+                rawAction === "estatus_salud" ||
+                rawAction === "estatus_salud_preventiva" ||
+                rawAction === "view_pdf" ||
+                rawAction === "pet_pdf" ||
+                title.includes("estatus de salud") ||
+                title.includes("estatus") ||
+                body.includes("información de salud, descarga el documento") ||
+                body.includes("estatus de salud") ||
+                ctaLabel.includes("estatus") ||
+                deepLink.includes("estatus") ||
+                deepLink.includes("pdf") ||
+                deepLink.includes("resumen-pdf") ||
+                deepLink.includes("plan-preventivo") ||
+                deepLink.includes("visit-completed");
 
             if (isPush018) {
                 action = "view_health_status_pdf";
             }
 
-            // Soporte para no_show en notificaciones push
-            const notifType = data?.type || card_data?.type || "";
-            const isNoShow = 
-                (action || "").toLowerCase().includes("no_show") ||
-                (notifType || "").toLowerCase().includes("no_show") ||
-                (action || "").toLowerCase().includes("reagendar") ||
-                card_data?.status === "no_show" ||
-                card_data?.appointment_status === "no_show" ||
-                data?.status === "no_show";
+            // Soporte para no_show en notificaciones push: solo si no hay otra acción definida o si la acción es explícitamente reagendar/no_show
+            const actionStr = (action || "").toLowerCase();
+            const isNoShowAction =
+                actionStr.includes("no_show") ||
+                actionStr.includes("reagendar") ||
+                actionStr.includes("no_se_presento");
 
-            if (isNoShow) {
+            const isNoShowTrigger =
+                !action && (
+                    notifType.includes("no_show") ||
+                    notifType.includes("no_se_presento") ||
+                    trigger === "no_show" ||
+                    card_data?.status === "no_show" ||
+                    card_data?.appointment_status === "no_show" ||
+                    data?.status === "no_show"
+                );
+
+            if (isNoShowAction || isNoShowTrigger) {
                 action = "no_show";
             }
 
             if (action) {
-                // Esperar a que la navegación esté lista en caso de cold start
+                // Esperar a que la navegación esté lista y haya salido de SplashScreen en caso de cold start
                 const tryNavigate = () => {
-                    if (navigationRef.isReady()) {
+                    const currentRoute = navigationRef.getCurrentRoute()?.name;
+                    if (navigationRef.isReady() && currentRoute && currentRoute !== "SplashScreen") {
                         handleGlobalAction(action, card_data, entity_fingerprint, notifType, "Push");
                     } else {
                         setTimeout(tryNavigate, 100);
