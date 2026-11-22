@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BackHandler, FlatList, Platform, RefreshControl, Modal } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar } from "react-native-paper";
@@ -29,6 +29,7 @@ const HomeScreen = ({ navigation }: any) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [userData, setUserData] = useState<any>({});
   const [homeFeed, setHomeFeed] = useState<any>({ banner: null, cards: [] });
+  const dismissedFeedIds = useRef<Set<string>>(new Set());
 
   const apiFetcher = new ApiFetcher();
 
@@ -49,7 +50,7 @@ const HomeScreen = ({ navigation }: any) => {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-      return () => {};
+      return () => { };
     }, [navigation])
   );
 
@@ -57,15 +58,24 @@ const HomeScreen = ({ navigation }: any) => {
     try {
       const list = await apiFetcher.getPets();
       if (list) setData(list.data);
-      console.log("data list ",list.data);
+      console.log("data list ", list.data);
       const user = await apiFetcher.getProfile();
       setUserData(user.data);
       dispatch(setUserInfo(user.data));
-      
+
       try {
         const feedResponse = await apiFetcher.getHomeFeed();
         if (feedResponse && feedResponse.data) {
-          setHomeFeed(feedResponse.data);
+          const rawFeed = feedResponse.data;
+          const bannerId = rawFeed.banner?.entity_fingerprint || rawFeed.banner?.fingerprint || rawFeed.banner?.id;
+          const filteredBanner = (bannerId && dismissedFeedIds.current.has(String(bannerId))) ? null : rawFeed.banner;
+          const filteredCards = (rawFeed.cards || []).filter(
+            (c: any) => !dismissedFeedIds.current.has(String(c.id)) && !dismissedFeedIds.current.has(String(c.entity_fingerprint))
+          );
+          setHomeFeed({
+            banner: filteredBanner,
+            cards: filteredCards,
+          });
         }
       } catch (feedError) {
         console.log("Error fetching home feed: ", feedError);
@@ -112,13 +122,16 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const dismissItem = async (id: string, type?: string) => {
+    if (id) {
+      dismissedFeedIds.current.add(String(id));
+    }
     // Restaurando la lógica para forzar el cierre local
-    setHomeFeed(prev => {
+    setHomeFeed((prev: any) => {
       const isBanner = prev.banner && (prev.banner.entity_fingerprint === id || prev.banner.id === id || id === "banner");
       return {
         ...prev,
         banner: isBanner ? null : prev.banner,
-        cards: prev.cards ? prev.cards.filter(c => c.id !== id && c.entity_fingerprint !== id) : []
+        cards: prev.cards ? prev.cards.filter((c: any) => c.id !== id && c.entity_fingerprint !== id) : []
       };
     });
 
@@ -130,16 +143,23 @@ const HomeScreen = ({ navigation }: any) => {
   };
 
   const renderFeedOverlay = () => {
-    let bannersToShow = [];
-    let cardsToShow = [];
+    let bannersToShow: any[] = [];
+    let cardsToShow: any[] = [];
 
     if (homeFeed.banner) {
-      bannersToShow.push(homeFeed.banner);
+      const bId = homeFeed.banner.entity_fingerprint || homeFeed.banner.fingerprint || homeFeed.banner.id;
+      if (!bId || !dismissedFeedIds.current.has(String(bId))) {
+        bannersToShow.push(homeFeed.banner);
+      }
     }
 
     if (homeFeed.cards && homeFeed.cards.length > 0) {
       cardsToShow = homeFeed.cards.filter(
-        c => c.action !== "scheme_started" && c.type !== "scheme_started"
+        (c: any) =>
+          c.action !== "scheme_started" &&
+          c.type !== "scheme_started" &&
+          !dismissedFeedIds.current.has(String(c.id)) &&
+          !dismissedFeedIds.current.has(String(c.entity_fingerprint))
       ).slice(0, 2);
     }
 
@@ -148,8 +168,15 @@ const HomeScreen = ({ navigation }: any) => {
     if (!isFocused) return null;
 
     return (
-      <Modal transparent={true} visible={isFocused} animationType="fade">
-        <View
+      <Modal
+        transparent={true}
+        visible={isFocused}
+        animationType="fade"
+        onRequestClose={() => setHomeFeed({ banner: null, cards: [] })}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setHomeFeed({ banner: null, cards: [] })}
           style={{
             flex: 1,
             backgroundColor: "rgba(0,0,0,0.6)",
@@ -158,8 +185,8 @@ const HomeScreen = ({ navigation }: any) => {
             paddingTop: 90,
           }}
         >
-          <View style={{ width: "100%", paddingHorizontal: 16 }}>
-            {bannersToShow.map((banner, idx) => {
+          <TouchableOpacity activeOpacity={1} style={{ width: "100%", paddingHorizontal: 16 }}>
+            {bannersToShow.map((banner: any, idx: number) => {
               console.log("Banner recibido:", JSON.stringify(banner, null, 2));
               const bannerId = banner.entity_fingerprint || banner.fingerprint || banner.id || banner.uid || "banner";
               return (
@@ -199,7 +226,7 @@ const HomeScreen = ({ navigation }: any) => {
                 </TouchableOpacity>
               </View>
             )}
-            {cardsToShow.map((card, idx) => (
+            {cardsToShow.map((card: any, idx: number) => (
               <ActionCard
                 key={`card-${idx}`}
                 card={card}
@@ -210,8 +237,8 @@ const HomeScreen = ({ navigation }: any) => {
                 onClose={() => dismissItem(card.id || card.entity_fingerprint, card.type)}
               />
             ))}
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     );
   };
