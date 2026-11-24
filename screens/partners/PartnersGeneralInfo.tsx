@@ -113,18 +113,21 @@ const PartnersGeneralInfo = () => {
       let initialOffset = 0;
       if (params.preselectedDate) {
         const today = moment().startOf("day");
-        const targetDate = moment(params.preselectedDate, "YYYY-MM-DD").startOf("day");
-        const diffDays = targetDate.diff(today, "days");
-        if (diffDays > 0) {
-          initialOffset = Math.floor(diffDays / CALENDAR_WINDOW) * CALENDAR_WINDOW;
+        const targetDateStr = String(params.preselectedDate).split("T")[0].split(" ")[0].trim();
+        const targetDate = moment(targetDateStr, "YYYY-MM-DD").startOf("day");
+        if (targetDate.isValid()) {
+          const diffDays = targetDate.diff(today, "days");
+          if (diffDays > 0) {
+            initialOffset = Math.floor(diffDays / CALENDAR_WINDOW) * CALENDAR_WINDOW;
+          }
         }
       }
       setCalendarOffset(initialOffset);
 
       if (params.preselectedDate && params.preselectedTime) {
         pendingSlotSelectionRef.current = {
-          date: params.preselectedDate,
-          time: params.preselectedTime,
+          date: String(params.preselectedDate),
+          time: String(params.preselectedTime),
         };
       } else {
         pendingSlotSelectionRef.current = null;
@@ -277,30 +280,58 @@ const PartnersGeneralInfo = () => {
 
       if (pendingSlotSelectionRef.current && res.data) {
         const { date, time } = pendingSlotSelectionRef.current;
-        const dayData = res.data[date];
-        if (dayData && Array.isArray(dayData.available)) {
-          const normalizeTime = (t: string) => {
-            const [h, m] = t.trim().split(":");
-            return `${parseInt(h, 10)}:${m}`;
-          };
-          const targetNorm = normalizeTime(time);
+        const targetDatePart = String(date).split("T")[0].split(" ")[0].trim();
 
-          const matchedSlot = dayData.available.find((slotVal: string) => {
-            const [start] = slotVal.split("...");
-            const [, slotTime] = (start || "").trim().split(" ");
-            if (!slotTime) return false;
-            const [sh, sm] = slotTime.split(":");
-            const slotNorm = `${parseInt(sh, 10)}:${sm}`;
-            return slotNorm === targetNorm;
-          });
+        // Buscar la fecha correspondiente en las llaves de res.data
+        const dayKey = Object.keys(res.data).find(k => {
+          const kPart = k.split("T")[0].split(" ")[0].trim();
+          return kPart === targetDatePart || moment(k).format("YYYY-MM-DD") === targetDatePart;
+        });
 
-          if (matchedSlot) {
-            setSelectedSlot({
-              date,
-              label: time,
-              value: matchedSlot,
+        if (dayKey && res.data[dayKey]) {
+          const dayData = res.data[dayKey];
+          if (Array.isArray(dayData.available)) {
+            const parseTimeToMinutes = (t: string): number | null => {
+              if (!t) return null;
+              const m = moment(t.trim(), ["HH:mm", "H:mm", "hh:mm a", "h:mm a", "hh:mma", "h:mma", "HH:mm:ss"]);
+              if (m.isValid()) {
+                return m.hours() * 60 + m.minutes();
+              }
+              const match = t.match(/(\d{1,2}):(\d{2})/);
+              if (match) {
+                let h = parseInt(match[1], 10);
+                const min = parseInt(match[2], 10);
+                if (/pm/i.test(t) && h < 12) h += 12;
+                if (/am/i.test(t) && h === 12) h = 0;
+                return h * 60 + min;
+              }
+              return null;
+            };
+
+            const targetMinutes = parseTimeToMinutes(time);
+
+            const matchedSlot = dayData.available.find((slotVal: string) => {
+              const [start] = slotVal.split("...");
+              const parts = start.trim().split(" ");
+              const timePart = parts.find((p: string) => p.includes(":")) || parts[1] || "";
+              const slotMinutes = parseTimeToMinutes(timePart);
+              return slotMinutes !== null && targetMinutes !== null && slotMinutes === targetMinutes;
             });
-            pendingSlotSelectionRef.current = null;
+
+            if (matchedSlot) {
+              const [start] = matchedSlot.split("...");
+              const parts = start.trim().split(" ");
+              const timePart = parts.find((p: string) => p.includes(":")) || parts[1] || "";
+              const [h, m] = timePart.split(":");
+              const slotLabel = `${(h || "").padStart(2, "0")}:${(m || "").padStart(2, "0")}`;
+
+              setSelectedSlot({
+                date: dayKey,
+                label: slotLabel,
+                value: matchedSlot,
+              });
+              pendingSlotSelectionRef.current = null;
+            }
           }
         }
       }
@@ -506,7 +537,7 @@ const PartnersGeneralInfo = () => {
                   {currentService.description || `Servicio de ${currentService.name}`}
                 </Text>
                 <Text text90 style={{ color: Colors.gray }}>
-                  Seleccionar horario
+                  {selectedSlot ? selectedSlot.label : "Seleccionar horario"}
                 </Text>
               </View>
 
